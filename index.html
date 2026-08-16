@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainroter X</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        .game {
+            padding: 25px 15px;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .coins {
+            font-size: 20px;
+            margin: 20px;
+        }
+
+        button {
+            width: 90%;
+            max-width: 350px;
+            padding: 18px;
+            margin: 8px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="game">
+    <h1>🧠 Brainroter X</h1>
+
+    <div class="coins">
+        💰 Монеты: <span id="coins">1000</span>
+    </div>
+
+    <button onclick="cases()">🎰 Кейсы</button>
+    <button onclick="collection()">🧠 Мои Brainrot</button>
+    <button onclick="battle()">⚔️ Битва</button>
+    <button onclick="profile()">👤 Профиль</button>
+</div>
+
+<script>
+    function cases() {
+        alert("🎰 Здесь будут кейсы!");
+    }
+
+    function collection() {
+        alert("🧠 Здесь будут твои Brainrot!");
+    }
+
+    function battle() {
+        alert("⚔️ Здесь будут битвы!");
+    }
+
+    function profile() {
+        alert("👤 Здесь будет профиль!");
+    }
+</script>
+
+</body>
+</html>
