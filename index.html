@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Brainroter X</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,7 +17,6 @@ body {
     font-family: Arial, sans-serif;
     background: #0f172a;
     color: white;
-    overflow-x: hidden;
 }
 
 .game {
@@ -49,12 +47,88 @@ h1 {
 .panel {
     background: #1e293b;
     border-radius: 20px;
-    padding: 18px 12px;
+    padding: 16px;
 }
 
+button {
+    border: none;
+    border-radius: 13px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .5;
+}
+
+.result {
+    white-space: pre-line;
+    margin-top: 15px;
+    min-height: 40px;
+}
+
+
 /* =========================
-   CASE
+   CASE LIST
 ========================= */
+
+.case-list {
+    display: grid;
+    gap: 14px;
+}
+
+.case-card {
+    background: #1e293b;
+    border-radius: 18px;
+    padding: 17px;
+}
+
+.case-name {
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.case-price {
+    margin: 8px 0 13px;
+    opacity: .85;
+}
+
+.case-items-preview {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0 15px;
+    overflow: hidden;
+}
+
+.preview-img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 3px;
+}
+
+.case-open-btn {
+    width: 100%;
+    background: #f59e0b;
+    color: white;
+}
+
+
+/* =========================
+   CASE ROULETTE
+========================= */
+
+.back-btn {
+    width: 100%;
+    background: #334155;
+    color: white;
+    margin-bottom: 12px;
+}
 
 .roulette-container {
     position: relative;
@@ -84,7 +158,7 @@ h1 {
     left: 50%;
     width: 3px;
     transform: translateX(-50%);
-    background: rgba(250, 204, 21, 0.6);
+    background: rgba(250,204,21,.6);
 }
 
 .roulette-track {
@@ -99,17 +173,17 @@ h1 {
 .roulette-item {
     flex: 0 0 116px;
     height: 128px;
+
     background: #1e293b;
     border-radius: 13px;
     border: 2px solid #475569;
+
     padding: 7px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    overflow: hidden;
 }
 
 .roulette-item img {
@@ -120,44 +194,19 @@ h1 {
 
 .roulette-name {
     width: 100%;
-    margin-top: 5px;
     font-size: 11px;
     font-weight: bold;
-    white-space: nowrap;
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.open {
-    width: 92%;
+.spin-btn {
+    width: 100%;
     background: #f59e0b;
     color: white;
 }
 
-/* =========================
-   COMMON BUTTONS
-========================= */
-
-button {
-    border: none;
-    border-radius: 13px;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.result {
-    white-space: pre-line;
-    margin-top: 15px;
-    min-height: 45px;
-    font-size: 18px;
-}
 
 /* =========================
    INVENTORY
@@ -179,6 +228,7 @@ button:disabled {
     width: 82px;
     height: 82px;
     object-fit: contain;
+
     background: #0f172a;
     border-radius: 12px;
     padding: 4px;
@@ -190,10 +240,11 @@ button:disabled {
 
 .sell {
     width: 100%;
-    margin-top: 8px;
     background: #16a34a;
     color: white;
+    margin-top: 8px;
 }
+
 
 /* =========================
    UPGRADER
@@ -204,7 +255,6 @@ button:disabled {
     border-radius: 16px;
     padding: 14px;
     margin: 10px 0;
-    min-height: 130px;
 }
 
 .upgrade-card img {
@@ -213,28 +263,20 @@ button:disabled {
     object-fit: contain;
 }
 
-.upgrade-card-name {
-    font-size: 19px;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
 select {
     width: 100%;
     padding: 13px;
-    border: none;
     border-radius: 12px;
+    border: none;
     margin: 8px 0;
     font-size: 16px;
 }
 
-.chance-text {
-    font-size: 27px;
+.chance-title {
+    font-size: 23px;
     font-weight: bold;
-    margin-top: 16px;
+    margin-top: 15px;
 }
-
-/* КРУГ СТОИТ НА МЕСТЕ */
 
 .upgrade-wheel-wrap {
     position: relative;
@@ -246,45 +288,49 @@ select {
 .upgrade-wheel {
     position: absolute;
     inset: 0;
+
     border-radius: 50%;
 
     background:
         conic-gradient(
-            from 0deg,
             #22c55e 0deg var(--green-angle),
             #ef4444 var(--green-angle) 360deg
         );
 
     border: 5px solid #475569;
-    box-shadow: 0 0 20px rgba(0,0,0,0.35);
 }
 
 .upgrade-wheel::after {
     content: "";
+
     position: absolute;
+
     width: 145px;
     height: 145px;
+
     left: 50%;
     top: 50%;
+
     transform: translate(-50%, -50%);
+
     background: #0f172a;
+
     border-radius: 50%;
 }
-
-/* ВРАЩАЕТСЯ ТОЛЬКО ЭТОТ ROTOR */
 
 .needle-rotor {
     position: absolute;
     inset: 0;
     z-index: 10;
     pointer-events: none;
-    transform: rotate(0deg);
 }
 
 .upgrade-needle {
     position: absolute;
-    top: 7px;
+
+    top: 6px;
     left: 50%;
+
     transform: translateX(-50%);
 
     width: 0;
@@ -292,17 +338,25 @@ select {
 
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 32px solid #facc15;
 
-    filter: drop-shadow(0 0 5px rgba(250,204,21,0.9));
+    border-bottom: 34px solid #facc15;
+
+    filter:
+        drop-shadow(
+            0 0 5px rgba(250,204,21,.9)
+        );
 }
 
 .wheel-center-text {
     position: absolute;
+
     z-index: 5;
+
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+
+    transform:
+        translate(-50%, -50%);
 
     font-size: 29px;
     font-weight: bold;
@@ -314,12 +368,14 @@ select {
     color: white;
 }
 
+
 /* =========================
-   BOTTOM MENU
+   MENU
 ========================= */
 
 .bottom-menu {
     position: fixed;
+
     bottom: 0;
     left: 0;
     right: 0;
@@ -327,17 +383,24 @@ select {
     display: flex;
 
     background: #1e293b;
-    border-top: 1px solid #334155;
+
+    border-top:
+        1px solid #334155;
 
     z-index: 100;
 }
 
 .nav-button {
     width: 33.333%;
+
     border-radius: 0;
+
     background: transparent;
+
     color: #94a3b8;
+
     padding: 11px 3px;
+
     font-size: 13px;
 }
 
@@ -348,6 +411,7 @@ select {
 </style>
 </head>
 
+
 <body>
 
 <div class="game">
@@ -355,46 +419,74 @@ select {
 <h1>🧠 Brainroter X</h1>
 
 <div class="balance">
-💰 Баланс: <span id="coins">0</span>
+💰 Баланс:
+<span id="coins">0</span>
 </div>
+
 
 <!-- ======================
      CASES
 ====================== -->
 
-<div id="casesPage" class="page active">
+<div
+    id="casesPage"
+    class="page active"
+>
+
+<div id="caseList">
+Загрузка кейсов...
+</div>
+
+
+<div
+    id="activeCase"
+    style="display:none"
+>
+
+<button
+    class="back-btn"
+    onclick="closeCase()"
+>
+← Назад к кейсам
+</button>
+
 
 <div class="panel">
 
-<h2>🎁 Starter Case</h2>
+<h2 id="activeCaseName">
+Кейс
+</h2>
 
-<p>Цена: 19 монет</p>
+<p id="activeCasePrice"></p>
+
 
 <div
     id="rouletteContainer"
     class="roulette-container"
 >
 
-    <div class="roulette-pointer">
-        ▼
-    </div>
+<div class="roulette-pointer">
+▼
+</div>
 
-    <div class="roulette-line"></div>
+<div class="roulette-line"></div>
 
-    <div
-        id="rouletteTrack"
-        class="roulette-track"
-    ></div>
+<div
+    id="rouletteTrack"
+    class="roulette-track"
+></div>
 
 </div>
 
+
 <button
-    id="openCaseButton"
-    class="open"
-    onclick="openCase()"
+    id="spinButton"
+    class="spin-btn"
+    onclick="openSelectedCase()"
 >
-🎰 КРУТИТЬ КЕЙС
+🎰 КРУТИТЬ
 </button>
+
 
 <div
     id="caseResult"
@@ -405,15 +497,22 @@ select {
 
 </div>
 
+</div>
+
+
 <!-- ======================
      UPGRADER
 ====================== -->
 
-<div id="upgraderPage" class="page">
+<div
+    id="upgraderPage"
+    class="page"
+>
 
 <div class="panel">
 
 <h2>⚡ Апгрейдер</h2>
+
 
 <p>Твой Brainrot:</p>
 
@@ -421,17 +520,23 @@ select {
     id="sourceSelect"
     onchange="sourceChanged()"
 >
+
 <option value="">
 Выбери Brainrot
 </option>
+
 </select>
+
 
 <div
     id="sourceCard"
     class="upgrade-card"
 >
+
 Brainrot не выбран
+
 </div>
+
 
 <p>Апгрейдить на:</p>
 
@@ -439,55 +544,74 @@ Brainrot не выбран
     id="targetSelect"
     onchange="updateUpgradeUI()"
 >
+
 <option value="">
 Выбери цель
 </option>
+
 </select>
+
 
 <div
     id="targetCard"
     class="upgrade-card"
 >
+
 Цель не выбрана
+
 </div>
 
-<div class="chance-text">
+
+<div class="chance-title">
+
 Шанс:
-<span id="chanceText">0%</span>
+<span id="chanceText">
+0%
+</span>
+
 </div>
+
 
 <div class="upgrade-wheel-wrap">
 
-    <!-- СТАТИЧНЫЙ КРУГ -->
-    <div
-        id="upgradeWheel"
-        class="upgrade-wheel"
-    ></div>
+<div
+    id="upgradeWheel"
+    class="upgrade-wheel"
+></div>
 
-    <!-- ВРАЩАЕТСЯ ТОЛЬКО СТРЕЛКА -->
-    <div
-        id="needleRotor"
-        class="needle-rotor"
-    >
-        <div class="upgrade-needle"></div>
-    </div>
 
-    <div
-        id="wheelChanceText"
-        class="wheel-center-text"
-    >
-        0%
-    </div>
+<div
+    id="needleRotor"
+    class="needle-rotor"
+>
+
+<div class="upgrade-needle"></div>
 
 </div>
+
+
+<div
+    id="wheelChanceText"
+    class="wheel-center-text"
+>
+
+0%
+
+</div>
+
+</div>
+
 
 <button
     id="upgradeButton"
     class="upgrade-btn"
     onclick="upgradeItem()"
 >
+
 ⚡ АПГРЕЙД
+
 </button>
+
 
 <div
     id="upgradeResult"
@@ -498,11 +622,15 @@ Brainrot не выбран
 
 </div>
 
+
 <!-- ======================
      INVENTORY
 ====================== -->
 
-<div id="inventoryPage" class="page">
+<div
+    id="inventoryPage"
+    class="page"
+>
 
 <h2>🎒 Инвентарь</h2>
 
@@ -511,6 +639,7 @@ Brainrot не выбран
 </div>
 
 </div>
+
 
 <!-- ======================
      MENU
@@ -523,41 +652,52 @@ Brainrot не выбран
     class="nav-button active"
     onclick="showPage('cases')"
 >
-🎁<br>Кейсы
+🎁
+<br>
+Кейсы
 </button>
+
 
 <button
     id="upgraderButton"
     class="nav-button"
     onclick="showPage('upgrader')"
 >
-⚡<br>Апгрейдер
+⚡
+<br>
+Апгрейдер
 </button>
+
 
 <button
     id="inventoryButton"
     class="nav-button"
     onclick="showPage('inventory')"
 >
-🎒<br>Инвентарь
+🎒
+<br>
+Инвентарь
 </button>
 
 </div>
 
+
 <script>
 
-/* ======================
+/* =========================
    TELEGRAM
-====================== */
+========================= */
 
-const tg = window.Telegram.WebApp;
+const tg =
+    window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
-/* ======================
-   DATA
-====================== */
+
+/* =========================
+   GAME DATA
+========================= */
 
 let coins = 0;
 
@@ -565,45 +705,90 @@ let inventory = [];
 
 let brainrots = [];
 
+let cases = [];
+
+let caseItems = [];
+
+let selectedCase = null;
+
 let caseSpinning = false;
 
 let upgrading = false;
 
-/*
-Храним текущий реальный угол стрелки,
-чтобы каждое следующее вращение продолжалось
-вперёд, а не прыгало назад.
-*/
-
 let needleRotation = 0;
 
-/* ======================
+
+/* =========================
    SERVER
-====================== */
+========================= */
 
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
-/* ======================
+
+/* =========================
    IMAGES
-====================== */
+========================= */
+
+/*
+ВАЖНО:
+
+Когда загрузишь новые картинки
+на GitHub, названия файлов должны
+совпадать с этими.
+
+Если расширение другое —
+например .webp вместо .png —
+потом просто поменяем здесь.
+*/
 
 const BRAINROT_IMAGES = {
-    1: "./nuclearo.png",
-    2: "./lagrande.webp",
-    3: "./tangtang.png",
-    4: "./Lavadorito.jpg"
+
+    "Nuclearo Dinossauro":
+        "./nuclearo.png",
+
+    "La Grande":
+        "./lagrande.webp",
+
+    "Tang Tang Keletang":
+        "./tangtang.png",
+
+    "Lavadorito Spinito":
+        "./Lavadorito.jpg",
+
+
+    "Garama and Madundung":
+        "./garama.png",
+
+    "Ketchuru and Musturu":
+        "./ketchuru.png",
+
+    "Los Tangcitos":
+        "./lostangcitos.png",
+
+    "Los Tictacs":
+        "./lostictacs.png",
+
+    "Cerberus":
+        "./cerberus.png",
+
+    "Cash or Card":
+        "./cashorcard.png"
 };
 
-function getImage(brainrotId) {
-    return BRAINROT_IMAGES[
-        Number(brainrotId)
-    ] || "";
+
+function getImageByName(name) {
+
+    return (
+        BRAINROT_IMAGES[name] ||
+        ""
+    );
 }
 
-/* ======================
+
+/* =========================
    API
-====================== */
+========================= */
 
 async function apiRequest(data) {
 
@@ -611,82 +796,31 @@ async function apiRequest(data) {
         await fetch(
             FUNCTION_URL,
             {
-                method: "POST",
+                method:
+                    "POST",
 
                 headers: {
                     "Content-Type":
                         "application/json"
                 },
 
-                body: JSON.stringify({
-                    ...data,
-                    initData: tg.initData
-                })
+                body:
+                    JSON.stringify({
+                        ...data,
+
+                        initData:
+                            tg.initData
+                    })
             }
         );
 
     return await response.json();
 }
 
-/* ======================
-   PAGES
-====================== */
 
-function showPage(page) {
-
-    const pages = [
-        "casesPage",
-        "upgraderPage",
-        "inventoryPage"
-    ];
-
-    const buttons = [
-        "casesButton",
-        "upgraderButton",
-        "inventoryButton"
-    ];
-
-    pages.forEach(id => {
-        document
-            .getElementById(id)
-            .classList
-            .remove("active");
-    });
-
-    buttons.forEach(id => {
-        document
-            .getElementById(id)
-            .classList
-            .remove("active");
-    });
-
-    document
-        .getElementById(
-            page + "Page"
-        )
-        .classList
-        .add("active");
-
-    document
-        .getElementById(
-            page + "Button"
-        )
-        .classList
-        .add("active");
-
-    if (page === "inventory") {
-        renderInventory();
-    }
-
-    if (page === "upgrader") {
-        renderSourceSelect();
-        updateUpgradeUI();
-    }
-}
-
-/* ======================
-   LOAD
-====================== */
+/* =========================
+   LOAD PLAYER
+========================= */
 
 async function loadPlayer() {
 
@@ -694,14 +828,16 @@ async function loadPlayer() {
 
         const data =
             await apiRequest({
-                action: "get_player"
+                action:
+                    "get_player"
             });
+
 
         if (!data.ok) {
 
             document
                 .getElementById(
-                    "caseResult"
+                    "caseList"
                 )
                 .innerText =
                     "❌ " +
@@ -710,24 +846,40 @@ async function loadPlayer() {
             return;
         }
 
+
         coins =
             Number(
                 data.coins
             );
 
+
         inventory =
-            data.inventory || [];
+            data.inventory ||
+            [];
+
 
         brainrots =
-            data.brainrots || [];
+            data.brainrots ||
+            [];
+
+
+        cases =
+            data.cases ||
+            [];
+
+
+        caseItems =
+            data.case_items ||
+            [];
+
 
         updateBalance();
+
+        renderCases();
 
         renderInventory();
 
         renderSourceSelect();
-
-        createIdleRoulette();
 
     }
 
@@ -737,12 +889,17 @@ async function loadPlayer() {
 
         document
             .getElementById(
-                "caseResult"
+                "caseList"
             )
             .innerText =
                 "❌ Ошибка подключения";
     }
 }
+
+
+/* =========================
+   BALANCE
+========================= */
 
 function updateBalance() {
 
@@ -754,49 +911,346 @@ function updateBalance() {
             coins;
 }
 
-/* ======================================================
-   CASE ROULETTE
-====================================================== */
 
-function getRouletteItems() {
+/* =========================
+   PAGES
+========================= */
 
-    if (brainrots.length) {
+function showPage(page) {
 
-        return brainrots.map(item => ({
-            brainrot_id:
-                item.brainrot_id,
+    [
+        "casesPage",
+        "upgraderPage",
+        "inventoryPage"
+    ]
+    .forEach(id => {
 
-            name:
-                item.name,
+        document
+            .getElementById(id)
+            .classList
+            .remove("active");
 
-            rarity:
-                item.rarity
-        }));
+    });
+
+
+    [
+        "casesButton",
+        "upgraderButton",
+        "inventoryButton"
+    ]
+    .forEach(id => {
+
+        document
+            .getElementById(id)
+            .classList
+            .remove("active");
+
+    });
+
+
+    document
+        .getElementById(
+            page + "Page"
+        )
+        .classList
+        .add("active");
+
+
+    document
+        .getElementById(
+            page + "Button"
+        )
+        .classList
+        .add("active");
+
+
+    if (
+        page ===
+        "inventory"
+    ) {
+
+        renderInventory();
+
     }
 
-    return [
-        {
-            brainrot_id: 1,
-            name: "Nuclearo Dinossauro",
-            rarity: "Common"
-        },
-        {
-            brainrot_id: 2,
-            name: "La Grande",
-            rarity: "Rare"
-        },
-        {
-            brainrot_id: 3,
-            name: "Tang Tang Keletang",
-            rarity: "Epic"
-        },
-        {
-            brainrot_id: 4,
-            name: "Lavadorito Spinito",
-            rarity: "Secret"
-        }
-    ];
+
+    if (
+        page ===
+        "upgrader"
+    ) {
+
+        renderSourceSelect();
+
+        updateUpgradeUI();
+
+    }
+
 }
+
+
+/* =====================================================
+   CASE LIST
+===================================================== */
+
+function renderCases() {
+
+    const box =
+        document.getElementById(
+            "caseList"
+        );
+
+
+    if (!cases.length) {
+
+        box.innerHTML =
+            "Кейсов пока нет";
+
+        return;
+
+    }
+
+
+    box.innerHTML =
+        "";
+
+
+    const list =
+        document.createElement(
+            "div"
+        );
+
+
+    list.className =
+        "case-list";
+
+
+    cases.forEach(
+        gameCase => {
+
+
+            const items =
+                caseItems.filter(
+                    item =>
+                        Number(
+                            item.case_id
+                        ) ===
+                        Number(
+                            gameCase.id
+                        )
+                );
+
+
+            const preview =
+                items
+                .slice(0, 5)
+                .map(
+                    item => `
+
+                        <img
+                            class="preview-img"
+                            src="${getImageByName(item.brainrot_name)}"
+                        >
+
+                    `
+                )
+                .join("");
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "case-card";
+
+
+            card.innerHTML = `
+
+                <div class="case-name">
+
+                    🎁 ${gameCase.name}
+
+                </div>
+
+
+                <div class="case-price">
+
+                    💰 Цена:
+                    ${gameCase.price}
+
+                </div>
+
+
+                <div class="case-items-preview">
+
+                    ${preview}
+
+                </div>
+
+
+                <button
+                    class="case-open-btn"
+                    onclick="selectCase(${gameCase.id})"
+                >
+
+                    ОТКРЫТЬ КЕЙС
+
+                </button>
+
+            `;
+
+
+            list.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    box.appendChild(
+        list
+    );
+
+}
+
+
+/* =========================
+   SELECT CASE
+========================= */
+
+function selectCase(caseId) {
+
+    selectedCase =
+        cases.find(
+            gameCase =>
+                Number(
+                    gameCase.id
+                ) ===
+                Number(
+                    caseId
+                )
+        );
+
+
+    if (!selectedCase) {
+
+        return;
+
+    }
+
+
+    document
+        .getElementById(
+            "caseList"
+        )
+        .style
+        .display =
+            "none";
+
+
+    document
+        .getElementById(
+            "activeCase"
+        )
+        .style
+        .display =
+            "block";
+
+
+    document
+        .getElementById(
+            "activeCaseName"
+        )
+        .innerText =
+            "🎁 " +
+            selectedCase.name;
+
+
+    document
+        .getElementById(
+            "activeCasePrice"
+        )
+        .innerText =
+            "Цена: " +
+            selectedCase.price +
+            " монет";
+
+
+    document
+        .getElementById(
+            "caseResult"
+        )
+        .innerText =
+            "";
+
+
+    createIdleRoulette();
+
+}
+
+
+/* =========================
+   CLOSE CASE
+========================= */
+
+function closeCase() {
+
+    selectedCase =
+        null;
+
+
+    document
+        .getElementById(
+            "caseList"
+        )
+        .style
+        .display =
+            "block";
+
+
+    document
+        .getElementById(
+            "activeCase"
+        )
+        .style
+        .display =
+            "none";
+
+}
+
+
+/* =========================
+   GET CASE ITEMS
+========================= */
+
+function getSelectedCaseItems() {
+
+    if (!selectedCase) {
+
+        return [];
+
+    }
+
+
+    return caseItems.filter(
+        item =>
+            Number(
+                item.case_id
+            ) ===
+            Number(
+                selectedCase.id
+            )
+    );
+
+}
+
+
+/* =========================
+   ROULETTE CARD
+========================= */
 
 function rouletteCard(item) {
 
@@ -805,21 +1259,35 @@ function rouletteCard(item) {
             "div"
         );
 
+
     div.className =
         "roulette-item";
 
+
     div.innerHTML = `
+
         <img
-            src="${getImage(item.brainrot_id)}"
+            src="${getImageByName(item.brainrot_name)}"
         >
 
+
         <div class="roulette-name">
-            ${item.name}
+
+            ${item.brainrot_name}
+
         </div>
+
     `;
 
+
     return div;
+
 }
+
+
+/* =========================
+   IDLE ROULETTE
+========================= */
 
 function createIdleRoulette() {
 
@@ -828,16 +1296,36 @@ function createIdleRoulette() {
             "rouletteTrack"
         );
 
-    const items =
-        getRouletteItems();
 
-    track.innerHTML = "";
+    const items =
+        getSelectedCaseItems();
+
+
+    track.innerHTML =
+        "";
+
 
     track.style.transition =
         "none";
 
+
     track.style.transform =
         "translateX(0px)";
+
+
+    if (!items.length) {
+
+        document
+            .getElementById(
+                "caseResult"
+            )
+            .innerText =
+                "❌ В кейсе нет предметов";
+
+        return;
+
+    }
+
 
     for (
         let i = 0;
@@ -846,58 +1334,77 @@ function createIdleRoulette() {
     ) {
 
         track.appendChild(
+
             rouletteCard(
+
                 items[
                     i %
                     items.length
                 ]
+
             )
+
         );
+
     }
+
 }
 
-/*
-ВАЖНО:
 
-Мы больше НЕ считаем позицию
-через примерную ширину карточки.
+/* =====================================================
+   CASE ANIMATION
+===================================================== */
 
-Берём настоящий offsetLeft
-конкретной победившей карточки.
-
-Поэтому стрелка всегда будет
-точно над тем Brainrot,
-который реально выбрал сервер.
-*/
-
-async function animateCase(winner) {
+async function animateCase(
+    winner
+) {
 
     const track =
         document.getElementById(
             "rouletteTrack"
         );
 
+
     const container =
         document.getElementById(
             "rouletteContainer"
         );
 
-    const items =
-        getRouletteItems();
 
-    track.innerHTML = "";
+    const items =
+        getSelectedCaseItems();
+
+
+    if (!items.length) {
+
+        return;
+
+    }
+
+
+    track.innerHTML =
+        "";
+
 
     track.style.transition =
         "none";
 
+
     track.style.transform =
         "translateX(0px)";
 
-    const totalCards = 45;
 
-    const winnerIndex = 39;
+    const totalCards =
+        45;
 
-    let winnerCard = null;
+
+    const winnerIndex =
+        39;
+
+
+    let winnerCard =
+        null;
+
 
     for (
         let i = 0;
@@ -905,26 +1412,42 @@ async function animateCase(winner) {
         i++
     ) {
 
+
         let item;
 
+
         if (
-            i === winnerIndex
+            i ===
+            winnerIndex
         ) {
 
+
+            /*
+            Сервер уже решил,
+            что именно выпало.
+            */
+
             item = {
+
                 brainrot_id:
                     winner.brainrot_id,
 
-                name:
+                brainrot_name:
                     winner.brainrot_name,
 
                 rarity:
-                    winner.rarity
+                    winner.rarity,
+
+                value:
+                    winner.value
+
             };
+
 
         }
 
         else {
+
 
             item =
                 items[
@@ -933,76 +1456,99 @@ async function animateCase(winner) {
                         items.length
                     )
                 ];
+
         }
 
+
         const card =
-            rouletteCard(item);
+            rouletteCard(
+                item
+            );
+
 
         if (
-            i === winnerIndex
+            i ===
+            winnerIndex
         ) {
 
             winnerCard =
                 card;
 
-            card.style.borderColor =
-                "#facc15";
-
-            card.style.boxShadow =
-                "0 0 14px rgba(250,204,21,0.7)";
         }
+
 
         track.appendChild(
             card
         );
+
     }
 
+
     /*
-    Ждём реальный layout браузера.
+    Ждём, пока браузер
+    рассчитает реальные позиции.
     */
 
     await new Promise(
         resolve => {
-            requestAnimationFrame(() => {
-                requestAnimationFrame(
-                    resolve
-                );
-            });
+
+            requestAnimationFrame(
+                () => {
+
+                    requestAnimationFrame(
+                        resolve
+                    );
+
+                }
+            );
+
         }
     );
 
+
     if (!winnerCard) {
+
         return;
+
     }
 
+
     /*
-    Настоящий центр победившей карточки.
+    Настоящий центр
+    выигрышной карточки.
     */
 
     const winnerCenter =
         winnerCard.offsetLeft +
-        winnerCard.offsetWidth / 2;
+        winnerCard.offsetWidth /
+        2;
+
 
     /*
-    Точный центр окна.
+    Центр окна рулетки.
     */
 
     const containerCenter =
-        container.clientWidth / 2;
+        container.clientWidth /
+        2;
+
 
     /*
-    Сдвигаем так, чтобы центры совпали.
+    Точный сдвиг.
     */
 
     const translateX =
         containerCenter -
         winnerCenter;
 
+
     track.style.transition =
-        "transform 4.2s cubic-bezier(0.08, 0.68, 0.12, 1)";
+        "transform 4.2s cubic-bezier(0.08,0.68,0.12,1)";
+
 
     track.style.transform =
         `translateX(${translateX}px)`;
+
 
     await new Promise(
         resolve =>
@@ -1011,119 +1557,190 @@ async function animateCase(winner) {
                 4400
             )
     );
+
 }
 
-async function openCase() {
 
-    if (caseSpinning) {
+/* =========================
+   OPEN CASE
+========================= */
+
+async function openSelectedCase() {
+
+    if (
+        !selectedCase ||
+        caseSpinning
+    ) {
+
         return;
+
     }
+
+
+    const items =
+        getSelectedCaseItems();
+
+
+    if (!items.length) {
+
+        document
+            .getElementById(
+                "caseResult"
+            )
+            .innerText =
+                "❌ В этом кейсе нет предметов";
+
+        return;
+
+    }
+
 
     caseSpinning =
         true;
 
+
     const button =
         document.getElementById(
-            "openCaseButton"
+            "spinButton"
         );
+
 
     const result =
         document.getElementById(
             "caseResult"
         );
 
+
     button.disabled =
         true;
+
 
     result.innerText =
         "🎰 Крутим...";
 
+
     try {
+
 
         const data =
             await apiRequest({
+
                 action:
                     "open_case",
 
                 case_id:
-                    1
+                    selectedCase.id
+
             });
 
+
         if (!data.ok) {
+
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
 
             if (
                 data.coins !==
                 undefined
             ) {
 
+
                 coins =
                     Number(
                         data.coins
                     );
 
+
                 updateBalance();
+
             }
 
-            result.innerText =
-                "❌ " +
-                data.error;
 
             button.disabled =
                 false;
 
+
             caseSpinning =
                 false;
 
+
             return;
+
         }
 
+
         /*
-        Сервер уже выбрал настоящий предмет.
-        Теперь рулетка просто показывает его.
+        Анимация получает именно
+        предмет, выбранный сервером.
         */
 
         await animateCase(
             data.item
         );
 
+
         coins =
             Number(
                 data.coins
             );
 
+
         inventory.unshift(
             data.item
         );
 
+
         updateBalance();
+
 
         renderInventory();
 
+
         renderSourceSelect();
 
+
         result.innerText =
-            "🎉 Выпал " +
-            data.item.brainrot_name;
+
+            "🎉 Выпал: " +
+
+            data.item.brainrot_name +
+
+            "\n💰 Цена: " +
+
+            data.item.value;
+
     }
 
     catch (error) {
 
-        console.log(error);
+
+        console.log(
+            error
+        );
+
 
         result.innerText =
             "❌ Ошибка подключения";
+
     }
+
 
     button.disabled =
         false;
 
+
     caseSpinning =
         false;
+
 }
 
-/* ======================================================
+
+/* =====================================================
    INVENTORY
-====================================================== */
+===================================================== */
 
 function renderInventory() {
 
@@ -1132,121 +1749,177 @@ function renderInventory() {
             "inventory"
         );
 
+
     if (
         !inventory.length
     ) {
 
+
         box.innerHTML =
             "У тебя пока нет Brainrot";
 
+
         return;
+
     }
 
-    box.innerHTML = "";
 
-    inventory.forEach(item => {
+    box.innerHTML =
+        "";
 
-        const div =
-            document.createElement(
-                "div"
+
+    inventory.forEach(
+        item => {
+
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "item";
+
+
+            div.innerHTML = `
+
+                <img
+                    src="${getImageByName(item.brainrot_name)}"
+                >
+
+
+                <div class="item-content">
+
+
+                    <b>
+                        ${item.brainrot_name}
+                    </b>
+
+
+                    <br>
+
+
+                    💰 ${item.value}
+
+
+                    <br>
+
+
+                    ⭐ ${item.rarity}
+
+
+                    <button
+                        class="sell"
+                        onclick="sellItem(${item.id})"
+                    >
+
+                        ПРОДАТЬ ЗА
+                        ${item.value}
+
+                    </button>
+
+
+                </div>
+
+            `;
+
+
+            box.appendChild(
+                div
             );
 
-        div.className =
-            "item";
+        }
+    );
 
-        div.innerHTML = `
-
-            <img
-                src="${getImage(item.brainrot_id)}"
-            >
-
-            <div class="item-content">
-
-                <b>
-                    ${item.brainrot_name}
-                </b>
-
-                <br>
-
-                💰 ${item.value}
-
-                <br>
-
-                ⭐ ${item.rarity}
-
-                <button
-                    class="sell"
-                    onclick="sellItem(${item.id})"
-                >
-                    ПРОДАТЬ ЗА
-                    ${item.value}
-                </button>
-
-            </div>
-        `;
-
-        box.appendChild(
-            div
-        );
-    });
 }
+
+
+/* =========================
+   SELL
+========================= */
 
 async function sellItem(id) {
 
     try {
 
+
         const data =
             await apiRequest({
+
                 action:
                     "sell_item",
 
                 inventory_id:
                     id
+
             });
 
+
         if (!data.ok) {
+
 
             alert(
                 data.error
             );
 
+
             return;
+
         }
+
 
         coins =
             Number(
                 data.coins
             );
 
+
         inventory =
             inventory.filter(
-                x =>
-                    Number(x.id) !==
-                    Number(id)
+                item =>
+                    Number(
+                        item.id
+                    ) !==
+                    Number(
+                        id
+                    )
             );
+
 
         updateBalance();
 
+
         renderInventory();
+
 
         renderSourceSelect();
 
+
         updateUpgradeUI();
+
     }
 
     catch (error) {
 
-        console.log(error);
+
+        console.log(
+            error
+        );
+
 
         alert(
             "Ошибка подключения"
         );
+
     }
+
 }
 
-/* ======================================================
-   UPGRADER SELECTORS
-====================================================== */
+
+/* =====================================================
+   UPGRADER SOURCE
+===================================================== */
 
 function renderSourceSelect() {
 
@@ -1255,70 +1928,113 @@ function renderSourceSelect() {
             "sourceSelect"
         );
 
+
     const oldValue =
         select.value;
+
 
     select.innerHTML =
         '<option value="">Выбери Brainrot</option>';
 
-    inventory.forEach(item => {
 
-        const option =
-            document.createElement(
-                "option"
+    inventory.forEach(
+        item => {
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item.id;
+
+
+            option.textContent =
+
+                item.brainrot_name +
+
+                " — " +
+
+                item.value;
+
+
+            select.appendChild(
+                option
             );
 
-        option.value =
-            item.id;
+        }
+    );
 
-        option.textContent =
-            `${item.brainrot_name} — ${item.value}`;
-
-        select.appendChild(
-            option
-        );
-    });
 
     if (
         inventory.some(
             item =>
-                String(item.id) ===
-                String(oldValue)
+                String(
+                    item.id
+                ) ===
+                String(
+                    oldValue
+                )
         )
     ) {
+
+
         select.value =
             oldValue;
+
     }
+
 }
+
+
+/* =========================
+   SELECTED SOURCE
+========================= */
 
 function getSelectedSource() {
 
     const id =
         Number(
+
             document
                 .getElementById(
                     "sourceSelect"
                 )
                 .value
+
         );
+
 
     return inventory.find(
         item =>
-            Number(item.id) ===
+            Number(
+                item.id
+            ) ===
             id
     );
+
 }
+
+
+/* =========================
+   SELECTED TARGET
+========================= */
 
 function getSelectedTarget() {
 
     const id =
         Number(
+
             document
                 .getElementById(
                     "targetSelect"
                 )
                 .value
+
         );
+
 
     return brainrots.find(
         item =>
@@ -1327,29 +2043,40 @@ function getSelectedTarget() {
             ) ===
             id
     );
+
 }
 
-/*
-После выбора исходного Brainrot
-показываем ТОЛЬКО более дорогие цели.
-*/
+
+/* =========================
+   SOURCE CHANGED
+========================= */
 
 function sourceChanged() {
 
     const source =
         getSelectedSource();
 
+
     const targetSelect =
         document.getElementById(
             "targetSelect"
         );
 
+
     targetSelect.innerHTML =
         '<option value="">Выбери цель</option>';
 
+
     if (source) {
 
+
+        /*
+        Показываем только
+        более дорогих Brainrot.
+        */
+
         brainrots
+
             .filter(
                 item =>
                     Number(
@@ -1359,64 +2086,99 @@ function sourceChanged() {
                         source.value
                     )
             )
-            .forEach(item => {
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
+            .forEach(
+                item => {
 
-                option.value =
-                    item.brainrot_id;
 
-                option.textContent =
-                    `${item.name} — ${item.value}`;
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
 
-                targetSelect
-                    .appendChild(
-                        option
-                    );
-            });
+
+                    option.value =
+                        item.brainrot_id;
+
+
+                    option.textContent =
+
+                        item.name +
+
+                        " — " +
+
+                        item.value;
+
+
+                    targetSelect
+                        .appendChild(
+                            option
+                        );
+
+                }
+            );
+
     }
 
+
     updateUpgradeUI();
+
 }
 
-/* ======================================================
+
+/* =========================
    CHANCE
-====================================================== */
+========================= */
 
 function calculateChance(
     source,
     target
 ) {
 
+
     if (
         !source ||
         !target
     ) {
+
         return 0;
+
     }
 
+
     if (
-        Number(target.value) <=
-        Number(source.value)
+        Number(
+            target.value
+        ) <=
+        Number(
+            source.value
+        )
     ) {
+
         return 0;
+
     }
+
 
     let chance =
         Math.ceil(
-            (
-                Number(
-                    source.value
-                ) /
-                Number(
-                    target.value
-                )
-            ) *
+
+            Number(
+                source.value
+            )
+
+            /
+
+            Number(
+                target.value
+            )
+
+            *
+
             100
+
         );
+
 
     chance =
         Math.min(
@@ -1424,82 +2186,116 @@ function calculateChance(
             70
         );
 
+
     chance =
         Math.max(
             chance,
             1
         );
 
+
     return chance;
+
 }
+
+
+/* =========================
+   UPGRADE UI
+========================= */
 
 function updateUpgradeUI() {
 
     const source =
         getSelectedSource();
 
+
     const target =
         getSelectedTarget();
+
 
     const sourceCard =
         document.getElementById(
             "sourceCard"
         );
 
+
     const targetCard =
         document.getElementById(
             "targetCard"
         );
 
+
     if (source) {
+
 
         sourceCard.innerHTML = `
 
             <img
-                src="${getImage(source.brainrot_id)}"
+                src="${getImageByName(source.brainrot_name)}"
             >
 
-            <div class="upgrade-card-name">
-                ${source.brainrot_name}
-            </div>
 
-            <div>
-                💰 ${source.value}
-            </div>
+            <br>
+
+
+            <b>
+                ${source.brainrot_name}
+            </b>
+
+
+            <br>
+
+
+            💰 ${source.value}
+
         `;
 
     }
 
     else {
 
+
         sourceCard.innerHTML =
             "Brainrot не выбран";
+
     }
 
+
     if (target) {
+
 
         targetCard.innerHTML = `
 
             <img
-                src="${getImage(target.brainrot_id)}"
+                src="${getImageByName(target.name)}"
             >
 
-            <div class="upgrade-card-name">
-                ${target.name}
-            </div>
 
-            <div>
-                💰 ${target.value}
-            </div>
+            <br>
+
+
+            <b>
+                ${target.name}
+            </b>
+
+
+            <br>
+
+
+            💰 ${target.value}
+
         `;
 
     }
 
     else {
 
+
         targetCard.innerHTML =
             "Цель не выбрана";
+
     }
+
 
     const chance =
         calculateChance(
@@ -1507,27 +2303,29 @@ function updateUpgradeUI() {
             target
         );
 
+
     document
         .getElementById(
             "chanceText"
         )
         .innerText =
-            chance + "%";
+            chance +
+            "%";
+
 
     document
         .getElementById(
             "wheelChanceText"
         )
         .innerText =
-            chance + "%";
+            chance +
+            "%";
 
-    /*
-    Круг остаётся неподвижным.
-    Просто меняется размер зелёной зоны.
-    */
 
     const greenAngle =
-        chance * 3.6;
+        chance *
+        3.6;
+
 
     document
         .getElementById(
@@ -1535,14 +2333,20 @@ function updateUpgradeUI() {
         )
         .style
         .setProperty(
+
             "--green-angle",
-            greenAngle + "deg"
+
+            greenAngle +
+            "deg"
+
         );
+
 }
 
-/* ======================================================
-   UPGRADE NEEDLE ANIMATION
-====================================================== */
+
+/* =====================================================
+   UPGRADE NEEDLE
+===================================================== */
 
 function randomBetween(
     min,
@@ -1552,123 +2356,154 @@ function randomBetween(
     return (
         min +
         Math.random() *
-        (max - min)
+        (
+            max -
+            min
+        )
     );
+
 }
 
-/*
-КРУГ НЕ ВРАЩАЕТСЯ.
-
-Стрелка делает случайно
-2, 3 или 4 полных оборота.
-
-После этого:
-
-win=true  -> останавливается в зелёном
-win=false -> останавливается в красном
-*/
 
 async function spinUpgradeNeedle(
     win,
     chance
 ) {
 
+
     const rotor =
         document.getElementById(
             "needleRotor"
         );
 
+
     const greenAngle =
-        chance * 3.6;
+        chance *
+        3.6;
+
 
     let targetAngle;
 
+
     /*
-    Выигрыш.
-    Выбираем точку ВНУТРИ зелёной зоны.
+    Если сервер сказал WIN,
+    стрелка попадёт внутрь
+    зелёного сектора.
     */
 
     if (win) {
 
+
         if (
-            greenAngle <= 8
+            greenAngle <=
+            8
         ) {
 
+
             targetAngle =
-                greenAngle / 2;
+                greenAngle /
+                2;
 
         }
 
         else {
 
+
             targetAngle =
                 randomBetween(
+
                     4,
-                    greenAngle - 4
+
+                    greenAngle -
+                    4
+
                 );
+
         }
+
     }
 
+
     /*
-    Проигрыш.
-    Выбираем точку ВНУТРИ красной зоны.
+    Если сервер сказал LOSS,
+    стрелка попадёт внутрь
+    красного сектора.
     */
 
     else {
 
+
         targetAngle =
             randomBetween(
-                greenAngle + 5,
+
+                greenAngle +
+                5,
+
                 355
+
             );
+
     }
 
+
     /*
-    Минимум 2 оборота.
-    Максимум 4 оборота.
+    Случайно 2, 3 или 4
+    полных оборота.
     */
 
     const turns =
         2 +
         Math.floor(
-            Math.random() * 3
+            Math.random() *
+            3
         );
 
-    /*
-    Текущий угол стрелки.
-    */
 
     const currentAngle =
+
         (
             needleRotation %
             360 +
             360
-        ) %
+        )
+
+        %
+
         360;
 
-    /*
-    На сколько градусов нужно
-    дойти до целевой точки,
-    двигаясь только вперёд.
-    */
 
     const delta =
+
         (
             targetAngle -
             currentAngle +
             360
-        ) %
+        )
+
+        %
+
         360;
 
+
     needleRotation +=
-        turns * 360 +
+
+        turns *
+        360
+
+        +
+
         delta;
 
+
     rotor.style.transition =
-        "transform 3.8s cubic-bezier(0.12, 0.72, 0.15, 1)";
+
+        "transform 3.8s cubic-bezier(0.12,0.72,0.15,1)";
+
 
     rotor.style.transform =
+
         `rotate(${needleRotation}deg)`;
+
 
     await new Promise(
         resolve =>
@@ -1677,82 +2512,91 @@ async function spinUpgradeNeedle(
                 4000
             )
     );
+
 }
 
-/* ======================================================
+
+/* =====================================================
    UPGRADE
-====================================================== */
+===================================================== */
 
 async function upgradeItem() {
 
+
     if (upgrading) {
+
         return;
+
     }
+
 
     const source =
         getSelectedSource();
 
+
     const target =
         getSelectedTarget();
+
 
     const result =
         document.getElementById(
             "upgradeResult"
         );
 
+
     const button =
         document.getElementById(
             "upgradeButton"
         );
 
+
     if (!source) {
+
 
         result.innerText =
             "❌ Выбери свой Brainrot";
 
+
         return;
+
     }
+
 
     if (!target) {
 
-        result.innerText =
-            "❌ Выбери Brainrot для апгрейда";
-
-        return;
-    }
-
-    if (
-        Number(target.value) <=
-        Number(source.value)
-    ) {
 
         result.innerText =
-            "❌ Цель должна быть дороже";
+            "❌ Выбери цель";
+
 
         return;
+
     }
+
 
     upgrading =
         true;
 
+
     button.disabled =
         true;
+
 
     result.innerText =
         "⚡ Апгрейд...";
 
+
     try {
 
-        /*
-        СЕРВЕР ПЕРВЫМ решает,
-        победа это или проигрыш.
 
-        Только после этого запускаем
-        правильную анимацию стрелки.
+        /*
+        Сервер первым определяет
+        победу или проигрыш.
         */
 
         const data =
             await apiRequest({
+
                 action:
                     "upgrade_item",
 
@@ -1761,91 +2605,120 @@ async function upgradeItem() {
 
                 target_brainrot_id:
                     target.brainrot_id
+
             });
 
+
         if (!data.ok) {
+
 
             result.innerText =
                 "❌ " +
                 data.error;
 
-            button.disabled =
-                false;
 
             upgrading =
                 false;
 
+
+            button.disabled =
+                false;
+
+
             return;
+
         }
 
+
         /*
-        ВАЖНО:
-
-        Если сервер сказал WIN,
-        стрелка физически остановится
-        на зелёном.
-
-        Если LOSS,
-        физически остановится на красном.
+        Теперь анимация показывает
+        именно серверный результат.
         */
 
         await spinUpgradeNeedle(
+
             data.win,
+
             data.chance
+
         );
 
+
         /*
-        Исходный Brainrot сервер
-        уже удалил независимо от результата.
+        Старый предмет сервер
+        уже удалил.
         */
 
         inventory =
             inventory.filter(
                 item =>
-                    Number(item.id) !==
-                    Number(source.id)
+                    Number(
+                        item.id
+                    ) !==
+                    Number(
+                        source.id
+                    )
             );
 
-        if (data.win) {
+
+        if (
+            data.win
+        ) {
+
 
             /*
-            При победе сервер дал
-            новый настоящий Brainrot.
+            Добавляем настоящий
+            новый Brainrot.
             */
 
             inventory.unshift(
                 data.item
             );
 
+
             result.innerText =
+
                 "✅ УСПЕХ!\n" +
+
                 source.brainrot_name +
+
                 " → " +
+
                 data.item.brainrot_name +
+
                 "\nШанс: " +
+
                 data.chance +
+
                 "%";
+
         }
 
         else {
 
+
             result.innerText =
+
                 "❌ ПРОИГРЫШ\n" +
+
                 source.brainrot_name +
-                " сгорел\nШанс: " +
+
+                " сгорел\n" +
+
+                "Шанс: " +
+
                 data.chance +
+
                 "%";
+
         }
+
 
         renderInventory();
 
+
         renderSourceSelect();
 
-        /*
-        Сбрасываем выбор,
-        потому что исходного предмета
-        больше нет.
-        */
 
         document
             .getElementById(
@@ -1854,27 +2727,38 @@ async function upgradeItem() {
             .value =
                 "";
 
+
         sourceChanged();
+
     }
 
     catch (error) {
 
-        console.log(error);
+
+        console.log(
+            error
+        );
+
 
         result.innerText =
             "❌ Ошибка подключения";
+
     }
+
 
     button.disabled =
         false;
 
+
     upgrading =
         false;
+
 }
 
-/* ======================
+
+/* =========================
    START
-====================== */
+========================= */
 
 loadPlayer();
 
