@@ -1,105 +1,171 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Brainroter X</title>
+<title>Brainroter X</title>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #111827;
-            color: white;
-            text-align: center;
-        }
+<style>
+* {
+    box-sizing: border-box;
+}
 
-        .game {
-            max-width: 520px;
-            margin: auto;
-            padding: 20px 12px 40px;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111827;
+    color: white;
+}
 
-        h1 {
-            margin-bottom: 8px;
-        }
+.game {
+    max-width: 520px;
+    margin: auto;
+    padding: 20px 12px 100px;
+    text-align: center;
+}
 
-        .balance {
-            font-size: 22px;
-            font-weight: bold;
-            margin: 18px 0;
-        }
+h1 {
+    margin: 5px 0 10px;
+}
 
-        .case {
-            background: #1f2937;
-            border-radius: 20px;
-            padding: 25px 15px;
-            margin-bottom: 25px;
-        }
+.balance {
+    font-size: 21px;
+    font-weight: bold;
+    margin: 18px 0;
+}
 
-        .case-icon {
-            font-size: 75px;
-        }
+/* ВКЛАДКИ */
 
-        button {
-            border: none;
-            border-radius: 12px;
-            padding: 13px 18px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.page {
+    display: none;
+}
 
-        .open {
-            width: 90%;
-            max-width: 350px;
-            background: #f59e0b;
-            color: white;
-        }
+.page.active {
+    display: block;
+}
 
-        .result {
-            white-space: pre-line;
-            margin-top: 18px;
-            min-height: 45px;
-            font-size: 19px;
-        }
+/* КЕЙС */
 
-        .inventory {
-            margin-top: 25px;
-        }
+.case {
+    background: #1f2937;
+    border-radius: 20px;
+    padding: 25px 15px;
+}
 
-        .item {
-            background: #1f2937;
-            border-radius: 16px;
-            padding: 15px;
-            margin: 12px 0;
-            text-align: left;
-        }
+.case-icon {
+    font-size: 75px;
+}
 
-        .item-name {
-            font-size: 19px;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
+button {
+    border: none;
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        .item-info {
-            opacity: 0.85;
-            margin-bottom: 10px;
-        }
+.open {
+    width: 90%;
+    max-width: 350px;
+    background: #f59e0b;
+    color: white;
+}
 
-        .sell {
-            width: 100%;
-            background: #16a34a;
-            color: white;
-        }
+.result {
+    white-space: pre-line;
+    margin-top: 18px;
+    min-height: 45px;
+    font-size: 19px;
+}
 
-        .empty {
-            opacity: 0.7;
-        }
-    </style>
+/* ИНВЕНТАРЬ */
+
+.inventory-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.item {
+    background: #1f2937;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 12px 0;
+    text-align: left;
+}
+
+.item-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.item-info {
+    opacity: 0.85;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.sell {
+    width: 100%;
+    background: #16a34a;
+    color: white;
+}
+
+.empty {
+    background: #1f2937;
+    border-radius: 16px;
+    padding: 25px;
+    opacity: 0.8;
+}
+
+/* НИЖНЕЕ МЕНЮ */
+
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    background: #1f2937;
+    border-top: 1px solid #374151;
+
+    display: flex;
+    justify-content: center;
+
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-button {
+    width: 50%;
+    max-width: 260px;
+
+    background: transparent;
+    color: #9ca3af;
+
+    border-radius: 0;
+    margin: 0;
+    padding: 15px 5px;
+
+    font-size: 15px;
+}
+
+.nav-button.active {
+    color: white;
+    background: #374151;
+}
+
+.nav-icon {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 3px;
+}
+
+</style>
 </head>
 
 <body>
@@ -112,59 +178,163 @@
         💰 Баланс: <span id="coins">0</span>
     </div>
 
-    <div class="case">
-        <div class="case-icon">🎁</div>
 
-        <h2>Starter Case</h2>
+    <!-- ===================== -->
+    <!-- ВКЛАДКА КЕЙСЫ -->
+    <!-- ===================== -->
 
-        <p>Цена: 19 монет</p>
+    <div id="casesPage" class="page active">
 
-        <button class="open" onclick="openCase()">
-            🎰 КРУТИТЬ КЕЙС
-        </button>
+        <div class="case">
 
-        <div class="result" id="result"></div>
+            <div class="case-icon">🎁</div>
+
+            <h2>Starter Case</h2>
+
+            <p>Цена: 19 монет</p>
+
+            <button class="open" onclick="openCase()">
+                🎰 КРУТИТЬ КЕЙС
+            </button>
+
+            <div class="result" id="result"></div>
+
+        </div>
+
     </div>
 
-    <div class="inventory">
-        <h2>🎒 Инвентарь</h2>
+
+    <!-- ===================== -->
+    <!-- ВКЛАДКА ИНВЕНТАРЬ -->
+    <!-- ===================== -->
+
+    <div id="inventoryPage" class="page">
+
+        <div class="inventory-title">
+            🎒 Инвентарь
+        </div>
 
         <div id="inventory">
             Загрузка...
         </div>
+
     </div>
 
 </div>
 
+
+<!-- НИЖНЕЕ МЕНЮ -->
+
+<div class="bottom-menu">
+
+    <button
+        id="casesButton"
+        class="nav-button active"
+        onclick="showPage('cases')"
+    >
+        <span class="nav-icon">🎁</span>
+        Кейсы
+    </button>
+
+    <button
+        id="inventoryButton"
+        class="nav-button"
+        onclick="showPage('inventory')"
+    >
+        <span class="nav-icon">🎒</span>
+        Инвентарь
+    </button>
+
+</div>
+
+
 <script>
+
 const tg = window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
+
 let coins = 0;
 let inventory = [];
 
-const FUNCTION_URL =
-    "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
+const FUNCTION_URL =
+"https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
+
+
+/* =========================
+   ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+========================= */
+
+function showPage(page) {
+
+    document.getElementById("casesPage")
+        .classList.remove("active");
+
+    document.getElementById("inventoryPage")
+        .classList.remove("active");
+
+    document.getElementById("casesButton")
+        .classList.remove("active");
+
+    document.getElementById("inventoryButton")
+        .classList.remove("active");
+
+
+    if (page === "cases") {
+
+        document.getElementById("casesPage")
+            .classList.add("active");
+
+        document.getElementById("casesButton")
+            .classList.add("active");
+
+    }
+
+    if (page === "inventory") {
+
+        document.getElementById("inventoryPage")
+            .classList.add("active");
+
+        document.getElementById("inventoryButton")
+            .classList.add("active");
+
+        renderInventory();
+
+    }
+}
+
+
+/* =========================
+   ЗАПРОС К СЕРВЕРУ
+========================= */
 
 async function apiRequest(data) {
 
     const response = await fetch(FUNCTION_URL, {
+
         method: "POST",
+
         headers: {
             "Content-Type": "application/json"
         },
+
         body: JSON.stringify({
             ...data,
             initData: tg.initData
         })
+
     });
 
     return await response.json();
 }
 
+
+/* =========================
+   ЗАГРУЗКА ИГРОКА
+========================= */
 
 async function loadPlayer() {
 
@@ -174,18 +344,25 @@ async function loadPlayer() {
             action: "get_player"
         });
 
+
         if (!data.ok) {
+
             document.getElementById("result").innerText =
                 "❌ " + data.error;
 
             return;
         }
 
+
         coins = Number(data.coins);
+
         inventory = data.inventory || [];
 
+
         updateBalance();
+
         renderInventory();
+
 
     } catch (error) {
 
@@ -193,9 +370,14 @@ async function loadPlayer() {
 
         document.getElementById("result").innerText =
             "❌ Ошибка подключения";
+
     }
 }
 
+
+/* =========================
+   БАЛАНС
+========================= */
 
 function updateBalance() {
 
@@ -204,9 +386,15 @@ function updateBalance() {
 }
 
 
+/* =========================
+   ИНВЕНТАРЬ
+========================= */
+
 function renderInventory() {
 
-    const box = document.getElementById("inventory");
+    const box =
+        document.getElementById("inventory");
+
 
     if (!inventory || inventory.length === 0) {
 
@@ -216,148 +404,203 @@ function renderInventory() {
         return;
     }
 
+
     box.innerHTML = "";
+
 
     inventory.forEach(item => {
 
-        const element = document.createElement("div");
+        const element =
+            document.createElement("div");
+
 
         element.className = "item";
 
+
         element.innerHTML = `
+
             <div class="item-name">
+
                 🧠 ${item.brainrot_name}
+
             </div>
 
+
             <div class="item-info">
+
                 ⭐ ${item.rarity}<br>
+
                 💰 Цена продажи: ${item.value}
+
             </div>
+
 
             <button
                 class="sell"
                 onclick="sellItem(${item.id})"
             >
+
                 💰 ПРОДАТЬ ЗА ${item.value}
+
             </button>
+
         `;
 
+
         box.appendChild(element);
+
     });
 }
 
 
+/* =========================
+   ОТКРЫТИЕ КЕЙСА
+========================= */
+
 async function openCase() {
 
-    const result = document.getElementById("result");
+    const result =
+        document.getElementById("result");
 
-    result.innerText = "🎰 КРУТИТСЯ...";
+
+    result.innerText =
+        "🎰 КРУТИТСЯ...";
+
 
     try {
 
         const data = await apiRequest({
+
             action: "open_case",
+
             case_id: 1
+
         });
+
 
         if (!data.ok) {
 
             if (data.coins !== undefined) {
+
                 coins = Number(data.coins);
+
                 updateBalance();
+
             }
+
 
             result.innerText =
                 "❌ " + data.error;
 
+
             return;
         }
 
+
         coins = Number(data.coins);
+
 
         inventory.unshift(data.item);
 
+
         updateBalance();
+
         renderInventory();
 
+
         result.innerText =
+
             "🎉 Выпал: " +
+
             data.item.brainrot_name +
+
             "\n⭐ " +
+
             data.item.rarity +
+
             "\n💰 Цена: " +
+
             data.item.value;
+
 
     } catch (error) {
 
         console.log(error);
 
+
         result.innerText =
             "❌ Ошибка подключения";
+
     }
 }
 
 
+/* =========================
+   ПРОДАЖА
+========================= */
+
 async function sellItem(inventoryId) {
 
     const item = inventory.find(
+
         x => Number(x.id) === Number(inventoryId)
+
     );
+
 
     if (!item) {
+
         return;
+
     }
 
-    const confirmed = confirm(
-        "Продать " +
-        item.brainrot_name +
-        " за " +
-        item.value +
-        " монет?"
-    );
-
-    if (!confirmed) {
-        return;
-    }
 
     try {
 
         const data = await apiRequest({
+
             action: "sell_item",
+
             inventory_id: inventoryId
+
         });
 
+
         if (!data.ok) {
+
             alert("Ошибка: " + data.error);
+
             return;
         }
 
+
         coins = Number(data.coins);
 
+
         inventory = inventory.filter(
+
             x => Number(x.id) !== Number(inventoryId)
+
         );
 
+
         updateBalance();
+
         renderInventory();
 
-        document.getElementById("result").innerText =
-            "💰 Продано: " +
-            data.sold_item.brainrot_name +
-            "\n+" +
-            data.added_coins +
-            " монет";
 
     } catch (error) {
 
         console.log(error);
 
         alert("Ошибка подключения");
+
     }
 }
 
 
 loadPlayer();
+
 </script>
 
 </body>
