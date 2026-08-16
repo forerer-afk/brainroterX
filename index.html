@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +10,10 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -18,12 +21,13 @@ body {
     font-family: Arial, sans-serif;
     background: #0f172a;
     color: white;
+    overflow-x: hidden;
 }
 
 .game {
     max-width: 520px;
     margin: auto;
-    padding: 18px 12px 105px;
+    padding: 16px 10px 105px;
     text-align: center;
 }
 
@@ -39,10 +43,23 @@ h1 {
 
 .page {
     display: none;
+    animation: fadePage .22s ease;
 }
 
 .page.active {
     display: block;
+}
+
+@keyframes fadePage {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .panel {
@@ -58,6 +75,14 @@ button {
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
+    transition:
+        transform .15s ease,
+        opacity .15s ease,
+        background .15s ease;
+}
+
+button:active {
+    transform: scale(.97);
 }
 
 button:disabled {
@@ -70,7 +95,9 @@ button:disabled {
     min-height: 40px;
 }
 
-/* CASE LIST */
+/* =========================
+   CASE LIST
+========================= */
 
 .case-list {
     display: grid;
@@ -81,6 +108,11 @@ button:disabled {
     background: #1e293b;
     border-radius: 18px;
     padding: 17px;
+    transition: transform .18s ease;
+}
+
+.case-card:active {
+    transform: scale(.985);
 }
 
 .case-name {
@@ -116,7 +148,9 @@ button:disabled {
     color: white;
 }
 
-/* CASE ROULETTE */
+/* =========================
+   CASE ROULETTE
+========================= */
 
 .back-btn {
     width: 100%;
@@ -172,6 +206,7 @@ button:disabled {
     border-radius: 13px;
     border: 2px solid #475569;
     padding: 7px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -199,15 +234,19 @@ button:disabled {
     color: white;
 }
 
-/* INVENTORY */
+/* =========================
+   INVENTORY
+========================= */
 
 .item {
     background: #1e293b;
     border-radius: 16px;
     padding: 14px;
     margin: 12px 0;
+
     display: flex;
     gap: 12px;
+
     text-align: left;
 }
 
@@ -231,35 +270,148 @@ button:disabled {
     margin-top: 8px;
 }
 
-/* UPGRADER */
+/* =========================
+   UPGRADER
+========================= */
 
-.upgrade-card {
-    background: #0f172a;
-    border-radius: 16px;
-    padding: 14px;
-    margin: 10px 0;
+.upgrader-title {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 6px;
 }
 
-.upgrade-card img {
-    width: 95px;
-    height: 95px;
+.upgrader-subtitle {
+    opacity: .7;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.upgrade-section-title {
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 15px 2px 8px;
+}
+
+.upgrade-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(3, 1fr);
+    gap: 8px;
+}
+
+.upgrade-choice {
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 14px;
+
+    padding: 7px 5px;
+
+    cursor: pointer;
+
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
+}
+
+.upgrade-choice:active {
+    transform: scale(.95);
+}
+
+.upgrade-choice.selected {
+    border-color: #a855f7;
+    background: #172033;
+    box-shadow:
+        0 0 15px rgba(168,85,247,.5);
+    transform: translateY(-2px);
+}
+
+.upgrade-choice img {
+    width: 72px;
+    height: 72px;
     object-fit: contain;
 }
 
-select {
-    width: 100%;
-    padding: 13px;
-    border-radius: 12px;
-    border: none;
-    margin: 8px 0;
-    font-size: 16px;
+.choice-name {
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 3px;
+}
+
+.choice-price {
+    color: #facc15;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.upgrade-versus {
+    display: grid;
+    grid-template-columns:
+        1fr 45px 1fr;
+    align-items: center;
+    gap: 5px;
+
+    margin: 18px 0;
+}
+
+.selected-upgrade-card {
+    min-height: 135px;
+    background: #0f172a;
+    border-radius: 16px;
+    border: 2px solid #334155;
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    transition:
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.selected-upgrade-card.ready {
+    border-color: #7c3aed;
+}
+
+.selected-upgrade-card img {
+    width: 85px;
+    height: 85px;
+    object-fit: contain;
+}
+
+.selected-name {
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.selected-price {
+    color: #facc15;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.arrow-between {
+    font-size: 30px;
+    color: #a855f7;
 }
 
 .chance-title {
-    font-size: 23px;
+    font-size: 22px;
     font-weight: bold;
     margin-top: 15px;
 }
+
+/* =========================
+   UPGRADE WHEEL
+========================= */
 
 .upgrade-wheel-wrap {
     position: relative;
@@ -271,82 +423,138 @@ select {
 .upgrade-wheel {
     position: absolute;
     inset: 0;
+
     border-radius: 50%;
+
     background:
         conic-gradient(
             #22c55e 0deg var(--green-angle),
             #ef4444 var(--green-angle) 360deg
         );
+
     border: 5px solid #475569;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.35);
 }
 
 .upgrade-wheel::after {
     content: "";
+
     position: absolute;
+
     width: 145px;
     height: 145px;
+
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+
+    transform:
+        translate(-50%, -50%);
+
     background: #0f172a;
+
     border-radius: 50%;
 }
 
 .needle-rotor {
     position: absolute;
     inset: 0;
+
     z-index: 10;
+
     pointer-events: none;
+
+    transform: rotate(0deg);
 }
 
 .upgrade-needle {
     position: absolute;
-    top: 6px;
+
+    top: 5px;
     left: 50%;
-    transform: translateX(-50%);
+
+    transform:
+        translateX(-50%);
+
     width: 0;
     height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 34px solid #facc15;
-    filter: drop-shadow(0 0 5px rgba(250,204,21,.9));
+
+    border-left:
+        11px solid transparent;
+
+    border-right:
+        11px solid transparent;
+
+    border-bottom:
+        37px solid #facc15;
+
+    filter:
+        drop-shadow(
+            0 0 6px
+            rgba(250,204,21,.95)
+        );
 }
 
 .wheel-center-text {
     position: absolute;
+
     z-index: 5;
+
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+
+    transform:
+        translate(-50%, -50%);
+
     font-size: 29px;
     font-weight: bold;
 }
 
 .upgrade-btn {
     width: 100%;
-    background: #7c3aed;
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #9333ea
+        );
     color: white;
+    font-size: 17px;
 }
 
-/* MENU */
+/* =========================
+   MENU
+========================= */
 
 .bottom-menu {
     position: fixed;
+
     bottom: 0;
     left: 0;
     right: 0;
+
     display: flex;
+
     background: #1e293b;
-    border-top: 1px solid #334155;
+
+    border-top:
+        1px solid #334155;
+
     z-index: 100;
 }
 
 .nav-button {
     width: 33.333%;
+
     border-radius: 0;
+
     background: transparent;
+
     color: #94a3b8;
+
     padding: 11px 3px;
+
     font-size: 13px;
 }
 
@@ -354,7 +562,9 @@ select {
     background: #334155;
     color: white;
 }
+
 </style>
+
 </head>
 
 <body>
@@ -368,15 +578,23 @@ select {
 <span id="coins">0</span>
 </div>
 
-<!-- CASES -->
+<!-- =====================
+     CASES
+===================== -->
 
-<div id="casesPage" class="page active">
+<div
+    id="casesPage"
+    class="page active"
+>
 
 <div id="caseList">
 Загрузка кейсов...
 </div>
 
-<div id="activeCase" style="display:none">
+<div
+    id="activeCase"
+    style="display:none"
+>
 
 <button
     class="back-btn"
@@ -430,7 +648,9 @@ select {
 
 </div>
 
-<!-- UPGRADER -->
+<!-- =====================
+     UPGRADER
+===================== -->
 
 <div
     id="upgraderPage"
@@ -439,50 +659,66 @@ select {
 
 <div class="panel">
 
-<h2>⚡ Апгрейдер</h2>
-
-<p>Твой Brainrot:</p>
-
-<select
-    id="sourceSelect"
-    onchange="sourceChanged()"
->
-<option value="">
-Выбери Brainrot
-</option>
-</select>
-
-<div
-    id="sourceCard"
-    class="upgrade-card"
->
-Brainrot не выбран
+<div class="upgrader-title">
+⚡ Апгрейдер
 </div>
 
-<p>Апгрейдить на:</p>
+<div class="upgrader-subtitle">
+Выбери свой Brainrot и цель
+</div>
 
-<select
-    id="targetSelect"
-    onchange="updateUpgradeUI()"
->
-<option value="">
-Выбери цель
-</option>
-</select>
+<div class="upgrade-section-title">
+1. Выбери свой Brainrot
+</div>
 
 <div
-    id="targetCard"
-    class="upgrade-card"
+    id="sourceGrid"
+    class="upgrade-grid"
+></div>
+
+
+<div class="upgrade-versus">
+
+<div
+    id="selectedSourceCard"
+    class="selected-upgrade-card"
 >
-Цель не выбрана
+Твой<br>Brainrot
 </div>
+
+<div class="arrow-between">
+➜
+</div>
+
+<div
+    id="selectedTargetCard"
+    class="selected-upgrade-card"
+>
+Цель
+</div>
+
+</div>
+
+
+<div class="upgrade-section-title">
+2. Выбери более дорогой Brainrot
+</div>
+
+<div
+    id="targetGrid"
+    class="upgrade-grid"
+></div>
+
 
 <div class="chance-title">
+
 Шанс:
 <span id="chanceText">
 0%
 </span>
+
 </div>
+
 
 <div class="upgrade-wheel-wrap">
 
@@ -491,12 +727,18 @@ Brainrot не выбран
     class="upgrade-wheel"
 ></div>
 
+
 <div
     id="needleRotor"
     class="needle-rotor"
 >
-<div class="upgrade-needle"></div>
+
+<div
+    class="upgrade-needle"
+></div>
+
 </div>
+
 
 <div
     id="wheelChanceText"
@@ -507,13 +749,17 @@ Brainrot не выбран
 
 </div>
 
+
 <button
     id="upgradeButton"
     class="upgrade-btn"
     onclick="upgradeItem()"
 >
+
 ⚡ АПГРЕЙД
+
 </button>
+
 
 <div
     id="upgradeResult"
@@ -524,7 +770,9 @@ Brainrot не выбран
 
 </div>
 
-<!-- INVENTORY -->
+<!-- =====================
+     INVENTORY
+===================== -->
 
 <div
     id="inventoryPage"
@@ -539,7 +787,9 @@ Brainrot не выбран
 
 </div>
 
-<!-- MENU -->
+<!-- =====================
+     MENU
+===================== -->
 
 <div class="bottom-menu">
 
@@ -575,9 +825,12 @@ Brainrot не выбран
 
 </div>
 
+
 <script>
 
-/* TELEGRAM */
+/* =========================
+   TELEGRAM
+========================= */
 
 const tg =
     window.Telegram.WebApp;
@@ -585,27 +838,44 @@ const tg =
 tg.ready();
 tg.expand();
 
-/* DATA */
+/* =========================
+   VARIABLES
+========================= */
 
 let coins = 0;
+
 let inventory = [];
+
 let brainrots = [];
+
 let cases = [];
+
 let caseItems = [];
 
 let selectedCase = null;
 
+let selectedSourceId = null;
+
+let selectedTargetBrainrotId = null;
+
 let caseSpinning = false;
+
 let upgrading = false;
 
 let needleRotation = 0;
 
-/* SERVER */
+
+/* =========================
+   SERVER
+========================= */
 
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
-/* IMAGES */
+
+/* =========================
+   IMAGES
+========================= */
 
 const BRAINROT_IMAGES = {
 
@@ -619,7 +889,7 @@ const BRAINROT_IMAGES = {
         "./tangtang.png",
 
     "lavadorito spinito":
-        "./Lavadorito.png",
+        "./lavadorito.png",
 
     "garama and madundung":
         "./garama.png",
@@ -638,18 +908,26 @@ const BRAINROT_IMAGES = {
 
     "cash or card":
         "./cashorcard.png"
+
 };
+
+
+function normalizeName(name) {
+
+    return String(
+        name || ""
+    )
+    .trim()
+    .toLowerCase();
+}
+
 
 function getImageByName(name) {
 
-    if (!name) {
-        return "";
-    }
-
     const key =
-        String(name)
-            .trim()
-            .toLowerCase();
+        normalizeName(
+            name
+        );
 
     return (
         BRAINROT_IMAGES[key] ||
@@ -657,7 +935,10 @@ function getImageByName(name) {
     );
 }
 
-/* API */
+
+/* =========================
+   API
+========================= */
 
 async function apiRequest(data) {
 
@@ -676,6 +957,7 @@ async function apiRequest(data) {
                 body:
                     JSON.stringify({
                         ...data,
+
                         initData:
                             tg.initData
                     })
@@ -685,7 +967,10 @@ async function apiRequest(data) {
     return await response.json();
 }
 
-/* LOAD */
+
+/* =========================
+   LOAD
+========================= */
 
 async function loadPlayer() {
 
@@ -696,6 +981,7 @@ async function loadPlayer() {
                 action:
                     "get_player"
             });
+
 
         if (!data.ok) {
 
@@ -710,22 +996,32 @@ async function loadPlayer() {
             return;
         }
 
+
         coins =
             Number(
                 data.coins
             );
 
+
         inventory =
-            data.inventory || [];
+            data.inventory ||
+            [];
+
 
         brainrots =
-            data.brainrots || [];
+            data.brainrots ||
+            [];
+
 
         cases =
-            data.cases || [];
+            data.cases ||
+            [];
+
 
         caseItems =
-            data.case_items || [];
+            data.case_items ||
+            [];
+
 
         updateBalance();
 
@@ -733,13 +1029,16 @@ async function loadPlayer() {
 
         renderInventory();
 
-        renderSourceSelect();
+        renderUpgradeSourceGrid();
 
     }
 
     catch (error) {
 
-        console.log(error);
+        console.log(
+            error
+        );
+
 
         document
             .getElementById(
@@ -750,7 +1049,10 @@ async function loadPlayer() {
     }
 }
 
-/* BALANCE */
+
+/* =========================
+   BALANCE
+========================= */
 
 function updateBalance() {
 
@@ -762,7 +1064,10 @@ function updateBalance() {
             coins;
 }
 
-/* PAGES */
+
+/* =========================
+   PAGES
+========================= */
 
 function showPage(page) {
 
@@ -777,7 +1082,9 @@ function showPage(page) {
             .getElementById(id)
             .classList
             .remove("active");
+
     });
+
 
     [
         "casesButton",
@@ -790,7 +1097,9 @@ function showPage(page) {
             .getElementById(id)
             .classList
             .remove("active");
+
     });
+
 
     document
         .getElementById(
@@ -799,6 +1108,7 @@ function showPage(page) {
         .classList
         .add("active");
 
+
     document
         .getElementById(
             page + "Button"
@@ -806,23 +1116,36 @@ function showPage(page) {
         .classList
         .add("active");
 
+
     if (
         page ===
         "inventory"
     ) {
+
         renderInventory();
+
     }
+
 
     if (
         page ===
         "upgrader"
     ) {
-        renderSourceSelect();
+
+        renderUpgradeSourceGrid();
+
+        renderUpgradeTargetGrid();
+
         updateUpgradeUI();
+
     }
+
 }
 
-/* CASE LIST */
+
+/* =====================================================
+   CASE LIST
+===================================================== */
 
 function renderCases() {
 
@@ -830,6 +1153,7 @@ function renderCases() {
         document.getElementById(
             "caseList"
         );
+
 
     if (!cases.length) {
 
@@ -839,19 +1163,24 @@ function renderCases() {
         return;
     }
 
+
     box.innerHTML =
         "";
+
 
     const list =
         document.createElement(
             "div"
         );
 
+
     list.className =
         "case-list";
 
+
     cases.forEach(
         gameCase => {
+
 
             const items =
                 caseItems.filter(
@@ -864,28 +1193,32 @@ function renderCases() {
                         )
                 );
 
+
             const preview =
                 items
-                    .slice(0, 5)
-                    .map(
-                        item => `
+                .slice(0,5)
+                .map(
+                    item => `
 
-                            <img
-                                class="preview-img"
-                                src="${getImageByName(item.brainrot_name)}"
-                            >
+                        <img
+                            class="preview-img"
+                            src="${getImageByName(item.brainrot_name)}"
+                        >
 
-                        `
-                    )
-                    .join("");
+                    `
+                )
+                .join("");
+
 
             const card =
                 document.createElement(
                     "div"
                 );
 
+
             card.className =
                 "case-card";
+
 
             card.innerHTML = `
 
@@ -895,6 +1228,7 @@ function renderCases() {
 
                 </div>
 
+
                 <div class="case-price">
 
                     💰 Цена:
@@ -902,11 +1236,13 @@ function renderCases() {
 
                 </div>
 
+
                 <div class="case-items-preview">
 
                     ${preview}
 
                 </div>
+
 
                 <button
                     class="case-open-btn"
@@ -919,6 +1255,7 @@ function renderCases() {
 
             `;
 
+
             list.appendChild(
                 card
             );
@@ -926,12 +1263,17 @@ function renderCases() {
         }
     );
 
+
     box.appendChild(
         list
     );
+
 }
 
-/* SELECT CASE */
+
+/* =========================
+   SELECT CASE
+========================= */
 
 function selectCase(caseId) {
 
@@ -946,9 +1288,11 @@ function selectCase(caseId) {
                 )
         );
 
+
     if (!selectedCase) {
         return;
     }
+
 
     document
         .getElementById(
@@ -958,6 +1302,7 @@ function selectCase(caseId) {
         .display =
             "none";
 
+
     document
         .getElementById(
             "activeCase"
@@ -966,6 +1311,7 @@ function selectCase(caseId) {
         .display =
             "block";
 
+
     document
         .getElementById(
             "activeCaseName"
@@ -973,6 +1319,7 @@ function selectCase(caseId) {
         .innerText =
             "🎁 " +
             selectedCase.name;
+
 
     document
         .getElementById(
@@ -983,6 +1330,7 @@ function selectCase(caseId) {
             selectedCase.price +
             " монет";
 
+
     document
         .getElementById(
             "caseResult"
@@ -990,13 +1338,17 @@ function selectCase(caseId) {
         .innerText =
             "";
 
+
     createIdleRoulette();
+
 }
+
 
 function closeCase() {
 
     selectedCase =
         null;
+
 
     document
         .getElementById(
@@ -1006,6 +1358,7 @@ function closeCase() {
         .display =
             "block";
 
+
     document
         .getElementById(
             "activeCase"
@@ -1013,13 +1366,22 @@ function closeCase() {
         .style
         .display =
             "none";
+
 }
+
+
+/* =========================
+   CASE ITEMS
+========================= */
 
 function getSelectedCaseItems() {
 
     if (!selectedCase) {
+
         return [];
+
     }
+
 
     return caseItems.filter(
         item =>
@@ -1030,9 +1392,13 @@ function getSelectedCaseItems() {
                 selectedCase.id
             )
     );
+
 }
 
-/* ROULETTE */
+
+/* =========================
+   ROULETTE
+========================= */
 
 function rouletteCard(item) {
 
@@ -1041,14 +1407,17 @@ function rouletteCard(item) {
             "div"
         );
 
+
     div.className =
         "roulette-item";
+
 
     div.innerHTML = `
 
         <img
             src="${getImageByName(item.brainrot_name)}"
         >
+
 
         <div class="roulette-name">
 
@@ -1058,8 +1427,11 @@ function rouletteCard(item) {
 
     `;
 
+
     return div;
+
 }
+
 
 function createIdleRoulette() {
 
@@ -1068,17 +1440,22 @@ function createIdleRoulette() {
             "rouletteTrack"
         );
 
+
     const items =
         getSelectedCaseItems();
+
 
     track.innerHTML =
         "";
 
+
     track.style.transition =
         "none";
 
+
     track.style.transform =
         "translateX(0px)";
+
 
     if (!items.length) {
 
@@ -1090,7 +1467,9 @@ function createIdleRoulette() {
                 "❌ В кейсе нет предметов";
 
         return;
+
     }
+
 
     for (
         let i = 0;
@@ -1099,15 +1478,26 @@ function createIdleRoulette() {
     ) {
 
         track.appendChild(
+
             rouletteCard(
+
                 items[
                     i %
                     items.length
                 ]
+
             )
+
         );
+
     }
+
 }
+
+
+/* =========================
+   CASE ANIMATION
+========================= */
 
 async function animateCase(
     winner
@@ -1118,31 +1508,40 @@ async function animateCase(
             "rouletteTrack"
         );
 
+
     const container =
         document.getElementById(
             "rouletteContainer"
         );
 
+
     const items =
         getSelectedCaseItems();
+
 
     track.innerHTML =
         "";
 
+
     track.style.transition =
         "none";
+
 
     track.style.transform =
         "translateX(0px)";
 
+
     const totalCards =
         45;
+
 
     const winnerIndex =
         39;
 
+
     let winnerCard =
         null;
+
 
     for (
         let i = 0;
@@ -1150,12 +1549,15 @@ async function animateCase(
         i++
     ) {
 
+
         let item;
+
 
         if (
             i ===
             winnerIndex
         ) {
+
 
             item = {
 
@@ -1177,6 +1579,7 @@ async function animateCase(
 
         else {
 
+
             item =
                 items[
                     Math.floor(
@@ -1184,12 +1587,15 @@ async function animateCase(
                         items.length
                     )
                 ];
+
         }
+
 
         const card =
             rouletteCard(
                 item
             );
+
 
         if (
             i ===
@@ -1198,12 +1604,16 @@ async function animateCase(
 
             winnerCard =
                 card;
+
         }
+
 
         track.appendChild(
             card
         );
+
     }
+
 
     await new Promise(
         resolve => {
@@ -1214,33 +1624,42 @@ async function animateCase(
                     requestAnimationFrame(
                         resolve
                     );
+
                 }
             );
+
         }
     );
+
 
     if (!winnerCard) {
         return;
     }
+
 
     const winnerCenter =
         winnerCard.offsetLeft +
         winnerCard.offsetWidth /
         2;
 
+
     const containerCenter =
         container.clientWidth /
         2;
+
 
     const translateX =
         containerCenter -
         winnerCenter;
 
+
     track.style.transition =
         "transform 4.2s cubic-bezier(0.08,0.68,0.12,1)";
 
+
     track.style.transform =
         `translateX(${translateX}px)`;
+
 
     await new Promise(
         resolve =>
@@ -1249,9 +1668,13 @@ async function animateCase(
                 4400
             )
     );
+
 }
 
-/* OPEN CASE */
+
+/* =========================
+   OPEN CASE
+========================= */
 
 async function openSelectedCase() {
 
@@ -1262,8 +1685,10 @@ async function openSelectedCase() {
         return;
     }
 
+
     const items =
         getSelectedCaseItems();
+
 
     if (!items.length) {
 
@@ -1275,28 +1700,36 @@ async function openSelectedCase() {
                 "❌ В этом кейсе нет предметов";
 
         return;
+
     }
+
 
     caseSpinning =
         true;
+
 
     const button =
         document.getElementById(
             "spinButton"
         );
 
+
     const result =
         document.getElementById(
             "caseResult"
         );
 
+
     button.disabled =
         true;
+
 
     result.innerText =
         "🎰 Крутим...";
 
+
     try {
+
 
         const data =
             await apiRequest({
@@ -1309,52 +1742,69 @@ async function openSelectedCase() {
 
             });
 
+
         if (!data.ok) {
+
 
             result.innerText =
                 "❌ " +
                 data.error;
+
 
             if (
                 data.coins !==
                 undefined
             ) {
 
+
                 coins =
                     Number(
                         data.coins
                     );
 
+
                 updateBalance();
+
             }
+
 
             button.disabled =
                 false;
 
+
             caseSpinning =
                 false;
 
+
             return;
+
         }
+
 
         await animateCase(
             data.item
         );
+
 
         coins =
             Number(
                 data.coins
             );
 
+
         inventory.unshift(
             data.item
         );
 
+
         updateBalance();
+
 
         renderInventory();
 
-        renderSourceSelect();
+
+        renderUpgradeSourceGrid();
+
 
         result.innerText =
 
@@ -1370,22 +1820,31 @@ async function openSelectedCase() {
 
     catch (error) {
 
+
         console.log(
             error
         );
 
+
         result.innerText =
             "❌ Ошибка подключения";
+
     }
+
 
     button.disabled =
         false;
 
+
     caseSpinning =
         false;
+
 }
 
-/* INVENTORY */
+
+/* =====================================================
+   INVENTORY
+===================================================== */
 
 function renderInventory() {
 
@@ -1394,29 +1853,36 @@ function renderInventory() {
             "inventory"
         );
 
-    if (
-        !inventory.length
-    ) {
+
+    if (!inventory.length) {
+
 
         box.innerHTML =
             "У тебя пока нет Brainrot";
 
+
         return;
+
     }
+
 
     box.innerHTML =
         "";
 
+
     inventory.forEach(
         item => {
+
 
             const div =
                 document.createElement(
                     "div"
                 );
 
+
             div.className =
                 "item";
+
 
             div.innerHTML = `
 
@@ -1424,19 +1890,26 @@ function renderInventory() {
                     src="${getImageByName(item.brainrot_name)}"
                 >
 
+
                 <div class="item-content">
+
 
                     <b>
                         ${item.brainrot_name}
                     </b>
 
+
                     <br>
+
 
                     💰 ${item.value}
 
+
                     <br>
 
+
                     ⭐ ${item.rarity}
+
 
                     <button
                         class="sell"
@@ -1448,9 +1921,11 @@ function renderInventory() {
 
                     </button>
 
+
                 </div>
 
             `;
+
 
             box.appendChild(
                 div
@@ -1458,13 +1933,18 @@ function renderInventory() {
 
         }
     );
+
 }
 
-/* SELL */
+
+/* =========================
+   SELL
+========================= */
 
 async function sellItem(id) {
 
     try {
+
 
         const data =
             await apiRequest({
@@ -1477,19 +1957,25 @@ async function sellItem(id) {
 
             });
 
+
         if (!data.ok) {
+
 
             alert(
                 data.error
             );
 
+
             return;
+
         }
+
 
         coins =
             Number(
                 data.coins
             );
+
 
         inventory =
             inventory.filter(
@@ -1502,11 +1988,36 @@ async function sellItem(id) {
                     )
             );
 
+
+        if (
+            Number(
+                selectedSourceId
+            ) ===
+            Number(
+                id
+            )
+        ) {
+
+            selectedSourceId =
+                null;
+
+            selectedTargetBrainrotId =
+                null;
+
+        }
+
+
         updateBalance();
+
 
         renderInventory();
 
-        renderSourceSelect();
+
+        renderUpgradeSourceGrid();
+
+
+        renderUpgradeTargetGrid();
+
 
         updateUpgradeUI();
 
@@ -1514,131 +2025,237 @@ async function sellItem(id) {
 
     catch (error) {
 
+
         console.log(
             error
         );
 
+
         alert(
             "Ошибка подключения"
         );
+
     }
+
 }
 
-/* UPGRADER */
 
-function renderSourceSelect() {
-
-    const select =
-        document.getElementById(
-            "sourceSelect"
-        );
-
-    const oldValue =
-        select.value;
-
-    select.innerHTML =
-        '<option value="">Выбери Brainrot</option>';
-
-    inventory.forEach(
-        item => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                item.id;
-
-            option.textContent =
-
-                item.brainrot_name +
-
-                " — " +
-
-                item.value;
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-
-    if (
-        inventory.some(
-            item =>
-                String(
-                    item.id
-                ) ===
-                String(
-                    oldValue
-                )
-        )
-    ) {
-
-        select.value =
-            oldValue;
-    }
-}
+/* =====================================================
+   UPGRADER SOURCE CARDS
+===================================================== */
 
 function getSelectedSource() {
 
-    const id =
-        Number(
-            document
-                .getElementById(
-                    "sourceSelect"
-                )
-                .value
-        );
+    if (
+        !selectedSourceId
+    ) {
+
+        return null;
+
+    }
+
 
     return inventory.find(
         item =>
             Number(
                 item.id
             ) ===
-            id
-    );
+            Number(
+                selectedSourceId
+            )
+    ) || null;
+
 }
+
 
 function getSelectedTarget() {
 
-    const id =
-        Number(
-            document
-                .getElementById(
-                    "targetSelect"
-                )
-                .value
-        );
+    if (
+        !selectedTargetBrainrotId
+    ) {
+
+        return null;
+
+    }
+
 
     return brainrots.find(
         item =>
             Number(
                 item.brainrot_id
             ) ===
-            id
-    );
+            Number(
+                selectedTargetBrainrotId
+            )
+    ) || null;
+
 }
 
-function sourceChanged() {
+
+function renderUpgradeSourceGrid() {
+
+    const box =
+        document.getElementById(
+            "sourceGrid"
+        );
+
+
+    if (!box) {
+        return;
+    }
+
+
+    box.innerHTML =
+        "";
+
+
+    if (!inventory.length) {
+
+
+        box.innerHTML =
+            "В инвентаре нет Brainrot";
+
+
+        return;
+
+    }
+
+
+    inventory.forEach(
+        item => {
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "upgrade-choice";
+
+
+            if (
+                Number(
+                    selectedSourceId
+                ) ===
+                Number(
+                    item.id
+                )
+            ) {
+
+                card.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+            card.innerHTML = `
+
+                <img
+                    src="${getImageByName(item.brainrot_name)}"
+                >
+
+                <div class="choice-name">
+
+                    ${item.brainrot_name}
+
+                </div>
+
+                <div class="choice-price">
+
+                    💰 ${item.value}
+
+                </div>
+
+            `;
+
+
+            card.onclick =
+                () =>
+                    selectUpgradeSource(
+                        item.id
+                    );
+
+
+            box.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+function selectUpgradeSource(
+    inventoryId
+) {
+
+    selectedSourceId =
+        inventoryId;
+
+
+    /*
+    При выборе нового исходного
+    сбрасываем старую цель.
+    */
+
+    selectedTargetBrainrotId =
+        null;
+
+
+    renderUpgradeSourceGrid();
+
+
+    renderUpgradeTargetGrid();
+
+
+    updateUpgradeUI();
+
+}
+
+
+/* =====================================================
+   TARGET CARDS
+===================================================== */
+
+function renderUpgradeTargetGrid() {
+
+    const box =
+        document.getElementById(
+            "targetGrid"
+        );
+
+
+    if (!box) {
+        return;
+    }
+
+
+    box.innerHTML =
+        "";
+
 
     const source =
         getSelectedSource();
 
-    const targetSelect =
-        document.getElementById(
-            "targetSelect"
-        );
 
-    targetSelect.innerHTML =
-        '<option value="">Выбери цель</option>';
+    if (!source) {
 
-    if (source) {
 
+        box.innerHTML =
+            "Сначала выбери свой Brainrot";
+
+
+        return;
+
+    }
+
+
+    const availableTargets =
         brainrots
-
             .filter(
                 item =>
                     Number(
@@ -1648,37 +2265,122 @@ function sourceChanged() {
                         source.value
                     )
             )
-
-            .forEach(
-                item => {
-
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
-
-                    option.value =
-                        item.brainrot_id;
-
-                    option.textContent =
-
-                        item.name +
-
-                        " — " +
-
-                        item.value;
-
-                    targetSelect
-                        .appendChild(
-                            option
-                        );
-
-                }
+            .sort(
+                (
+                    a,
+                    b
+                ) =>
+                    Number(
+                        a.value
+                    ) -
+                    Number(
+                        b.value
+                    )
             );
+
+
+    if (
+        !availableTargets.length
+    ) {
+
+
+        box.innerHTML =
+            "Нет более дорогих Brainrot";
+
+
+        return;
+
     }
 
-    updateUpgradeUI();
+
+    availableTargets.forEach(
+        item => {
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "upgrade-choice";
+
+
+            if (
+                Number(
+                    selectedTargetBrainrotId
+                ) ===
+                Number(
+                    item.brainrot_id
+                )
+            ) {
+
+
+                card.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+            card.innerHTML = `
+
+                <img
+                    src="${getImageByName(item.name)}"
+                >
+
+                <div class="choice-name">
+
+                    ${item.name}
+
+                </div>
+
+                <div class="choice-price">
+
+                    💰 ${item.value}
+
+                </div>
+
+            `;
+
+
+            card.onclick =
+                () =>
+                    selectUpgradeTarget(
+                        item.brainrot_id
+                    );
+
+
+            box.appendChild(
+                card
+            );
+
+        }
+    );
+
 }
+
+
+function selectUpgradeTarget(
+    brainrotId
+) {
+
+    selectedTargetBrainrotId =
+        brainrotId;
+
+
+    renderUpgradeTargetGrid();
+
+
+    updateUpgradeUI();
+
+}
+
+
+/* =========================
+   CHANCE
+========================= */
 
 function calculateChance(
     source,
@@ -1689,8 +2391,11 @@ function calculateChance(
         !source ||
         !target
     ) {
+
         return 0;
+
     }
+
 
     if (
         Number(
@@ -1700,8 +2405,11 @@ function calculateChance(
             source.value
         )
     ) {
+
         return 0;
+
     }
+
 
     let chance =
         Math.ceil(
@@ -1719,7 +2427,9 @@ function calculateChance(
             *
 
             100
+
         );
+
 
     chance =
         Math.min(
@@ -1727,34 +2437,52 @@ function calculateChance(
             70
         );
 
+
     chance =
         Math.max(
             chance,
             1
         );
 
+
     return chance;
+
 }
+
+
+/* =========================
+   UPDATE UPGRADE UI
+========================= */
 
 function updateUpgradeUI() {
 
     const source =
         getSelectedSource();
 
+
     const target =
         getSelectedTarget();
 
+
     const sourceCard =
         document.getElementById(
-            "sourceCard"
+            "selectedSourceCard"
         );
+
 
     const targetCard =
         document.getElementById(
-            "targetCard"
+            "selectedTargetCard"
         );
 
+
     if (source) {
+
+
+        sourceCard.classList.add(
+            "ready"
+        );
+
 
         sourceCard.innerHTML = `
 
@@ -1762,15 +2490,17 @@ function updateUpgradeUI() {
                 src="${getImageByName(source.brainrot_name)}"
             >
 
-            <br>
+            <div class="selected-name">
 
-            <b>
                 ${source.brainrot_name}
-            </b>
 
-            <br>
+            </div>
 
-            💰 ${source.value}
+            <div class="selected-price">
+
+                💰 ${source.value}
+
+            </div>
 
         `;
 
@@ -1778,11 +2508,25 @@ function updateUpgradeUI() {
 
     else {
 
+
+        sourceCard.classList.remove(
+            "ready"
+        );
+
+
         sourceCard.innerHTML =
-            "Brainrot не выбран";
+            "Твой<br>Brainrot";
+
     }
 
+
     if (target) {
+
+
+        targetCard.classList.add(
+            "ready"
+        );
+
 
         targetCard.innerHTML = `
 
@@ -1790,15 +2534,17 @@ function updateUpgradeUI() {
                 src="${getImageByName(target.name)}"
             >
 
-            <br>
+            <div class="selected-name">
 
-            <b>
                 ${target.name}
-            </b>
 
-            <br>
+            </div>
 
-            💰 ${target.value}
+            <div class="selected-price">
+
+                💰 ${target.value}
+
+            </div>
 
         `;
 
@@ -1806,15 +2552,24 @@ function updateUpgradeUI() {
 
     else {
 
+
+        targetCard.classList.remove(
+            "ready"
+        );
+
+
         targetCard.innerHTML =
-            "Цель не выбрана";
+            "Цель";
+
     }
+
 
     const chance =
         calculateChance(
             source,
             target
         );
+
 
     document
         .getElementById(
@@ -1824,6 +2579,7 @@ function updateUpgradeUI() {
             chance +
             "%";
 
+
     document
         .getElementById(
             "wheelChanceText"
@@ -1832,9 +2588,6 @@ function updateUpgradeUI() {
             chance +
             "%";
 
-    const greenAngle =
-        chance *
-        3.6;
 
     document
         .getElementById(
@@ -1845,10 +2598,18 @@ function updateUpgradeUI() {
 
             "--green-angle",
 
-            greenAngle +
+            chance *
+            3.6 +
             "deg"
+
         );
+
 }
+
+
+/* =====================================================
+   NEEDLE
+===================================================== */
 
 function randomBetween(
     min,
@@ -1863,7 +2624,9 @@ function randomBetween(
             min
         )
     );
+
 }
+
 
 async function spinUpgradeNeedle(
     win,
@@ -1875,25 +2638,32 @@ async function spinUpgradeNeedle(
             "needleRotor"
         );
 
+
     const greenAngle =
         chance *
         3.6;
 
+
     let targetAngle;
 
+
     if (win) {
+
 
         if (
             greenAngle <=
             8
         ) {
 
+
             targetAngle =
                 greenAngle /
                 2;
+
         }
 
         else {
+
 
             targetAngle =
                 randomBetween(
@@ -1901,10 +2671,13 @@ async function spinUpgradeNeedle(
                     greenAngle -
                     4
                 );
+
         }
+
     }
 
     else {
+
 
         targetAngle =
             randomBetween(
@@ -1912,7 +2685,13 @@ async function spinUpgradeNeedle(
                 5,
                 355
             );
+
     }
+
+
+    /*
+    2–4 полных оборота
+    */
 
     const turns =
         2 +
@@ -1920,6 +2699,7 @@ async function spinUpgradeNeedle(
             Math.random() *
             3
         );
+
 
     const currentAngle =
 
@@ -1933,6 +2713,7 @@ async function spinUpgradeNeedle(
 
         360;
 
+
     const delta =
 
         (
@@ -1945,6 +2726,7 @@ async function spinUpgradeNeedle(
 
         360;
 
+
     needleRotation +=
 
         turns *
@@ -1954,20 +2736,29 @@ async function spinUpgradeNeedle(
 
         delta;
 
+
     rotor.style.transition =
-        "transform 3.8s cubic-bezier(0.12,0.72,0.15,1)";
+        "transform 4s cubic-bezier(0.12,0.75,0.12,1)";
+
 
     rotor.style.transform =
         `rotate(${needleRotation}deg)`;
+
 
     await new Promise(
         resolve =>
             setTimeout(
                 resolve,
-                4000
+                4200
             )
     );
+
 }
+
+
+/* =========================
+   UPGRADE
+========================= */
 
 async function upgradeItem() {
 
@@ -1975,48 +2766,65 @@ async function upgradeItem() {
         return;
     }
 
+
     const source =
         getSelectedSource();
 
+
     const target =
         getSelectedTarget();
+
 
     const result =
         document.getElementById(
             "upgradeResult"
         );
 
+
     const button =
         document.getElementById(
             "upgradeButton"
         );
 
+
     if (!source) {
+
 
         result.innerText =
             "❌ Выбери свой Brainrot";
 
+
         return;
+
     }
+
 
     if (!target) {
 
+
         result.innerText =
-            "❌ Выбери цель";
+            "❌ Выбери Brainrot для апгрейда";
+
 
         return;
+
     }
+
 
     upgrading =
         true;
 
+
     button.disabled =
         true;
+
 
     result.innerText =
         "⚡ Апгрейд...";
 
+
     try {
+
 
         const data =
             await apiRequest({
@@ -2032,27 +2840,33 @@ async function upgradeItem() {
 
             });
 
+
         if (!data.ok) {
+
 
             result.innerText =
                 "❌ " +
                 data.error;
 
+
             upgrading =
                 false;
+
 
             button.disabled =
                 false;
 
+
             return;
+
         }
 
+
         await spinUpgradeNeedle(
-
             data.win,
-
             data.chance
         );
+
 
         inventory =
             inventory.filter(
@@ -2065,13 +2879,16 @@ async function upgradeItem() {
                     )
             );
 
+
         if (
             data.win
         ) {
 
+
             inventory.unshift(
                 data.item
             );
+
 
             result.innerText =
 
@@ -2088,9 +2905,11 @@ async function upgradeItem() {
                 data.chance +
 
                 "%";
+
         }
 
         else {
+
 
             result.innerText =
 
@@ -2105,41 +2924,58 @@ async function upgradeItem() {
                 data.chance +
 
                 "%";
+
         }
+
+
+        selectedSourceId =
+            null;
+
+
+        selectedTargetBrainrotId =
+            null;
+
 
         renderInventory();
 
-        renderSourceSelect();
 
-        document
-            .getElementById(
-                "sourceSelect"
-            )
-            .value =
-                "";
+        renderUpgradeSourceGrid();
 
-        sourceChanged();
+
+        renderUpgradeTargetGrid();
+
+
+        updateUpgradeUI();
 
     }
 
     catch (error) {
 
+
         console.log(
             error
         );
 
+
         result.innerText =
             "❌ Ошибка подключения";
+
     }
+
 
     button.disabled =
         false;
 
+
     upgrading =
         false;
+
 }
 
-/* START */
+
+/* =========================
+   START
+========================= */
 
 loadPlayer();
 
