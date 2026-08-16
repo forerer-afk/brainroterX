@@ -77,18 +77,24 @@ h1 {
     width: 100%;
     height: 155px;
     overflow: hidden;
+
     background: #0f172a;
+
     border-radius: 16px;
     border: 2px solid #334155;
+
     margin: 15px 0 20px;
 }
 
 .roulette-pointer {
     position: absolute;
     z-index: 20;
+
     top: -2px;
     left: 50%;
+
     transform: translateX(-50%);
+
     color: #facc15;
     font-size: 30px;
 }
@@ -96,34 +102,48 @@ h1 {
 .roulette-line {
     position: absolute;
     z-index: 10;
+
     top: 0;
     bottom: 0;
     left: 50%;
+
     width: 3px;
+
     transform: translateX(-50%);
+
     background: rgba(250, 204, 21, 0.55);
 }
 
 .roulette-track {
     height: 100%;
+
     display: flex;
     align-items: center;
+
     gap: 8px;
+
     padding-left: 10px;
+
     transform: translateX(0);
+
     will-change: transform;
 }
 
 .roulette-item {
     flex: 0 0 116px;
+
     height: 128px;
+
     background: #1e293b;
+
     border-radius: 13px;
     border: 2px solid #475569;
+
     padding: 7px;
 
     display: flex;
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
 
@@ -133,12 +153,17 @@ h1 {
 .roulette-item img {
     width: 88px;
     height: 88px;
+
     object-fit: contain;
+
+    pointer-events: none;
 }
 
 .roulette-name {
     width: 100%;
+
     margin-top: 5px;
+
     font-size: 11px;
     font-weight: bold;
 
@@ -167,35 +192,46 @@ h1 {
 
 .Secret {
     border-color: #ef4444;
-    box-shadow: 0 0 12px rgba(239,68,68,0.5);
+
+    box-shadow:
+        0 0 12px rgba(239,68,68,0.5);
 }
 
 /* КНОПКИ */
 
 button {
     border: none;
+
     border-radius: 13px;
+
     padding: 14px 18px;
+
     font-size: 16px;
     font-weight: bold;
+
     cursor: pointer;
 }
 
 .open {
     width: 92%;
     max-width: 360px;
+
     background: #f59e0b;
     color: white;
 }
 
 .open:disabled {
     opacity: 0.5;
+    cursor: default;
 }
 
 .result {
     white-space: pre-line;
+
     min-height: 50px;
+
     margin-top: 18px;
+
     font-size: 19px;
     font-weight: bold;
 }
@@ -205,16 +241,20 @@ button {
 .inventory-title {
     font-size: 27px;
     font-weight: bold;
+
     margin-bottom: 18px;
 }
 
 .item {
     background: #1e293b;
+
     border-radius: 16px;
+
     margin: 12px 0;
     padding: 14px;
 
     display: flex;
+
     gap: 13px;
 
     text-align: left;
@@ -223,9 +263,13 @@ button {
 .item-avatar {
     width: 82px;
     height: 82px;
+
     object-fit: contain;
+
     background: #0f172a;
+
     border-radius: 12px;
+
     padding: 4px;
 }
 
@@ -236,25 +280,33 @@ button {
 .item-name {
     font-size: 19px;
     font-weight: bold;
+
     margin-bottom: 5px;
 }
 
 .item-info {
     opacity: 0.85;
+
     line-height: 1.45;
+
     margin-bottom: 9px;
 }
 
 .sell {
     width: 100%;
+
     background: #16a34a;
+
     color: white;
 }
 
 .empty {
     background: #1e293b;
+
     border-radius: 16px;
+
     padding: 25px;
+
     opacity: 0.75;
 }
 
@@ -262,6 +314,7 @@ button {
 
 .bottom-menu {
     position: fixed;
+
     bottom: 0;
     left: 0;
     right: 0;
@@ -272,9 +325,11 @@ button {
     justify-content: center;
 
     background: #1e293b;
+
     border-top: 1px solid #334155;
 
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom:
+        env(safe-area-inset-bottom);
 }
 
 .nav-button {
@@ -282,22 +337,27 @@ button {
     max-width: 260px;
 
     margin: 0;
+
     padding: 12px 4px;
 
     border-radius: 0;
 
     background: transparent;
+
     color: #94a3b8;
 }
 
 .nav-button.active {
     background: #334155;
+
     color: white;
 }
 
 .nav-icon {
     display: block;
+
     font-size: 24px;
+
     margin-bottom: 2px;
 }
 
@@ -305,29 +365,44 @@ button {
 
 </head>
 
+
 <body>
+
 
 <div class="game">
 
 <h1>🧠 Brainroter X</h1>
 
+
 <div class="balance">
-💰 Баланс: <span id="coins">0</span>
+
+💰 Баланс:
+<span id="coins">0</span>
+
 </div>
 
 
 <!-- КЕЙСЫ -->
 
-<div id="casesPage" class="page active">
+<div
+    id="casesPage"
+    class="page active"
+>
 
 <div class="case">
 
+
 <div class="case-title">
+
 🎁 Starter Case
+
 </div>
 
+
 <div class="case-price">
+
 Цена: 19 монет
+
 </div>
 
 
@@ -336,16 +411,22 @@ button {
     class="roulette-container"
 >
 
+
 <div class="roulette-pointer">
+
 ▼
+
 </div>
 
+
 <div class="roulette-line"></div>
+
 
 <div
     id="rouletteTrack"
     class="roulette-track"
 ></div>
+
 
 </div>
 
@@ -355,7 +436,9 @@ button {
     class="open"
     onclick="openCase()"
 >
+
 🎰 КРУТИТЬ КЕЙС
+
 </button>
 
 
@@ -363,6 +446,7 @@ button {
     id="result"
     class="result"
 ></div>
+
 
 </div>
 
@@ -376,13 +460,20 @@ button {
     class="page"
 >
 
+
 <div class="inventory-title">
+
 🎒 Инвентарь
+
 </div>
 
+
 <div id="inventory">
+
 Загрузка...
+
 </div>
+
 
 </div>
 
@@ -393,13 +484,19 @@ button {
 
 <div class="bottom-menu">
 
+
 <button
     id="casesButton"
     class="nav-button active"
     onclick="showPage('cases')"
 >
-<span class="nav-icon">🎁</span>
+
+<span class="nav-icon">
+🎁
+</span>
+
 Кейсы
+
 </button>
 
 
@@ -408,49 +505,65 @@ button {
     class="nav-button"
     onclick="showPage('inventory')"
 >
-<span class="nav-icon">🎒</span>
+
+<span class="nav-icon">
+🎒
+</span>
+
 Инвентарь
+
 </button>
+
 
 </div>
 
 
 <script>
 
-const tg = window.Telegram.WebApp;
+/* TELEGRAM */
+
+const tg =
+    window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
+
+/* ДАННЫЕ */
+
 let coins = 0;
+
 let inventory = [];
+
 let spinning = false;
 
+
+/* SUPABASE FUNCTION */
 
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
 
-/* =========================
-   ТВОИ 4 КАРТИНКИ
-========================= */
+/* =========================================
+   КАРТИНКИ ИЗ ТВОЕГО GITHUB
+========================================= */
 
 const BRAINROT_IMAGES = {
 
-    1: "https://images.openai.com/static-rsc-4/rALI5DjyP-iCNZSK0_AcLypFy7R-9CBSLn2JyQb7lYzgY2sWCI2Sq8va9WrWS0UcoDjImgYnbBdQV_DkcdppL1nviBaQjSbnr_7wMBRwDXmP-Yus1rbuNev12gm5HMy0B6EGZwW20-iqbilVwmVqGLLrPjC6kHNEjZNfZZy4PiI?purpose=inline",
+    1: "./nuclearo.png",
 
-    2: "https://static.wikia.nocookie.net/ukradite-breinrot/images/e/e9/LaGrandeCombinasion.webp/revision/latest?cb=20250902141627&path-prefix=ru",
+    2: "./lagrande.webp",
 
-    3: "https://static.wikia.nocookie.net/ukradite-breinrot/images/1/11/TangTangKeletang.png/revision/latest/thumbnail/width/360/height/450?cb=20251122151703&path-prefix=ru",
+    3: "./tangtang.png",
 
-    4: "https://a.allegroimg.com/original/110083/37dbfd7442fa85682f593855dbd2/Lavadorito-spinito-sab"
+    4: "./Lavadorito.jpg"
 
 };
 
 
-/* =========================
-   ПРЕДМЕТЫ РУЛЕТКИ
-========================= */
+/* =========================================
+   ТВОИ 4 BRAINROT
+========================================= */
 
 const ROULETTE_ITEMS = [
 
@@ -481,13 +594,17 @@ const ROULETTE_ITEMS = [
 ];
 
 
-/* КАРТИНКА */
+/* ПОЛУЧИТЬ КАРТИНКУ */
 
-function getBrainrotImage(brainrotId) {
+function getBrainrotImage(
+    brainrotId
+) {
 
-    return BRAINROT_IMAGES[
-        Number(brainrotId)
-    ] || "";
+    return (
+        BRAINROT_IMAGES[
+            Number(brainrotId)
+        ] || ""
+    );
 
 }
 
@@ -497,31 +614,59 @@ function getBrainrotImage(brainrotId) {
 function showPage(page) {
 
     document
-        .getElementById("casesPage")
-        .classList.remove("active");
+        .getElementById(
+            "casesPage"
+        )
+        .classList.remove(
+            "active"
+        );
+
 
     document
-        .getElementById("inventoryPage")
-        .classList.remove("active");
+        .getElementById(
+            "inventoryPage"
+        )
+        .classList.remove(
+            "active"
+        );
+
 
     document
-        .getElementById("casesButton")
-        .classList.remove("active");
+        .getElementById(
+            "casesButton"
+        )
+        .classList.remove(
+            "active"
+        );
+
 
     document
-        .getElementById("inventoryButton")
-        .classList.remove("active");
+        .getElementById(
+            "inventoryButton"
+        )
+        .classList.remove(
+            "active"
+        );
 
 
     if (page === "cases") {
 
         document
-            .getElementById("casesPage")
-            .classList.add("active");
+            .getElementById(
+                "casesPage"
+            )
+            .classList.add(
+                "active"
+            );
+
 
         document
-            .getElementById("casesButton")
-            .classList.add("active");
+            .getElementById(
+                "casesButton"
+            )
+            .classList.add(
+                "active"
+            );
 
     }
 
@@ -529,12 +674,22 @@ function showPage(page) {
     if (page === "inventory") {
 
         document
-            .getElementById("inventoryPage")
-            .classList.add("active");
+            .getElementById(
+                "inventoryPage"
+            )
+            .classList.add(
+                "active"
+            );
+
 
         document
-            .getElementById("inventoryButton")
-            .classList.add("active");
+            .getElementById(
+                "inventoryButton"
+            )
+            .classList.add(
+                "active"
+            );
+
 
         renderInventory();
 
@@ -547,52 +702,77 @@ function showPage(page) {
 
 async function apiRequest(data) {
 
-    const response = await fetch(
-        FUNCTION_URL,
-        {
-            method: "POST",
+    const response =
+        await fetch(
 
-            headers: {
-                "Content-Type":
-                "application/json"
-            },
+            FUNCTION_URL,
 
-            body: JSON.stringify({
-                ...data,
-                initData: tg.initData
-            })
-        }
-    );
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body:
+                    JSON.stringify({
+
+                        ...data,
+
+                        initData:
+                            tg.initData
+
+                    })
+
+            }
+
+        );
+
 
     return await response.json();
 
 }
 
 
-/* ЗАГРУЗКА */
+/* ЗАГРУЗКА ИГРОКА */
 
 async function loadPlayer() {
 
     try {
 
-        const data = await apiRequest({
-            action: "get_player"
-        });
+        const data =
+            await apiRequest({
+
+                action:
+                    "get_player"
+
+            });
 
 
         if (!data.ok) {
 
             document
-                .getElementById("result")
+                .getElementById(
+                    "result"
+                )
                 .innerText =
-                "❌ " + data.error;
+                    "❌ " +
+                    data.error;
 
             return;
 
         }
 
 
-        coins = Number(data.coins);
+        coins =
+            Number(
+                data.coins
+            );
+
 
         inventory =
             data.inventory || [];
@@ -610,34 +790,43 @@ async function loadPlayer() {
 
         console.log(error);
 
+
         document
-            .getElementById("result")
+            .getElementById(
+                "result"
+            )
             .innerText =
-            "❌ Ошибка подключения";
+                "❌ Ошибка подключения";
 
     }
 
 }
 
 
-/* БАЛАНС */
+/* ОБНОВЛЕНИЕ БАЛАНСА */
 
 function updateBalance() {
 
     document
-        .getElementById("coins")
+        .getElementById(
+            "coins"
+        )
         .innerText =
-        coins;
+            coins;
 
 }
 
 
-/* КАРТОЧКА РУЛЕТКИ */
+/* КАРТОЧКА BRAINROT */
 
-function createRouletteCard(item) {
+function createRouletteCard(
+    item
+) {
 
     const card =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
     card.className =
@@ -653,7 +842,9 @@ function createRouletteCard(item) {
         >
 
         <div class="roulette-name">
+
             ${item.name}
+
         </div>
 
     `;
@@ -664,7 +855,7 @@ function createRouletteCard(item) {
 }
 
 
-/* РУЛЕТКА ДО ОТКРЫТИЯ */
+/* РУЛЕТКА ДО ПРОКРУТКИ */
 
 function createIdleRoulette() {
 
@@ -676,14 +867,20 @@ function createIdleRoulette() {
 
     track.innerHTML = "";
 
+
     track.style.transition =
         "none";
+
 
     track.style.transform =
         "translateX(0px)";
 
 
-    for (let i = 0; i < 8; i++) {
+    for (
+        let i = 0;
+        i < 8;
+        i++
+    ) {
 
         const item =
             ROULETTE_ITEMS[
@@ -691,8 +888,11 @@ function createIdleRoulette() {
                 ROULETTE_ITEMS.length
             ];
 
+
         track.appendChild(
-            createRouletteCard(item)
+            createRouletteCard(
+                item
+            )
         );
 
     }
@@ -700,14 +900,17 @@ function createIdleRoulette() {
 }
 
 
-/* АНИМАЦИЯ */
+/* АНИМАЦИЯ РУЛЕТКИ */
 
-async function animateRoulette(winner) {
+async function animateRoulette(
+    winner
+) {
 
     const track =
         document.getElementById(
             "rouletteTrack"
         );
+
 
     const container =
         document.getElementById(
@@ -717,8 +920,10 @@ async function animateRoulette(winner) {
 
     track.innerHTML = "";
 
+
     track.style.transition =
         "none";
+
 
     track.style.transform =
         "translateX(0px)";
@@ -738,7 +943,9 @@ async function animateRoulette(winner) {
         let item;
 
 
-        if (i === winnerIndex) {
+        if (
+            i === winnerIndex
+        ) {
 
             item = {
 
@@ -769,7 +976,9 @@ async function animateRoulette(winner) {
 
 
         track.appendChild(
-            createRouletteCard(item)
+            createRouletteCard(
+                item
+            )
         );
 
     }
@@ -777,7 +986,10 @@ async function animateRoulette(winner) {
 
     await new Promise(
         resolve =>
-            setTimeout(resolve, 50)
+            setTimeout(
+                resolve,
+                50
+            )
     );
 
 
@@ -821,7 +1033,10 @@ async function animateRoulette(winner) {
 
     await new Promise(
         resolve =>
-            setTimeout(resolve, 4700)
+            setTimeout(
+                resolve,
+                4700
+            )
     );
 
 }
@@ -860,23 +1075,30 @@ async function openCase() {
 
     try {
 
-        const data = await apiRequest({
+        const data =
+            await apiRequest({
 
-            action: "open_case",
+                action:
+                    "open_case",
 
-            case_id: 1
+                case_id: 1
 
-        });
+            });
 
+
+        /* ОШИБКА */
 
         if (!data.ok) {
 
             if (
-                data.coins !== undefined
+                data.coins !==
+                undefined
             ) {
 
                 coins =
-                    Number(data.coins);
+                    Number(
+                        data.coins
+                    );
 
                 updateBalance();
 
@@ -891,22 +1113,32 @@ async function openCase() {
             button.disabled =
                 false;
 
+
             spinning =
                 false;
+
 
             return;
 
         }
 
 
+        /* ПРОКРУТКА */
+
         await animateRoulette(
             data.item
         );
 
 
-        coins =
-            Number(data.coins);
+        /* НОВЫЙ БАЛАНС */
 
+        coins =
+            Number(
+                data.coins
+            );
+
+
+        /* ДОБАВЛЯЕМ В ИНВЕНТАРЬ */
 
         inventory.unshift(
             data.item
@@ -917,6 +1149,8 @@ async function openCase() {
 
         renderInventory();
 
+
+        /* ПОКАЗЫВАЕМ ПОБЕДИТЕЛЯ */
 
         result.innerText =
 
@@ -938,6 +1172,7 @@ async function openCase() {
 
         console.log(error);
 
+
         result.innerText =
             "❌ Ошибка подключения";
 
@@ -946,6 +1181,7 @@ async function openCase() {
 
     button.disabled =
         false;
+
 
     spinning =
         false;
@@ -971,10 +1207,13 @@ function renderInventory() {
         box.innerHTML = `
 
             <div class="empty">
+
                 У тебя пока нет Brainrot 🧠
+
             </div>
 
         `;
+
 
         return;
 
@@ -984,62 +1223,72 @@ function renderInventory() {
     box.innerHTML = "";
 
 
-    inventory.forEach(item => {
+    inventory.forEach(
+        item => {
 
-        const element =
-            document.createElement(
-                "div"
-            );
-
-
-        element.className =
-            "item";
+            const element =
+                document.createElement(
+                    "div"
+                );
 
 
-        element.innerHTML = `
+            element.className =
+                "item";
 
-            <img
-                class="item-avatar"
-                src="${getBrainrotImage(item.brainrot_id)}"
-            >
 
-            <div class="item-content">
+            element.innerHTML = `
 
-                <div class="item-name">
-                    🧠 ${item.brainrot_name}
-                </div>
-
-                <div class="item-info">
-
-                    ⭐ ${item.rarity}
-
-                    <br>
-
-                    💰 Цена:
-                    ${item.value}
-
-                </div>
-
-                <button
-                    class="sell"
-                    onclick="sellItem(${item.id})"
+                <img
+                    class="item-avatar"
+                    src="${getBrainrotImage(item.brainrot_id)}"
+                    alt="${item.brainrot_name}"
                 >
 
-                    💰 ПРОДАТЬ ЗА
-                    ${item.value}
 
-                </button>
-
-            </div>
-
-        `;
+                <div class="item-content">
 
 
-        box.appendChild(
-            element
-        );
+                    <div class="item-name">
 
-    });
+                        🧠 ${item.brainrot_name}
+
+                    </div>
+
+
+                    <div class="item-info">
+
+                        ⭐ ${item.rarity}
+
+                        <br>
+
+                        💰 Цена:
+                        ${item.value}
+
+                    </div>
+
+
+                    <button
+                        class="sell"
+                        onclick="sellItem(${item.id})"
+                    >
+
+                        💰 ПРОДАТЬ ЗА
+                        ${item.value}
+
+                    </button>
+
+
+                </div>
+
+            `;
+
+
+            box.appendChild(
+                element
+            );
+
+        }
+    );
 
 }
 
@@ -1092,7 +1341,9 @@ async function sellItem(
 
 
         coins =
-            Number(data.coins);
+            Number(
+                data.coins
+            );
 
 
         inventory =
@@ -1115,6 +1366,7 @@ async function sellItem(
 
         console.log(error);
 
+
         alert(
             "Ошибка подключения"
         );
@@ -1124,11 +1376,13 @@ async function sellItem(
 }
 
 
-/* СТАРТ */
+/* ЗАПУСК */
 
 loadPlayer();
 
 </script>
 
+
 </body>
+
 </html>
