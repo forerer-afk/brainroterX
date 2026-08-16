@@ -77,8 +77,7 @@ button {
     cursor: pointer;
     transition:
         transform .15s ease,
-        opacity .15s ease,
-        background .15s ease;
+        opacity .15s ease;
 }
 
 button:active {
@@ -89,15 +88,7 @@ button:disabled {
     opacity: .5;
 }
 
-.result {
-    white-space: pre-line;
-    margin-top: 15px;
-    min-height: 40px;
-}
-
-/* =========================
-   CASE LIST
-========================= */
+/* CASES */
 
 .case-list {
     display: grid;
@@ -108,11 +99,6 @@ button:disabled {
     background: #1e293b;
     border-radius: 18px;
     padding: 17px;
-    transition: transform .18s ease;
-}
-
-.case-card:active {
-    transform: scale(.985);
 }
 
 .case-name {
@@ -148,9 +134,7 @@ button:disabled {
     color: white;
 }
 
-/* =========================
-   CASE ROULETTE
-========================= */
+/* ROULETTE */
 
 .back-btn {
     width: 100%;
@@ -206,7 +190,6 @@ button:disabled {
     border-radius: 13px;
     border: 2px solid #475569;
     padding: 7px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -234,19 +217,21 @@ button:disabled {
     color: white;
 }
 
-/* =========================
-   INVENTORY
-========================= */
+.result {
+    white-space: pre-line;
+    margin-top: 15px;
+    min-height: 40px;
+}
+
+/* INVENTORY */
 
 .item {
     background: #1e293b;
     border-radius: 16px;
     padding: 14px;
     margin: 12px 0;
-
     display: flex;
     gap: 12px;
-
     text-align: left;
 }
 
@@ -270,9 +255,7 @@ button:disabled {
     margin-top: 8px;
 }
 
-/* =========================
-   UPGRADER
-========================= */
+/* UPGRADER */
 
 .upgrader-title {
     font-size: 26px;
@@ -295,8 +278,7 @@ button:disabled {
 
 .upgrade-grid {
     display: grid;
-    grid-template-columns:
-        repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 
@@ -304,16 +286,12 @@ button:disabled {
     background: #0f172a;
     border: 2px solid #334155;
     border-radius: 14px;
-
     padding: 7px 5px;
-
     cursor: pointer;
-
     transition:
         transform .18s ease,
         border-color .18s ease,
-        box-shadow .18s ease,
-        background .18s ease;
+        box-shadow .18s ease;
 }
 
 .upgrade-choice:active {
@@ -322,10 +300,7 @@ button:disabled {
 
 .upgrade-choice.selected {
     border-color: #a855f7;
-    background: #172033;
-    box-shadow:
-        0 0 15px rgba(168,85,247,.5);
-    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(168,85,247,.5);
 }
 
 .upgrade-choice img {
@@ -351,11 +326,9 @@ button:disabled {
 
 .upgrade-versus {
     display: grid;
-    grid-template-columns:
-        1fr 45px 1fr;
+    grid-template-columns: 1fr 45px 1fr;
     align-items: center;
     gap: 5px;
-
     margin: 18px 0;
 }
 
@@ -370,10 +343,6 @@ button:disabled {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-    transition:
-        border-color .2s ease,
-        transform .2s ease;
 }
 
 .selected-upgrade-card.ready {
@@ -409,9 +378,7 @@ button:disabled {
     margin-top: 15px;
 }
 
-/* =========================
-   UPGRADE WHEEL
-========================= */
+/* UPGRADE WHEEL */
 
 .upgrade-wheel-wrap {
     position: relative;
@@ -423,7 +390,6 @@ button:disabled {
 .upgrade-wheel {
     position: absolute;
     inset: 0;
-
     border-radius: 50%;
 
     background:
@@ -433,9 +399,6 @@ button:disabled {
         );
 
     border: 5px solid #475569;
-
-    box-shadow:
-        0 8px 25px rgba(0,0,0,.35);
 }
 
 .upgrade-wheel::after {
@@ -449,8 +412,7 @@ button:disabled {
     left: 50%;
     top: 50%;
 
-    transform:
-        translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 
     background: #0f172a;
 
@@ -460,12 +422,8 @@ button:disabled {
 .needle-rotor {
     position: absolute;
     inset: 0;
-
     z-index: 10;
-
     pointer-events: none;
-
-    transform: rotate(0deg);
 }
 
 .upgrade-needle {
@@ -474,26 +432,14 @@ button:disabled {
     top: 5px;
     left: 50%;
 
-    transform:
-        translateX(-50%);
+    transform: translateX(-50%);
 
     width: 0;
     height: 0;
 
-    border-left:
-        11px solid transparent;
-
-    border-right:
-        11px solid transparent;
-
-    border-bottom:
-        37px solid #facc15;
-
-    filter:
-        drop-shadow(
-            0 0 6px
-            rgba(250,204,21,.95)
-        );
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-bottom: 37px solid #facc15;
 }
 
 .wheel-center-text {
@@ -504,8 +450,7 @@ button:disabled {
     left: 50%;
     top: 50%;
 
-    transform:
-        translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 
     font-size: 29px;
     font-weight: bold;
@@ -513,19 +458,12 @@ button:disabled {
 
 .upgrade-btn {
     width: 100%;
-    background:
-        linear-gradient(
-            135deg,
-            #7c3aed,
-            #9333ea
-        );
+    background: #7c3aed;
     color: white;
     font-size: 17px;
 }
 
-/* =========================
-   MENU
-========================= */
+/* MENU */
 
 .bottom-menu {
     position: fixed;
@@ -538,23 +476,17 @@ button:disabled {
 
     background: #1e293b;
 
-    border-top:
-        1px solid #334155;
+    border-top: 1px solid #334155;
 
     z-index: 100;
 }
 
 .nav-button {
     width: 33.333%;
-
     border-radius: 0;
-
     background: transparent;
-
     color: #94a3b8;
-
     padding: 11px 3px;
-
     font-size: 13px;
 }
 
@@ -578,9 +510,7 @@ button:disabled {
 <span id="coins">0</span>
 </div>
 
-<!-- =====================
-     CASES
-===================== -->
+<!-- CASES -->
 
 <div
     id="casesPage"
@@ -648,9 +578,7 @@ button:disabled {
 
 </div>
 
-<!-- =====================
-     UPGRADER
-===================== -->
+<!-- UPGRADER -->
 
 <div
     id="upgraderPage"
@@ -676,7 +604,6 @@ button:disabled {
     class="upgrade-grid"
 ></div>
 
-
 <div class="upgrade-versus">
 
 <div
@@ -699,7 +626,6 @@ button:disabled {
 
 </div>
 
-
 <div class="upgrade-section-title">
 2. Выбери более дорогой Brainrot
 </div>
@@ -708,7 +634,6 @@ button:disabled {
     id="targetGrid"
     class="upgrade-grid"
 ></div>
-
 
 <div class="chance-title">
 
@@ -719,14 +644,12 @@ button:disabled {
 
 </div>
 
-
 <div class="upgrade-wheel-wrap">
 
 <div
     id="upgradeWheel"
     class="upgrade-wheel"
 ></div>
-
 
 <div
     id="needleRotor"
@@ -739,7 +662,6 @@ button:disabled {
 
 </div>
 
-
 <div
     id="wheelChanceText"
     class="wheel-center-text"
@@ -748,7 +670,6 @@ button:disabled {
 </div>
 
 </div>
-
 
 <button
     id="upgradeButton"
@@ -760,7 +681,6 @@ button:disabled {
 
 </button>
 
-
 <div
     id="upgradeResult"
     class="result"
@@ -770,9 +690,7 @@ button:disabled {
 
 </div>
 
-<!-- =====================
-     INVENTORY
-===================== -->
+<!-- INVENTORY -->
 
 <div
     id="inventoryPage"
@@ -787,9 +705,7 @@ button:disabled {
 
 </div>
 
-<!-- =====================
-     MENU
-===================== -->
+<!-- MENU -->
 
 <div class="bottom-menu">
 
@@ -828,54 +744,32 @@ button:disabled {
 
 <script>
 
-/* =========================
-   TELEGRAM
-========================= */
-
 const tg =
     window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
-/* =========================
-   VARIABLES
-========================= */
-
 let coins = 0;
-
 let inventory = [];
-
 let brainrots = [];
-
 let cases = [];
-
 let caseItems = [];
 
 let selectedCase = null;
 
 let selectedSourceId = null;
-
 let selectedTargetBrainrotId = null;
 
 let caseSpinning = false;
-
 let upgrading = false;
 
 let needleRotation = 0;
 
 
-/* =========================
-   SERVER
-========================= */
-
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
-
-/* =========================
-   IMAGES
-========================= */
 
 const BRAINROT_IMAGES = {
 
@@ -936,10 +830,6 @@ function getImageByName(name) {
 }
 
 
-/* =========================
-   API
-========================= */
-
 async function apiRequest(data) {
 
     const response =
@@ -957,7 +847,6 @@ async function apiRequest(data) {
                 body:
                     JSON.stringify({
                         ...data,
-
                         initData:
                             tg.initData
                     })
@@ -967,10 +856,6 @@ async function apiRequest(data) {
     return await response.json();
 }
 
-
-/* =========================
-   LOAD
-========================= */
 
 async function loadPlayer() {
 
@@ -1050,10 +935,6 @@ async function loadPlayer() {
 }
 
 
-/* =========================
-   BALANCE
-========================= */
-
 function updateBalance() {
 
     document
@@ -1064,10 +945,6 @@ function updateBalance() {
             coins;
 }
 
-
-/* =========================
-   PAGES
-========================= */
 
 function showPage(page) {
 
@@ -1143,9 +1020,7 @@ function showPage(page) {
 }
 
 
-/* =====================================================
-   CASE LIST
-===================================================== */
+/* CASES */
 
 function renderCases() {
 
@@ -1271,10 +1146,6 @@ function renderCases() {
 }
 
 
-/* =========================
-   SELECT CASE
-========================= */
-
 function selectCase(caseId) {
 
     selectedCase =
@@ -1370,10 +1241,6 @@ function closeCase() {
 }
 
 
-/* =========================
-   CASE ITEMS
-========================= */
-
 function getSelectedCaseItems() {
 
     if (!selectedCase) {
@@ -1395,10 +1262,6 @@ function getSelectedCaseItems() {
 
 }
 
-
-/* =========================
-   ROULETTE
-========================= */
 
 function rouletteCard(item) {
 
@@ -1494,10 +1357,6 @@ function createIdleRoulette() {
 
 }
 
-
-/* =========================
-   CASE ANIMATION
-========================= */
 
 async function animateCase(
     winner
@@ -1672,10 +1531,6 @@ async function animateCase(
 }
 
 
-/* =========================
-   OPEN CASE
-========================= */
-
 async function openSelectedCase() {
 
     if (
@@ -1683,24 +1538,6 @@ async function openSelectedCase() {
         caseSpinning
     ) {
         return;
-    }
-
-
-    const items =
-        getSelectedCaseItems();
-
-
-    if (!items.length) {
-
-        document
-            .getElementById(
-                "caseResult"
-            )
-            .innerText =
-                "❌ В этом кейсе нет предметов";
-
-        return;
-
     }
 
 
@@ -1842,9 +1679,7 @@ async function openSelectedCase() {
 }
 
 
-/* =====================================================
-   INVENTORY
-===================================================== */
+/* INVENTORY */
 
 function renderInventory() {
 
@@ -1936,10 +1771,6 @@ function renderInventory() {
 
 }
 
-
-/* =========================
-   SELL
-========================= */
 
 async function sellItem(id) {
 
@@ -2040,9 +1871,7 @@ async function sellItem(id) {
 }
 
 
-/* =====================================================
-   UPGRADER SOURCE CARDS
-===================================================== */
+/* UPGRADER */
 
 function getSelectedSource() {
 
@@ -2197,11 +2026,6 @@ function selectUpgradeSource(
         inventoryId;
 
 
-    /*
-    При выборе нового исходного
-    сбрасываем старую цель.
-    */
-
     selectedTargetBrainrotId =
         null;
 
@@ -2216,10 +2040,6 @@ function selectUpgradeSource(
 
 }
 
-
-/* =====================================================
-   TARGET CARDS
-===================================================== */
 
 function renderUpgradeTargetGrid() {
 
@@ -2378,9 +2198,7 @@ function selectUpgradeTarget(
 }
 
 
-/* =========================
-   CHANCE
-========================= */
+/* NEW CHANCE FORMULA */
 
 function calculateChance(
     source,
@@ -2391,9 +2209,7 @@ function calculateChance(
         !source ||
         !target
     ) {
-
         return 0;
-
     }
 
 
@@ -2405,29 +2221,22 @@ function calculateChance(
             source.value
         )
     ) {
-
         return 0;
-
     }
 
 
     let chance =
-        Math.ceil(
-
-            Number(
-                source.value
-            )
-
-            /
-
-            Number(
-                target.value
-            )
-
-            *
-
-            100
-
+        Math.floor(
+            (
+                Number(
+                    source.value
+                ) /
+                Number(
+                    target.value
+                )
+            ) *
+            100 *
+            0.75
         );
 
 
@@ -2441,18 +2250,13 @@ function calculateChance(
     chance =
         Math.max(
             chance,
-            1
+            0
         );
 
 
     return chance;
-
 }
 
-
-/* =========================
-   UPDATE UPGRADE UI
-========================= */
 
 function updateUpgradeUI() {
 
@@ -2607,10 +2411,6 @@ function updateUpgradeUI() {
 }
 
 
-/* =====================================================
-   NEEDLE
-===================================================== */
-
 function randomBetween(
     min,
     max
@@ -2689,10 +2489,6 @@ async function spinUpgradeNeedle(
     }
 
 
-    /*
-    2–4 полных оборота
-    */
-
     const turns =
         2 +
         Math.floor(
@@ -2755,10 +2551,6 @@ async function spinUpgradeNeedle(
 
 }
 
-
-/* =========================
-   UPGRADE
-========================= */
 
 async function upgradeItem() {
 
@@ -2973,13 +2765,10 @@ async function upgradeItem() {
 }
 
 
-/* =========================
-   START
-========================= */
-
 loadPlayer();
 
 </script>
 
 </body>
+
 </html>
