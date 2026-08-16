@@ -95,8 +95,8 @@ button:disabled {
 
 .result {
     white-space: pre-line;
-    margin-top: 7px;
-    min-height: 20px;
+    margin-top: 4px;
+    min-height: 15px;
 }
 
 /* CASES */
@@ -234,34 +234,33 @@ button:disabled {
     color: white;
 }
 
-/* COMPACT CASE RESULT */
-
-.case-win-text {
-    margin-top: 6px;
-    font-size: 12px;
-    opacity: .88;
-    line-height: 1.2;
-}
-
-.case-win-name {
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.case-win-price {
-    font-size: 12px;
-    color: #facc15;
-    margin-left: 5px;
-}
+/* RESULT */
 
 .quick-sell-btn {
     width: 100%;
     margin-top: 5px;
-    padding: 9px;
+    padding: 10px;
     border-radius: 10px;
     background: #16a34a;
     color: white;
     font-size: 14px;
+}
+
+.case-win-text {
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: .7;
+    line-height: 1.2;
+}
+
+.case-win-name {
+    font-size: 11px;
+}
+
+.case-win-price {
+    font-size: 11px;
+    color: #facc15;
+    margin-left: 4px;
 }
 
 /* INVENTORY */
@@ -433,7 +432,7 @@ button:disabled {
     color: white;
 }
 
-/* MODALS */
+/* MODAL */
 
 .modal-overlay {
     position: fixed;
@@ -684,12 +683,12 @@ button:disabled {
 🎰 КРУТИТЬ
 </button>
 
+<div id="quickSellArea"></div>
+
 <div
     id="caseResult"
     class="result"
 ></div>
-
-<div id="quickSellArea"></div>
 
 </div>
 
@@ -728,9 +727,7 @@ button:disabled {
 
 <h3>
 Шанс:
-<span id="chanceText">
-0%
-</span>
+<span id="chanceText">0%</span>
 </h3>
 
 <div class="upgrade-wheel-wrap">
@@ -1117,9 +1114,13 @@ async function loadPlayer() {
             data.case_items || [];
 
         updateBalance();
+
         renderCases();
+
         renderInventory();
+
         renderSourceGrid();
+
         renderDepositGrid();
 
     }
@@ -1296,7 +1297,6 @@ function renderCases() {
             list.appendChild(
                 card
             );
-
         }
     );
 
@@ -1626,11 +1626,11 @@ async function openSelectedCase() {
     button.disabled =
         true;
 
-    result.innerHTML =
-        "🎰 Крутим...";
-
     quick.innerHTML =
         "";
+
+    result.innerHTML =
+        "🎰 Крутим...";
 
     try {
 
@@ -1692,17 +1692,7 @@ async function openSelectedCase() {
 
         renderSourceGrid();
 
-        result.innerHTML = `
-            <div class="case-win-text">
-                <span class="case-win-name">
-                    ${data.item.brainrot_name}
-                </span>
-
-                <span class="case-win-price">
-                    ${data.item.value} монет
-                </span>
-            </div>
-        `;
+        /* КНОПКА ТЕПЕРЬ ВЫШЕ */
 
         quick.innerHTML = `
             <button
@@ -1711,6 +1701,22 @@ async function openSelectedCase() {
             >
                 ПРОДАТЬ ЗА ${data.item.value}
             </button>
+        `;
+
+        /* НАЗВАНИЕ И ЦЕНА НИЖЕ МЕЛКИМ */
+
+        result.innerHTML = `
+            <div class="case-win-text">
+
+                <span class="case-win-name">
+                    ${data.item.brainrot_name}
+                </span>
+
+                <span class="case-win-price">
+                    ${data.item.value} монет
+                </span>
+
+            </div>
         `;
 
     }
@@ -1785,13 +1791,12 @@ async function quickSellCaseItem(id) {
         <div
             style="
                 color:#22c55e;
-                font-weight:bold;
-                margin-top:5px;
                 font-size:12px;
+                font-weight:bold;
+                margin-top:4px;
             "
         >
-            ✅ Продано за
-            ${data.added_coins}
+            ✅ Продано за ${data.added_coins}
         </div>
     `;
 }
@@ -3288,5 +3293,4 @@ loadPlayer();
 </script>
 
 </body>
-
 </html>
