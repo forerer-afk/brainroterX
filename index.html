@@ -151,6 +151,33 @@ if (telegramUser) {
     console.log("Telegram ID:", telegramUser.id);
     console.log("Имя:", telegramUser.first_name);
 }
+const FUNCTION_URL = "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
+
+async function loadPlayer() {
+    const response = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            action: "get_player",
+            initData: tg.initData
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+        coins = data.coins;
+        document.getElementById("coins").innerText = coins;
+
+        console.log("Инвентарь:", data.inventory);
+    } else {
+        console.log("Ошибка:", data.error);
+    }
+}
+
+loadPlayer();
 </script>
 </body>
 </html>
