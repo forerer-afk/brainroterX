@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -133,70 +132,87 @@ button:disabled {
     display: flex;
     justify-content: center;
     gap: 5px;
-
     margin: 10px 0;
-
     overflow: hidden;
 }
 
 .preview-img {
     width: 50px;
     height: 50px;
-
     object-fit: contain;
-
     background: #0f172a;
-
     border-radius: 9px;
-
     padding: 2px;
 }
 
 .case-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 13px;
-
     background: #f59e0b;
-
     color: white;
 }
 
 .back-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 12px;
-
     background: #334155;
-
     color: white;
-
     margin-bottom: 10px;
 }
 
-/* CASE CONTROLS */
+/* CASE TITLE */
+
+.case-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.case-title-row h2 {
+    margin: 0;
+    flex: 1;
+    text-align: left;
+}
+
+.speed-mini-btn {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+
+    border-radius: 10px;
+
+    background: #334155;
+    color: white;
+
+    font-size: 18px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.speed-mini-btn.active {
+    background: #7c3aed;
+    box-shadow: 0 0 10px rgba(124,58,237,.65);
+}
+
+/* COUNTS */
 
 .case-controls {
     display: flex;
-
     gap: 6px;
-
-    margin: 8px 0;
+    margin: 8px 0 5px;
 }
 
 .case-count-btn {
     flex: 1;
-
     padding: 9px 4px;
-
     border-radius: 9px;
-
     background: #334155;
-
     color: white;
 }
 
@@ -204,97 +220,61 @@ button:disabled {
     background: #f59e0b;
 }
 
-.speed-btn {
-    width: 100%;
-
-    padding: 9px;
-
-    margin-bottom: 7px;
-
-    border-radius: 10px;
-
-    background: #334155;
-
-    color: white;
-}
-
-.speed-btn.active {
-    background: #7c3aed;
+.total-case-price {
+    margin: 5px 0 8px;
+    font-size: 13px;
+    color: #facc15;
+    font-weight: bold;
 }
 
 /* ROULETTE */
 
 .roulette-container {
     position: relative;
-
     height: 155px;
-
     overflow: hidden;
-
     background: #0f172a;
-
     border: 2px solid #334155;
-
     border-radius: 16px;
-
     margin: 15px 0;
 }
 
 .roulette-pointer {
     position: absolute;
-
     z-index: 20;
-
     top: -2px;
     left: 50%;
-
     transform: translateX(-50%);
-
     color: #facc15;
-
     font-size: 30px;
 }
 
 .roulette-line {
     position: absolute;
-
     z-index: 10;
-
     top: 0;
     bottom: 0;
     left: 50%;
-
     width: 3px;
-
     transform: translateX(-50%);
-
     background: rgba(250,204,21,.6);
 }
 
 .roulette-track {
     height: 100%;
-
     display: flex;
     align-items: center;
-
     gap: 8px;
-
     padding-left: 10px;
-
     will-change: transform;
 }
 
 .roulette-item {
     flex: 0 0 116px;
-
     height: 128px;
-
     background: #1e293b;
-
     border: 2px solid #475569;
-
     border-radius: 13px;
-
     padding: 6px;
 
     display: flex;
@@ -306,33 +286,24 @@ button:disabled {
 .roulette-item img {
     width: 88px;
     height: 88px;
-
     object-fit: contain;
 }
 
 .roulette-name {
     width: 100%;
-
     font-size: 11px;
-
     font-weight: bold;
 
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .spin-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 13px;
-
     background: #f59e0b;
-
     color: white;
 }
 
@@ -341,65 +312,50 @@ button:disabled {
 .quick-sell-btn,
 .sell-all-btn {
     width: 100%;
-
     margin-top: 5px;
-
     padding: 10px;
-
     border-radius: 10px;
-
     background: #16a34a;
-
     color: white;
-
     font-size: 14px;
 }
 
 .case-win-text {
     margin-top: 4px;
-
     font-size: 11px;
-
     opacity: .7;
 }
 
-.case-win-name {
-    font-size: 11px;
-}
-
 .case-win-price {
-    font-size: 11px;
-
     color: #facc15;
-
     margin-left: 4px;
 }
 
 .multi-result {
     font-size: 11px;
-
     opacity: .78;
-
     margin-top: 5px;
-
     line-height: 1.45;
+}
+
+.insufficient {
+    margin-top: 7px;
+    color: #f87171;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 /* INVENTORY */
 
 .inventory-item {
     display: flex;
-
     gap: 12px;
-
     text-align: left;
 
     background: #1e293b;
-
     border-radius: 16px;
 
     padding: 12px;
-
     margin: 10px 0;
 }
 
@@ -410,13 +366,9 @@ button:disabled {
 .inventory-image {
     width: 82px;
     height: 82px;
-
     object-fit: contain;
-
     background: #0f172a;
-
     border-radius: 11px;
-
     padding: 3px;
 }
 
@@ -426,26 +378,20 @@ button:disabled {
 
 .inventory-name {
     font-weight: bold;
-
     font-size: 17px;
 }
 
 .inventory-actions {
     display: flex;
-
     gap: 7px;
-
     margin-top: 8px;
 }
 
 .sell-btn,
 .withdraw-btn {
     flex: 1;
-
     border-radius: 10px;
-
     padding: 10px 4px;
-
     color: white;
 }
 
@@ -459,9 +405,7 @@ button:disabled {
 
 .locked-text {
     margin-top: 8px;
-
     color: #facc15;
-
     font-size: 13px;
 }
 
@@ -469,65 +413,50 @@ button:disabled {
 
 .upgrade-grid {
     display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
+    grid-template-columns: repeat(3,1fr);
     gap: 7px;
 }
 
 .upgrade-choice {
     background: #0f172a;
-
     border: 2px solid #334155;
-
     border-radius: 13px;
-
     padding: 6px;
-
     cursor: pointer;
 }
 
 .upgrade-choice.selected {
     border-color: #a855f7;
-
     box-shadow: 0 0 12px rgba(168,85,247,.5);
 }
 
 .upgrade-choice img {
     width: 70px;
     height: 70px;
-
     object-fit: contain;
 }
 
 .choice-name {
     font-size: 10px;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .choice-price {
     font-size: 12px;
-
     color: #facc15;
 }
 
 .upgrade-wheel-wrap {
     position: relative;
-
     width: 220px;
     height: 220px;
-
     margin: 18px auto;
 }
 
 .upgrade-wheel {
     position: absolute;
-
     inset: 0;
 
     border-radius: 50%;
@@ -555,17 +484,13 @@ button:disabled {
     transform: translate(-50%,-50%);
 
     background: #0f172a;
-
     border-radius: 50%;
 }
 
 .needle-rotor {
     position: absolute;
-
     inset: 0;
-
     z-index: 10;
-
     pointer-events: none;
 }
 
@@ -587,7 +512,6 @@ button:disabled {
 
 .wheel-text {
     position: absolute;
-
     z-index: 5;
 
     left: 50%;
@@ -596,37 +520,28 @@ button:disabled {
     transform: translate(-50%,-50%);
 
     font-size: 28px;
-
     font-weight: bold;
 }
 
 .upgrade-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 13px;
-
     background: #7c3aed;
-
     color: white;
 }
 
-/* MODAL */
+/* MODALS */
 
 .modal-overlay {
     position: fixed;
-
     z-index: 500;
-
     inset: 0;
 
     background: rgba(0,0,0,.72);
 
     display: none;
-
     align-items: flex-end;
-
     justify-content: center;
 }
 
@@ -636,9 +551,7 @@ button:disabled {
 
 .modal {
     width: 100%;
-
     max-width: 520px;
-
     max-height: 90vh;
 
     overflow-y: auto;
@@ -652,73 +565,51 @@ button:disabled {
 
 .modal-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 }
 
 .modal-title {
     font-size: 23px;
-
     font-weight: bold;
 }
 
 .close-btn {
     background: #334155;
-
     color: white;
-
     border-radius: 10px;
-
     padding: 8px 11px;
 }
 
 .text-input {
     width: 100%;
-
     border: none;
-
     border-radius: 12px;
-
     padding: 13px;
-
     font-size: 16px;
-
     margin: 7px 0;
 }
 
 .input-label {
     text-align: left;
-
     margin-top: 12px;
-
     margin-bottom: 2px;
-
     font-size: 13px;
-
     opacity: .8;
 }
 
 .time-row {
     display: grid;
-
     grid-template-columns: 1fr 1.3fr;
-
     gap: 8px;
 }
 
 .submit-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 14px;
-
     margin-top: 8px;
-
     background: #22c55e;
-
     color: white;
 }
 
@@ -730,93 +621,69 @@ button:disabled {
 
 .deposit-grid {
     display: grid;
-
     grid-template-columns: repeat(3,1fr);
-
     gap: 8px;
-
     margin-top: 15px;
 }
 
 .deposit-item {
     background: #0f172a;
-
     border: 2px solid #334155;
-
     border-radius: 14px;
-
     padding: 7px 5px;
 }
 
 .deposit-item img {
     width: 72px;
     height: 72px;
-
     object-fit: contain;
 }
 
 .deposit-item-name {
     font-size: 10px;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .deposit-item-price {
     font-size: 12px;
-
     color: #22c55e;
-
     margin-top: 3px;
 }
 
 .quantity-controls {
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
     gap: 5px;
-
     margin-top: 6px;
 }
 
 .quantity-btn {
     width: 27px;
     height: 27px;
-
     border-radius: 7px;
-
     background: #334155;
-
     color: white;
 }
 
 .quantity-number {
     min-width: 20px;
-
     font-weight: bold;
 }
 
 .deposit-summary {
     background: #0f172a;
-
     border-radius: 13px;
-
     padding: 12px;
-
     margin: 15px 0;
 }
 
-/* MENU */
+/* BOTTOM MENU */
 
 .bottom-menu {
     position: fixed;
-
     bottom: 0;
     left: 0;
     right: 0;
@@ -832,22 +699,17 @@ button:disabled {
 
 .nav-btn {
     width: 33.333%;
-
     padding: 11px 3px;
-
     background: transparent;
-
     color: #94a3b8;
 }
 
 .nav-btn.active {
     background: #334155;
-
     color: white;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -874,7 +736,6 @@ button:disabled {
 </div>
 
 </div>
-
 
 <div class="game">
 
@@ -903,9 +764,25 @@ button:disabled {
 
 <div class="panel">
 
+<div class="case-title-row">
+
 <h2 id="activeCaseName"></h2>
 
-<div id="activeCasePrice"></div>
+<button
+    id="speedButton"
+    class="speed-mini-btn"
+    onclick="toggleCaseSpeed()"
+>
+⚡
+</button>
+
+</div>
+
+<div
+    id="activeCasePrice"
+    style="margin-top:6px;text-align:left;opacity:.8"
+></div>
+
 
 <div
     id="rouletteContainer"
@@ -963,13 +840,12 @@ x5
 </div>
 
 
-<button
-    id="speedButton"
-    class="speed-btn"
-    onclick="toggleCaseSpeed()"
+<div
+    id="totalCasePrice"
+    class="total-case-price"
 >
-⚡ Ускорение x2.5: ВЫКЛ
-</button>
+Будет потрачено: 0 монет
+</div>
 
 
 <button
@@ -1028,9 +904,7 @@ x5
 
 <h3>
 Шанс:
-<span id="chanceText">
-0%
-</span>
+<span id="chanceText">0%</span>
 </h3>
 
 <div class="upgrade-wheel-wrap">
@@ -1044,9 +918,7 @@ x5
     id="needleRotor"
     class="needle-rotor"
 >
-
 <div class="upgrade-needle"></div>
-
 </div>
 
 <div
@@ -1182,7 +1054,6 @@ Roblox ник
 >
 
 <button
-    id="depositSubmit"
     class="submit-btn"
     onclick="submitDeposit()"
 >
@@ -1270,7 +1141,6 @@ Roblox ник
 </div>
 
 <button
-    id="withdrawSubmit"
     class="submit-btn withdraw-submit"
     onclick="submitWithdraw()"
 >
@@ -1375,8 +1245,8 @@ function normalizeName(name) {
     return String(
         name || ""
     )
-        .trim()
-        .toLowerCase();
+    .trim()
+    .toLowerCase();
 }
 
 
@@ -1526,17 +1396,11 @@ function showPage(page) {
         "inventoryPage"
     ]
     .forEach(
-        id => {
-
+        id =>
             document
-                .getElementById(
-                    id
-                )
+                .getElementById(id)
                 .classList
-                .remove(
-                    "active"
-                );
-        }
+                .remove("active")
     );
 
 
@@ -1546,17 +1410,11 @@ function showPage(page) {
         "inventoryButton"
     ]
     .forEach(
-        id => {
-
+        id =>
             document
-                .getElementById(
-                    id
-                )
+                .getElementById(id)
                 .classList
-                .remove(
-                    "active"
-                );
-        }
+                .remove("active")
     );
 
 
@@ -1566,9 +1424,7 @@ function showPage(page) {
             "Page"
         )
         .classList
-        .add(
-            "active"
-        );
+        .add("active");
 
 
     document
@@ -1577,9 +1433,7 @@ function showPage(page) {
             "Button"
         )
         .classList
-        .add(
-            "active"
-        );
+        .add("active");
 
 
     if (
@@ -1650,6 +1504,8 @@ function setCaseCount(count) {
 
 
     updateSpinButtonText();
+
+    updateTotalCasePrice();
 }
 
 
@@ -1658,13 +1514,9 @@ function toggleCaseSpeed() {
     caseSpeed =
         caseSpeed ===
         1
-
         ?
-
-        2.5
-
+        5
         :
-
         1;
 
 
@@ -1675,36 +1527,13 @@ function toggleCaseSpeed() {
             );
 
 
-    if (
-        caseSpeed ===
-        2.5
-    ) {
-
-        button
-            .classList
-            .add(
-                "active"
-            );
-
-
-        button.innerText =
-            "⚡ Ускорение x2.5: ВКЛ";
-
-    }
-
-    else {
-
-        button
-            .classList
-            .remove(
-                "active"
-            );
-
-
-        button.innerText =
-            "⚡ Ускорение x2.5: ВЫКЛ";
-
-    }
+    button
+        .classList
+        .toggle(
+            "active",
+            caseSpeed ===
+            5
+        );
 }
 
 
@@ -1736,6 +1565,70 @@ function updateSpinButtonText() {
 
         button.innerText =
             `🎰 ОТКРЫТЬ ×${caseOpenCount}`;
+
+    }
+}
+
+
+function getTotalCaseCost() {
+
+    if (!selectedCase) {
+        return 0;
+    }
+
+
+    return (
+        Number(
+            selectedCase.price
+        ) *
+        Number(
+            caseOpenCount
+        )
+    );
+}
+
+
+function updateTotalCasePrice() {
+
+    const box =
+        document
+            .getElementById(
+                "totalCasePrice"
+            );
+
+
+    if (
+        !box ||
+        !selectedCase
+    ) {
+        return;
+    }
+
+
+    const total =
+        getTotalCaseCost();
+
+
+    box.innerText =
+        "Будет потрачено: " +
+        total +
+        " монет";
+
+
+    if (
+        coins <
+        total
+    ) {
+
+        box.style.color =
+            "#f87171";
+
+    }
+
+    else {
+
+        box.style.color =
+            "#facc15";
 
     }
 }
@@ -1943,15 +1836,16 @@ function selectCase(id) {
             "activeCasePrice"
         )
         .innerText =
-            "Цена: " +
+            "Цена одного: " +
             selectedCase.price +
             " монет";
 
 
     createIdleRoulette();
 
-
     updateSpinButtonText();
+
+    updateTotalCasePrice();
 }
 
 
@@ -2080,7 +1974,6 @@ function createIdleRoulette() {
             )
 
         );
-
     }
 }
 
@@ -2157,7 +2050,6 @@ async function animateCase(
                         items.length
                     )
                 ];
-
         }
 
 
@@ -2178,11 +2070,9 @@ async function animateCase(
         }
 
 
-        track
-            .appendChild(
-                card
-            );
-
+        track.appendChild(
+            card
+        );
     }
 
 
@@ -2236,11 +2126,13 @@ async function animateCase(
             setTimeout(
                 resolve,
                 animationTime +
-                150
+                100
             )
     );
 }
 
+
+/* OPEN CASE */
 
 async function openSelectedCase() {
 
@@ -2250,17 +2142,6 @@ async function openSelectedCase() {
     ) {
         return;
     }
-
-
-    caseSpinning =
-        true;
-
-
-    const button =
-        document
-            .getElementById(
-                "spinButton"
-            );
 
 
     const result =
@@ -2274,6 +2155,82 @@ async function openSelectedCase() {
         document
             .getElementById(
                 "quickSellArea"
+            );
+
+
+    /*
+    =================================
+    ПРОВЕРКА ВСЕЙ СУММЫ ДО ОТКРЫТИЯ
+    =================================
+    */
+
+    const totalCost =
+        getTotalCaseCost();
+
+
+    if (
+        coins <
+        totalCost
+    ) {
+
+        const missing =
+            totalCost -
+            coins;
+
+
+        quick.innerHTML =
+            "";
+
+
+        result.innerHTML = `
+
+            <div class="insufficient">
+
+                ❌ Не хватает
+                ${missing}
+                монет
+
+            </div>
+
+            <div
+                style="
+                    font-size:11px;
+                    opacity:.7;
+                    margin-top:3px;
+                "
+            >
+
+                Нужно:
+                ${totalCost}
+
+                ·
+
+                Баланс:
+                ${coins}
+
+            </div>
+
+        `;
+
+
+        return;
+    }
+
+
+    /*
+    Если денег хватает на ВСЕ,
+    только тогда начинаем.
+    */
+
+
+    caseSpinning =
+        true;
+
+
+    const button =
+        document
+            .getElementById(
+                "spinButton"
             );
 
 
@@ -2293,17 +2250,7 @@ async function openSelectedCase() {
         [];
 
 
-    let lastError =
-        null;
-
-
     try {
-
-        /*
-        Запросы идут по одному.
-        Так сервер каждый раз получает
-        новый актуальный баланс.
-        */
 
         for (
             let i = 0;
@@ -2325,24 +2272,15 @@ async function openSelectedCase() {
 
             if (!data.ok) {
 
-                lastError =
-                    data.error;
+                /*
+                В нормальной ситуации сюда
+                уже не попадём из-за баланса.
+                */
 
-
-                if (
-                    data.coins !==
-                    undefined
-                ) {
-
-                    coins =
-                        Number(
-                            data.coins
-                        );
-
-                }
-
-
-                break;
+                throw new Error(
+                    data.error ||
+                    "Ошибка открытия кейса"
+                );
             }
 
 
@@ -2360,42 +2298,14 @@ async function openSelectedCase() {
             inventory.unshift(
                 data.item
             );
-
-        }
-
-
-        if (
-            winners.length ===
-            0
-        ) {
-
-            result.innerText =
-                "❌ " +
-                (
-                    lastError ||
-                    "Не удалось открыть кейс"
-                );
-
-
-            updateBalance();
-
-
-            button.disabled =
-                false;
-
-
-            caseSpinning =
-                false;
-
-
-            return;
         }
 
 
         /*
-        Для рулетки используем
-        последний реально выпавший предмет.
+        Рулетка останавливается
+        на последнем выпавшем.
         */
+
 
         const rouletteWinner =
             winners[
@@ -2411,15 +2321,16 @@ async function openSelectedCase() {
 
         updateBalance();
 
+        updateTotalCasePrice();
+
 
         renderInventory();
-
 
         renderSourceGrid();
 
 
         /*
-        ОДИН КЕЙС
+        X1
         */
 
         if (
@@ -2449,11 +2360,7 @@ async function openSelectedCase() {
 
                 <div class="case-win-text">
 
-                    <span class="case-win-name">
-
-                        ${item.brainrot_name}
-
-                    </span>
+                    ${item.brainrot_name}
 
                     <span class="case-win-price">
 
@@ -2468,7 +2375,7 @@ async function openSelectedCase() {
         }
 
         /*
-        НЕСКОЛЬКО КЕЙСОВ
+        X3 / X4 / X5
         */
 
         else {
@@ -2530,44 +2437,6 @@ async function openSelectedCase() {
                 </div>
 
             `;
-
-        }
-
-
-        /*
-        Если не хватило денег на все,
-        показываем это после выпавших.
-        */
-
-        if (
-            winners.length <
-            caseOpenCount &&
-            lastError
-        ) {
-
-            result.innerHTML += `
-
-                <div
-                    style="
-                        margin-top:5px;
-                        color:#facc15;
-                        font-size:11px;
-                    "
-                >
-
-                    Открыто:
-                    ${winners.length}
-                    из
-                    ${caseOpenCount}
-
-                    <br>
-
-                    ${lastError}
-
-                </div>
-
-            `;
-
         }
 
     }
@@ -2579,9 +2448,22 @@ async function openSelectedCase() {
         );
 
 
-        result.innerText =
-            "❌ Ошибка подключения";
+        /*
+        После неожиданной ошибки
+        перезагружаем состояние с сервера,
+        чтобы баланс и инвентарь
+        точно совпадали.
+        */
 
+        result.innerText =
+            "❌ " +
+            (
+                error.message ||
+                "Ошибка открытия"
+            );
+
+
+        await loadPlayer();
     }
 
 
@@ -2594,7 +2476,7 @@ async function openSelectedCase() {
 }
 
 
-/* QUICK SELL ONE */
+/* SELL ONE */
 
 async function quickSellCaseItem(id) {
 
@@ -2651,9 +2533,9 @@ async function quickSellCaseItem(id) {
 
     updateBalance();
 
+    updateTotalCasePrice();
 
     renderInventory();
-
 
     renderSourceGrid();
 
@@ -2678,7 +2560,7 @@ async function quickSellCaseItem(id) {
 }
 
 
-/* QUICK SELL MANY */
+/* SELL MANY */
 
 async function quickSellMany(ids) {
 
@@ -2719,9 +2601,7 @@ async function quickSellMany(ids) {
 
 
         if (!data.ok) {
-
             continue;
-
         }
 
 
@@ -2750,15 +2630,14 @@ async function quickSellMany(ids) {
                         id
                     )
             );
-
     }
 
 
     updateBalance();
 
+    updateTotalCasePrice();
 
     renderInventory();
-
 
     renderSourceGrid();
 
@@ -2777,7 +2656,7 @@ async function quickSellMany(ids) {
             ✅ Продано:
             ${soldCount}
 
-            <br>
+            ·
 
             +${totalAdded} монет
 
@@ -2845,7 +2724,6 @@ function renderInventory() {
                     src="${getImage(item.brainrot_name)}"
                 >
 
-
                 <div class="inventory-info">
 
                     <div class="inventory-name">
@@ -2854,20 +2732,17 @@ function renderInventory() {
 
                     </div>
 
-
                     <div>
 
                         💰 ${item.value}
 
                     </div>
 
-
                     <div>
 
                         ⭐ ${item.rarity}
 
                     </div>
-
 
                     ${
                         locked
@@ -2899,7 +2774,6 @@ function renderInventory() {
 
                             </button>
 
-
                             <button
                                 class="withdraw-btn"
                                 onclick="openWithdrawModal(${item.id})"
@@ -2919,10 +2793,9 @@ function renderInventory() {
             `;
 
 
-            box
-                .appendChild(
-                    div
-                );
+            box.appendChild(
+                div
+            );
 
         }
     );
@@ -2983,24 +2856,20 @@ async function sellItem(id) {
         selectedSourceId =
             null;
 
-
         selectedTargetId =
             null;
-
     }
 
 
     updateBalance();
 
+    updateTotalCasePrice();
 
     renderInventory();
 
-
     renderSourceGrid();
 
-
     renderTargetGrid();
-
 
     updateUpgradeUI();
 }
@@ -3056,11 +2925,10 @@ function renderSourceGrid() {
 
 
     const available =
-        inventory
-            .filter(
-                item =>
-                    !item.locked
-            );
+        inventory.filter(
+            item =>
+                !item.locked
+        );
 
 
     if (!available.length) {
@@ -3072,90 +2940,85 @@ function renderSourceGrid() {
     }
 
 
-    available
-        .forEach(
-            item => {
+    available.forEach(
+        item => {
 
 
-                const card =
-                    document
-                        .createElement(
-                            "div"
-                        );
-
-
-                card.className =
-                    "upgrade-choice";
-
-
-                if (
-                    Number(
-                        selectedSourceId
-                    ) ===
-                    Number(
-                        item.id
-                    )
-                ) {
-
-                    card
-                        .classList
-                        .add(
-                            "selected"
-                        );
-
-                }
-
-
-                card.innerHTML = `
-
-                    <img
-                        src="${getImage(item.brainrot_name)}"
-                    >
-
-                    <div class="choice-name">
-
-                        ${item.brainrot_name}
-
-                    </div>
-
-                    <div class="choice-price">
-
-                        💰 ${item.value}
-
-                    </div>
-
-                `;
-
-
-                card.onclick =
-                    () => {
-
-                        selectedSourceId =
-                            item.id;
-
-
-                        selectedTargetId =
-                            null;
-
-
-                        renderSourceGrid();
-
-
-                        renderTargetGrid();
-
-
-                        updateUpgradeUI();
-
-                    };
-
-
-                box
-                    .appendChild(
-                        card
+            const card =
+                document
+                    .createElement(
+                        "div"
                     );
 
+
+            card.className =
+                "upgrade-choice";
+
+
+            if (
+                Number(
+                    selectedSourceId
+                ) ===
+                Number(
+                    item.id
+                )
+            ) {
+
+                card
+                    .classList
+                    .add(
+                        "selected"
+                    );
             }
-        );
+
+
+            card.innerHTML = `
+
+                <img
+                    src="${getImage(item.brainrot_name)}"
+                >
+
+                <div class="choice-name">
+
+                    ${item.brainrot_name}
+
+                </div>
+
+                <div class="choice-price">
+
+                    💰 ${item.value}
+
+                </div>
+
+            `;
+
+
+            card.onclick =
+                () => {
+
+                    selectedSourceId =
+                        item.id;
+
+
+                    selectedTargetId =
+                        null;
+
+
+                    renderSourceGrid();
+
+                    renderTargetGrid();
+
+                    updateUpgradeUI();
+
+                };
+
+
+            box.appendChild(
+                card
+            );
+
+        }
+    );
 }
 
 
@@ -3219,83 +3082,79 @@ function renderTargetGrid() {
     }
 
 
-    targets
-        .forEach(
-            item => {
+    targets.forEach(
+        item => {
 
 
-                const card =
-                    document
-                        .createElement(
-                            "div"
-                        );
-
-
-                card.className =
-                    "upgrade-choice";
-
-
-                if (
-                    Number(
-                        selectedTargetId
-                    ) ===
-                    Number(
-                        item.brainrot_id
-                    )
-                ) {
-
-                    card
-                        .classList
-                        .add(
-                            "selected"
-                        );
-
-                }
-
-
-                card.innerHTML = `
-
-                    <img
-                        src="${getImage(item.name)}"
-                    >
-
-                    <div class="choice-name">
-
-                        ${item.name}
-
-                    </div>
-
-                    <div class="choice-price">
-
-                        💰 ${item.value}
-
-                    </div>
-
-                `;
-
-
-                card.onclick =
-                    () => {
-
-                        selectedTargetId =
-                            item.brainrot_id;
-
-
-                        renderTargetGrid();
-
-
-                        updateUpgradeUI();
-
-                    };
-
-
-                box
-                    .appendChild(
-                        card
+            const card =
+                document
+                    .createElement(
+                        "div"
                     );
 
+
+            card.className =
+                "upgrade-choice";
+
+
+            if (
+                Number(
+                    selectedTargetId
+                ) ===
+                Number(
+                    item.brainrot_id
+                )
+            ) {
+
+                card
+                    .classList
+                    .add(
+                        "selected"
+                    );
             }
-        );
+
+
+            card.innerHTML = `
+
+                <img
+                    src="${getImage(item.name)}"
+                >
+
+                <div class="choice-name">
+
+                    ${item.name}
+
+                </div>
+
+                <div class="choice-price">
+
+                    💰 ${item.value}
+
+                </div>
+
+            `;
+
+
+            card.onclick =
+                () => {
+
+                    selectedTargetId =
+                        item.brainrot_id;
+
+
+                    renderTargetGrid();
+
+                    updateUpgradeUI();
+
+                };
+
+
+            box.appendChild(
+                card
+            );
+
+        }
+    );
 }
 
 
@@ -3308,9 +3167,7 @@ function calculateChance(
         !source ||
         !target
     ) {
-
         return 0;
-
     }
 
 
@@ -3429,14 +3286,10 @@ async function spinNeedle(
         target =
             green <=
             8
-
             ?
-
             green /
             2
-
             :
-
             randomBetween(
                 4,
                 green -
@@ -3453,7 +3306,6 @@ async function spinNeedle(
                 5,
                 355
             );
-
     }
 
 
@@ -3484,12 +3336,8 @@ async function spinNeedle(
 
 
     needleRotation +=
-
         turns *
-        360
-
-        +
-
+        360 +
         delta;
 
 
@@ -3539,7 +3387,6 @@ async function upgradeItem() {
             "❌ Выбери свой Brainrot";
 
         return;
-
     }
 
 
@@ -3549,7 +3396,6 @@ async function upgradeItem() {
             "❌ Выбери цель";
 
         return;
-
     }
 
 
@@ -3596,11 +3442,11 @@ async function upgradeItem() {
                 data.error;
 
 
-            upgrading =
+            button.disabled =
                 false;
 
 
-            button.disabled =
+            upgrading =
                 false;
 
 
@@ -3652,7 +3498,6 @@ async function upgradeItem() {
                 " сгорел\nШанс: " +
                 data.chance +
                 "%";
-
         }
 
 
@@ -3666,12 +3511,9 @@ async function upgradeItem() {
 
         renderInventory();
 
-
         renderSourceGrid();
 
-
         renderTargetGrid();
-
 
         updateUpgradeUI();
 
@@ -3679,22 +3521,19 @@ async function upgradeItem() {
 
     catch (error) {
 
-        console.log(
-            error
-        );
+        console.log(error);
 
 
         result.innerText =
             "❌ Ошибка подключения";
-
     }
 
 
-    upgrading =
+    button.disabled =
         false;
 
 
-    button.disabled =
+    upgrading =
         false;
 }
 
@@ -3728,15 +3567,11 @@ function getGaramaValue() {
 
 
     return garama
-
         ?
-
         Number(
             garama.value
         )
-
         :
-
         Infinity;
 }
 
@@ -3842,9 +3677,7 @@ function renderDepositGrid() {
                             class="quantity-btn"
                             onclick="changeDepositQuantity(${item.brainrot_id}, -1)"
                         >
-
                             −
-
                         </button>
 
                         <span class="quantity-number">
@@ -3857,9 +3690,7 @@ function renderDepositGrid() {
                             class="quantity-btn"
                             onclick="changeDepositQuantity(${item.brainrot_id}, 1)"
                         >
-
                             +
-
                         </button>
 
                     </div>
@@ -3867,10 +3698,9 @@ function renderDepositGrid() {
                 `;
 
 
-                box
-                    .appendChild(
-                        div
-                    );
+                box.appendChild(
+                    div
+                );
 
             }
         );
@@ -3926,7 +3756,6 @@ function changeDepositQuantity(
         );
 
         return;
-
     }
 
 
@@ -3955,7 +3784,6 @@ function changeDepositQuantity(
             brainrotId
         ] =
             next;
-
     }
 
 
@@ -4054,9 +3882,7 @@ function openDepositModal() {
             "depositModal"
         )
         .classList
-        .add(
-            "show"
-        );
+        .add("show");
 }
 
 
@@ -4067,9 +3893,7 @@ function closeDepositModal() {
             "depositModal"
         )
         .classList
-        .remove(
-            "show"
-        );
+        .remove("show");
 }
 
 
@@ -4099,7 +3923,7 @@ async function submitDeposit() {
             .filter(
                 (
                     [
-                        brainrotId,
+                        id,
                         quantity
                     ]
                 ) =>
@@ -4136,7 +3960,6 @@ async function submitDeposit() {
             "❌ Выбери Brainrot";
 
         return;
-
     }
 
 
@@ -4149,7 +3972,6 @@ async function submitDeposit() {
             "❌ Введи Roblox ник";
 
         return;
-
     }
 
 
@@ -4157,53 +3979,36 @@ async function submitDeposit() {
         "⏳ Отправляем заявку...";
 
 
-    try {
+    const data =
+        await apiRequest({
 
-        const data =
-            await apiRequest({
+            action:
+                "create_balance_request",
 
-                action:
-                    "create_balance_request",
+            roblox_username:
+                username,
 
-                roblox_username:
-                    username,
+            items:
+                items
 
-                items:
-                    items
-
-            });
+        });
 
 
-        if (!data.ok) {
-
-            result.innerText =
-                "❌ " +
-                data.error;
-
-            return;
-
-        }
-
+    if (!data.ok) {
 
         result.innerText =
-            "✅ Заявка #" +
-            data.request_id +
-            " отправлена.\n" +
-            "Ожидай подтверждения администратора.";
+            "❌ " +
+            data.error;
 
+        return;
     }
 
-    catch (error) {
 
-        console.log(
-            error
-        );
-
-
-        result.innerText =
-            "❌ Ошибка подключения";
-
-    }
+    result.innerText =
+        "✅ Заявка #" +
+        data.request_id +
+        " отправлена.\n" +
+        "Ожидай подтверждения администратора.";
 }
 
 
@@ -4298,9 +4103,7 @@ function openWithdrawModal(
             "withdrawModal"
         )
         .classList
-        .add(
-            "show"
-        );
+        .add("show");
 }
 
 
@@ -4315,9 +4118,7 @@ function closeWithdrawModal() {
             "withdrawModal"
         )
         .classList
-        .remove(
-            "show"
-        );
+        .remove("show");
 }
 
 
@@ -4334,9 +4135,7 @@ function buildWithdrawDate(
         parts.length !==
         2
     ) {
-
         return null;
-
     }
 
 
@@ -4366,9 +4165,7 @@ function buildWithdrawDate(
         minute >
         59
     ) {
-
         return null;
-
     }
 
 
@@ -4400,9 +4197,7 @@ function buildWithdrawDate(
         date.getDate() !==
         day
     ) {
-
         return null;
-
     }
 
 
@@ -4426,7 +4221,6 @@ function buildWithdrawDate(
 
             year +=
                 1;
-
         }
 
 
@@ -4446,11 +4240,8 @@ function buildWithdrawDate(
             date.getDate() !==
             day
         ) {
-
             return null;
-
         }
-
     }
 
 
@@ -4508,7 +4299,6 @@ async function submitWithdraw() {
             "❌ Введи Roblox ник";
 
         return;
-
     }
 
 
@@ -4524,7 +4314,6 @@ async function submitWithdraw() {
             "❌ Введи день от 1 до 31";
 
         return;
-
     }
 
 
@@ -4534,7 +4323,6 @@ async function submitWithdraw() {
             "❌ Выбери время";
 
         return;
-
     }
 
 
@@ -4551,7 +4339,6 @@ async function submitWithdraw() {
             "❌ Такой даты нет";
 
         return;
-
     }
 
 
@@ -4559,88 +4346,70 @@ async function submitWithdraw() {
         "⏳ Создаём заявку...";
 
 
-    try {
+    const data =
+        await apiRequest({
 
-        const data =
-            await apiRequest({
+            action:
+                "create_withdraw_request",
 
-                action:
-                    "create_withdraw_request",
+            inventory_id:
+                selectedWithdrawItem.id,
 
-                inventory_id:
-                    selectedWithdrawItem.id,
+            roblox_username:
+                username,
 
-                roblox_username:
-                    username,
+            requested_time:
+                requestedDate
+                    .toISOString()
 
-                requested_time:
-                    requestedDate
-                        .toISOString()
-
-            });
+        });
 
 
-        if (!data.ok) {
-
-            result.innerText =
-                "❌ " +
-                data.error;
-
-            return;
-
-        }
-
-
-        const item =
-            inventory.find(
-                x =>
-                    Number(
-                        x.id
-                    ) ===
-                    Number(
-                        selectedWithdrawItem.id
-                    )
-            );
-
-
-        if (item) {
-
-            item.locked =
-                true;
-
-        }
-
-
-        renderInventory();
-
-
-        renderSourceGrid();
-
+    if (!data.ok) {
 
         result.innerText =
-            "✅ Заявка #" +
-            data.request_id +
-            " создана.\n" +
-            "Время: " +
-            day +
-            " в " +
-            clock +
-            "\n" +
-            "Ожидай подтверждения администратора.";
+            "❌ " +
+            data.error;
 
+        return;
     }
 
-    catch (error) {
 
-        console.log(
-            error
+    const item =
+        inventory.find(
+            x =>
+                Number(
+                    x.id
+                ) ===
+                Number(
+                    selectedWithdrawItem.id
+                )
         );
 
 
-        result.innerText =
-            "❌ Ошибка подключения";
+    if (item) {
+
+        item.locked =
+            true;
 
     }
+
+
+    renderInventory();
+
+    renderSourceGrid();
+
+
+    result.innerText =
+        "✅ Заявка #" +
+        data.request_id +
+        " создана.\n" +
+        "Время: " +
+        day +
+        " в " +
+        clock +
+        "\n" +
+        "Ожидай подтверждения администратора.";
 }
 
 
@@ -4651,5 +4420,4 @@ loadPlayer();
 </script>
 
 </body>
-
 </html>
