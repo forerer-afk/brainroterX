@@ -94,15 +94,43 @@ button {
 </div>
 
 <script>
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
 
 let coins = 0;
 
-const brainrots = [
-    {name: "🧠 Tralalero Tralala", chance: 50},
-    {name: "🦈 Tralalita", chance: 30},
-    {name: "🐊 Crocodilo", chance: 15},
-    {name: "👑 Secret Brainrot", chance: 5}
-];
+// ВАЖНО: сюда оставь СВОЮ настоящую ссылку Edge Function
+const FUNCTION_URL = "ТВОЯ_ССЫЛКА_НА_TELEGRAM_PLAYER";
+
+
+async function loadPlayer() {
+    try {
+        const response = await fetch(FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                action: "get_player",
+                initData: tg.initData
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+            coins = data.coins;
+            document.getElementById("coins").innerText = coins;
+        } else {
+            console.log("Ошибка загрузки:", data.error);
+        }
+
+    } catch (error) {
+        console.log("Ошибка подключения:", error);
+    }
+}
+
 
 async function openCase() {
     const result = document.getElementById("result");
@@ -139,86 +167,15 @@ async function openCase() {
         document.getElementById("coins").innerText = coins;
 
         result.innerText =
-            "🎉 Выпал: " +
-            data.item.brainrot_name +
-            "\n⭐ " +
-            data.item.rarity;
+            "🎉 Выпал: " + data.item.brainrot_name +
+            "\n⭐ " + data.item.rarity;
+
     } catch (error) {
         result.innerText = "❌ Ошибка подключения";
         console.log(error);
     }
 }
 
-    if (coins < 19) {
-        document.getElementById("result").innerText =
-            "❌ Недостаточно монет!";
-        return;
-    }
-
-    coins -= 19;
-
-    document.getElementById("coins").innerText = coins;
-
-    const result = document.getElementById("result");
-
-    result.innerText = "🎰 КРУТИТСЯ...";
-
-    setTimeout(() => {
-
-        const random = Math.random() * 19;
-
-        let total = 0;
-        let winner = null;
-
-        for (const brainrot of brainrots) {
-
-            total += brainrot.chance;
-
-            if (random <= total) {
-                winner = brainrot;
-                break;
-            }
-        }
-
-        result.innerText = "🎉 Выпал: " + winner.name;
-
-    }, 2000);
-}
-
-const tg = window.Telegram.WebApp;
-tg.ready();
-
-const telegramUser = tg.initDataUnsafe.user;
-
-if (telegramUser) {
-    console.log("Telegram ID:", telegramUser.id);
-    console.log("Имя:", telegramUser.first_name);
-}
-const FUNCTION_URL = "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
-
-async function loadPlayer() {
-    const response = await fetch(FUNCTION_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            action: "get_player",
-            initData: tg.initData
-        })
-    });
-
-    const data = await response.json();
-
-    if (data.ok) {
-        coins = data.coins;
-        document.getElementById("coins").innerText = coins;
-
-        console.log("Инвентарь:", data.inventory);
-    } else {
-        console.log("Ошибка:", data.error);
-    }
-}
 
 loadPlayer();
 </script>
