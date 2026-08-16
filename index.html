@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Brainroter X</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -18,6 +21,7 @@ body {
     font-family: Arial, sans-serif;
     background: #0f172a;
     color: white;
+    overflow-x: hidden;
 }
 
 button {
@@ -31,19 +35,23 @@ button:disabled {
     cursor: default;
 }
 
+/* =========================
+   TOP BAR
+========================= */
+
 .topbar {
     position: sticky;
     top: 0;
     z-index: 100;
-
-    background: #0f172a;
-    border-bottom: 1px solid #334155;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
 
     padding: 10px 12px;
+
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
 }
 
 .logo {
@@ -70,6 +78,10 @@ button:disabled {
     border-radius: 12px;
     padding: 10px 12px;
 }
+
+/* =========================
+   MAIN
+========================= */
 
 .game {
     max-width: 520px;
@@ -98,7 +110,9 @@ button:disabled {
     min-height: 35px;
 }
 
-/* CASES */
+/* =========================
+   CASES
+========================= */
 
 .case-list {
     display: grid;
@@ -135,6 +149,7 @@ button:disabled {
     object-fit: contain;
     background: #0f172a;
     border-radius: 9px;
+    padding: 2px;
 }
 
 .case-btn {
@@ -154,51 +169,84 @@ button:disabled {
     margin-bottom: 10px;
 }
 
+/* =========================
+   CASE ROULETTE
+========================= */
+
 .roulette-container {
     position: relative;
+
     height: 155px;
+
     overflow: hidden;
+
     background: #0f172a;
     border: 2px solid #334155;
     border-radius: 16px;
+
     margin: 15px 0;
 }
 
 .roulette-pointer {
     position: absolute;
+
     z-index: 20;
+
     top: -2px;
     left: 50%;
+
     transform: translateX(-50%);
+
     color: #facc15;
+
     font-size: 30px;
 }
 
 .roulette-line {
     position: absolute;
+
     z-index: 10;
+
     top: 0;
     bottom: 0;
     left: 50%;
+
     width: 3px;
+
+    transform: translateX(-50%);
+
     background: rgba(250,204,21,.6);
 }
 
 .roulette-track {
     height: 100%;
+
     display: flex;
     align-items: center;
+
     gap: 8px;
+
     padding-left: 10px;
+
+    will-change: transform;
 }
 
 .roulette-item {
     flex: 0 0 116px;
+
     height: 128px;
+
     background: #1e293b;
+
     border: 2px solid #475569;
     border-radius: 13px;
+
     padding: 6px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .roulette-item img {
@@ -208,8 +256,11 @@ button:disabled {
 }
 
 .roulette-name {
+    width: 100%;
+
     font-size: 11px;
     font-weight: bold;
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -217,23 +268,76 @@ button:disabled {
 
 .spin-btn {
     width: 100%;
+
     border-radius: 12px;
     padding: 13px;
+
     background: #f59e0b;
     color: white;
 }
 
-/* INVENTORY */
+/* =========================
+   CASE RESULT
+========================= */
+
+.case-result-card {
+    background: #0f172a;
+
+    border-radius: 15px;
+
+    padding: 13px;
+
+    margin-top: 13px;
+}
+
+.case-result-image {
+    width: 100px;
+    height: 100px;
+
+    object-fit: contain;
+}
+
+.case-result-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.case-result-price {
+    margin-top: 5px;
+    color: #facc15;
+}
+
+.quick-sell-btn {
+    width: 100%;
+
+    margin-top: 11px;
+
+    padding: 12px;
+
+    border-radius: 11px;
+
+    background: #16a34a;
+
+    color: white;
+}
+
+/* =========================
+   INVENTORY
+========================= */
 
 .inventory-item {
     display: flex;
+
     gap: 12px;
+
     text-align: left;
 
     background: #1e293b;
+
     border-radius: 16px;
 
     padding: 12px;
+
     margin: 10px 0;
 }
 
@@ -244,9 +348,14 @@ button:disabled {
 .inventory-image {
     width: 82px;
     height: 82px;
+
     object-fit: contain;
+
     background: #0f172a;
+
     border-radius: 11px;
+
+    padding: 3px;
 }
 
 .inventory-info {
@@ -260,15 +369,20 @@ button:disabled {
 
 .inventory-actions {
     display: flex;
+
     gap: 7px;
+
     margin-top: 8px;
 }
 
 .sell-btn,
 .withdraw-btn {
     flex: 1;
+
     border-radius: 10px;
+
     padding: 10px 4px;
+
     color: white;
 }
 
@@ -282,128 +396,198 @@ button:disabled {
 
 .locked-text {
     margin-top: 8px;
+
     color: #facc15;
+
     font-size: 13px;
 }
 
-/* UPGRADER */
+/* =========================
+   UPGRADER
+========================= */
 
 .upgrade-grid {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
+
     gap: 7px;
 }
 
 .upgrade-choice {
     background: #0f172a;
+
     border: 2px solid #334155;
+
     border-radius: 13px;
+
     padding: 6px;
+
+    cursor: pointer;
 }
 
 .upgrade-choice.selected {
     border-color: #a855f7;
-    box-shadow: 0 0 12px rgba(168,85,247,.5);
+
+    box-shadow:
+        0 0 12px
+        rgba(168,85,247,.5);
 }
 
 .upgrade-choice img {
     width: 70px;
     height: 70px;
+
     object-fit: contain;
 }
 
 .choice-name {
     font-size: 10px;
+
     white-space: nowrap;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
 .choice-price {
     font-size: 12px;
+
     color: #facc15;
 }
 
 .upgrade-wheel-wrap {
     position: relative;
+
     width: 220px;
     height: 220px;
+
     margin: 18px auto;
 }
 
 .upgrade-wheel {
     position: absolute;
+
     inset: 0;
+
     border-radius: 50%;
+
     background:
         conic-gradient(
-            #22c55e 0deg var(--green-angle),
-            #ef4444 var(--green-angle) 360deg
+            #22c55e
+            0deg
+            var(--green-angle),
+
+            #ef4444
+            var(--green-angle)
+            360deg
         );
+
     border: 5px solid #475569;
 }
 
 .upgrade-wheel::after {
     content: "";
+
     position: absolute;
+
     width: 140px;
     height: 140px;
+
     left: 50%;
     top: 50%;
-    transform: translate(-50%,-50%);
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
     background: #0f172a;
+
     border-radius: 50%;
 }
 
 .needle-rotor {
     position: absolute;
+
     inset: 0;
+
     z-index: 10;
+
+    pointer-events: none;
 }
 
 .upgrade-needle {
     position: absolute;
+
     top: 5px;
     left: 50%;
+
     transform: translateX(-50%);
 
     width: 0;
     height: 0;
 
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 35px solid #facc15;
+    border-left:
+        10px solid transparent;
+
+    border-right:
+        10px solid transparent;
+
+    border-bottom:
+        35px solid #facc15;
 }
 
 .wheel-text {
     position: absolute;
+
     z-index: 5;
+
     left: 50%;
     top: 50%;
-    transform: translate(-50%,-50%);
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
     font-size: 28px;
     font-weight: bold;
 }
 
 .upgrade-btn {
     width: 100%;
+
     border-radius: 12px;
+
     padding: 13px;
+
     background: #7c3aed;
+
     color: white;
 }
 
-/* MODAL */
+/* =========================
+   MODALS
+========================= */
 
 .modal-overlay {
     position: fixed;
+
     z-index: 500;
+
     inset: 0;
 
-    background: rgba(0,0,0,.72);
+    background:
+        rgba(0,0,0,.72);
 
     display: none;
+
     align-items: flex-end;
+
     justify-content: center;
 }
 
@@ -413,20 +597,29 @@ button:disabled {
 
 .modal {
     width: 100%;
+
     max-width: 520px;
+
     max-height: 90vh;
 
     overflow-y: auto;
 
     background: #1e293b;
-    border-radius: 22px 22px 0 0;
+
+    border-radius:
+        22px
+        22px
+        0
+        0;
 
     padding: 17px;
 }
 
 .modal-header {
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
 }
 
@@ -437,86 +630,51 @@ button:disabled {
 
 .close-btn {
     background: #334155;
+
     color: white;
+
     border-radius: 10px;
+
     padding: 8px 11px;
-}
-
-.deposit-grid {
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 8px;
-    margin-top: 15px;
-}
-
-.deposit-item {
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 14px;
-    padding: 7px 5px;
-}
-
-.deposit-item img {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-}
-
-.deposit-item-name {
-    font-size: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.deposit-item-price {
-    font-size: 12px;
-    color: #22c55e;
-    margin-top: 3px;
-}
-
-.quantity-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    margin-top: 6px;
-}
-
-.quantity-btn {
-    width: 27px;
-    height: 27px;
-    border-radius: 7px;
-    background: #334155;
-    color: white;
-}
-
-.quantity-number {
-    min-width: 20px;
-    font-weight: bold;
-}
-
-.deposit-summary {
-    background: #0f172a;
-    border-radius: 13px;
-    padding: 12px;
-    margin: 15px 0;
 }
 
 .text-input {
     width: 100%;
+
     border: none;
+
     border-radius: 12px;
+
     padding: 13px;
+
     font-size: 16px;
+
     margin: 7px 0;
+}
+
+.input-label {
+    text-align: left;
+
+    margin-top: 12px;
+
+    margin-bottom: 2px;
+
+    font-size: 13px;
+
+    opacity: .8;
 }
 
 .submit-btn {
     width: 100%;
+
     border-radius: 12px;
+
     padding: 14px;
+
+    margin-top: 8px;
+
     background: #22c55e;
+
     color: white;
 }
 
@@ -524,36 +682,140 @@ button:disabled {
     background: #2563eb;
 }
 
-/* MENU */
+/* =========================
+   DEPOSIT
+========================= */
+
+.deposit-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+
+    margin-top: 15px;
+}
+
+.deposit-item {
+    background: #0f172a;
+
+    border: 2px solid #334155;
+
+    border-radius: 14px;
+
+    padding: 7px 5px;
+}
+
+.deposit-item img {
+    width: 72px;
+    height: 72px;
+
+    object-fit: contain;
+}
+
+.deposit-item-name {
+    font-size: 10px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.deposit-item-price {
+    font-size: 12px;
+
+    color: #22c55e;
+
+    margin-top: 3px;
+}
+
+.quantity-controls {
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 5px;
+
+    margin-top: 6px;
+}
+
+.quantity-btn {
+    width: 27px;
+    height: 27px;
+
+    border-radius: 7px;
+
+    background: #334155;
+
+    color: white;
+}
+
+.quantity-number {
+    min-width: 20px;
+
+    font-weight: bold;
+}
+
+.deposit-summary {
+    background: #0f172a;
+
+    border-radius: 13px;
+
+    padding: 12px;
+
+    margin: 15px 0;
+}
+
+/* =========================
+   BOTTOM MENU
+========================= */
 
 .bottom-menu {
     position: fixed;
+
     bottom: 0;
     left: 0;
     right: 0;
 
     display: flex;
+
     background: #1e293b;
-    border-top: 1px solid #334155;
+
+    border-top:
+        1px solid #334155;
 
     z-index: 100;
 }
 
 .nav-btn {
     width: 33.333%;
+
     padding: 11px 3px;
+
     background: transparent;
+
     color: #94a3b8;
 }
 
 .nav-btn.active {
     background: #334155;
+
     color: white;
 }
+
 </style>
 </head>
 
 <body>
+
+<!-- =========================
+     TOP BAR
+========================= -->
 
 <div class="topbar">
 
@@ -564,7 +826,10 @@ button:disabled {
 <div class="top-right">
 
 <div class="balance-box">
-💰 <span id="coins">0</span>
+💰
+<span id="coins">
+0
+</span>
 </div>
 
 <button
@@ -578,17 +843,26 @@ button:disabled {
 
 </div>
 
+
 <div class="game">
 
-<!-- CASES -->
+<!-- =========================
+     CASES PAGE
+========================= -->
 
-<div id="casesPage" class="page active">
+<div
+    id="casesPage"
+    class="page active"
+>
 
 <div id="caseList">
 Загрузка...
 </div>
 
-<div id="activeCase" style="display:none">
+<div
+    id="activeCase"
+    style="display:none"
+>
 
 <button
     class="back-btn"
@@ -599,7 +873,9 @@ button:disabled {
 
 <div class="panel">
 
-<h2 id="activeCaseName"></h2>
+<h2 id="activeCaseName">
+Кейс
+</h2>
 
 <div id="activeCasePrice"></div>
 
@@ -612,7 +888,8 @@ button:disabled {
 ▼
 </div>
 
-<div class="roulette-line"></div>
+<div class="roulette-line">
+</div>
 
 <div
     id="rouletteTrack"
@@ -634,28 +911,43 @@ button:disabled {
     class="result"
 ></div>
 
-</div>
+<div
+    id="quickSellArea"
+></div>
 
 </div>
 
 </div>
 
-<!-- UPGRADER -->
+</div>
 
-<div id="upgraderPage" class="page">
+<!-- =========================
+     UPGRADER PAGE
+========================= -->
+
+<div
+    id="upgraderPage"
+    class="page"
+>
 
 <div class="panel">
 
-<h2>⚡ Апгрейдер</h2>
+<h2>
+⚡ Апгрейдер
+</h2>
 
-<p>Выбери свой Brainrot</p>
+<p>
+Выбери свой Brainrot
+</p>
 
 <div
     id="sourceGrid"
     class="upgrade-grid"
 ></div>
 
-<p>Выбери цель</p>
+<p>
+Выбери цель
+</p>
 
 <div
     id="targetGrid"
@@ -664,7 +956,9 @@ button:disabled {
 
 <h3>
 Шанс:
-<span id="chanceText">0%</span>
+<span id="chanceText">
+0%
+</span>
 </h3>
 
 <div class="upgrade-wheel-wrap">
@@ -678,7 +972,10 @@ button:disabled {
     id="needleRotor"
     class="needle-rotor"
 >
-<div class="upgrade-needle"></div>
+
+<div class="upgrade-needle">
+</div>
+
 </div>
 
 <div
@@ -707,19 +1004,29 @@ button:disabled {
 
 </div>
 
-<!-- INVENTORY -->
+<!-- =========================
+     INVENTORY PAGE
+========================= -->
 
-<div id="inventoryPage" class="page">
+<div
+    id="inventoryPage"
+    class="page"
+>
 
-<h2>🎒 Инвентарь</h2>
+<h2>
+🎒 Инвентарь
+</h2>
 
-<div id="inventory"></div>
-
+<div id="inventory">
 </div>
 
 </div>
 
-<!-- MENU -->
+</div>
+
+<!-- =========================
+     BOTTOM MENU
+========================= -->
 
 <div class="bottom-menu">
 
@@ -728,7 +1035,9 @@ button:disabled {
     class="nav-btn active"
     onclick="showPage('cases')"
 >
-🎁<br>Кейсы
+🎁
+<br>
+Кейсы
 </button>
 
 <button
@@ -736,7 +1045,9 @@ button:disabled {
     class="nav-btn"
     onclick="showPage('upgrader')"
 >
-⚡<br>Апгрейдер
+⚡
+<br>
+Апгрейдер
 </button>
 
 <button
@@ -744,12 +1055,16 @@ button:disabled {
     class="nav-btn"
     onclick="showPage('inventory')"
 >
-🎒<br>Инвентарь
+🎒
+<br>
+Инвентарь
 </button>
 
 </div>
 
-<!-- DEPOSIT MODAL -->
+<!-- =========================
+     DEPOSIT MODAL
+========================= -->
 
 <div
     id="depositModal"
@@ -775,7 +1090,7 @@ button:disabled {
 
 <p>
 Выбери до 10 Brainrot.
-Доступны Garama и всё дороже.
+Garama и всё дороже.
 </p>
 
 <div
@@ -786,19 +1101,33 @@ button:disabled {
 <div class="deposit-summary">
 
 Выбрано:
-<b id="depositCount">0</b> / 10
+
+<b id="depositCount">
+0
+</b>
+
+/ 10
 
 <br><br>
 
 Будет начислено:
-<b id="depositTotal">0</b> монет
 
+<b id="depositTotal">
+0
+</b>
+
+монет
+
+</div>
+
+<div class="input-label">
+Roblox ник
 </div>
 
 <input
     id="depositRoblox"
     class="text-input"
-    placeholder="Твой ник в Roblox"
+    placeholder="Например: Topor123"
 >
 
 <button
@@ -818,7 +1147,9 @@ button:disabled {
 
 </div>
 
-<!-- WITHDRAW MODAL -->
+<!-- =========================
+     WITHDRAW MODAL
+========================= -->
 
 <div
     id="withdrawModal"
@@ -842,12 +1173,27 @@ button:disabled {
 
 </div>
 
-<div id="withdrawItemInfo"></div>
+<div id="withdrawItemInfo">
+</div>
+
+<div class="input-label">
+Roblox ник
+</div>
 
 <input
     id="withdrawRoblox"
     class="text-input"
-    placeholder="Твой ник в Roblox"
+    placeholder="Например: Topor123"
+>
+
+<div class="input-label">
+Когда будешь в игре
+</div>
+
+<input
+    id="withdrawTime"
+    class="text-input"
+    type="datetime-local"
 >
 
 <button
@@ -870,21 +1216,34 @@ button:disabled {
 
 <script>
 
+/* =========================
+   TELEGRAM
+========================= */
+
 const tg =
     window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
+/* =========================
+   DATA
+========================= */
+
 let coins = 0;
+
 let inventory = [];
+
 let brainrots = [];
+
 let cases = [];
+
 let caseItems = [];
 
 let selectedCase = null;
 
 let selectedSourceId = null;
+
 let selectedTargetId = null;
 
 let selectedWithdrawItem = null;
@@ -892,13 +1251,25 @@ let selectedWithdrawItem = null;
 let depositSelection = {};
 
 let caseSpinning = false;
+
 let upgrading = false;
 
 let needleRotation = 0;
 
+let lastCaseItemId = null;
+
+
+/* =========================
+   FUNCTION URL
+========================= */
+
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
+
+/* =========================
+   IMAGES
+========================= */
 
 const BRAINROT_IMAGES = {
 
@@ -936,7 +1307,10 @@ const BRAINROT_IMAGES = {
 
 
 function normalizeName(name) {
-    return String(name || "")
+
+    return String(
+        name || ""
+    )
         .trim()
         .toLowerCase();
 }
@@ -946,11 +1320,18 @@ function getImage(name) {
 
     return (
         BRAINROT_IMAGES[
-            normalizeName(name)
-        ] || ""
+            normalizeName(
+                name
+            )
+        ] ||
+        ""
     );
 }
 
+
+/* =========================
+   API
+========================= */
 
 async function apiRequest(data) {
 
@@ -958,7 +1339,8 @@ async function apiRequest(data) {
         await fetch(
             FUNCTION_URL,
             {
-                method: "POST",
+                method:
+                    "POST",
 
                 headers: {
                     "Content-Type":
@@ -968,6 +1350,7 @@ async function apiRequest(data) {
                 body:
                     JSON.stringify({
                         ...data,
+
                         initData:
                             tg.initData
                     })
@@ -978,7 +1361,9 @@ async function apiRequest(data) {
 }
 
 
-/* LOAD */
+/* =========================
+   LOAD PLAYER
+========================= */
 
 async function loadPlayer() {
 
@@ -989,6 +1374,7 @@ async function loadPlayer() {
                 action:
                     "get_player"
             });
+
 
         if (!data.ok) {
 
@@ -1003,22 +1389,32 @@ async function loadPlayer() {
             return;
         }
 
+
         coins =
             Number(
                 data.coins
             );
 
+
         inventory =
-            data.inventory || [];
+            data.inventory ||
+            [];
+
 
         brainrots =
-            data.brainrots || [];
+            data.brainrots ||
+            [];
+
 
         cases =
-            data.cases || [];
+            data.cases ||
+            [];
+
 
         caseItems =
-            data.case_items || [];
+            data.case_items ||
+            [];
+
 
         updateBalance();
 
@@ -1034,7 +1430,9 @@ async function loadPlayer() {
 
     catch (error) {
 
-        console.log(error);
+        console.log(
+            error
+        );
 
         document
             .getElementById(
@@ -1045,6 +1443,10 @@ async function loadPlayer() {
     }
 }
 
+
+/* =========================
+   BALANCE
+========================= */
 
 function updateBalance() {
 
@@ -1057,7 +1459,9 @@ function updateBalance() {
 }
 
 
-/* PAGES */
+/* =========================
+   PAGES
+========================= */
 
 function showPage(page) {
 
@@ -1067,12 +1471,20 @@ function showPage(page) {
         "inventoryPage"
     ]
     .forEach(
-        id =>
+        id => {
+
             document
-                .getElementById(id)
+                .getElementById(
+                    id
+                )
                 .classList
-                .remove("active")
+                .remove(
+                    "active"
+                );
+
+        }
     );
+
 
     [
         "casesButton",
@@ -1080,12 +1492,20 @@ function showPage(page) {
         "inventoryButton"
     ]
     .forEach(
-        id =>
+        id => {
+
             document
-                .getElementById(id)
+                .getElementById(
+                    id
+                )
                 .classList
-                .remove("active")
+                .remove(
+                    "active"
+                );
+
+        }
     );
+
 
     document
         .getElementById(
@@ -1093,7 +1513,10 @@ function showPage(page) {
             "Page"
         )
         .classList
-        .add("active");
+        .add(
+            "active"
+        );
+
 
     document
         .getElementById(
@@ -1101,112 +1524,170 @@ function showPage(page) {
             "Button"
         )
         .classList
-        .add("active");
+        .add(
+            "active"
+        );
+
 
     if (
         page ===
         "inventory"
     ) {
+
         renderInventory();
+
     }
+
 
     if (
         page ===
         "upgrader"
     ) {
+
         renderSourceGrid();
+
         renderTargetGrid();
+
         updateUpgradeUI();
+
     }
 }
 
 
-/* CASES */
+/* =========================
+   CASES
+========================= */
 
 function renderCases() {
 
     const box =
-        document.getElementById(
-            "caseList"
-        );
+        document
+            .getElementById(
+                "caseList"
+            );
+
 
     box.innerHTML =
         "";
 
+
+    if (!cases.length) {
+
+        box.innerHTML =
+            "Кейсов пока нет";
+
+        return;
+    }
+
+
     const list =
-        document.createElement(
-            "div"
-        );
+        document
+            .createElement(
+                "div"
+            );
+
 
     list.className =
         "case-list";
 
-    cases.forEach(gameCase => {
 
-        const items =
-            caseItems.filter(
-                item =>
-                    Number(
-                        item.case_id
-                    ) ===
-                    Number(
-                        gameCase.id
+    cases.forEach(
+        gameCase => {
+
+
+            const items =
+                caseItems
+                    .filter(
+                        item =>
+                            Number(
+                                item.case_id
+                            ) ===
+                            Number(
+                                gameCase.id
+                            )
+                    );
+
+
+            const preview =
+                items
+                    .slice(
+                        0,
+                        5
                     )
-            );
+                    .map(
+                        item => `
 
-        const preview =
-            items
-                .slice(0,5)
-                .map(
-                    item => `
-                    <img
-                        class="preview-img"
-                        src="${getImage(item.brainrot_name)}"
-                    >
-                `
-                )
-                .join("");
+                            <img
+                                class="preview-img"
+                                src="${getImage(item.brainrot_name)}"
+                            >
 
-        const card =
-            document.createElement(
-                "div"
-            );
+                        `
+                    )
+                    .join("");
 
-        card.className =
-            "case-card";
 
-        card.innerHTML = `
+            const card =
+                document
+                    .createElement(
+                        "div"
+                    );
 
-            <div class="case-name">
-                🎁 ${gameCase.name}
-            </div>
 
-            <div class="case-price">
-                Цена:
-                ${gameCase.price}
-                монет
-            </div>
+            card.className =
+                "case-card";
 
-            <div class="case-preview">
-                ${preview}
-            </div>
 
-            <button
-                class="case-btn"
-                onclick="selectCase(${gameCase.id})"
-            >
-                ОТКРЫТЬ КЕЙС
-            </button>
-        `;
+            card.innerHTML = `
 
-        list.appendChild(
-            card
-        );
-    });
+                <div class="case-name">
 
-    box.appendChild(
-        list
+                    🎁 ${gameCase.name}
+
+                </div>
+
+
+                <div class="case-price">
+
+                    💰 Цена:
+                    ${gameCase.price}
+                    монет
+
+                </div>
+
+
+                <div class="case-preview">
+
+                    ${preview}
+
+                </div>
+
+
+                <button
+                    class="case-btn"
+                    onclick="selectCase(${gameCase.id})"
+                >
+
+                    ОТКРЫТЬ КЕЙС
+
+                </button>
+
+            `;
+
+
+            list
+                .appendChild(
+                    card
+                );
+
+        }
     );
+
+
+    box
+        .appendChild(
+            list
+        );
 }
 
 
@@ -1223,9 +1704,31 @@ function selectCase(id) {
                 )
         );
 
+
     if (!selectedCase) {
         return;
     }
+
+
+    lastCaseItemId =
+        null;
+
+
+    document
+        .getElementById(
+            "quickSellArea"
+        )
+        .innerHTML =
+            "";
+
+
+    document
+        .getElementById(
+            "caseResult"
+        )
+        .innerHTML =
+            "";
+
 
     document
         .getElementById(
@@ -1235,6 +1738,7 @@ function selectCase(id) {
         .display =
             "none";
 
+
     document
         .getElementById(
             "activeCase"
@@ -1243,6 +1747,7 @@ function selectCase(id) {
         .display =
             "block";
 
+
     document
         .getElementById(
             "activeCaseName"
@@ -1250,6 +1755,7 @@ function selectCase(id) {
         .innerText =
             "🎁 " +
             selectedCase.name;
+
 
     document
         .getElementById(
@@ -1260,6 +1766,7 @@ function selectCase(id) {
             selectedCase.price +
             " монет";
 
+
     createIdleRoulette();
 }
 
@@ -1269,6 +1776,11 @@ function closeCase() {
     selectedCase =
         null;
 
+
+    lastCaseItemId =
+        null;
+
+
     document
         .getElementById(
             "caseList"
@@ -1276,6 +1788,7 @@ function closeCase() {
         .style
         .display =
             "block";
+
 
     document
         .getElementById(
@@ -1293,27 +1806,32 @@ function getSelectedCaseItems() {
         return [];
     }
 
-    return caseItems.filter(
-        item =>
-            Number(
-                item.case_id
-            ) ===
-            Number(
-                selectedCase.id
-            )
-    );
+
+    return caseItems
+        .filter(
+            item =>
+                Number(
+                    item.case_id
+                ) ===
+                Number(
+                    selectedCase.id
+                )
+        );
 }
 
 
 function rouletteCard(item) {
 
     const div =
-        document.createElement(
-            "div"
-        );
+        document
+            .createElement(
+                "div"
+            );
+
 
     div.className =
         "roulette-item";
+
 
     div.innerHTML = `
 
@@ -1322,9 +1840,13 @@ function rouletteCard(item) {
         >
 
         <div class="roulette-name">
+
             ${item.brainrot_name}
+
         </div>
+
     `;
+
 
     return div;
 }
@@ -1333,25 +1855,32 @@ function rouletteCard(item) {
 function createIdleRoulette() {
 
     const track =
-        document.getElementById(
-            "rouletteTrack"
-        );
+        document
+            .getElementById(
+                "rouletteTrack"
+            );
+
 
     const items =
         getSelectedCaseItems();
 
+
     track.innerHTML =
         "";
+
 
     track.style.transition =
         "none";
 
+
     track.style.transform =
         "translateX(0px)";
+
 
     if (!items.length) {
         return;
     }
+
 
     for (
         let i = 0;
@@ -1360,12 +1889,16 @@ function createIdleRoulette() {
     ) {
 
         track.appendChild(
+
             rouletteCard(
+
                 items[
                     i %
                     items.length
                 ]
+
             )
+
         );
     }
 }
@@ -1376,32 +1909,42 @@ async function animateCase(
 ) {
 
     const track =
-        document.getElementById(
-            "rouletteTrack"
-        );
+        document
+            .getElementById(
+                "rouletteTrack"
+            );
+
 
     const container =
-        document.getElementById(
-            "rouletteContainer"
-        );
+        document
+            .getElementById(
+                "rouletteContainer"
+            );
+
 
     const items =
         getSelectedCaseItems();
 
+
     track.innerHTML =
         "";
+
 
     track.style.transition =
         "none";
 
+
     track.style.transform =
         "translateX(0px)";
+
 
     const winnerIndex =
         39;
 
+
     let winnerCard =
         null;
+
 
     for (
         let i = 0;
@@ -1410,6 +1953,7 @@ async function animateCase(
     ) {
 
         let item;
+
 
         if (
             i ===
@@ -1434,21 +1978,30 @@ async function animateCase(
                 ];
         }
 
+
         const card =
-            rouletteCard(item);
+            rouletteCard(
+                item
+            );
+
 
         if (
             i ===
             winnerIndex
         ) {
+
             winnerCard =
                 card;
+
         }
 
-        track.appendChild(
-            card
-        );
+
+        track
+            .appendChild(
+                card
+            );
     }
+
 
     await new Promise(
         resolve =>
@@ -1460,24 +2013,35 @@ async function animateCase(
             )
     );
 
+
+    if (!winnerCard) {
+        return;
+    }
+
+
     const winnerCenter =
         winnerCard.offsetLeft +
         winnerCard.offsetWidth /
         2;
 
+
     const containerCenter =
         container.clientWidth /
         2;
+
 
     const x =
         containerCenter -
         winnerCenter;
 
+
     track.style.transition =
         "transform 4.2s cubic-bezier(.08,.68,.12,1)";
 
+
     track.style.transform =
         `translateX(${x}px)`;
+
 
     await new Promise(
         resolve =>
@@ -1498,217 +2062,230 @@ async function openSelectedCase() {
         return;
     }
 
+
     caseSpinning =
         true;
+
 
     const button =
-        document.getElementById(
-            "spinButton"
-        );
+        document
+            .getElementById(
+                "spinButton"
+            );
+
 
     const result =
-        document.getElementById(
-            "caseResult"
-        );
+        document
+            .getElementById(
+                "caseResult"
+            );
+
+
+    const quickSellArea =
+        document
+            .getElementById(
+                "quickSellArea"
+            );
+
 
     button.disabled =
         true;
 
-    result.innerText =
+
+    result.innerHTML =
         "🎰 Крутим...";
 
-    const data =
-        await apiRequest({
-            action:
-                "open_case",
 
-            case_id:
-                selectedCase.id
-        });
+    quickSellArea.innerHTML =
+        "";
 
-    if (!data.ok) {
 
-        result.innerText =
-            "❌ " +
-            data.error;
+    try {
 
-        if (
-            data.coins !==
-            undefined
-        ) {
+        const data =
+            await apiRequest({
 
-            coins =
-                Number(
-                    data.coins
-                );
+                action:
+                    "open_case",
 
-            updateBalance();
+                case_id:
+                    selectedCase.id
+
+            });
+
+
+        if (!data.ok) {
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
+
+            if (
+                data.coins !==
+                undefined
+            ) {
+
+                coins =
+                    Number(
+                        data.coins
+                    );
+
+
+                updateBalance();
+
+            }
+
+
+            button.disabled =
+                false;
+
+
+            caseSpinning =
+                false;
+
+
+            return;
         }
 
-        button.disabled =
-            false;
 
-        caseSpinning =
-            false;
-
-        return;
-    }
-
-    await animateCase(
-        data.item
-    );
-
-    coins =
-        Number(
-            data.coins
+        await animateCase(
+            data.item
         );
 
-    inventory.unshift(
-        data.item
-    );
 
-    updateBalance();
+        coins =
+            Number(
+                data.coins
+            );
 
-    renderInventory();
 
-    result.innerText =
-        "🎉 Выпал: " +
-        data.item.brainrot_name;
+        inventory.unshift(
+            data.item
+        );
+
+
+        lastCaseItemId =
+            data.item.id;
+
+
+        updateBalance();
+
+
+        renderInventory();
+
+
+        renderSourceGrid();
+
+
+        result.innerHTML = `
+
+            <div class="case-result-card">
+
+                <img
+                    class="case-result-image"
+                    src="${getImage(data.item.brainrot_name)}"
+                >
+
+                <div class="case-result-name">
+
+                    🎉 ${data.item.brainrot_name}
+
+                </div>
+
+                <div class="case-result-price">
+
+                    💰 Цена:
+                    ${data.item.value}
+                    монет
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        quickSellArea.innerHTML = `
+
+            <button
+                class="quick-sell-btn"
+                onclick="quickSellCaseItem(${data.item.id})"
+            >
+
+                💰 ПРОДАТЬ СРАЗУ ЗА
+                ${data.item.value}
+
+            </button>
+
+        `;
+
+    }
+
+    catch (error) {
+
+        console.log(
+            error
+        );
+
+
+        result.innerText =
+            "❌ Ошибка подключения";
+
+    }
+
 
     button.disabled =
         false;
+
 
     caseSpinning =
         false;
 }
 
 
-/* INVENTORY */
+async function quickSellCaseItem(
+    id
+) {
 
-function renderInventory() {
-
-    const box =
-        document.getElementById(
-            "inventory"
-        );
-
-    box.innerHTML =
-        "";
-
-    if (!inventory.length) {
-
-        box.innerHTML =
-            "Инвентарь пуст";
-
-        return;
-    }
-
-    inventory.forEach(item => {
-
-        const locked =
-            item.locked ===
-            true;
-
-        const div =
-            document.createElement(
-                "div"
+    const area =
+        document
+            .getElementById(
+                "quickSellArea"
             );
 
-        div.className =
-            "inventory-item" +
-            (
-                locked
-                ?
-                " locked"
-                :
-                ""
-            );
 
-        div.innerHTML = `
+    area.innerHTML =
+        "⏳ Продажа...";
 
-            <img
-                class="inventory-image"
-                src="${getImage(item.brainrot_name)}"
-            >
-
-            <div class="inventory-info">
-
-                <div class="inventory-name">
-                    ${item.brainrot_name}
-                </div>
-
-                <div>
-                    💰 ${item.value}
-                </div>
-
-                <div>
-                    ⭐ ${item.rarity}
-                </div>
-
-                ${
-                    locked
-                    ?
-                    `
-                    <div class="locked-text">
-                        ⏳ Ожидает подтверждения вывода
-                    </div>
-                    `
-                    :
-                    `
-                    <div class="inventory-actions">
-
-                        <button
-                            class="sell-btn"
-                            onclick="sellItem(${item.id})"
-                        >
-                            Продать
-                        </button>
-
-                        <button
-                            class="withdraw-btn"
-                            onclick="openWithdrawModal(${item.id})"
-                        >
-                            Вывод
-                        </button>
-
-                    </div>
-                    `
-                }
-
-            </div>
-        `;
-
-        box.appendChild(
-            div
-        );
-    });
-}
-
-
-async function sellItem(id) {
 
     const data =
         await apiRequest({
+
             action:
                 "sell_item",
 
             inventory_id:
                 id
+
         });
+
 
     if (!data.ok) {
 
-        alert(
-            data.error
-        );
+        area.innerHTML =
+            "❌ " +
+            data.error;
 
         return;
     }
+
 
     coins =
         Number(
             data.coins
         );
+
 
     inventory =
         inventory.filter(
@@ -1721,40 +2298,303 @@ async function sellItem(id) {
                 )
         );
 
+
     updateBalance();
+
 
     renderInventory();
 
+
     renderSourceGrid();
+
+
+    area.innerHTML = `
+
+        <div
+            style="
+                margin-top:10px;
+                color:#22c55e;
+                font-weight:bold;
+            "
+        >
+
+            ✅ Продано за
+            ${data.added_coins}
+            монет
+
+        </div>
+
+    `;
+
+
+    lastCaseItemId =
+        null;
 }
 
 
-/* UPGRADER */
+/* =========================
+   INVENTORY
+========================= */
+
+function renderInventory() {
+
+    const box =
+        document
+            .getElementById(
+                "inventory"
+            );
+
+
+    box.innerHTML =
+        "";
+
+
+    if (!inventory.length) {
+
+        box.innerHTML =
+            "Инвентарь пуст";
+
+        return;
+    }
+
+
+    inventory.forEach(
+        item => {
+
+
+            const locked =
+                item.locked === true;
+
+
+            const div =
+                document
+                    .createElement(
+                        "div"
+                    );
+
+
+            div.className =
+                "inventory-item" +
+                (
+                    locked
+                    ?
+                    " locked"
+                    :
+                    ""
+                );
+
+
+            div.innerHTML = `
+
+                <img
+                    class="inventory-image"
+                    src="${getImage(item.brainrot_name)}"
+                >
+
+
+                <div class="inventory-info">
+
+                    <div class="inventory-name">
+
+                        ${item.brainrot_name}
+
+                    </div>
+
+
+                    <div>
+
+                        💰 ${item.value}
+
+                    </div>
+
+
+                    <div>
+
+                        ⭐ ${item.rarity}
+
+                    </div>
+
+
+                    ${
+                        locked
+
+                        ?
+
+                        `
+
+                        <div class="locked-text">
+
+                            ⏳ Ожидает подтверждения вывода
+
+                        </div>
+
+                        `
+
+                        :
+
+                        `
+
+                        <div class="inventory-actions">
+
+                            <button
+                                class="sell-btn"
+                                onclick="sellItem(${item.id})"
+                            >
+
+                                Продать
+
+                            </button>
+
+
+                            <button
+                                class="withdraw-btn"
+                                onclick="openWithdrawModal(${item.id})"
+                            >
+
+                                Вывод
+
+                            </button>
+
+                        </div>
+
+                        `
+                    }
+
+                </div>
+
+            `;
+
+
+            box
+                .appendChild(
+                    div
+                );
+
+        }
+    );
+}
+
+
+async function sellItem(id) {
+
+    const data =
+        await apiRequest({
+
+            action:
+                "sell_item",
+
+            inventory_id:
+                id
+
+        });
+
+
+    if (!data.ok) {
+
+        alert(
+            data.error
+        );
+
+        return;
+    }
+
+
+    coins =
+        Number(
+            data.coins
+        );
+
+
+    inventory =
+        inventory.filter(
+            item =>
+                Number(
+                    item.id
+                ) !==
+                Number(
+                    id
+                )
+        );
+
+
+    if (
+        Number(
+            selectedSourceId
+        ) ===
+        Number(
+            id
+        )
+    ) {
+
+        selectedSourceId =
+            null;
+
+        selectedTargetId =
+            null;
+
+    }
+
+
+    updateBalance();
+
+
+    renderInventory();
+
+
+    renderSourceGrid();
+
+
+    renderTargetGrid();
+
+
+    updateUpgradeUI();
+}
+
+
+/* =========================
+   UPGRADER
+========================= */
 
 function getSource() {
 
-    return inventory.find(
-        item =>
-            Number(
-                item.id
-            ) ===
-            Number(
-                selectedSourceId
-            )
+    if (!selectedSourceId) {
+        return null;
+    }
+
+
+    return (
+        inventory.find(
+            item =>
+                Number(
+                    item.id
+                ) ===
+                Number(
+                    selectedSourceId
+                )
+        ) ||
+        null
     );
 }
 
 
 function getTarget() {
 
-    return brainrots.find(
-        item =>
-            Number(
-                item.brainrot_id
-            ) ===
-            Number(
-                selectedTargetId
-            )
+    if (!selectedTargetId) {
+        return null;
+    }
+
+
+    return (
+        brainrots.find(
+            item =>
+                Number(
+                    item.brainrot_id
+                ) ===
+                Number(
+                    selectedTargetId
+                )
+        ) ||
+        null
     );
 }
 
@@ -1762,91 +2602,134 @@ function getTarget() {
 function renderSourceGrid() {
 
     const box =
-        document.getElementById(
-            "sourceGrid"
-        );
+        document
+            .getElementById(
+                "sourceGrid"
+            );
+
 
     box.innerHTML =
         "";
 
-    inventory
-        .filter(
-            item =>
-                !item.locked
-        )
-        .forEach(item => {
 
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "upgrade-choice";
-
-            if (
-                Number(
-                    selectedSourceId
-                ) ===
-                Number(
-                    item.id
-                )
-            ) {
-                card.classList.add(
-                    "selected"
-                );
-            }
-
-            card.innerHTML = `
-
-                <img
-                    src="${getImage(item.brainrot_name)}"
-                >
-
-                <div class="choice-name">
-                    ${item.brainrot_name}
-                </div>
-
-                <div class="choice-price">
-                    💰 ${item.value}
-                </div>
-            `;
-
-            card.onclick =
-                () => {
-
-                    selectedSourceId =
-                        item.id;
-
-                    selectedTargetId =
-                        null;
-
-                    renderSourceGrid();
-
-                    renderTargetGrid();
-
-                    updateUpgradeUI();
-                };
-
-            box.appendChild(
-                card
+    const available =
+        inventory
+            .filter(
+                item =>
+                    !item.locked
             );
-        });
+
+
+    if (!available.length) {
+
+        box.innerHTML =
+            "Нет доступных Brainrot";
+
+        return;
+    }
+
+
+    available
+        .forEach(
+            item => {
+
+
+                const card =
+                    document
+                        .createElement(
+                            "div"
+                        );
+
+
+                card.className =
+                    "upgrade-choice";
+
+
+                if (
+                    Number(
+                        selectedSourceId
+                    ) ===
+                    Number(
+                        item.id
+                    )
+                ) {
+
+                    card.classList.add(
+                        "selected"
+                    );
+
+                }
+
+
+                card.innerHTML = `
+
+                    <img
+                        src="${getImage(item.brainrot_name)}"
+                    >
+
+                    <div class="choice-name">
+
+                        ${item.brainrot_name}
+
+                    </div>
+
+                    <div class="choice-price">
+
+                        💰 ${item.value}
+
+                    </div>
+
+                `;
+
+
+                card.onclick =
+                    () => {
+
+                        selectedSourceId =
+                            item.id;
+
+
+                        selectedTargetId =
+                            null;
+
+
+                        renderSourceGrid();
+
+
+                        renderTargetGrid();
+
+
+                        updateUpgradeUI();
+
+                    };
+
+
+                box
+                    .appendChild(
+                        card
+                    );
+
+            }
+        );
 }
 
 
 function renderTargetGrid() {
 
     const box =
-        document.getElementById(
-            "targetGrid"
-        );
+        document
+            .getElementById(
+                "targetGrid"
+            );
+
 
     box.innerHTML =
         "";
 
+
     const source =
         getSource();
+
 
     if (!source) {
 
@@ -1856,25 +2739,55 @@ function renderTargetGrid() {
         return;
     }
 
-    brainrots
-        .filter(
-            item =>
-                Number(
-                    item.value
-                ) >
-                Number(
-                    source.value
-                )
-        )
-        .forEach(item => {
+
+    const targets =
+        brainrots
+            .filter(
+                item =>
+                    Number(
+                        item.value
+                    ) >
+                    Number(
+                        source.value
+                    )
+            )
+            .sort(
+                (
+                    a,
+                    b
+                ) =>
+                    Number(
+                        a.value
+                    ) -
+                    Number(
+                        b.value
+                    )
+            );
+
+
+    if (!targets.length) {
+
+        box.innerHTML =
+            "Нет более дорогих Brainrot";
+
+        return;
+    }
+
+
+    targets.forEach(
+        item => {
+
 
             const card =
-                document.createElement(
-                    "div"
-                );
+                document
+                    .createElement(
+                        "div"
+                    );
+
 
             card.className =
                 "upgrade-choice";
+
 
             if (
                 Number(
@@ -1888,7 +2801,9 @@ function renderTargetGrid() {
                 card.classList.add(
                     "selected"
                 );
+
             }
+
 
             card.innerHTML = `
 
@@ -1897,13 +2812,19 @@ function renderTargetGrid() {
                 >
 
                 <div class="choice-name">
+
                     ${item.name}
+
                 </div>
 
                 <div class="choice-price">
+
                     💰 ${item.value}
+
                 </div>
+
             `;
+
 
             card.onclick =
                 () => {
@@ -1911,15 +2832,22 @@ function renderTargetGrid() {
                     selectedTargetId =
                         item.brainrot_id;
 
+
                     renderTargetGrid();
 
+
                     updateUpgradeUI();
+
                 };
 
-            box.appendChild(
-                card
-            );
-        });
+
+            box
+                .appendChild(
+                    card
+                );
+
+        }
+    );
 }
 
 
@@ -1932,8 +2860,11 @@ function calculateChance(
         !source ||
         !target
     ) {
+
         return 0;
+
     }
+
 
     let chance =
         Math.floor(
@@ -1949,17 +2880,20 @@ function calculateChance(
             .75
         );
 
+
     chance =
         Math.min(
             chance,
             70
         );
 
+
     chance =
         Math.max(
             chance,
             0
         );
+
 
     return chance;
 }
@@ -1973,6 +2907,7 @@ function updateUpgradeUI() {
             getTarget()
         );
 
+
     document
         .getElementById(
             "chanceText"
@@ -1980,6 +2915,7 @@ function updateUpgradeUI() {
         .innerText =
             chance +
             "%";
+
 
     document
         .getElementById(
@@ -1989,16 +2925,20 @@ function updateUpgradeUI() {
             chance +
             "%";
 
+
     document
         .getElementById(
             "upgradeWheel"
         )
         .style
         .setProperty(
+
             "--green-angle",
+
             chance *
             3.6 +
             "deg"
+
         );
 }
 
@@ -2025,37 +2965,52 @@ async function spinNeedle(
 ) {
 
     const rotor =
-        document.getElementById(
-            "needleRotor"
-        );
+        document
+            .getElementById(
+                "needleRotor"
+            );
+
 
     const green =
         chance *
         3.6;
 
+
     let target;
+
 
     if (win) {
 
         target =
-            green <= 8
+            green <=
+            8
+
             ?
-            green / 2
+
+            green /
+            2
+
             :
+
             randomBetween(
                 4,
-                green - 4
+                green -
+                4
             );
+
     }
 
     else {
 
         target =
             randomBetween(
-                green + 5,
+                green +
+                5,
                 355
             );
+
     }
+
 
     const turns =
         2 +
@@ -2063,6 +3018,7 @@ async function spinNeedle(
             Math.random() *
             3
         );
+
 
     const current =
         (
@@ -2072,6 +3028,7 @@ async function spinNeedle(
         ) %
         360;
 
+
     const delta =
         (
             target -
@@ -2080,16 +3037,24 @@ async function spinNeedle(
         ) %
         360;
 
+
     needleRotation +=
+
         turns *
-        360 +
+        360
+
+        +
+
         delta;
+
 
     rotor.style.transition =
         "transform 4s cubic-bezier(.12,.75,.12,1)";
 
+
     rotor.style.transform =
         `rotate(${needleRotation}deg)`;
+
 
     await new Promise(
         resolve =>
@@ -2107,16 +3072,21 @@ async function upgradeItem() {
         return;
     }
 
+
     const source =
         getSource();
+
 
     const target =
         getTarget();
 
+
     const result =
-        document.getElementById(
-            "upgradeResult"
-        );
+        document
+            .getElementById(
+                "upgradeResult"
+            );
+
 
     if (!source) {
 
@@ -2124,7 +3094,9 @@ async function upgradeItem() {
             "❌ Выбери свой Brainrot";
 
         return;
+
     }
+
 
     if (!target) {
 
@@ -2132,93 +3104,164 @@ async function upgradeItem() {
             "❌ Выбери цель";
 
         return;
+
     }
+
 
     upgrading =
         true;
 
-    const data =
-        await apiRequest({
 
-            action:
-                "upgrade_item",
+    document
+        .getElementById(
+            "upgradeButton"
+        )
+        .disabled =
+            true;
 
-            inventory_id:
-                source.id,
 
-            target_brainrot_id:
-                target.brainrot_id
-        });
+    result.innerText =
+        "⚡ Апгрейд...";
 
-    if (!data.ok) {
 
-        result.innerText =
-            "❌ " +
-            data.error;
+    try {
 
-        upgrading =
-            false;
+        const data =
+            await apiRequest({
 
-        return;
-    }
+                action:
+                    "upgrade_item",
 
-    await spinNeedle(
-        data.win,
-        data.chance
-    );
+                inventory_id:
+                    source.id,
 
-    inventory =
-        inventory.filter(
-            item =>
-                Number(
-                    item.id
-                ) !==
-                Number(
-                    source.id
+                target_brainrot_id:
+                    target.brainrot_id
+
+            });
+
+
+        if (!data.ok) {
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
+
+            upgrading =
+                false;
+
+
+            document
+                .getElementById(
+                    "upgradeButton"
                 )
+                .disabled =
+                    false;
+
+
+            return;
+        }
+
+
+        await spinNeedle(
+            data.win,
+            data.chance
         );
 
-    if (data.win) {
 
-        inventory.unshift(
-            data.item
+        inventory =
+            inventory.filter(
+                item =>
+                    Number(
+                        item.id
+                    ) !==
+                    Number(
+                        source.id
+                    )
+            );
+
+
+        if (data.win) {
+
+            inventory.unshift(
+                data.item
+            );
+
+
+            result.innerText =
+                "✅ УСПЕХ!\n" +
+                source.brainrot_name +
+                " → " +
+                data.item.brainrot_name +
+                "\nШанс: " +
+                data.chance +
+                "%";
+
+        }
+
+        else {
+
+            result.innerText =
+                "❌ ПРОИГРЫШ\n" +
+                source.brainrot_name +
+                " сгорел\nШанс: " +
+                data.chance +
+                "%";
+
+        }
+
+
+        selectedSourceId =
+            null;
+
+
+        selectedTargetId =
+            null;
+
+
+        renderInventory();
+
+
+        renderSourceGrid();
+
+
+        renderTargetGrid();
+
+
+        updateUpgradeUI();
+
+    }
+
+    catch (error) {
+
+        console.log(
+            error
         );
 
-        result.innerText =
-            "✅ УСПЕХ!\n" +
-            source.brainrot_name +
-            " → " +
-            data.item.brainrot_name;
-    }
-
-    else {
 
         result.innerText =
-            "❌ ПРОИГРЫШ\n" +
-            source.brainrot_name +
-            " сгорел";
+            "❌ Ошибка подключения";
+
     }
 
-    selectedSourceId =
-        null;
-
-    selectedTargetId =
-        null;
-
-    renderInventory();
-
-    renderSourceGrid();
-
-    renderTargetGrid();
-
-    updateUpgradeUI();
 
     upgrading =
         false;
+
+
+    document
+        .getElementById(
+            "upgradeButton"
+        )
+        .disabled =
+            false;
 }
 
 
-/* DEPOSIT */
+/* =========================
+   DEPOSIT
+========================= */
 
 function getGaramaValue() {
 
@@ -2226,10 +3269,12 @@ function getGaramaValue() {
         brainrots.find(
             item => {
 
+
                 const name =
                     normalizeName(
                         item.name
                     );
+
 
                 return (
                     name.includes(
@@ -2239,15 +3284,21 @@ function getGaramaValue() {
                         "madundung"
                     )
                 );
+
             }
         );
 
+
     return garama
+
         ?
+
         Number(
             garama.value
         )
+
         :
+
         Infinity;
 }
 
@@ -2256,6 +3307,7 @@ function getDepositBrainrots() {
 
     const min =
         getGaramaValue();
+
 
     return brainrots
         .filter(
@@ -2266,7 +3318,10 @@ function getDepositBrainrots() {
                 min
         )
         .sort(
-            (a,b) =>
+            (
+                a,
+                b
+            ) =>
                 Number(
                     a.value
                 ) -
@@ -2280,82 +3335,109 @@ function getDepositBrainrots() {
 function renderDepositGrid() {
 
     const box =
-        document.getElementById(
-            "depositGrid"
-        );
+        document
+            .getElementById(
+                "depositGrid"
+            );
+
 
     box.innerHTML =
         "";
 
+
     getDepositBrainrots()
-        .forEach(item => {
+        .forEach(
+            item => {
 
-            const quantity =
-                Number(
-                    depositSelection[
-                        item.brainrot_id
-                    ] ||
-                    0
-                );
 
-            const value =
-                Math.max(
-                    0,
+                const quantity =
                     Number(
-                        item.value
-                    ) -
-                    8
-                );
+                        depositSelection[
+                            item.brainrot_id
+                        ] ||
+                        0
+                    );
 
-            const div =
-                document.createElement(
-                    "div"
-                );
 
-            div.className =
-                "deposit-item";
+                const value =
+                    Math.max(
+                        0,
+                        Number(
+                            item.value
+                        ) -
+                        8
+                    );
 
-            div.innerHTML = `
 
-                <img
-                    src="${getImage(item.name)}"
-                >
+                const div =
+                    document
+                        .createElement(
+                            "div"
+                        );
 
-                <div class="deposit-item-name">
-                    ${item.name}
-                </div>
 
-                <div class="deposit-item-price">
-                    +${value} монет
-                </div>
+                div.className =
+                    "deposit-item";
 
-                <div class="quantity-controls">
 
-                    <button
-                        class="quantity-btn"
-                        onclick="changeDepositQuantity(${item.brainrot_id}, -1)"
+                div.innerHTML = `
+
+                    <img
+                        src="${getImage(item.name)}"
                     >
-                        −
-                    </button>
 
-                    <span class="quantity-number">
-                        ${quantity}
-                    </span>
+                    <div class="deposit-item-name">
 
-                    <button
-                        class="quantity-btn"
-                        onclick="changeDepositQuantity(${item.brainrot_id}, 1)"
-                    >
-                        +
-                    </button>
+                        ${item.name}
 
-                </div>
-            `;
+                    </div>
 
-            box.appendChild(
-                div
-            );
-        });
+                    <div class="deposit-item-price">
+
+                        +${value}
+                        монет
+
+                    </div>
+
+                    <div class="quantity-controls">
+
+                        <button
+                            class="quantity-btn"
+                            onclick="changeDepositQuantity(${item.brainrot_id}, -1)"
+                        >
+
+                            −
+
+                        </button>
+
+                        <span class="quantity-number">
+
+                            ${quantity}
+
+                        </span>
+
+                        <button
+                            class="quantity-btn"
+                            onclick="changeDepositQuantity(${item.brainrot_id}, 1)"
+                        >
+
+                            +
+
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                box
+                    .appendChild(
+                        div
+                    );
+
+            }
+        );
+
 
     updateDepositSummary();
 }
@@ -2394,8 +3476,10 @@ function changeDepositQuantity(
             0
         );
 
+
     if (
-        delta > 0 &&
+        delta >
+        0 &&
         getDepositCount() >=
         10
     ) {
@@ -2405,7 +3489,9 @@ function changeDepositQuantity(
         );
 
         return;
+
     }
+
 
     const next =
         Math.max(
@@ -2414,13 +3500,16 @@ function changeDepositQuantity(
             delta
         );
 
+
     if (
-        next === 0
+        next ===
+        0
     ) {
 
         delete depositSelection[
             brainrotId
         ];
+
     }
 
     else {
@@ -2429,7 +3518,9 @@ function changeDepositQuantity(
             brainrotId
         ] =
             next;
+
     }
+
 
     renderDepositGrid();
 }
@@ -2440,45 +3531,52 @@ function updateDepositSummary() {
     let total =
         0;
 
-    Object.entries(
-        depositSelection
-    )
-    .forEach(
-        (
-            [
-                brainrotId,
-                quantity
-            ]
-        ) => {
 
-            const item =
-                brainrots.find(
-                    b =>
-                        Number(
-                            b.brainrot_id
-                        ) ===
-                        Number(
-                            brainrotId
-                        )
-                );
-
-            if (!item) {
-                return;
-            }
-
-            total +=
-                Math.max(
-                    0,
-                    Number(
-                        item.value
-                    ) -
-                    8
-                ) *
-                Number(
+    Object
+        .entries(
+            depositSelection
+        )
+        .forEach(
+            (
+                [
+                    brainrotId,
                     quantity
-                );
-        }
-    );
+                ]
+            ) => {
+
+
+                const item =
+                    brainrots.find(
+                        b =>
+                            Number(
+                                b.brainrot_id
+                            ) ===
+                            Number(
+                                brainrotId
+                            )
+                    );
+
+
+                if (!item) {
+                    return;
+                }
+
+
+                total +=
+                    Math.max(
+                        0,
+                        Number(
+                            item.value
+                        ) -
+                        8
+                    ) *
+                    Number(
+                        quantity
+                    );
+
+            }
+        );
+
 
     document
         .getElementById(
@@ -2486,6 +3584,7 @@ function updateDepositSummary() {
         )
         .innerText =
             getDepositCount();
+
 
     document
         .getElementById(
@@ -2501,6 +3600,7 @@ function openDepositModal() {
     depositSelection =
         {};
 
+
     document
         .getElementById(
             "depositResult"
@@ -2508,14 +3608,18 @@ function openDepositModal() {
         .innerText =
             "";
 
+
     renderDepositGrid();
+
 
     document
         .getElementById(
             "depositModal"
         )
         .classList
-        .add("show");
+        .add(
+            "show"
+        );
 }
 
 
@@ -2526,7 +3630,9 @@ function closeDepositModal() {
             "depositModal"
         )
         .classList
-        .remove("show");
+        .remove(
+            "show"
+        );
 }
 
 
@@ -2540,46 +3646,52 @@ async function submitDeposit() {
             .value
             .trim();
 
+
     const result =
         document
             .getElementById(
                 "depositResult"
             );
 
-    const items =
-        Object.entries(
-            depositSelection
-        )
-        .filter(
-            (
-                [
-                    id,
-                    quantity
-                ]
-            ) =>
-                Number(
-                    quantity
-                ) >
-                0
-        )
-        .map(
-            (
-                [
-                    brainrotId,
-                    quantity
-                ]
-            ) => ({
-                brainrot_id:
-                    Number(
-                        brainrotId
-                    ),
 
-                quantity:
+    const items =
+        Object
+            .entries(
+                depositSelection
+            )
+            .filter(
+                (
+                    [
+                        brainrotId,
+                        quantity
+                    ]
+                ) =>
                     Number(
                         quantity
-                    )
-            })
-        );
+                    ) >
+                    0
+            )
+            .map(
+                (
+                    [
+                        brainrotId,
+                        quantity
+                    ]
+                ) => ({
+
+                    brainrot_id:
+                        Number(
+                            brainrotId
+                        ),
+
+                    quantity:
+                        Number(
+                            quantity
+                        )
+
+                })
+            );
+
 
     if (!items.length) {
 
@@ -2587,7 +3699,9 @@ async function submitDeposit() {
             "❌ Выбери Brainrot";
 
         return;
+
     }
+
 
     if (
         username.length <
@@ -2598,41 +3712,67 @@ async function submitDeposit() {
             "❌ Введи Roblox ник";
 
         return;
+
     }
+
 
     result.innerText =
         "⏳ Отправляем заявку...";
 
-    const data =
-        await apiRequest({
 
-            action:
-                "create_balance_request",
+    try {
 
-            roblox_username:
-                username,
+        const data =
+            await apiRequest({
 
-            items:
-                items
-        });
+                action:
+                    "create_balance_request",
 
-    if (!data.ok) {
+                roblox_username:
+                    username,
+
+                items:
+                    items
+
+            });
+
+
+        if (!data.ok) {
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
+            return;
+
+        }
+
 
         result.innerText =
-            "❌ " +
-            data.error;
+            "✅ Заявка #" +
+            data.request_id +
+            " отправлена.\n" +
+            "Ожидай подтверждения администратора.";
 
-        return;
     }
 
-    result.innerText =
-        "✅ Заявка #" +
-        data.request_id +
-        " отправлена.\nОжидай подтверждения администратора.";
+    catch (error) {
+
+        console.log(
+            error
+        );
+
+
+        result.innerText =
+            "❌ Ошибка подключения";
+
+    }
 }
 
 
-/* WITHDRAW */
+/* =========================
+   WITHDRAW
+========================= */
 
 function openWithdrawModal(
     inventoryId
@@ -2649,9 +3789,11 @@ function openWithdrawModal(
                 )
         );
 
+
     if (!selectedWithdrawItem) {
         return;
     }
+
 
     document
         .getElementById(
@@ -2659,6 +3801,88 @@ function openWithdrawModal(
         )
         .innerText =
             "";
+
+
+    document
+        .getElementById(
+            "withdrawRoblox"
+        )
+        .value =
+            "";
+
+
+    /*
+    Минимальное время —
+    сейчас.
+    */
+
+    const now =
+        new Date();
+
+
+    const year =
+        now.getFullYear();
+
+
+    const month =
+        String(
+            now.getMonth() +
+            1
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    const day =
+        String(
+            now.getDate()
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    const hours =
+        String(
+            now.getHours()
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    const minutes =
+        String(
+            now.getMinutes()
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    const minDateTime =
+        `${year}-${month}-${day}T${hours}:${minutes}`;
+
+
+    const timeInput =
+        document
+            .getElementById(
+                "withdrawTime"
+            );
+
+
+    timeInput.min =
+        minDateTime;
+
+
+    timeInput.value =
+        "";
+
 
     document
         .getElementById(
@@ -2676,20 +3900,28 @@ function openWithdrawModal(
             >
 
             <h3>
+
                 ${selectedWithdrawItem.brainrot_name}
+
             </h3>
 
             <div>
+
                 💰 ${selectedWithdrawItem.value}
+
             </div>
+
         `;
+
 
     document
         .getElementById(
             "withdrawModal"
         )
         .classList
-        .add("show");
+        .add(
+            "show"
+        );
 }
 
 
@@ -2698,22 +3930,24 @@ function closeWithdrawModal() {
     selectedWithdrawItem =
         null;
 
+
     document
         .getElementById(
             "withdrawModal"
         )
         .classList
-        .remove("show");
+        .remove(
+            "show"
+        );
 }
 
 
 async function submitWithdraw() {
 
-    if (
-        !selectedWithdrawItem
-    ) {
+    if (!selectedWithdrawItem) {
         return;
     }
+
 
     const username =
         document
@@ -2723,11 +3957,21 @@ async function submitWithdraw() {
             .value
             .trim();
 
+
+    const timeValue =
+        document
+            .getElementById(
+                "withdrawTime"
+            )
+            .value;
+
+
     const result =
         document
             .getElementById(
                 "withdrawResult"
             );
+
 
     if (
         username.length <
@@ -2738,65 +3982,180 @@ async function submitWithdraw() {
             "❌ Введи Roblox ник";
 
         return;
+
     }
+
+
+    if (!timeValue) {
+
+        result.innerText =
+            "❌ Выбери дату и время";
+
+        return;
+
+    }
+
+
+    /*
+    datetime-local возвращает
+    локальное время пользователя.
+
+    new Date(timeValue)
+    преобразует его в нормальный Date,
+    после чего toISOString()
+    отправляет серверу правильное время.
+    */
+
+    const requestedDate =
+        new Date(
+            timeValue
+        );
+
+
+    if (
+        Number.isNaN(
+            requestedDate.getTime()
+        )
+    ) {
+
+        result.innerText =
+            "❌ Неверная дата или время";
+
+        return;
+
+    }
+
+
+    if (
+        requestedDate.getTime() <
+        Date.now() -
+        60000
+    ) {
+
+        result.innerText =
+            "❌ Выбери будущее время";
+
+        return;
+
+    }
+
 
     result.innerText =
         "⏳ Создаём заявку...";
 
-    const data =
-        await apiRequest({
 
-            action:
-                "create_withdraw_request",
+    try {
 
-            inventory_id:
-                selectedWithdrawItem.id,
+        const data =
+            await apiRequest({
 
-            roblox_username:
-                username
-        });
+                action:
+                    "create_withdraw_request",
 
-    if (!data.ok) {
+                inventory_id:
+                    selectedWithdrawItem.id,
+
+                roblox_username:
+                    username,
+
+                requested_time:
+                    requestedDate.toISOString()
+
+            });
+
+
+        if (!data.ok) {
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
+            return;
+
+        }
+
+
+        const item =
+            inventory.find(
+                x =>
+                    Number(
+                        x.id
+                    ) ===
+                    Number(
+                        selectedWithdrawItem.id
+                    )
+            );
+
+
+        if (item) {
+
+            item.locked =
+                true;
+
+        }
+
+
+        renderInventory();
+
+
+        renderSourceGrid();
+
+
+        const readable =
+            requestedDate
+                .toLocaleString(
+                    "ru-RU",
+                    {
+                        day:
+                            "2-digit",
+
+                        month:
+                            "2-digit",
+
+                        year:
+                            "numeric",
+
+                        hour:
+                            "2-digit",
+
+                        minute:
+                            "2-digit"
+                    }
+                );
+
 
         result.innerText =
-            "❌ " +
-            data.error;
+            "✅ Заявка #" +
+            data.request_id +
+            " создана.\n" +
+            "Время: " +
+            readable +
+            "\nОжидай подтверждения администратора.";
 
-        return;
     }
 
-    const item =
-        inventory.find(
-            x =>
-                Number(
-                    x.id
-                ) ===
-                Number(
-                    selectedWithdrawItem.id
-                )
+    catch (error) {
+
+        console.log(
+            error
         );
 
-    if (item) {
-        item.locked =
-            true;
+
+        result.innerText =
+            "❌ Ошибка подключения";
+
     }
-
-    renderInventory();
-
-    renderSourceGrid();
-
-    result.innerText =
-        "✅ Заявка #" +
-        data.request_id +
-        " создана.\nОжидай подтверждения администратора.";
 }
 
 
-/* START */
+/* =========================
+   START
+========================= */
 
 loadPlayer();
 
 </script>
 
 </body>
+
 </html>
