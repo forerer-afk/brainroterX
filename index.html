@@ -81,7 +81,7 @@ button {
 
         <h2>Brainrot Case</h2>
 
-        <p>Цена открытия: 100 монет</p>
+        <p>Цена открытия: 19 монет</p>
 
         <button class="open" onclick="openCase()">
             🎰 КРУТИТЬ КЕЙС
@@ -101,18 +101,18 @@ const brainrots = [
     {name: "🧠 Tralalero Tralala", chance: 50},
     {name: "🦈 Tralalita", chance: 30},
     {name: "🐊 Crocodilo", chance: 15},
-    {name: "👑 Secret Brainrot", chance: 5}
+    {name: "👑 Secret Brainrot", chance: 99}
 ];
 
 function openCase() {
 
-    if (coins < 100) {
+    if (coins < 19) {
         document.getElementById("result").innerText =
             "❌ Недостаточно монет!";
         return;
     }
 
-    coins -= 100;
+    coins -= 19;
 
     document.getElementById("coins").innerText = coins;
 
@@ -122,7 +122,7 @@ function openCase() {
 
     setTimeout(() => {
 
-        const random = Math.random() * 100;
+        const random = Math.random() * 19;
 
         let total = 0;
         let winner = null;
