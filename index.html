@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,23 +11,59 @@
 
 <style>
 
+/* ================================
+   BASE
+================================ */
+
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0f172a;
+
+    font-family:
+        Arial,
+        sans-serif;
+
     color: white;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #172554 0%,
+            #0f172a 35%,
+            #080d19 100%
+        );
+
+    min-height: 100vh;
+
     overflow-x: hidden;
 }
 
 button {
     border: none;
+    outline: none;
+
     cursor: pointer;
-    font-weight: bold;
+
+    font-weight: 700;
+
+    transition:
+        transform .14s ease,
+        opacity .14s ease,
+        filter .14s ease,
+        background .14s ease,
+        box-shadow .14s ease;
+}
+
+button:active {
+    transform: scale(.96);
 }
 
 button:disabled {
@@ -34,54 +71,146 @@ button:disabled {
     cursor: default;
 }
 
-/* TOP */
+
+/* ================================
+   TOP BAR
+================================ */
 
 .topbar {
     position: sticky;
+
     top: 0;
+
     z-index: 100;
 
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
 
     padding: 10px 12px;
 
-    background: #0f172a;
-    border-bottom: 1px solid #334155;
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            .92
+        );
+
+    backdrop-filter:
+        blur(14px);
+
+    border-bottom:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .12
+        );
+
+    box-shadow:
+        0 6px 25px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
 }
 
 .logo {
     font-size: 18px;
-    font-weight: bold;
+
+    font-weight: 800;
+
+    letter-spacing: -.3px;
 }
 
 .top-right {
     display: flex;
+
     align-items: center;
+
     gap: 7px;
 }
 
 .balance-box {
-    background: #1e293b;
-    border-radius: 12px;
     padding: 9px 11px;
-    font-weight: bold;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1e293b,
+            #293548
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .1
+        );
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(
+            255,
+            255,
+            255,
+            .05
+        );
+
+    font-weight: 800;
 }
 
 .deposit-top-btn {
-    background: #22c55e;
-    color: white;
-    border-radius: 12px;
     padding: 10px 12px;
+
+    border-radius: 12px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
+
+    box-shadow:
+        0 5px 16px
+        rgba(
+            34,
+            197,
+            94,
+            .2
+        );
 }
 
-/* MAIN */
+
+/* ================================
+   MAIN
+================================ */
 
 .game {
+    width: 100%;
+
     max-width: 520px;
+
     margin: auto;
-    padding: 14px 10px 100px;
+
+    padding:
+        14px
+        10px
+        100px;
+
     text-align: center;
 }
 
@@ -94,269 +223,653 @@ button:disabled {
 }
 
 .panel {
-    background: #1e293b;
-    border-radius: 18px;
     padding: 15px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(
+                30,
+                41,
+                59,
+                .97
+            ),
+            rgba(
+                20,
+                30,
+                48,
+                .97
+            )
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .08
+        );
+
+    box-shadow:
+        0 10px 30px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
 }
 
 .result {
-    white-space: pre-line;
     margin-top: 4px;
+
     min-height: 15px;
+
+    white-space: pre-line;
 }
 
-/* CASE LIST */
+
+/* ================================
+   CASE LIST
+================================ */
 
 .case-list {
     display: grid;
+
     gap: 13px;
 }
 
 .case-card {
-    background: #1e293b;
-    border-radius: 18px;
     padding: 15px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(
+                30,
+                41,
+                59,
+                .97
+            ),
+            rgba(
+                20,
+                30,
+                48,
+                .97
+            )
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .08
+        );
+
+    box-shadow:
+        0 10px 30px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
+
+    transition:
+        transform .16s ease,
+        border-color .16s ease;
+}
+
+.case-card:active {
+    transform: scale(.985);
 }
 
 .case-name {
     font-size: 20px;
-    font-weight: bold;
+
+    font-weight: 800;
 }
 
 .case-price {
     margin: 7px 0;
+
     opacity: .8;
 }
 
 .case-preview {
     display: flex;
+
     justify-content: center;
+
     gap: 5px;
+
     margin: 10px 0;
+
     overflow: hidden;
 }
 
 .preview-img {
     width: 50px;
+
     height: 50px;
+
     object-fit: contain;
-    background: #0f172a;
-    border-radius: 9px;
+
     padding: 2px;
+
+    border-radius: 10px;
+
+    background:
+        radial-gradient(
+            circle,
+            #172033,
+            #0b1220
+        );
 }
 
-.case-btn {
+.case-btn,
+.spin-btn {
     width: 100%;
-    border-radius: 12px;
+
     padding: 13px;
-    background: #f59e0b;
+
+    border-radius: 12px;
+
     color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #ea580c
+        );
+
+    box-shadow:
+        0 7px 18px
+        rgba(
+            245,
+            158,
+            11,
+            .2
+        );
 }
 
 .back-btn {
     width: 100%;
-    border-radius: 12px;
-    padding: 12px;
-    background: #334155;
-    color: white;
+
     margin-bottom: 10px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            145deg,
+            #334155,
+            #1e293b
+        );
 }
 
-/* CASE TITLE */
+
+/* ================================
+   CASE HEADER
+================================ */
 
 .case-title-row {
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
     gap: 8px;
 }
 
 .case-title-row h2 {
-    margin: 0;
     flex: 1;
+
+    margin: 0;
+
     text-align: left;
 }
 
-.speed-mini-btn {
+
+/* ================================
+   SPEED BUTTON
+================================ */
+
+.speed-mini-btn,
+.upgrade-speed-btn {
     width: 38px;
+
     height: 38px;
-    flex: 0 0 38px;
 
-    border-radius: 10px;
+    flex:
+        0
+        0
+        38px;
 
-    background: #334155;
-    color: white;
-
-    font-size: 18px;
     padding: 0;
 
+    border-radius: 11px;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
+    font-size: 18px;
+
+    color: #facc15;
+
+    background:
+        linear-gradient(
+            145deg,
+            #334155,
+            #1e293b
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .12
+        );
 }
 
-.speed-mini-btn.active {
-    background: #7c3aed;
-    box-shadow: 0 0 10px rgba(124,58,237,.65);
+.speed-mini-btn.active,
+.upgrade-speed-btn.active {
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #9333ea
+        );
+
+    box-shadow:
+        0 0 16px
+        rgba(
+            147,
+            51,
+            234,
+            .55
+        );
 }
 
-/* COUNTS */
+
+/* ================================
+   CASE COUNTS
+================================ */
 
 .case-controls {
     display: flex;
+
     gap: 6px;
-    margin: 8px 0 5px;
+
+    margin:
+        8px
+        0
+        5px;
 }
 
 .case-count-btn {
     flex: 1;
+
     padding: 9px 4px;
+
     border-radius: 9px;
-    background: #334155;
+
     color: white;
+
+    background: #334155;
 }
 
 .case-count-btn.active {
-    background: #f59e0b;
+    background:
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #ea580c
+        );
+
+    box-shadow:
+        0 4px 12px
+        rgba(
+            245,
+            158,
+            11,
+            .25
+        );
 }
 
 .total-case-price {
-    margin: 5px 0 8px;
+    margin:
+        5px
+        0
+        8px;
+
+    padding: 7px 9px;
+
+    border-radius: 10px;
+
     font-size: 13px;
+
+    font-weight: 800;
+
     color: #facc15;
-    font-weight: bold;
+
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            .55
+        );
 }
 
-/* ROULETTE */
+
+/* ================================
+   ROULETTE
+================================ */
 
 .roulette-container {
     position: relative;
+
     height: 155px;
-    overflow: hidden;
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 16px;
+
     margin: 15px 0;
+
+    overflow: hidden;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #0b1220,
+            #111827
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .18
+        );
+
+    box-shadow:
+        inset 0 0 30px
+        rgba(
+            0,
+            0,
+            0,
+            .35
+        );
 }
 
 .roulette-pointer {
     position: absolute;
+
     z-index: 20;
+
     top: -2px;
+
     left: 50%;
-    transform: translateX(-50%);
+
+    transform:
+        translateX(-50%);
+
     color: #facc15;
+
     font-size: 30px;
 }
 
 .roulette-line {
     position: absolute;
+
     z-index: 10;
+
     top: 0;
+
     bottom: 0;
+
     left: 50%;
+
     width: 3px;
-    transform: translateX(-50%);
-    background: rgba(250,204,21,.6);
+
+    transform:
+        translateX(-50%);
+
+    background:
+        rgba(
+            250,
+            204,
+            21,
+            .6
+        );
 }
 
 .roulette-track {
     height: 100%;
+
     display: flex;
+
     align-items: center;
+
     gap: 8px;
+
     padding-left: 10px;
+
     will-change: transform;
 }
 
 .roulette-item {
-    flex: 0 0 116px;
+    flex:
+        0
+        0
+        116px;
+
     height: 128px;
-    background: #1e293b;
-    border: 2px solid #475569;
-    border-radius: 13px;
+
     padding: 6px;
 
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1e293b,
+            #111827
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .15
+        );
+
+    box-shadow:
+        0 6px 14px
+        rgba(
+            0,
+            0,
+            0,
+            .2
+        );
 }
 
 .roulette-item img {
     width: 88px;
+
     height: 88px;
+
     object-fit: contain;
 }
 
 .roulette-name {
     width: 100%;
+
     font-size: 11px;
-    font-weight: bold;
+
+    font-weight: 700;
 
     white-space: nowrap;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
-.spin-btn {
-    width: 100%;
-    border-radius: 12px;
-    padding: 13px;
-    background: #f59e0b;
-    color: white;
-}
 
-/* CASE RESULT */
+/* ================================
+   CASE RESULT
+================================ */
 
 .quick-sell-btn,
 .sell-all-btn {
     width: 100%;
+
     margin-top: 5px;
+
     padding: 10px;
+
     border-radius: 10px;
-    background: #16a34a;
+
     color: white;
+
     font-size: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #15803d
+        );
+
+    box-shadow:
+        0 5px 15px
+        rgba(
+            34,
+            197,
+            94,
+            .18
+        );
 }
 
 .case-win-text {
     margin-top: 4px;
+
     font-size: 11px;
-    opacity: .7;
+
+    opacity: .72;
 }
 
 .case-win-price {
-    color: #facc15;
     margin-left: 4px;
+
+    color: #facc15;
 }
 
 .multi-result {
-    font-size: 11px;
-    opacity: .78;
     margin-top: 5px;
+
+    font-size: 11px;
+
     line-height: 1.45;
+
+    opacity: .78;
 }
 
 .insufficient {
     margin-top: 7px;
+
     color: #f87171;
+
     font-size: 14px;
-    font-weight: bold;
+
+    font-weight: 800;
 }
 
-/* INVENTORY */
+
+/* ================================
+   INVENTORY
+================================ */
 
 .inventory-item {
     display: flex;
-    gap: 12px;
-    text-align: left;
 
-    background: #1e293b;
-    border-radius: 16px;
+    gap: 12px;
+
+    margin: 10px 0;
 
     padding: 12px;
-    margin: 10px 0;
+
+    text-align: left;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(
+                30,
+                41,
+                59,
+                .97
+            ),
+            rgba(
+                20,
+                30,
+                48,
+                .97
+            )
+        );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .08
+        );
+
+    box-shadow:
+        0 10px 30px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
 }
 
 .inventory-item.locked {
@@ -365,11 +878,21 @@ button:disabled {
 
 .inventory-image {
     width: 82px;
+
     height: 82px;
-    object-fit: contain;
-    background: #0f172a;
-    border-radius: 11px;
+
     padding: 3px;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    background:
+        radial-gradient(
+            circle,
+            #172033,
+            #0b1220
+        );
 }
 
 .inventory-info {
@@ -377,97 +900,199 @@ button:disabled {
 }
 
 .inventory-name {
-    font-weight: bold;
     font-size: 17px;
+
+    font-weight: 800;
 }
 
 .inventory-actions {
     display: flex;
+
     gap: 7px;
+
     margin-top: 8px;
 }
 
 .sell-btn,
 .withdraw-btn {
     flex: 1;
-    border-radius: 10px;
+
     padding: 10px 4px;
+
+    border-radius: 10px;
+
     color: white;
 }
 
 .sell-btn {
-    background: #16a34a;
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #15803d
+        );
 }
 
 .withdraw-btn {
-    background: #2563eb;
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
 }
 
 .locked-text {
     margin-top: 8px;
+
     color: #facc15;
+
     font-size: 13px;
 }
 
-/* UPGRADER */
+
+/* ================================
+   UPGRADER
+================================ */
+
+.upgrader-title-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+}
+
+.upgrader-title-row h2 {
+    margin: 0;
+}
 
 .upgrade-grid {
     display: grid;
-    grid-template-columns: repeat(3,1fr);
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
     gap: 7px;
 }
 
 .upgrade-choice {
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 13px;
     padding: 6px;
+
+    border-radius: 13px;
+
     cursor: pointer;
+
+    background: #0f172a;
+
+    border:
+        2px solid
+        #334155;
+
+    transition:
+        transform .14s ease,
+        border-color .14s ease,
+        box-shadow .14s ease;
+}
+
+.upgrade-choice:active {
+    transform: scale(.95);
 }
 
 .upgrade-choice.selected {
     border-color: #a855f7;
-    box-shadow: 0 0 12px rgba(168,85,247,.5);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(
+                88,
+                28,
+                135,
+                .35
+            ),
+            #0f172a
+        );
+
+    box-shadow:
+        0 0 18px
+        rgba(
+            168,
+            85,
+            247,
+            .32
+        );
 }
 
 .upgrade-choice img {
     width: 70px;
+
     height: 70px;
+
     object-fit: contain;
 }
 
 .choice-name {
     font-size: 10px;
+
     white-space: nowrap;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
 .choice-price {
     font-size: 12px;
+
     color: #facc15;
 }
 
 .upgrade-wheel-wrap {
     position: relative;
+
     width: 220px;
+
     height: 220px;
+
     margin: 18px auto;
 }
 
 .upgrade-wheel {
     position: absolute;
+
     inset: 0;
 
     border-radius: 50%;
 
     background:
         conic-gradient(
-            #22c55e 0deg var(--green-angle),
-            #ef4444 var(--green-angle) 360deg
+            #22c55e
+            0deg
+            var(--green-angle),
+
+            #ef4444
+            var(--green-angle)
+            360deg
         );
 
-    border: 5px solid #475569;
+    border:
+        5px solid
+        #475569;
+
+    box-shadow:
+        0 0 25px
+        rgba(
+            0,
+            0,
+            0,
+            .25
+        );
 }
 
 .upgrade-wheel::after {
@@ -476,21 +1101,36 @@ button:disabled {
     position: absolute;
 
     width: 140px;
+
     height: 140px;
 
     left: 50%;
+
     top: 50%;
 
-    transform: translate(-50%,-50%);
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
 
-    background: #0f172a;
     border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #172033,
+            #0b1220
+        );
 }
 
 .needle-rotor {
     position: absolute;
+
     inset: 0;
+
     z-index: 10;
+
     pointer-events: none;
 }
 
@@ -498,51 +1138,103 @@ button:disabled {
     position: absolute;
 
     top: 5px;
+
     left: 50%;
 
-    transform: translateX(-50%);
+    transform:
+        translateX(-50%);
 
     width: 0;
+
     height: 0;
 
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 35px solid #facc15;
+    border-left:
+        10px solid
+        transparent;
+
+    border-right:
+        10px solid
+        transparent;
+
+    border-bottom:
+        35px solid
+        #facc15;
 }
 
 .wheel-text {
     position: absolute;
+
     z-index: 5;
 
     left: 50%;
+
     top: 50%;
 
-    transform: translate(-50%,-50%);
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
 
     font-size: 28px;
-    font-weight: bold;
+
+    font-weight: 800;
 }
 
 .upgrade-btn {
     width: 100%;
-    border-radius: 12px;
+
     padding: 13px;
-    background: #7c3aed;
+
+    border-radius: 12px;
+
     color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #9333ea,
+            #6d28d9
+        );
+
+    box-shadow:
+        0 7px 20px
+        rgba(
+            147,
+            51,
+            234,
+            .25
+        );
 }
 
-/* MODALS */
+
+/* ================================
+   MODALS
+================================ */
 
 .modal-overlay {
     position: fixed;
+
     z-index: 500;
+
     inset: 0;
 
-    background: rgba(0,0,0,.72);
-
     display: none;
+
     align-items: flex-end;
+
     justify-content: center;
+
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            .72
+        );
+
+    backdrop-filter:
+        blur(5px);
 }
 
 .modal-overlay.show {
@@ -551,168 +1243,319 @@ button:disabled {
 
 .modal {
     width: 100%;
+
     max-width: 520px;
+
     max-height: 90vh;
 
     overflow-y: auto;
 
-    background: #1e293b;
-
-    border-radius: 22px 22px 0 0;
-
     padding: 17px;
+
+    border-radius:
+        22px
+        22px
+        0
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #1e293b,
+            #111827
+        );
+
+    box-shadow:
+        0 -10px 40px
+        rgba(
+            0,
+            0,
+            0,
+            .3
+        );
 }
 
 .modal-header {
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
 }
 
 .modal-title {
     font-size: 23px;
-    font-weight: bold;
+
+    font-weight: 800;
 }
 
 .close-btn {
-    background: #334155;
-    color: white;
-    border-radius: 10px;
     padding: 8px 11px;
+
+    border-radius: 10px;
+
+    color: white;
+
+    background: #334155;
 }
 
 .text-input {
     width: 100%;
-    border: none;
-    border-radius: 12px;
-    padding: 13px;
-    font-size: 16px;
+
     margin: 7px 0;
+
+    padding: 13px;
+
+    border: none;
+
+    outline: none;
+
+    border-radius: 12px;
+
+    font-size: 16px;
+
+    background: #f8fafc;
+
+    color: #0f172a;
 }
 
 .input-label {
-    text-align: left;
     margin-top: 12px;
+
     margin-bottom: 2px;
+
+    text-align: left;
+
     font-size: 13px;
+
     opacity: .8;
 }
 
 .time-row {
     display: grid;
-    grid-template-columns: 1fr 1.3fr;
+
+    grid-template-columns:
+        1fr
+        1.3fr;
+
     gap: 8px;
 }
 
 .submit-btn {
     width: 100%;
-    border-radius: 12px;
-    padding: 14px;
+
     margin-top: 8px;
-    background: #22c55e;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
     color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22c55e,
+            #16a34a
+        );
 }
 
 .withdraw-submit {
-    background: #2563eb;
+    background:
+        linear-gradient(
+            135deg,
+            #3b82f6,
+            #2563eb
+        );
 }
 
-/* DEPOSIT */
+
+/* ================================
+   DEPOSIT
+================================ */
 
 .deposit-grid {
     display: grid;
-    grid-template-columns: repeat(3,1fr);
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
     gap: 8px;
+
     margin-top: 15px;
 }
 
 .deposit-item {
-    background: #0f172a;
-    border: 2px solid #334155;
-    border-radius: 14px;
     padding: 7px 5px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0f172a,
+            #111827
+        );
+
+    border:
+        2px solid
+        #334155;
 }
 
 .deposit-item img {
     width: 72px;
+
     height: 72px;
+
     object-fit: contain;
 }
 
 .deposit-item-name {
     font-size: 10px;
+
     white-space: nowrap;
+
     overflow: hidden;
+
     text-overflow: ellipsis;
 }
 
 .deposit-item-price {
-    font-size: 12px;
-    color: #22c55e;
     margin-top: 3px;
+
+    color: #22c55e;
+
+    font-size: 12px;
 }
 
 .quantity-controls {
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     gap: 5px;
+
     margin-top: 6px;
 }
 
 .quantity-btn {
     width: 27px;
+
     height: 27px;
+
     border-radius: 7px;
-    background: #334155;
+
     color: white;
+
+    background: #334155;
 }
 
 .quantity-number {
     min-width: 20px;
-    font-weight: bold;
+
+    font-weight: 800;
 }
 
 .deposit-summary {
-    background: #0f172a;
-    border-radius: 13px;
-    padding: 12px;
     margin: 15px 0;
+
+    padding: 12px;
+
+    border-radius: 13px;
+
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            .7
+        );
 }
 
-/* BOTTOM MENU */
+
+/* ================================
+   BOTTOM MENU
+================================ */
 
 .bottom-menu {
     position: fixed;
+
     bottom: 0;
+
     left: 0;
+
     right: 0;
+
+    z-index: 100;
 
     display: flex;
 
-    background: #1e293b;
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            .94
+        );
 
-    border-top: 1px solid #334155;
+    backdrop-filter:
+        blur(15px);
 
-    z-index: 100;
+    border-top:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .1
+        );
 }
 
 .nav-btn {
     width: 33.333%;
+
     padding: 11px 3px;
-    background: transparent;
+
     color: #94a3b8;
+
+    background: transparent;
 }
 
 .nav-btn.active {
-    background: #334155;
     color: white;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(
+                99,
+                102,
+                241,
+                .16
+            ),
+            rgba(
+                51,
+                65,
+                85,
+                .6
+            )
+        );
 }
 
 </style>
 </head>
 
+
 <body>
+
+<!-- ================================
+     TOP
+================================ -->
 
 <div class="topbar">
 
@@ -723,7 +1566,10 @@ button:disabled {
 <div class="top-right">
 
 <div class="balance-box">
-💰 <span id="coins">0</span>
+💰
+<span id="coins">
+0
+</span>
 </div>
 
 <button
@@ -737,9 +1583,13 @@ button:disabled {
 
 </div>
 
+
 <div class="game">
 
-<!-- CASES -->
+
+<!-- ================================
+     CASES
+================================ -->
 
 <div
     id="casesPage"
@@ -749,6 +1599,7 @@ button:disabled {
 <div id="caseList">
 Загрузка...
 </div>
+
 
 <div
     id="activeCase"
@@ -762,11 +1613,14 @@ button:disabled {
 ← Назад
 </button>
 
+
 <div class="panel">
+
 
 <div class="case-title-row">
 
-<h2 id="activeCaseName"></h2>
+<h2 id="activeCaseName">
+</h2>
 
 <button
     id="speedButton"
@@ -778,10 +1632,17 @@ button:disabled {
 
 </div>
 
+
 <div
     id="activeCasePrice"
-    style="margin-top:6px;text-align:left;opacity:.8"
-></div>
+    style="
+        margin-top:6px;
+        text-align:left;
+        opacity:.75;
+        font-size:13px;
+    "
+>
+</div>
 
 
 <div
@@ -793,12 +1654,14 @@ button:disabled {
 ▼
 </div>
 
-<div class="roulette-line"></div>
+<div class="roulette-line">
+</div>
 
 <div
     id="rouletteTrack"
     class="roulette-track"
-></div>
+>
+</div>
 
 </div>
 
@@ -857,12 +1720,15 @@ x5
 </button>
 
 
-<div id="quickSellArea"></div>
+<div id="quickSellArea">
+</div>
 
 <div
     id="caseResult"
     class="result"
-></div>
+>
+</div>
+
 
 </div>
 
@@ -871,7 +1737,9 @@ x5
 </div>
 
 
-<!-- UPGRADER -->
+<!-- ================================
+     UPGRADER
+================================ -->
 
 <div
     id="upgraderPage"
@@ -880,9 +1748,23 @@ x5
 
 <div class="panel">
 
+
+<div class="upgrader-title-row">
+
 <h2>
 ⚡ Апгрейдер
 </h2>
+
+<button
+    id="upgradeSpeedButton"
+    class="upgrade-speed-btn"
+    onclick="toggleUpgradeSpeed()"
+>
+⚡
+</button>
+
+</div>
+
 
 <p>
 Выбери свой Brainrot
@@ -891,7 +1773,9 @@ x5
 <div
     id="sourceGrid"
     class="upgrade-grid"
-></div>
+>
+</div>
+
 
 <p>
 Выбери цель
@@ -900,25 +1784,34 @@ x5
 <div
     id="targetGrid"
     class="upgrade-grid"
-></div>
+>
+</div>
+
 
 <h3>
 Шанс:
-<span id="chanceText">0%</span>
+<span id="chanceText">
+0%
+</span>
 </h3>
+
 
 <div class="upgrade-wheel-wrap">
 
 <div
     id="upgradeWheel"
     class="upgrade-wheel"
-></div>
+>
+</div>
 
 <div
     id="needleRotor"
     class="needle-rotor"
 >
-<div class="upgrade-needle"></div>
+
+<div class="upgrade-needle">
+</div>
+
 </div>
 
 <div
@@ -930,6 +1823,7 @@ x5
 
 </div>
 
+
 <button
     id="upgradeButton"
     class="upgrade-btn"
@@ -938,17 +1832,22 @@ x5
 ⚡ АПГРЕЙД
 </button>
 
+
 <div
     id="upgradeResult"
     class="result"
-></div>
+>
+</div>
+
 
 </div>
 
 </div>
 
 
-<!-- INVENTORY -->
+<!-- ================================
+     INVENTORY
+================================ -->
 
 <div
     id="inventoryPage"
@@ -959,14 +1858,18 @@ x5
 🎒 Инвентарь
 </h2>
 
-<div id="inventory"></div>
-
+<div id="inventory">
 </div>
 
 </div>
 
 
-<!-- MENU -->
+</div>
+
+
+<!-- ================================
+     MENU
+================================ -->
 
 <div class="bottom-menu">
 
@@ -975,7 +1878,9 @@ x5
     class="nav-btn active"
     onclick="showPage('cases')"
 >
-🎁<br>Кейсы
+🎁
+<br>
+Кейсы
 </button>
 
 <button
@@ -983,7 +1888,9 @@ x5
     class="nav-btn"
     onclick="showPage('upgrader')"
 >
-⚡<br>Апгрейдер
+⚡
+<br>
+Апгрейдер
 </button>
 
 <button
@@ -991,13 +1898,17 @@ x5
     class="nav-btn"
     onclick="showPage('inventory')"
 >
-🎒<br>Инвентарь
+🎒
+<br>
+Инвентарь
 </button>
 
 </div>
 
 
-<!-- DEPOSIT -->
+<!-- ================================
+     DEPOSIT
+================================ -->
 
 <div
     id="depositModal"
@@ -1005,6 +1916,7 @@ x5
 >
 
 <div class="modal">
+
 
 <div class="modal-header">
 
@@ -1021,27 +1933,42 @@ x5
 
 </div>
 
+
 <p>
 Выбери до 10 Brainrot.
 Garama и всё дороже.
 </p>
 
+
 <div
     id="depositGrid"
     class="deposit-grid"
-></div>
+>
+</div>
+
 
 <div class="deposit-summary">
 
 Выбрано:
-<b id="depositCount">0</b> / 10
+
+<b id="depositCount">
+0
+</b>
+
+/ 10
 
 <br><br>
 
 Будет начислено:
-<b id="depositTotal">0</b> монет
+
+<b id="depositTotal">
+0
+</b>
+
+монет
 
 </div>
+
 
 <div class="input-label">
 Roblox ник
@@ -1053,6 +1980,7 @@ Roblox ник
     placeholder="Например: Topor123"
 >
 
+
 <button
     class="submit-btn"
     onclick="submitDeposit()"
@@ -1060,17 +1988,22 @@ Roblox ник
 ОТПРАВИТЬ ЗАЯВКУ
 </button>
 
+
 <div
     id="depositResult"
     class="result"
-></div>
+>
+</div>
+
 
 </div>
 
 </div>
 
 
-<!-- WITHDRAW -->
+<!-- ================================
+     WITHDRAW
+================================ -->
 
 <div
     id="withdrawModal"
@@ -1078,6 +2011,7 @@ Roblox ник
 >
 
 <div class="modal">
+
 
 <div class="modal-header">
 
@@ -1094,7 +2028,10 @@ Roblox ник
 
 </div>
 
-<div id="withdrawItemInfo"></div>
+
+<div id="withdrawItemInfo">
+</div>
+
 
 <div class="input-label">
 Roblox ник
@@ -1106,9 +2043,11 @@ Roblox ник
     placeholder="Например: Topor123"
 >
 
+
 <div class="input-label">
 Когда будешь в игре
 </div>
+
 
 <div class="time-row">
 
@@ -1118,7 +2057,7 @@ Roblox ник
     type="number"
     min="1"
     max="31"
-    placeholder="День: 16"
+    placeholder="День"
 >
 
 <input
@@ -1128,6 +2067,7 @@ Roblox ник
 >
 
 </div>
+
 
 <div
     style="
@@ -1140,6 +2080,7 @@ Roblox ник
 Например: 16 в 23:45
 </div>
 
+
 <button
     class="submit-btn withdraw-submit"
     onclick="submitWithdraw()"
@@ -1147,10 +2088,13 @@ Roblox ник
 ОТПРАВИТЬ ЗАЯВКУ
 </button>
 
+
 <div
     id="withdrawResult"
     class="result"
-></div>
+>
+</div>
+
 
 </div>
 
@@ -1159,51 +2103,87 @@ Roblox ник
 
 <script>
 
+/* ================================
+   TELEGRAM
+================================ */
+
 const tg =
     window.Telegram.WebApp;
 
 tg.ready();
+
 tg.expand();
 
 
-let coins = 0;
+/* ================================
+   DATA
+================================ */
 
-let inventory = [];
+let coins =
+    0;
 
-let brainrots = [];
+let inventory =
+    [];
 
-let cases = [];
+let brainrots =
+    [];
 
-let caseItems = [];
+let cases =
+    [];
 
-
-let selectedCase = null;
-
-let selectedSourceId = null;
-
-let selectedTargetId = null;
-
-let selectedWithdrawItem = null;
-
-
-let depositSelection = {};
+let caseItems =
+    [];
 
 
-let caseSpinning = false;
+let selectedCase =
+    null;
 
-let upgrading = false;
+let selectedSourceId =
+    null;
 
-let needleRotation = 0;
+let selectedTargetId =
+    null;
+
+let selectedWithdrawItem =
+    null;
 
 
-let caseOpenCount = 1;
+let depositSelection =
+    {};
 
-let caseSpeed = 1;
 
+let caseSpinning =
+    false;
+
+let upgrading =
+    false;
+
+
+let needleRotation =
+    0;
+
+
+let caseOpenCount =
+    1;
+
+let caseSpeed =
+    1;
+
+let upgradeSpeed =
+    1;
+
+
+/* ================================
+   SERVER
+================================ */
 
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
+
+/* ================================
+   IMAGES
+================================ */
 
 const BRAINROT_IMAGES = {
 
@@ -1240,41 +2220,58 @@ const BRAINROT_IMAGES = {
 };
 
 
-function normalizeName(name) {
+function normalizeName(
+    name
+) {
 
     return String(
-        name || ""
+        name ||
+        ""
     )
     .trim()
     .toLowerCase();
 }
 
 
-function getImage(name) {
+function getImage(
+    name
+) {
 
     return (
         BRAINROT_IMAGES[
             normalizeName(
                 name
             )
-        ] ||
+        ]
+        ||
         ""
     );
 }
 
 
-async function apiRequest(data) {
+/* ================================
+   API
+================================ */
+
+async function apiRequest(
+    data
+) {
 
     const response =
         await fetch(
+
             FUNCTION_URL,
+
             {
+
                 method:
                     "POST",
 
                 headers: {
+
                     "Content-Type":
                         "application/json"
+
                 },
 
                 body:
@@ -1286,14 +2283,19 @@ async function apiRequest(data) {
                             tg.initData
 
                     })
+
             }
+
         );
+
 
     return await response.json();
 }
 
 
-/* LOAD */
+/* ================================
+   LOAD PLAYER
+================================ */
 
 async function loadPlayer() {
 
@@ -1308,7 +2310,9 @@ async function loadPlayer() {
             });
 
 
-        if (!data.ok) {
+        if (
+            !data.ok
+        ) {
 
             document
                 .getElementById(
@@ -1358,11 +2362,17 @@ async function loadPlayer() {
 
         renderDepositGrid();
 
+        updateTotalCasePrice();
+
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
-        console.log(error);
+        console.log(
+            error
+        );
 
 
         document
@@ -1371,9 +2381,15 @@ async function loadPlayer() {
             )
             .innerText =
                 "❌ Ошибка подключения";
+
     }
+
 }
 
+
+/* ================================
+   BALANCE
+================================ */
 
 function updateBalance() {
 
@@ -1383,38 +2399,65 @@ function updateBalance() {
         )
         .innerText =
             coins;
+
 }
 
 
-/* PAGES */
+/* ================================
+   PAGES
+================================ */
 
-function showPage(page) {
+function showPage(
+    page
+) {
 
     [
+
         "casesPage",
+
         "upgraderPage",
+
         "inventoryPage"
+
     ]
     .forEach(
-        id =>
+        id => {
+
             document
-                .getElementById(id)
+                .getElementById(
+                    id
+                )
                 .classList
-                .remove("active")
+                .remove(
+                    "active"
+                );
+
+        }
     );
 
 
     [
+
         "casesButton",
+
         "upgraderButton",
+
         "inventoryButton"
+
     ]
     .forEach(
-        id =>
+        id => {
+
             document
-                .getElementById(id)
+                .getElementById(
+                    id
+                )
                 .classList
-                .remove("active")
+                .remove(
+                    "active"
+                );
+
+        }
     );
 
 
@@ -1424,7 +2467,9 @@ function showPage(page) {
             "Page"
         )
         .classList
-        .add("active");
+        .add(
+            "active"
+        );
 
 
     document
@@ -1433,7 +2478,9 @@ function showPage(page) {
             "Button"
         )
         .classList
-        .add("active");
+        .add(
+            "active"
+        );
 
 
     if (
@@ -1458,12 +2505,17 @@ function showPage(page) {
         updateUpgradeUI();
 
     }
+
 }
 
 
-/* CASE SETTINGS */
+/* ================================
+   CASE COUNT
+================================ */
 
-function setCaseCount(count) {
+function setCaseCount(
+    count
+) {
 
     caseOpenCount =
         count;
@@ -1486,17 +2538,24 @@ function setCaseCount(count) {
                     );
 
 
-            if (!button) {
+            if (
+                !button
+            ) {
+
                 return;
+
             }
 
 
             button
                 .classList
                 .toggle(
+
                     "active",
+
                     value ===
                     count
+
                 );
 
         }
@@ -1506,8 +2565,13 @@ function setCaseCount(count) {
     updateSpinButtonText();
 
     updateTotalCasePrice();
+
 }
 
+
+/* ================================
+   CASE SPEED X5
+================================ */
 
 function toggleCaseSpeed() {
 
@@ -1530,61 +2594,82 @@ function toggleCaseSpeed() {
     button
         .classList
         .toggle(
+
             "active",
+
             caseSpeed ===
             5
+
         );
+
 }
 
 
-function updateSpinButtonText() {
+/* ================================
+   UPGRADE SPEED X5
+================================ */
+
+function toggleUpgradeSpeed() {
+
+    upgradeSpeed =
+        upgradeSpeed ===
+        1
+        ?
+        5
+        :
+        1;
+
 
     const button =
         document
             .getElementById(
-                "spinButton"
+                "upgradeSpeedButton"
             );
 
 
-    if (!button) {
-        return;
-    }
+    button
+        .classList
+        .toggle(
 
+            "active",
 
-    if (
-        caseOpenCount ===
-        1
-    ) {
+            upgradeSpeed ===
+            5
 
-        button.innerText =
-            "🎰 КРУТИТЬ";
+        );
 
-    }
-
-    else {
-
-        button.innerText =
-            `🎰 ОТКРЫТЬ ×${caseOpenCount}`;
-
-    }
 }
 
 
+/* ================================
+   CASE PRICE
+================================ */
+
 function getTotalCaseCost() {
 
-    if (!selectedCase) {
+    if (
+        !selectedCase
+    ) {
+
         return 0;
+
     }
 
 
     return (
+
         Number(
             selectedCase.price
-        ) *
+        )
+
+        *
+
         Number(
             caseOpenCount
         )
+
     );
+
 }
 
 
@@ -1601,7 +2686,9 @@ function updateTotalCasePrice() {
         !box ||
         !selectedCase
     ) {
+
         return;
+
     }
 
 
@@ -1631,10 +2718,51 @@ function updateTotalCasePrice() {
             "#facc15";
 
     }
+
 }
 
 
-/* CASES */
+function updateSpinButtonText() {
+
+    const button =
+        document
+            .getElementById(
+                "spinButton"
+            );
+
+
+    if (
+        !button
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        caseOpenCount ===
+        1
+    ) {
+
+        button.innerText =
+            "🎰 КРУТИТЬ";
+
+    }
+
+    else {
+
+        button.innerText =
+            `🎰 ОТКРЫТЬ ×${caseOpenCount}`;
+
+    }
+
+}
+
+
+/* ================================
+   RENDER CASES
+================================ */
 
 function renderCases() {
 
@@ -1649,12 +2777,15 @@ function renderCases() {
         "";
 
 
-    if (!cases.length) {
+    if (
+        !cases.length
+    ) {
 
         box.innerHTML =
             "Кейсов пока нет";
 
         return;
+
     }
 
 
@@ -1677,12 +2808,17 @@ function renderCases() {
                 caseItems
                     .filter(
                         item =>
+
                             Number(
                                 item.case_id
-                            ) ===
+                            )
+
+                            ===
+
                             Number(
                                 gameCase.id
                             )
+
                     );
 
 
@@ -1702,7 +2838,9 @@ function renderCases() {
 
                         `
                     )
-                    .join("");
+                    .join(
+                        ""
+                    );
 
 
             const card =
@@ -1727,8 +2865,7 @@ function renderCases() {
 
                 <div class="case-price">
 
-                    Цена:
-                    ${gameCase.price}
+                    💰 ${gameCase.price}
                     монет
 
                 </div>
@@ -1746,7 +2883,7 @@ function renderCases() {
                     onclick="selectCase(${gameCase.id})"
                 >
 
-                    ОТКРЫТЬ КЕЙС
+                    ОТКРЫТЬ
 
                 </button>
 
@@ -1766,25 +2903,40 @@ function renderCases() {
         .appendChild(
             list
         );
+
 }
 
 
-function selectCase(id) {
+/* ================================
+   SELECT CASE
+================================ */
+
+function selectCase(
+    id
+) {
 
     selectedCase =
         cases.find(
             item =>
+
                 Number(
                     item.id
-                ) ===
+                )
+
+                ===
+
                 Number(
                     id
                 )
         );
 
 
-    if (!selectedCase) {
+    if (
+        !selectedCase
+    ) {
+
         return;
+
     }
 
 
@@ -1846,8 +2998,13 @@ function selectCase(id) {
     updateSpinButtonText();
 
     updateTotalCasePrice();
+
 }
 
+
+/* ================================
+   CLOSE CASE
+================================ */
 
 function closeCase() {
 
@@ -1871,30 +3028,50 @@ function closeCase() {
         .style
         .display =
             "none";
+
 }
 
 
+/* ================================
+   CASE ITEMS
+================================ */
+
 function getSelectedCaseItems() {
 
-    if (!selectedCase) {
+    if (
+        !selectedCase
+    ) {
+
         return [];
+
     }
 
 
     return caseItems
         .filter(
             item =>
+
                 Number(
                     item.case_id
-                ) ===
+                )
+
+                ===
+
                 Number(
                     selectedCase.id
                 )
         );
+
 }
 
 
-function rouletteCard(item) {
+/* ================================
+   ROULETTE CARD
+================================ */
+
+function rouletteCard(
+    item
+) {
 
     const div =
         document
@@ -1923,8 +3100,13 @@ function rouletteCard(item) {
 
 
     return div;
+
 }
 
+
+/* ================================
+   IDLE ROULETTE
+================================ */
 
 function createIdleRoulette() {
 
@@ -1951,8 +3133,12 @@ function createIdleRoulette() {
         "translateX(0px)";
 
 
-    if (!items.length) {
+    if (
+        !items.length
+    ) {
+
         return;
+
     }
 
 
@@ -1962,21 +3148,28 @@ function createIdleRoulette() {
         i++
     ) {
 
-        track.appendChild(
+        track
+            .appendChild(
 
-            rouletteCard(
+                rouletteCard(
 
-                items[
-                    i %
-                    items.length
-                ]
+                    items[
+                        i %
+                        items.length
+                    ]
 
-            )
+                )
 
-        );
+            );
+
     }
+
 }
 
+
+/* ================================
+   CASE ANIMATION
+================================ */
 
 async function animateCase(
     winner
@@ -2035,8 +3228,10 @@ async function animateCase(
         ) {
 
             item = {
+
                 brainrot_name:
                     winner.brainrot_name
+
             };
 
         }
@@ -2046,10 +3241,14 @@ async function animateCase(
             item =
                 items[
                     Math.floor(
-                        Math.random() *
+
+                        Math.random()
+                        *
                         items.length
+
                     )
                 ];
+
         }
 
 
@@ -2070,16 +3269,20 @@ async function animateCase(
         }
 
 
-        track.appendChild(
-            card
-        );
+        track
+            .appendChild(
+                card
+            );
+
     }
 
 
     await new Promise(
         resolve =>
+
             requestAnimationFrame(
                 () =>
+
                     requestAnimationFrame(
                         resolve
                     )
@@ -2087,13 +3290,18 @@ async function animateCase(
     );
 
 
-    if (!winnerCard) {
+    if (
+        !winnerCard
+    ) {
+
         return;
+
     }
 
 
     const winnerCenter =
-        winnerCard.offsetLeft +
+        winnerCard.offsetLeft
+        +
         winnerCard.offsetWidth /
         2;
 
@@ -2104,7 +3312,8 @@ async function animateCase(
 
 
     const x =
-        containerCenter -
+        containerCenter
+        -
         winnerCenter;
 
 
@@ -2123,24 +3332,34 @@ async function animateCase(
 
     await new Promise(
         resolve =>
+
             setTimeout(
+
                 resolve,
+
                 animationTime +
                 100
+
             )
     );
+
 }
 
 
-/* OPEN CASE */
+/* ================================
+   OPEN CASE
+================================ */
 
 async function openSelectedCase() {
 
     if (
-        !selectedCase ||
+        !selectedCase
+        ||
         caseSpinning
     ) {
+
         return;
+
     }
 
 
@@ -2158,15 +3377,15 @@ async function openSelectedCase() {
             );
 
 
-    /*
-    =================================
-    ПРОВЕРКА ВСЕЙ СУММЫ ДО ОТКРЫТИЯ
-    =================================
-    */
-
     const totalCost =
         getTotalCaseCost();
 
+
+    /*
+    Проверяем баланс ДО открытия.
+    Если денег не хватает на все выбранные кейсы,
+    не открываем вообще ничего.
+    */
 
     if (
         coins <
@@ -2194,9 +3413,9 @@ async function openSelectedCase() {
 
             <div
                 style="
-                    font-size:11px;
-                    opacity:.7;
                     margin-top:3px;
+                    font-size:11px;
+                    opacity:.65;
                 "
             >
 
@@ -2214,13 +3433,8 @@ async function openSelectedCase() {
 
 
         return;
+
     }
-
-
-    /*
-    Если денег хватает на ВСЕ,
-    только тогда начинаем.
-    */
 
 
     caseSpinning =
@@ -2270,17 +3484,18 @@ async function openSelectedCase() {
                 });
 
 
-            if (!data.ok) {
-
-                /*
-                В нормальной ситуации сюда
-                уже не попадём из-за баланса.
-                */
+            if (
+                !data.ok
+            ) {
 
                 throw new Error(
-                    data.error ||
+
+                    data.error
+                    ||
                     "Ошибка открытия кейса"
+
                 );
+
             }
 
 
@@ -2298,13 +3513,8 @@ async function openSelectedCase() {
             inventory.unshift(
                 data.item
             );
+
         }
-
-
-        /*
-        Рулетка останавливается
-        на последнем выпавшем.
-        */
 
 
         const rouletteWinner =
@@ -2322,7 +3532,6 @@ async function openSelectedCase() {
         updateBalance();
 
         updateTotalCasePrice();
-
 
         renderInventory();
 
@@ -2349,7 +3558,8 @@ async function openSelectedCase() {
                     onclick="quickSellCaseItem(${item.id})"
                 >
 
-                    ПРОДАТЬ ЗА ${item.value}
+                    ПРОДАТЬ ЗА
+                    ${item.value}
 
                 </button>
 
@@ -2364,7 +3574,8 @@ async function openSelectedCase() {
 
                     <span class="case-win-price">
 
-                        ${item.value} монет
+                        ${item.value}
+                        монет
 
                     </span>
 
@@ -2375,28 +3586,34 @@ async function openSelectedCase() {
         }
 
         /*
-        X3 / X4 / X5
+        MULTI
         */
 
         else {
 
             const totalValue =
                 winners.reduce(
+
                     (
                         sum,
                         item
                     ) =>
-                        sum +
+
+                        sum
+                        +
                         Number(
                             item.value
                         ),
+
                     0
+
                 );
 
 
             const ids =
                 winners.map(
                     item =>
+
                         Number(
                             item.id
                         )
@@ -2410,7 +3627,8 @@ async function openSelectedCase() {
                     onclick='quickSellMany(${JSON.stringify(ids)})'
                 >
 
-                    ПРОДАТЬ ВСЁ ЗА ${totalValue}
+                    ПРОДАТЬ ВСЁ ЗА
+                    ${totalValue}
 
                 </button>
 
@@ -2421,7 +3639,9 @@ async function openSelectedCase() {
                 winners
                     .map(
                         item =>
+
                             `${item.brainrot_name} — ${item.value}`
+
                     )
                     .join(
                         "<br>"
@@ -2437,33 +3657,31 @@ async function openSelectedCase() {
                 </div>
 
             `;
+
         }
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.log(
             error
         );
 
 
-        /*
-        После неожиданной ошибки
-        перезагружаем состояние с сервера,
-        чтобы баланс и инвентарь
-        точно совпадали.
-        */
-
         result.innerText =
             "❌ " +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка открытия"
             );
 
 
         await loadPlayer();
+
     }
 
 
@@ -2473,12 +3691,17 @@ async function openSelectedCase() {
 
     caseSpinning =
         false;
+
 }
 
 
-/* SELL ONE */
+/* ================================
+   QUICK SELL ONE
+================================ */
 
-async function quickSellCaseItem(id) {
+async function quickSellCaseItem(
+    id
+) {
 
     const area =
         document
@@ -2503,13 +3726,16 @@ async function quickSellCaseItem(id) {
         });
 
 
-    if (!data.ok) {
+    if (
+        !data.ok
+    ) {
 
         area.innerHTML =
             "❌ " +
             data.error;
 
         return;
+
     }
 
 
@@ -2522,9 +3748,13 @@ async function quickSellCaseItem(id) {
     inventory =
         inventory.filter(
             item =>
+
                 Number(
                     item.id
-                ) !==
+                )
+
+                !==
+
                 Number(
                     id
                 )
@@ -2546,7 +3776,7 @@ async function quickSellCaseItem(id) {
             style="
                 color:#22c55e;
                 font-size:12px;
-                font-weight:bold;
+                font-weight:800;
                 margin-top:4px;
             "
         >
@@ -2557,12 +3787,17 @@ async function quickSellCaseItem(id) {
         </div>
 
     `;
+
 }
 
 
-/* SELL MANY */
+/* ================================
+   QUICK SELL MANY
+================================ */
 
-async function quickSellMany(ids) {
+async function quickSellMany(
+    ids
+) {
 
     const area =
         document
@@ -2600,8 +3835,12 @@ async function quickSellMany(ids) {
             });
 
 
-        if (!data.ok) {
+        if (
+            !data.ok
+        ) {
+
             continue;
+
         }
 
 
@@ -2623,13 +3862,18 @@ async function quickSellMany(ids) {
         inventory =
             inventory.filter(
                 item =>
+
                     Number(
                         item.id
-                    ) !==
+                    )
+
+                    !==
+
                     Number(
                         id
                     )
             );
+
     }
 
 
@@ -2648,7 +3892,7 @@ async function quickSellMany(ids) {
             style="
                 color:#22c55e;
                 font-size:12px;
-                font-weight:bold;
+                font-weight:800;
                 margin-top:4px;
             "
         >
@@ -2658,15 +3902,19 @@ async function quickSellMany(ids) {
 
             ·
 
-            +${totalAdded} монет
+            +${totalAdded}
+            монет
 
         </div>
 
     `;
+
 }
 
 
-/* INVENTORY */
+/* ================================
+   INVENTORY
+================================ */
 
 function renderInventory() {
 
@@ -2681,12 +3929,15 @@ function renderInventory() {
         "";
 
 
-    if (!inventory.length) {
+    if (
+        !inventory.length
+    ) {
 
         box.innerHTML =
             "Инвентарь пуст";
 
         return;
+
     }
 
 
@@ -2707,7 +3958,8 @@ function renderInventory() {
 
 
             div.className =
-                "inventory-item" +
+                "inventory-item"
+                +
                 (
                     locked
                     ?
@@ -2724,6 +3976,7 @@ function renderInventory() {
                     src="${getImage(item.brainrot_name)}"
                 >
 
+
                 <div class="inventory-info">
 
                     <div class="inventory-name">
@@ -2732,17 +3985,20 @@ function renderInventory() {
 
                     </div>
 
+
                     <div>
 
                         💰 ${item.value}
 
                     </div>
 
+
                     <div>
 
                         ⭐ ${item.rarity}
 
                     </div>
+
 
                     ${
                         locked
@@ -2774,6 +4030,7 @@ function renderInventory() {
 
                             </button>
 
+
                             <button
                                 class="withdraw-btn"
                                 onclick="openWithdrawModal(${item.id})"
@@ -2793,16 +4050,24 @@ function renderInventory() {
             `;
 
 
-            box.appendChild(
-                div
-            );
+            box
+                .appendChild(
+                    div
+                );
 
         }
     );
+
 }
 
 
-async function sellItem(id) {
+/* ================================
+   SELL INVENTORY
+================================ */
+
+async function sellItem(
+    id
+) {
 
     const data =
         await apiRequest({
@@ -2816,13 +4081,16 @@ async function sellItem(id) {
         });
 
 
-    if (!data.ok) {
+    if (
+        !data.ok
+    ) {
 
         alert(
             data.error
         );
 
         return;
+
     }
 
 
@@ -2835,9 +4103,13 @@ async function sellItem(id) {
     inventory =
         inventory.filter(
             item =>
+
                 Number(
                     item.id
-                ) !==
+                )
+
+                !==
+
                 Number(
                     id
                 )
@@ -2847,7 +4119,10 @@ async function sellItem(id) {
     if (
         Number(
             selectedSourceId
-        ) ===
+        )
+
+        ===
+
         Number(
             id
         )
@@ -2856,8 +4131,10 @@ async function sellItem(id) {
         selectedSourceId =
             null;
 
+
         selectedTargetId =
             null;
+
     }
 
 
@@ -2872,44 +4149,71 @@ async function sellItem(id) {
     renderTargetGrid();
 
     updateUpgradeUI();
+
 }
 
 
-/* UPGRADER */
+/* ================================
+   UPGRADER SOURCE/TARGET
+================================ */
 
 function getSource() {
 
     return (
+
         inventory.find(
             item =>
+
                 Number(
                     item.id
-                ) ===
+                )
+
+                ===
+
                 Number(
                     selectedSourceId
                 )
-        ) ||
+        )
+
+        ||
+
         null
+
     );
+
 }
 
 
 function getTarget() {
 
     return (
+
         brainrots.find(
             item =>
+
                 Number(
                     item.brainrot_id
-                ) ===
+                )
+
+                ===
+
                 Number(
                     selectedTargetId
                 )
-        ) ||
+        )
+
+        ||
+
         null
+
     );
+
 }
 
+
+/* ================================
+   SOURCE GRID
+================================ */
 
 function renderSourceGrid() {
 
@@ -2931,12 +4235,15 @@ function renderSourceGrid() {
         );
 
 
-    if (!available.length) {
+    if (
+        !available.length
+    ) {
 
         box.innerHTML =
             "Нет доступных Brainrot";
 
         return;
+
     }
 
 
@@ -2958,7 +4265,10 @@ function renderSourceGrid() {
             if (
                 Number(
                     selectedSourceId
-                ) ===
+                )
+
+                ===
+
                 Number(
                     item.id
                 )
@@ -2969,6 +4279,7 @@ function renderSourceGrid() {
                     .add(
                         "selected"
                     );
+
             }
 
 
@@ -3019,8 +4330,13 @@ function renderSourceGrid() {
 
         }
     );
+
 }
 
+
+/* ================================
+   TARGET GRID
+================================ */
 
 function renderTargetGrid() {
 
@@ -3039,12 +4355,15 @@ function renderTargetGrid() {
         getSource();
 
 
-    if (!source) {
+    if (
+        !source
+    ) {
 
         box.innerHTML =
             "Сначала выбери свой Brainrot";
 
         return;
+
     }
 
 
@@ -3052,9 +4371,13 @@ function renderTargetGrid() {
         brainrots
             .filter(
                 item =>
+
                     Number(
                         item.value
-                    ) >
+                    )
+
+                    >
+
                     Number(
                         source.value
                     )
@@ -3064,21 +4387,28 @@ function renderTargetGrid() {
                     a,
                     b
                 ) =>
+
                     Number(
                         a.value
-                    ) -
+                    )
+
+                    -
+
                     Number(
                         b.value
                     )
             );
 
 
-    if (!targets.length) {
+    if (
+        !targets.length
+    ) {
 
         box.innerHTML =
             "Нет более дорогих Brainrot";
 
         return;
+
     }
 
 
@@ -3100,7 +4430,10 @@ function renderTargetGrid() {
             if (
                 Number(
                     selectedTargetId
-                ) ===
+                )
+
+                ===
+
                 Number(
                     item.brainrot_id
                 )
@@ -3111,6 +4444,7 @@ function renderTargetGrid() {
                     .add(
                         "selected"
                     );
+
             }
 
 
@@ -3155,8 +4489,13 @@ function renderTargetGrid() {
 
         }
     );
+
 }
 
+
+/* ================================
+   UPGRADE CHANCE
+================================ */
 
 function calculateChance(
     source,
@@ -3164,25 +4503,41 @@ function calculateChance(
 ) {
 
     if (
-        !source ||
+        !source
+        ||
         !target
     ) {
+
         return 0;
+
     }
 
 
     let chance =
         Math.floor(
+
             (
+
                 Number(
                     source.value
-                ) /
+                )
+
+                /
+
                 Number(
                     target.value
                 )
-            ) *
-            100 *
+
+            )
+
+            *
+
+            100
+
+            *
+
             .75
+
         );
 
 
@@ -3201,15 +4556,23 @@ function calculateChance(
 
 
     return chance;
+
 }
 
+
+/* ================================
+   UPGRADE UI
+================================ */
 
 function updateUpgradeUI() {
 
     const chance =
         calculateChance(
+
             getSource(),
+
             getTarget()
+
         );
 
 
@@ -3237,13 +4600,21 @@ function updateUpgradeUI() {
         )
         .style
         .setProperty(
+
             "--green-angle",
+
             chance *
             3.6 +
             "deg"
+
         );
+
 }
 
+
+/* ================================
+   RANDOM
+================================ */
 
 function randomBetween(
     min,
@@ -3251,15 +4622,24 @@ function randomBetween(
 ) {
 
     return (
-        min +
-        Math.random() *
+
+        min
+        +
+        Math.random()
+        *
         (
             max -
             min
         )
+
     );
+
 }
 
+
+/* ================================
+   UPGRADE NEEDLE
+================================ */
 
 async function spinNeedle(
     win,
@@ -3281,15 +4661,21 @@ async function spinNeedle(
     let target;
 
 
-    if (win) {
+    if (
+        win
+    ) {
 
         target =
             green <=
             8
+
             ?
+
             green /
             2
+
             :
+
             randomBetween(
                 4,
                 green -
@@ -3302,47 +4688,81 @@ async function spinNeedle(
 
         target =
             randomBetween(
+
                 green +
                 5,
+
                 355
+
             );
+
     }
 
 
     const turns =
-        2 +
+        2
+        +
         Math.floor(
-            Math.random() *
+
+            Math.random()
+            *
             3
+
         );
 
 
     const current =
         (
-            needleRotation %
-            360 +
+
+            needleRotation
+            %
             360
-        ) %
+
+            +
+
+            360
+
+        )
+        %
         360;
 
 
     const delta =
         (
-            target -
-            current +
+
+            target
+            -
+            current
+            +
             360
-        ) %
+
+        )
+        %
         360;
 
 
     needleRotation +=
+
         turns *
-        360 +
+        360
+
+        +
+
         delta;
 
 
+    /*
+    Обычная скорость = 4000мс.
+    С ⚡ = 4000 / 5 = 800мс.
+    */
+
+    const animationTime =
+        4000 /
+        upgradeSpeed;
+
+
     rotor.style.transition =
-        "transform 4s cubic-bezier(.12,.75,.12,1)";
+        `transform ${animationTime}ms cubic-bezier(.12,.75,.12,1)`;
 
 
     rotor.style.transform =
@@ -3351,18 +4771,32 @@ async function spinNeedle(
 
     await new Promise(
         resolve =>
+
             setTimeout(
+
                 resolve,
-                4200
+
+                animationTime +
+                100
+
             )
     );
+
 }
 
 
+/* ================================
+   UPGRADE
+================================ */
+
 async function upgradeItem() {
 
-    if (upgrading) {
+    if (
+        upgrading
+    ) {
+
         return;
+
     }
 
 
@@ -3381,21 +4815,27 @@ async function upgradeItem() {
             );
 
 
-    if (!source) {
+    if (
+        !source
+    ) {
 
         result.innerText =
             "❌ Выбери свой Brainrot";
 
         return;
+
     }
 
 
-    if (!target) {
+    if (
+        !target
+    ) {
 
         result.innerText =
             "❌ Выбери цель";
 
         return;
+
     }
 
 
@@ -3435,44 +4875,56 @@ async function upgradeItem() {
             });
 
 
-        if (!data.ok) {
+        if (
+            !data.ok
+        ) {
 
             result.innerText =
                 "❌ " +
                 data.error;
 
 
-            button.disabled =
-                false;
-
-
             upgrading =
                 false;
 
 
+            button.disabled =
+                false;
+
+
             return;
+
         }
 
 
         await spinNeedle(
+
             data.win,
+
             data.chance
+
         );
 
 
         inventory =
             inventory.filter(
                 item =>
+
                     Number(
                         item.id
-                    ) !==
+                    )
+
+                    !==
+
                     Number(
                         source.id
                     )
             );
 
 
-        if (data.win) {
+        if (
+            data.win
+        ) {
 
             inventory.unshift(
                 data.item
@@ -3480,12 +4932,18 @@ async function upgradeItem() {
 
 
             result.innerText =
-                "✅ УСПЕХ!\n" +
-                source.brainrot_name +
-                " → " +
-                data.item.brainrot_name +
-                "\nШанс: " +
-                data.chance +
+                "✅ УСПЕХ!\n"
+                +
+                source.brainrot_name
+                +
+                " → "
+                +
+                data.item.brainrot_name
+                +
+                "\nШанс: "
+                +
+                data.chance
+                +
                 "%";
 
         }
@@ -3493,11 +4951,16 @@ async function upgradeItem() {
         else {
 
             result.innerText =
-                "❌ ПРОИГРЫШ\n" +
-                source.brainrot_name +
-                " сгорел\nШанс: " +
-                data.chance +
+                "❌ ПРОИГРЫШ\n"
+                +
+                source.brainrot_name
+                +
+                " сгорел\nШанс: "
+                +
+                data.chance
+                +
                 "%";
+
         }
 
 
@@ -3519,26 +4982,34 @@ async function upgradeItem() {
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
-        console.log(error);
+        console.log(
+            error
+        );
 
 
         result.innerText =
             "❌ Ошибка подключения";
+
     }
+
+
+    upgrading =
+        false;
 
 
     button.disabled =
         false;
 
-
-    upgrading =
-        false;
 }
 
 
-/* DEPOSIT */
+/* ================================
+   DEPOSIT HELPERS
+================================ */
 
 function getGaramaValue() {
 
@@ -3554,12 +5025,17 @@ function getGaramaValue() {
 
 
                 return (
+
                     name.includes(
                         "garama"
-                    ) &&
+                    )
+
+                    &&
+
                     name.includes(
                         "madundung"
                     )
+
                 );
 
             }
@@ -3567,12 +5043,17 @@ function getGaramaValue() {
 
 
     return garama
+
         ?
+
         Number(
             garama.value
         )
+
         :
+
         Infinity;
+
 }
 
 
@@ -3585,9 +5066,13 @@ function getDepositBrainrots() {
     return brainrots
         .filter(
             item =>
+
                 Number(
                     item.value
-                ) >=
+                )
+
+                >=
+
                 min
         )
         .sort(
@@ -3595,15 +5080,24 @@ function getDepositBrainrots() {
                 a,
                 b
             ) =>
+
                 Number(
                     a.value
-                ) -
+                )
+
+                -
+
                 Number(
                     b.value
                 )
         );
+
 }
 
+
+/* ================================
+   DEPOSIT GRID
+================================ */
 
 function renderDepositGrid() {
 
@@ -3625,20 +5119,31 @@ function renderDepositGrid() {
 
                 const quantity =
                     Number(
+
                         depositSelection[
                             item.brainrot_id
-                        ] ||
+                        ]
+
+                        ||
+
                         0
+
                     );
 
 
                 const value =
                     Math.max(
+
                         0,
+
                         Number(
                             item.value
-                        ) -
+                        )
+
+                        -
+
                         8
+
                     );
 
 
@@ -3667,7 +5172,8 @@ function renderDepositGrid() {
 
                     <div class="deposit-item-price">
 
-                        +${value} монет
+                        +${value}
+                        монет
 
                     </div>
 
@@ -3677,7 +5183,9 @@ function renderDepositGrid() {
                             class="quantity-btn"
                             onclick="changeDepositQuantity(${item.brainrot_id}, -1)"
                         >
+
                             −
+
                         </button>
 
                         <span class="quantity-number">
@@ -3690,7 +5198,9 @@ function renderDepositGrid() {
                             class="quantity-btn"
                             onclick="changeDepositQuantity(${item.brainrot_id}, 1)"
                         >
+
                             +
+
                         </button>
 
                     </div>
@@ -3707,8 +5217,13 @@ function renderDepositGrid() {
 
 
     updateDepositSummary();
+
 }
 
+
+/* ================================
+   DEPOSIT COUNT
+================================ */
 
 function getDepositCount() {
 
@@ -3721,14 +5236,23 @@ function getDepositCount() {
                 sum,
                 value
             ) =>
-                sum +
+
+                sum
+                +
                 Number(
                     value
                 ),
+
             0
+
         );
+
 }
 
+
+/* ================================
+   DEPOSIT QUANTITY
+================================ */
 
 function changeDepositQuantity(
     brainrotId,
@@ -3737,16 +5261,24 @@ function changeDepositQuantity(
 
     const current =
         Number(
+
             depositSelection[
                 brainrotId
-            ] ||
+            ]
+
+            ||
+
             0
+
         );
 
 
     if (
         delta >
-        0 &&
+        0
+
+        &&
+
         getDepositCount() >=
         10
     ) {
@@ -3756,14 +5288,18 @@ function changeDepositQuantity(
         );
 
         return;
+
     }
 
 
     const next =
         Math.max(
+
             0,
+
             current +
             delta
+
         );
 
 
@@ -3784,12 +5320,18 @@ function changeDepositQuantity(
             brainrotId
         ] =
             next;
+
     }
 
 
     renderDepositGrid();
+
 }
 
+
+/* ================================
+   DEPOSIT SUMMARY
+================================ */
 
 function updateDepositSummary() {
 
@@ -3813,28 +5355,46 @@ function updateDepositSummary() {
                 const item =
                     brainrots.find(
                         b =>
+
                             Number(
                                 b.brainrot_id
-                            ) ===
+                            )
+
+                            ===
+
                             Number(
                                 brainrotId
                             )
                     );
 
 
-                if (!item) {
+                if (
+                    !item
+                ) {
+
                     return;
+
                 }
 
 
                 total +=
+
                     Math.max(
+
                         0,
+
                         Number(
                             item.value
-                        ) -
+                        )
+
+                        -
+
                         8
-                    ) *
+
+                    )
+
+                    *
+
                     Number(
                         quantity
                     );
@@ -3857,8 +5417,13 @@ function updateDepositSummary() {
         )
         .innerText =
             total;
+
 }
 
+
+/* ================================
+   DEPOSIT MODAL
+================================ */
 
 function openDepositModal() {
 
@@ -3882,7 +5447,10 @@ function openDepositModal() {
             "depositModal"
         )
         .classList
-        .add("show");
+        .add(
+            "show"
+        );
+
 }
 
 
@@ -3893,9 +5461,16 @@ function closeDepositModal() {
             "depositModal"
         )
         .classList
-        .remove("show");
+        .remove(
+            "show"
+        );
+
 }
 
+
+/* ================================
+   SUBMIT DEPOSIT
+================================ */
 
 async function submitDeposit() {
 
@@ -3927,9 +5502,13 @@ async function submitDeposit() {
                         quantity
                     ]
                 ) =>
+
                     Number(
                         quantity
-                    ) >
+                    )
+
+                    >
+
                     0
             )
             .map(
@@ -3954,12 +5533,15 @@ async function submitDeposit() {
             );
 
 
-    if (!items.length) {
+    if (
+        !items.length
+    ) {
 
         result.innerText =
             "❌ Выбери Brainrot";
 
         return;
+
     }
 
 
@@ -3972,6 +5554,7 @@ async function submitDeposit() {
             "❌ Введи Roblox ник";
 
         return;
+
     }
 
 
@@ -3979,40 +5562,67 @@ async function submitDeposit() {
         "⏳ Отправляем заявку...";
 
 
-    const data =
-        await apiRequest({
+    try {
 
-            action:
-                "create_balance_request",
+        const data =
+            await apiRequest({
 
-            roblox_username:
-                username,
+                action:
+                    "create_balance_request",
 
-            items:
-                items
+                roblox_username:
+                    username,
 
-        });
+                items:
+                    items
+
+            });
 
 
-    if (!data.ok) {
+        if (
+            !data.ok
+        ) {
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
+            return;
+
+        }
+
 
         result.innerText =
-            "❌ " +
-            data.error;
+            "✅ Заявка #"
+            +
+            data.request_id
+            +
+            " отправлена.\n"
+            +
+            "Ожидай подтверждения администратора.";
 
-        return;
     }
 
+    catch (
+        error
+    ) {
 
-    result.innerText =
-        "✅ Заявка #" +
-        data.request_id +
-        " отправлена.\n" +
-        "Ожидай подтверждения администратора.";
+        console.log(
+            error
+        );
+
+
+        result.innerText =
+            "❌ Ошибка подключения";
+
+    }
+
 }
 
 
-/* WITHDRAW */
+/* ================================
+   WITHDRAW MODAL
+================================ */
 
 function openWithdrawModal(
     inventoryId
@@ -4021,17 +5631,25 @@ function openWithdrawModal(
     selectedWithdrawItem =
         inventory.find(
             item =>
+
                 Number(
                     item.id
-                ) ===
+                )
+
+                ===
+
                 Number(
                     inventoryId
                 )
         );
 
 
-    if (!selectedWithdrawItem) {
+    if (
+        !selectedWithdrawItem
+    ) {
+
         return;
+
     }
 
 
@@ -4091,7 +5709,8 @@ function openWithdrawModal(
 
             <div>
 
-                💰 ${selectedWithdrawItem.value}
+                💰
+                ${selectedWithdrawItem.value}
 
             </div>
 
@@ -4103,7 +5722,10 @@ function openWithdrawModal(
             "withdrawModal"
         )
         .classList
-        .add("show");
+        .add(
+            "show"
+        );
+
 }
 
 
@@ -4118,9 +5740,16 @@ function closeWithdrawModal() {
             "withdrawModal"
         )
         .classList
-        .remove("show");
+        .remove(
+            "show"
+        );
+
 }
 
+
+/* ================================
+   BUILD WITHDRAW DATE
+================================ */
 
 function buildWithdrawDate(
     day,
@@ -4128,14 +5757,18 @@ function buildWithdrawDate(
 ) {
 
     const parts =
-        clock.split(":");
+        clock.split(
+            ":"
+        );
 
 
     if (
         parts.length !==
         2
     ) {
+
         return null;
+
     }
 
 
@@ -4153,19 +5786,36 @@ function buildWithdrawDate(
 
     if (
         day <
-        1 ||
+        1
+
+        ||
+
         day >
-        31 ||
+        31
+
+        ||
+
         hour <
-        0 ||
+        0
+
+        ||
+
         hour >
-        23 ||
+        23
+
+        ||
+
         minute <
-        0 ||
+        0
+
+        ||
+
         minute >
         59
     ) {
+
         return null;
+
     }
 
 
@@ -4183,26 +5833,38 @@ function buildWithdrawDate(
 
     let date =
         new Date(
+
             year,
+
             month,
+
             day,
+
             hour,
+
             minute,
+
             0,
+
             0
+
         );
 
 
     if (
-        date.getDate() !==
+        date.getDate()
+        !==
         day
     ) {
+
         return null;
+
     }
 
 
     if (
-        date.getTime() <=
+        date.getTime()
+        <=
         now.getTime()
     ) {
 
@@ -4221,38 +5883,60 @@ function buildWithdrawDate(
 
             year +=
                 1;
+
         }
 
 
         date =
             new Date(
+
                 year,
+
                 month,
+
                 day,
+
                 hour,
+
                 minute,
+
                 0,
+
                 0
+
             );
 
 
         if (
-            date.getDate() !==
+            date.getDate()
+            !==
             day
         ) {
+
             return null;
+
         }
+
     }
 
 
     return date;
+
 }
 
 
+/* ================================
+   SUBMIT WITHDRAW
+================================ */
+
 async function submitWithdraw() {
 
-    if (!selectedWithdrawItem) {
+    if (
+        !selectedWithdrawItem
+    ) {
+
         return;
+
     }
 
 
@@ -4267,11 +5951,13 @@ async function submitWithdraw() {
 
     const day =
         Number(
+
             document
                 .getElementById(
                     "withdrawDay"
                 )
                 .value
+
         );
 
 
@@ -4299,13 +5985,20 @@ async function submitWithdraw() {
             "❌ Введи Roblox ник";
 
         return;
+
     }
 
 
     if (
-        !day ||
+        !day
+
+        ||
+
         day <
-        1 ||
+        1
+
+        ||
+
         day >
         31
     ) {
@@ -4314,31 +6007,41 @@ async function submitWithdraw() {
             "❌ Введи день от 1 до 31";
 
         return;
+
     }
 
 
-    if (!clock) {
+    if (
+        !clock
+    ) {
 
         result.innerText =
             "❌ Выбери время";
 
         return;
+
     }
 
 
     const requestedDate =
         buildWithdrawDate(
+
             day,
+
             clock
+
         );
 
 
-    if (!requestedDate) {
+    if (
+        !requestedDate
+    ) {
 
         result.innerText =
             "❌ Такой даты нет";
 
         return;
+
     }
 
 
@@ -4346,74 +6049,110 @@ async function submitWithdraw() {
         "⏳ Создаём заявку...";
 
 
-    const data =
-        await apiRequest({
+    try {
 
-            action:
-                "create_withdraw_request",
+        const data =
+            await apiRequest({
 
-            inventory_id:
-                selectedWithdrawItem.id,
+                action:
+                    "create_withdraw_request",
 
-            roblox_username:
-                username,
+                inventory_id:
+                    selectedWithdrawItem.id,
 
-            requested_time:
-                requestedDate
-                    .toISOString()
+                roblox_username:
+                    username,
 
-        });
+                requested_time:
+                    requestedDate
+                        .toISOString()
+
+            });
 
 
-    if (!data.ok) {
+        if (
+            !data.ok
+        ) {
+
+            result.innerText =
+                "❌ " +
+                data.error;
+
+            return;
+
+        }
+
+
+        const item =
+            inventory.find(
+                x =>
+
+                    Number(
+                        x.id
+                    )
+
+                    ===
+
+                    Number(
+                        selectedWithdrawItem.id
+                    )
+            );
+
+
+        if (
+            item
+        ) {
+
+            item.locked =
+                true;
+
+        }
+
+
+        renderInventory();
+
+        renderSourceGrid();
+
 
         result.innerText =
-            "❌ " +
-            data.error;
+            "✅ Заявка #"
+            +
+            data.request_id
+            +
+            " создана.\n"
+            +
+            "Время: "
+            +
+            day
+            +
+            " в "
+            +
+            clock
+            +
+            "\nОжидай подтверждения администратора.";
 
-        return;
     }
 
+    catch (
+        error
+    ) {
 
-    const item =
-        inventory.find(
-            x =>
-                Number(
-                    x.id
-                ) ===
-                Number(
-                    selectedWithdrawItem.id
-                )
+        console.log(
+            error
         );
 
 
-    if (item) {
-
-        item.locked =
-            true;
+        result.innerText =
+            "❌ Ошибка подключения";
 
     }
 
-
-    renderInventory();
-
-    renderSourceGrid();
-
-
-    result.innerText =
-        "✅ Заявка #" +
-        data.request_id +
-        " создана.\n" +
-        "Время: " +
-        day +
-        " в " +
-        clock +
-        "\n" +
-        "Ожидай подтверждения администратора.";
 }
 
 
-/* START */
+/* ================================
+   START
+================================ */
 
 loadPlayer();
 
