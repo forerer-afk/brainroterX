@@ -1,68 +1,72 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brainroter X</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #111827;
-    color: white;
-    text-align: center;
-}
+    <title>Brainroter X</title>
 
-.game {
-    max-width: 500px;
-    margin: auto;
-    padding: 25px 15px;
-}
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-h1 {
-    margin-bottom: 10px;
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: white;
+            text-align: center;
+        }
 
-.balance {
-    font-size: 20px;
-    margin: 20px;
-}
+        .game {
+            max-width: 500px;
+            margin: auto;
+            padding: 25px 15px;
+        }
 
-.case {
-    background: #1f2937;
-    border-radius: 20px;
-    padding: 30px 15px;
-    margin-top: 20px;
-}
+        h1 {
+            margin-bottom: 10px;
+        }
 
-.case-icon {
-    font-size: 80px;
-}
+        .balance {
+            font-size: 20px;
+            margin: 20px;
+        }
 
-button {
-    width: 90%;
-    padding: 16px;
-    margin: 10px;
-    border: none;
-    border-radius: 14px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-}
+        .case {
+            background: #1f2937;
+            border-radius: 20px;
+            padding: 30px 15px;
+            margin-top: 20px;
+        }
 
-.open {
-    background: #f59e0b;
-    color: white;
-}
+        .case-icon {
+            font-size: 80px;
+        }
 
-.result {
-    font-size: 28px;
-    margin-top: 25px;
-    min-height: 40px;
-}
-</style>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+        button {
+            width: 90%;
+            max-width: 350px;
+            padding: 16px;
+            margin: 10px;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .open {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .result {
+            white-space: pre-line;
+            font-size: 22px;
+            margin-top: 25px;
+            min-height: 50px;
+        }
+    </style>
 </head>
 
 <body>
@@ -79,7 +83,7 @@ button {
 
         <div class="case-icon">🎁</div>
 
-        <h2>Brainrot Case</h2>
+        <h2>Starter Case</h2>
 
         <p>Цена открытия: 19 монет</p>
 
@@ -94,18 +98,23 @@ button {
 </div>
 
 <script>
-<script>
 const tg = window.Telegram.WebApp;
 tg.ready();
+tg.expand();
 
 let coins = 0;
 
-// ВАЖНО: сюда оставь СВОЮ настоящую ссылку Edge Function
-const FUNCTION_URL = "ТВОЯ_ССЫЛКА_НА_TELEGRAM_PLAYER";
+// ТВОЯ Edge Function
+const FUNCTION_URL =
+    "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
 
 async function loadPlayer() {
+
+    const result = document.getElementById("result");
+
     try {
+
         const response = await fetch(FUNCTION_URL, {
             method: "POST",
             headers: {
@@ -119,25 +128,33 @@ async function loadPlayer() {
 
         const data = await response.json();
 
-        if (data.ok) {
-            coins = data.coins;
-            document.getElementById("coins").innerText = coins;
-        } else {
-            console.log("Ошибка загрузки:", data.error);
+        if (!data.ok) {
+            result.innerText = "❌ Ошибка загрузки: " + data.error;
+            return;
         }
 
+        coins = Number(data.coins);
+
+        document.getElementById("coins").innerText = coins;
+
     } catch (error) {
-        console.log("Ошибка подключения:", error);
+
+        console.log(error);
+
+        result.innerText =
+            "❌ Не удалось подключиться к серверу";
     }
 }
 
 
 async function openCase() {
+
     const result = document.getElementById("result");
 
     result.innerText = "🎰 КРУТИТСЯ...";
 
     try {
+
         const response = await fetch(FUNCTION_URL, {
             method: "POST",
             headers: {
@@ -153,31 +170,41 @@ async function openCase() {
         const data = await response.json();
 
         if (!data.ok) {
-            result.innerText = "❌ " + data.error;
 
             if (data.coins !== undefined) {
-                coins = data.coins;
+                coins = Number(data.coins);
                 document.getElementById("coins").innerText = coins;
             }
+
+            result.innerText = "❌ " + data.error;
 
             return;
         }
 
-        coins = data.coins;
+        coins = Number(data.coins);
+
         document.getElementById("coins").innerText = coins;
 
         result.innerText =
-            "🎉 Выпал: " + data.item.brainrot_name +
-            "\n⭐ " + data.item.rarity;
+            "🎉 Выпал: " +
+            data.item.brainrot_name +
+            "\n⭐ Редкость: " +
+            data.item.rarity +
+            "\n💰 Цена: " +
+            data.item.value;
 
     } catch (error) {
-        result.innerText = "❌ Ошибка подключения";
+
         console.log(error);
+
+        result.innerText =
+            "❌ Ошибка подключения к серверу";
     }
 }
 
 
 loadPlayer();
 </script>
+
 </body>
 </html>
