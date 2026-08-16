@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
 }
@@ -16,14 +18,15 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #111827;
+    background: #0f172a;
     color: white;
+    overflow-x: hidden;
 }
 
 .game {
     max-width: 520px;
     margin: auto;
-    padding: 20px 12px 100px;
+    padding: 18px 12px 100px;
     text-align: center;
 }
 
@@ -32,12 +35,12 @@ h1 {
 }
 
 .balance {
-    font-size: 21px;
+    font-size: 22px;
     font-weight: bold;
-    margin: 18px 0;
+    margin: 17px 0;
 }
 
-/* ВКЛАДКИ */
+/* СТРАНИЦЫ */
 
 .page {
     display: none;
@@ -50,64 +53,196 @@ h1 {
 /* КЕЙС */
 
 .case {
-    background: #1f2937;
+    background: #1e293b;
     border-radius: 20px;
-    padding: 25px 15px;
+    padding: 22px 12px;
+    overflow: hidden;
 }
 
-.case-icon {
-    font-size: 75px;
+.case-title {
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
+
+.case-price {
+    opacity: 0.8;
+    margin-bottom: 18px;
+}
+
+/* РУЛЕТКА */
+
+.roulette-container {
+    position: relative;
+    width: 100%;
+    height: 155px;
+    overflow: hidden;
+    background: #0f172a;
+    border-radius: 16px;
+    border: 2px solid #334155;
+    margin: 15px 0 20px;
+}
+
+.roulette-pointer {
+    position: absolute;
+    z-index: 20;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #facc15;
+    font-size: 30px;
+}
+
+.roulette-line {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    transform: translateX(-50%);
+    background: rgba(250, 204, 21, 0.55);
+}
+
+.roulette-track {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 10px;
+    transform: translateX(0);
+    will-change: transform;
+}
+
+.roulette-item {
+    flex: 0 0 116px;
+    height: 128px;
+    background: #1e293b;
+    border-radius: 13px;
+    border: 2px solid #475569;
+    padding: 7px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+.roulette-item img {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+}
+
+.roulette-name {
+    width: 100%;
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: bold;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* РЕДКОСТИ */
+
+.Common {
+    border-color: #94a3b8;
+}
+
+.Rare {
+    border-color: #3b82f6;
+}
+
+.Epic {
+    border-color: #a855f7;
+}
+
+.Legendary {
+    border-color: #f59e0b;
+}
+
+.Secret {
+    border-color: #ef4444;
+    box-shadow: 0 0 12px rgba(239,68,68,0.5);
+}
+
+/* КНОПКИ */
 
 button {
     border: none;
-    border-radius: 12px;
-    padding: 13px 18px;
+    border-radius: 13px;
+    padding: 14px 18px;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
 }
 
 .open {
-    width: 90%;
-    max-width: 350px;
+    width: 92%;
+    max-width: 360px;
     background: #f59e0b;
     color: white;
 }
 
+.open:disabled {
+    opacity: 0.5;
+}
+
 .result {
     white-space: pre-line;
+    min-height: 50px;
     margin-top: 18px;
-    min-height: 45px;
     font-size: 19px;
+    font-weight: bold;
 }
 
 /* ИНВЕНТАРЬ */
 
 .inventory-title {
-    font-size: 26px;
+    font-size: 27px;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .item {
-    background: #1f2937;
+    background: #1e293b;
     border-radius: 16px;
-    padding: 16px;
     margin: 12px 0;
+    padding: 14px;
+
+    display: flex;
+    gap: 13px;
+
     text-align: left;
 }
 
+.item-avatar {
+    width: 82px;
+    height: 82px;
+    object-fit: contain;
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 4px;
+}
+
+.item-content {
+    flex: 1;
+}
+
 .item-name {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: bold;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
 .item-info {
     opacity: 0.85;
-    margin-bottom: 12px;
-    line-height: 1.5;
+    line-height: 1.45;
+    margin-bottom: 9px;
 }
 
 .sell {
@@ -117,10 +252,10 @@ button {
 }
 
 .empty {
-    background: #1f2937;
+    background: #1e293b;
     border-radius: 16px;
     padding: 25px;
-    opacity: 0.8;
+    opacity: 0.75;
 }
 
 /* НИЖНЕЕ МЕНЮ */
@@ -131,11 +266,13 @@ button {
     left: 0;
     right: 0;
 
-    background: #1f2937;
-    border-top: 1px solid #374151;
+    z-index: 100;
 
     display: flex;
     justify-content: center;
+
+    background: #1e293b;
+    border-top: 1px solid #334155;
 
     padding-bottom: env(safe-area-inset-bottom);
 }
@@ -144,81 +281,110 @@ button {
     width: 50%;
     max-width: 260px;
 
-    background: transparent;
-    color: #9ca3af;
+    margin: 0;
+    padding: 12px 4px;
 
     border-radius: 0;
-    margin: 0;
-    padding: 15px 5px;
 
-    font-size: 15px;
+    background: transparent;
+    color: #94a3b8;
 }
 
 .nav-button.active {
+    background: #334155;
     color: white;
-    background: #374151;
 }
 
 .nav-icon {
     display: block;
     font-size: 24px;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="game">
 
-    <h1>🧠 Brainroter X</h1>
+<h1>🧠 Brainroter X</h1>
 
-    <div class="balance">
-        💰 Баланс: <span id="coins">0</span>
-    </div>
-
-
-    <!-- ===================== -->
-    <!-- ВКЛАДКА КЕЙСЫ -->
-    <!-- ===================== -->
-
-    <div id="casesPage" class="page active">
-
-        <div class="case">
-
-            <div class="case-icon">🎁</div>
-
-            <h2>Starter Case</h2>
-
-            <p>Цена: 19 монет</p>
-
-            <button class="open" onclick="openCase()">
-                🎰 КРУТИТЬ КЕЙС
-            </button>
-
-            <div class="result" id="result"></div>
-
-        </div>
-
-    </div>
+<div class="balance">
+💰 Баланс: <span id="coins">0</span>
+</div>
 
 
-    <!-- ===================== -->
-    <!-- ВКЛАДКА ИНВЕНТАРЬ -->
-    <!-- ===================== -->
+<!-- КЕЙСЫ -->
 
-    <div id="inventoryPage" class="page">
+<div id="casesPage" class="page active">
 
-        <div class="inventory-title">
-            🎒 Инвентарь
-        </div>
+<div class="case">
 
-        <div id="inventory">
-            Загрузка...
-        </div>
+<div class="case-title">
+🎁 Starter Case
+</div>
 
-    </div>
+<div class="case-price">
+Цена: 19 монет
+</div>
+
+
+<div
+    id="rouletteContainer"
+    class="roulette-container"
+>
+
+<div class="roulette-pointer">
+▼
+</div>
+
+<div class="roulette-line"></div>
+
+<div
+    id="rouletteTrack"
+    class="roulette-track"
+></div>
+
+</div>
+
+
+<button
+    id="openButton"
+    class="open"
+    onclick="openCase()"
+>
+🎰 КРУТИТЬ КЕЙС
+</button>
+
+
+<div
+    id="result"
+    class="result"
+></div>
+
+</div>
+
+</div>
+
+
+<!-- ИНВЕНТАРЬ -->
+
+<div
+    id="inventoryPage"
+    class="page"
+>
+
+<div class="inventory-title">
+🎒 Инвентарь
+</div>
+
+<div id="inventory">
+Загрузка...
+</div>
+
+</div>
 
 </div>
 
@@ -227,23 +393,24 @@ button {
 
 <div class="bottom-menu">
 
-    <button
-        id="casesButton"
-        class="nav-button active"
-        onclick="showPage('cases')"
-    >
-        <span class="nav-icon">🎁</span>
-        Кейсы
-    </button>
+<button
+    id="casesButton"
+    class="nav-button active"
+    onclick="showPage('cases')"
+>
+<span class="nav-icon">🎁</span>
+Кейсы
+</button>
 
-    <button
-        id="inventoryButton"
-        class="nav-button"
-        onclick="showPage('inventory')"
-    >
-        <span class="nav-icon">🎒</span>
-        Инвентарь
-    </button>
+
+<button
+    id="inventoryButton"
+    class="nav-button"
+    onclick="showPage('inventory')"
+>
+<span class="nav-icon">🎒</span>
+Инвентарь
+</button>
 
 </div>
 
@@ -255,9 +422,9 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-
 let coins = 0;
 let inventory = [];
+let spinning = false;
 
 
 const FUNCTION_URL =
@@ -265,76 +432,144 @@ const FUNCTION_URL =
 
 
 /* =========================
-   ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+   ТВОИ 4 КАРТИНКИ
 ========================= */
+
+const BRAINROT_IMAGES = {
+
+    1: "https://images.openai.com/static-rsc-4/rALI5DjyP-iCNZSK0_AcLypFy7R-9CBSLn2JyQb7lYzgY2sWCI2Sq8va9WrWS0UcoDjImgYnbBdQV_DkcdppL1nviBaQjSbnr_7wMBRwDXmP-Yus1rbuNev12gm5HMy0B6EGZwW20-iqbilVwmVqGLLrPjC6kHNEjZNfZZy4PiI?purpose=inline",
+
+    2: "https://static.wikia.nocookie.net/ukradite-breinrot/images/e/e9/LaGrandeCombinasion.webp/revision/latest?cb=20250902141627&path-prefix=ru",
+
+    3: "https://static.wikia.nocookie.net/ukradite-breinrot/images/1/11/TangTangKeletang.png/revision/latest/thumbnail/width/360/height/450?cb=20251122151703&path-prefix=ru",
+
+    4: "https://a.allegroimg.com/original/110083/37dbfd7442fa85682f593855dbd2/Lavadorito-spinito-sab"
+
+};
+
+
+/* =========================
+   ПРЕДМЕТЫ РУЛЕТКИ
+========================= */
+
+const ROULETTE_ITEMS = [
+
+    {
+        brainrot_id: 1,
+        name: "Nuclearo Dinossauro",
+        rarity: "Common"
+    },
+
+    {
+        brainrot_id: 2,
+        name: "La Grande",
+        rarity: "Rare"
+    },
+
+    {
+        brainrot_id: 3,
+        name: "Tang Tang Keletang",
+        rarity: "Epic"
+    },
+
+    {
+        brainrot_id: 4,
+        name: "Lavadorito Spinito",
+        rarity: "Secret"
+    }
+
+];
+
+
+/* КАРТИНКА */
+
+function getBrainrotImage(brainrotId) {
+
+    return BRAINROT_IMAGES[
+        Number(brainrotId)
+    ] || "";
+
+}
+
+
+/* ВКЛАДКИ */
 
 function showPage(page) {
 
-    document.getElementById("casesPage")
+    document
+        .getElementById("casesPage")
         .classList.remove("active");
 
-    document.getElementById("inventoryPage")
+    document
+        .getElementById("inventoryPage")
         .classList.remove("active");
 
-    document.getElementById("casesButton")
+    document
+        .getElementById("casesButton")
         .classList.remove("active");
 
-    document.getElementById("inventoryButton")
+    document
+        .getElementById("inventoryButton")
         .classList.remove("active");
 
 
     if (page === "cases") {
 
-        document.getElementById("casesPage")
+        document
+            .getElementById("casesPage")
             .classList.add("active");
 
-        document.getElementById("casesButton")
+        document
+            .getElementById("casesButton")
             .classList.add("active");
 
     }
 
+
     if (page === "inventory") {
 
-        document.getElementById("inventoryPage")
+        document
+            .getElementById("inventoryPage")
             .classList.add("active");
 
-        document.getElementById("inventoryButton")
+        document
+            .getElementById("inventoryButton")
             .classList.add("active");
 
         renderInventory();
 
     }
+
 }
 
 
-/* =========================
-   ЗАПРОС К СЕРВЕРУ
-========================= */
+/* API */
 
 async function apiRequest(data) {
 
-    const response = await fetch(FUNCTION_URL, {
+    const response = await fetch(
+        FUNCTION_URL,
+        {
+            method: "POST",
 
-        method: "POST",
+            headers: {
+                "Content-Type":
+                "application/json"
+            },
 
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            ...data,
-            initData: tg.initData
-        })
-
-    });
+            body: JSON.stringify({
+                ...data,
+                initData: tg.initData
+            })
+        }
+    );
 
     return await response.json();
+
 }
 
 
-/* =========================
-   ЗАГРУЗКА ИГРОКА
-========================= */
+/* ЗАГРУЗКА */
 
 async function loadPlayer() {
 
@@ -347,124 +582,280 @@ async function loadPlayer() {
 
         if (!data.ok) {
 
-            document.getElementById("result").innerText =
+            document
+                .getElementById("result")
+                .innerText =
                 "❌ " + data.error;
 
             return;
+
         }
 
 
         coins = Number(data.coins);
 
-        inventory = data.inventory || [];
+        inventory =
+            data.inventory || [];
 
 
         updateBalance();
 
         renderInventory();
 
+        createIdleRoulette();
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.log(error);
 
-        document.getElementById("result").innerText =
+        document
+            .getElementById("result")
+            .innerText =
             "❌ Ошибка подключения";
 
     }
+
 }
 
 
-/* =========================
-   БАЛАНС
-========================= */
+/* БАЛАНС */
 
 function updateBalance() {
 
-    document.getElementById("coins").innerText = coins;
+    document
+        .getElementById("coins")
+        .innerText =
+        coins;
 
 }
 
 
-/* =========================
-   ИНВЕНТАРЬ
-========================= */
+/* КАРТОЧКА РУЛЕТКИ */
 
-function renderInventory() {
+function createRouletteCard(item) {
 
-    const box =
-        document.getElementById("inventory");
+    const card =
+        document.createElement("div");
 
 
-    if (!inventory || inventory.length === 0) {
+    card.className =
+        "roulette-item " +
+        item.rarity;
 
-        box.innerHTML =
-            '<div class="empty">У тебя пока нет Brainrot 🧠</div>';
 
+    card.innerHTML = `
+
+        <img
+            src="${getBrainrotImage(item.brainrot_id)}"
+            alt="${item.name}"
+        >
+
+        <div class="roulette-name">
+            ${item.name}
+        </div>
+
+    `;
+
+
+    return card;
+
+}
+
+
+/* РУЛЕТКА ДО ОТКРЫТИЯ */
+
+function createIdleRoulette() {
+
+    const track =
+        document.getElementById(
+            "rouletteTrack"
+        );
+
+
+    track.innerHTML = "";
+
+    track.style.transition =
+        "none";
+
+    track.style.transform =
+        "translateX(0px)";
+
+
+    for (let i = 0; i < 8; i++) {
+
+        const item =
+            ROULETTE_ITEMS[
+                i %
+                ROULETTE_ITEMS.length
+            ];
+
+        track.appendChild(
+            createRouletteCard(item)
+        );
+
+    }
+
+}
+
+
+/* АНИМАЦИЯ */
+
+async function animateRoulette(winner) {
+
+    const track =
+        document.getElementById(
+            "rouletteTrack"
+        );
+
+    const container =
+        document.getElementById(
+            "rouletteContainer"
+        );
+
+
+    track.innerHTML = "";
+
+    track.style.transition =
+        "none";
+
+    track.style.transform =
+        "translateX(0px)";
+
+
+    const totalCards = 45;
+
+    const winnerIndex = 39;
+
+
+    for (
+        let i = 0;
+        i < totalCards;
+        i++
+    ) {
+
+        let item;
+
+
+        if (i === winnerIndex) {
+
+            item = {
+
+                brainrot_id:
+                    winner.brainrot_id,
+
+                name:
+                    winner.brainrot_name,
+
+                rarity:
+                    winner.rarity
+
+            };
+
+        }
+
+        else {
+
+            item =
+                ROULETTE_ITEMS[
+                    Math.floor(
+                        Math.random() *
+                        ROULETTE_ITEMS.length
+                    )
+                ];
+
+        }
+
+
+        track.appendChild(
+            createRouletteCard(item)
+        );
+
+    }
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(resolve, 50)
+    );
+
+
+    const cardWidth = 116;
+
+    const gap = 8;
+
+    const step =
+        cardWidth + gap;
+
+
+    const containerCenter =
+        container.clientWidth / 2;
+
+
+    const winnerCenter =
+        winnerIndex * step +
+        cardWidth / 2 +
+        10;
+
+
+    const randomOffset =
+        Math.floor(
+            Math.random() * 25
+        ) - 12;
+
+
+    const translateX =
+        containerCenter -
+        winnerCenter +
+        randomOffset;
+
+
+    track.style.transition =
+        "transform 4.5s cubic-bezier(0.08, 0.65, 0.12, 1)";
+
+
+    track.style.transform =
+        `translateX(${translateX}px)`;
+
+
+    await new Promise(
+        resolve =>
+            setTimeout(resolve, 4700)
+    );
+
+}
+
+
+/* ОТКРЫТИЕ КЕЙСА */
+
+async function openCase() {
+
+    if (spinning) {
         return;
     }
 
 
-    box.innerHTML = "";
+    spinning = true;
 
 
-    inventory.forEach(item => {
+    const button =
+        document.getElementById(
+            "openButton"
+        );
 
-        const element =
-            document.createElement("div");
-
-
-        element.className = "item";
-
-
-        element.innerHTML = `
-
-            <div class="item-name">
-
-                🧠 ${item.brainrot_name}
-
-            </div>
-
-
-            <div class="item-info">
-
-                ⭐ ${item.rarity}<br>
-
-                💰 Цена продажи: ${item.value}
-
-            </div>
-
-
-            <button
-                class="sell"
-                onclick="sellItem(${item.id})"
-            >
-
-                💰 ПРОДАТЬ ЗА ${item.value}
-
-            </button>
-
-        `;
-
-
-        box.appendChild(element);
-
-    });
-}
-
-
-/* =========================
-   ОТКРЫТИЕ КЕЙСА
-========================= */
-
-async function openCase() {
 
     const result =
-        document.getElementById("result");
+        document.getElementById(
+            "result"
+        );
+
+
+    button.disabled = true;
 
 
     result.innerText =
-        "🎰 КРУТИТСЯ...";
+        "🎰 Открываем кейс...";
 
 
     try {
@@ -480,9 +871,12 @@ async function openCase() {
 
         if (!data.ok) {
 
-            if (data.coins !== undefined) {
+            if (
+                data.coins !== undefined
+            ) {
 
-                coins = Number(data.coins);
+                coins =
+                    Number(data.coins);
 
                 updateBalance();
 
@@ -490,17 +884,33 @@ async function openCase() {
 
 
             result.innerText =
-                "❌ " + data.error;
+                "❌ " +
+                data.error;
 
+
+            button.disabled =
+                false;
+
+            spinning =
+                false;
 
             return;
+
         }
 
 
-        coins = Number(data.coins);
+        await animateRoulette(
+            data.item
+        );
 
 
-        inventory.unshift(data.item);
+        coins =
+            Number(data.coins);
+
+
+        inventory.unshift(
+            data.item
+        );
 
 
         updateBalance();
@@ -522,82 +932,199 @@ async function openCase() {
 
             data.item.value;
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.log(error);
-
 
         result.innerText =
             "❌ Ошибка подключения";
 
     }
+
+
+    button.disabled =
+        false;
+
+    spinning =
+        false;
+
 }
 
 
-/* =========================
-   ПРОДАЖА
-========================= */
+/* ИНВЕНТАРЬ */
 
-async function sellItem(inventoryId) {
+function renderInventory() {
 
-    const item = inventory.find(
-
-        x => Number(x.id) === Number(inventoryId)
-
-    );
+    const box =
+        document.getElementById(
+            "inventory"
+        );
 
 
-    if (!item) {
+    if (
+        !inventory ||
+        inventory.length === 0
+    ) {
+
+        box.innerHTML = `
+
+            <div class="empty">
+                У тебя пока нет Brainrot 🧠
+            </div>
+
+        `;
 
         return;
 
     }
 
 
+    box.innerHTML = "";
+
+
+    inventory.forEach(item => {
+
+        const element =
+            document.createElement(
+                "div"
+            );
+
+
+        element.className =
+            "item";
+
+
+        element.innerHTML = `
+
+            <img
+                class="item-avatar"
+                src="${getBrainrotImage(item.brainrot_id)}"
+            >
+
+            <div class="item-content">
+
+                <div class="item-name">
+                    🧠 ${item.brainrot_name}
+                </div>
+
+                <div class="item-info">
+
+                    ⭐ ${item.rarity}
+
+                    <br>
+
+                    💰 Цена:
+                    ${item.value}
+
+                </div>
+
+                <button
+                    class="sell"
+                    onclick="sellItem(${item.id})"
+                >
+
+                    💰 ПРОДАТЬ ЗА
+                    ${item.value}
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        box.appendChild(
+            element
+        );
+
+    });
+
+}
+
+
+/* ПРОДАЖА */
+
+async function sellItem(
+    inventoryId
+) {
+
+    const item =
+        inventory.find(
+
+            x =>
+                Number(x.id) ===
+                Number(inventoryId)
+
+        );
+
+
+    if (!item) {
+        return;
+    }
+
+
     try {
 
-        const data = await apiRequest({
+        const data =
+            await apiRequest({
 
-            action: "sell_item",
+                action:
+                    "sell_item",
 
-            inventory_id: inventoryId
+                inventory_id:
+                    inventoryId
 
-        });
+            });
 
 
         if (!data.ok) {
 
-            alert("Ошибка: " + data.error);
+            alert(
+                "Ошибка: " +
+                data.error
+            );
 
             return;
+
         }
 
 
-        coins = Number(data.coins);
+        coins =
+            Number(data.coins);
 
 
-        inventory = inventory.filter(
+        inventory =
+            inventory.filter(
 
-            x => Number(x.id) !== Number(inventoryId)
+                x =>
+                    Number(x.id) !==
+                    Number(inventoryId)
 
-        );
+            );
 
 
         updateBalance();
 
         renderInventory();
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.log(error);
 
-        alert("Ошибка подключения");
+        alert(
+            "Ошибка подключения"
+        );
 
     }
+
 }
 
+
+/* СТАРТ */
 
 loadPlayer();
 
