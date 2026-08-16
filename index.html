@@ -1,77 +1,146 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brainroter X</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainroter X</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-            text-align: center;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111827;
+    color: white;
+    text-align: center;
+}
 
-        .game {
-            padding: 25px 15px;
-        }
+.game {
+    max-width: 500px;
+    margin: auto;
+    padding: 25px 15px;
+}
 
-        h1 {
-            margin-top: 20px;
-        }
+h1 {
+    margin-bottom: 10px;
+}
 
-        .coins {
-            font-size: 20px;
-            margin: 20px;
-        }
+.balance {
+    font-size: 20px;
+    margin: 20px;
+}
 
-        button {
-            width: 90%;
-            max-width: 350px;
-            padding: 18px;
-            margin: 8px;
-            border: none;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+.case {
+    background: #1f2937;
+    border-radius: 20px;
+    padding: 30px 15px;
+    margin-top: 20px;
+}
+
+.case-icon {
+    font-size: 80px;
+}
+
+button {
+    width: 90%;
+    padding: 16px;
+    margin: 10px;
+    border: none;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.open {
+    background: #f59e0b;
+    color: white;
+}
+
+.result {
+    font-size: 28px;
+    margin-top: 25px;
+    min-height: 40px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="game">
+
     <h1>🧠 Brainroter X</h1>
 
-    <div class="coins">
+    <div class="balance">
         💰 Монеты: <span id="coins">1000</span>
     </div>
 
-    <button onclick="cases()">🎰 Кейсы</button>
-    <button onclick="collection()">🧠 Мои Brainrot</button>
-    <button onclick="battle()">⚔️ Битва</button>
-    <button onclick="profile()">👤 Профиль</button>
+    <div class="case">
+
+        <div class="case-icon">🎁</div>
+
+        <h2>Brainrot Case</h2>
+
+        <p>Цена открытия: 100 монет</p>
+
+        <button class="open" onclick="openCase()">
+            🎰 КРУТИТЬ КЕЙС
+        </button>
+
+        <div class="result" id="result"></div>
+
+    </div>
+
 </div>
 
 <script>
-    function cases() {
-        alert("🎰 Здесь будут кейсы!");
+
+let coins = 1000;
+
+const brainrots = [
+    {name: "🧠 Tralalero Tralala", chance: 50},
+    {name: "🦈 Tralalita", chance: 30},
+    {name: "🐊 Crocodilo", chance: 15},
+    {name: "👑 Secret Brainrot", chance: 5}
+];
+
+function openCase() {
+
+    if (coins < 100) {
+        document.getElementById("result").innerText =
+            "❌ Недостаточно монет!";
+        return;
     }
 
-    function collection() {
-        alert("🧠 Здесь будут твои Brainrot!");
-    }
+    coins -= 100;
 
-    function battle() {
-        alert("⚔️ Здесь будут битвы!");
-    }
+    document.getElementById("coins").innerText = coins;
 
-    function profile() {
-        alert("👤 Здесь будет профиль!");
-    }
+    const result = document.getElementById("result");
+
+    result.innerText = "🎰 КРУТИТСЯ...";
+
+    setTimeout(() => {
+
+        const random = Math.random() * 100;
+
+        let total = 0;
+        let winner = null;
+
+        for (const brainrot of brainrots) {
+
+            total += brainrot.chance;
+
+            if (random <= total) {
+                winner = brainrot;
+                break;
+            }
+        }
+
+        result.innerText = "🎉 Выпал: " + winner.name;
+
+    }, 2000);
+}
+
 </script>
 
 </body>
