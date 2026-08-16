@@ -35,10 +35,6 @@ button:disabled {
     cursor: default;
 }
 
-/* =========================
-   TOP BAR
-========================= */
-
 .topbar {
     position: sticky;
     top: 0;
@@ -79,10 +75,6 @@ button:disabled {
     padding: 10px 12px;
 }
 
-/* =========================
-   MAIN
-========================= */
-
 .game {
     max-width: 520px;
     margin: auto;
@@ -110,9 +102,7 @@ button:disabled {
     min-height: 35px;
 }
 
-/* =========================
-   CASES
-========================= */
+/* CASES */
 
 .case-list {
     display: grid;
@@ -169,78 +159,54 @@ button:disabled {
     margin-bottom: 10px;
 }
 
-/* =========================
-   CASE ROULETTE
-========================= */
+/* ROULETTE */
 
 .roulette-container {
     position: relative;
-
     height: 155px;
-
     overflow: hidden;
-
     background: #0f172a;
     border: 2px solid #334155;
     border-radius: 16px;
-
     margin: 15px 0;
 }
 
 .roulette-pointer {
     position: absolute;
-
     z-index: 20;
-
     top: -2px;
     left: 50%;
-
     transform: translateX(-50%);
-
     color: #facc15;
-
     font-size: 30px;
 }
 
 .roulette-line {
     position: absolute;
-
     z-index: 10;
-
     top: 0;
     bottom: 0;
     left: 50%;
-
     width: 3px;
-
     transform: translateX(-50%);
-
     background: rgba(250,204,21,.6);
 }
 
 .roulette-track {
     height: 100%;
-
     display: flex;
     align-items: center;
-
     gap: 8px;
-
     padding-left: 10px;
-
     will-change: transform;
 }
 
 .roulette-item {
     flex: 0 0 116px;
-
     height: 128px;
-
     background: #1e293b;
-
     border: 2px solid #475569;
     border-radius: 13px;
-
     padding: 6px;
 
     display: flex;
@@ -257,10 +223,8 @@ button:disabled {
 
 .roulette-name {
     width: 100%;
-
     font-size: 11px;
     font-weight: bold;
-
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -268,76 +232,48 @@ button:disabled {
 
 .spin-btn {
     width: 100%;
-
     border-radius: 12px;
     padding: 13px;
-
     background: #f59e0b;
     color: white;
 }
 
-/* =========================
-   CASE RESULT
-========================= */
-
-.case-result-card {
+.case-win-text {
     background: #0f172a;
-
-    border-radius: 15px;
-
+    border-radius: 14px;
     padding: 13px;
-
-    margin-top: 13px;
+    margin-top: 12px;
+    line-height: 1.6;
 }
 
-.case-result-image {
-    width: 100px;
-    height: 100px;
-
-    object-fit: contain;
-}
-
-.case-result-name {
-    font-size: 20px;
+.case-win-name {
+    font-size: 19px;
     font-weight: bold;
 }
 
-.case-result-price {
-    margin-top: 5px;
+.case-win-price {
     color: #facc15;
+    margin-top: 3px;
 }
 
 .quick-sell-btn {
     width: 100%;
-
-    margin-top: 11px;
-
+    margin-top: 10px;
     padding: 12px;
-
     border-radius: 11px;
-
     background: #16a34a;
-
     color: white;
 }
 
-/* =========================
-   INVENTORY
-========================= */
+/* INVENTORY */
 
 .inventory-item {
     display: flex;
-
     gap: 12px;
-
     text-align: left;
-
     background: #1e293b;
-
     border-radius: 16px;
-
     padding: 12px;
-
     margin: 10px 0;
 }
 
@@ -348,13 +284,9 @@ button:disabled {
 .inventory-image {
     width: 82px;
     height: 82px;
-
     object-fit: contain;
-
     background: #0f172a;
-
     border-radius: 11px;
-
     padding: 3px;
 }
 
@@ -369,20 +301,15 @@ button:disabled {
 
 .inventory-actions {
     display: flex;
-
     gap: 7px;
-
     margin-top: 8px;
 }
 
 .sell-btn,
 .withdraw-btn {
     flex: 1;
-
     border-radius: 10px;
-
     padding: 10px 4px;
-
     color: white;
 }
 
@@ -396,92 +323,65 @@ button:disabled {
 
 .locked-text {
     margin-top: 8px;
-
     color: #facc15;
-
     font-size: 13px;
 }
 
-/* =========================
-   UPGRADER
-========================= */
+/* UPGRADER */
 
 .upgrade-grid {
     display: grid;
-
     grid-template-columns: repeat(3, 1fr);
-
     gap: 7px;
 }
 
 .upgrade-choice {
     background: #0f172a;
-
     border: 2px solid #334155;
-
     border-radius: 13px;
-
     padding: 6px;
-
     cursor: pointer;
 }
 
 .upgrade-choice.selected {
     border-color: #a855f7;
-
-    box-shadow:
-        0 0 12px
-        rgba(168,85,247,.5);
+    box-shadow: 0 0 12px rgba(168,85,247,.5);
 }
 
 .upgrade-choice img {
     width: 70px;
     height: 70px;
-
     object-fit: contain;
 }
 
 .choice-name {
     font-size: 10px;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .choice-price {
     font-size: 12px;
-
     color: #facc15;
 }
 
 .upgrade-wheel-wrap {
     position: relative;
-
     width: 220px;
     height: 220px;
-
     margin: 18px auto;
 }
 
 .upgrade-wheel {
     position: absolute;
-
     inset: 0;
-
     border-radius: 50%;
 
     background:
         conic-gradient(
-            #22c55e
-            0deg
-            var(--green-angle),
-
-            #ef4444
-            var(--green-angle)
-            360deg
+            #22c55e 0deg var(--green-angle),
+            #ef4444 var(--green-angle) 360deg
         );
 
     border: 5px solid #475569;
@@ -489,105 +389,66 @@ button:disabled {
 
 .upgrade-wheel::after {
     content: "";
-
     position: absolute;
-
     width: 140px;
     height: 140px;
-
     left: 50%;
     top: 50%;
-
-    transform:
-        translate(
-            -50%,
-            -50%
-        );
-
+    transform: translate(-50%,-50%);
     background: #0f172a;
-
     border-radius: 50%;
 }
 
 .needle-rotor {
     position: absolute;
-
     inset: 0;
-
     z-index: 10;
-
     pointer-events: none;
 }
 
 .upgrade-needle {
     position: absolute;
-
     top: 5px;
     left: 50%;
-
     transform: translateX(-50%);
 
     width: 0;
     height: 0;
 
-    border-left:
-        10px solid transparent;
-
-    border-right:
-        10px solid transparent;
-
-    border-bottom:
-        35px solid #facc15;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 35px solid #facc15;
 }
 
 .wheel-text {
     position: absolute;
-
     z-index: 5;
-
     left: 50%;
     top: 50%;
-
-    transform:
-        translate(
-            -50%,
-            -50%
-        );
-
+    transform: translate(-50%,-50%);
     font-size: 28px;
     font-weight: bold;
 }
 
 .upgrade-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 13px;
-
     background: #7c3aed;
-
     color: white;
 }
 
-/* =========================
-   MODALS
-========================= */
+/* MODALS */
 
 .modal-overlay {
     position: fixed;
-
     z-index: 500;
-
     inset: 0;
 
-    background:
-        rgba(0,0,0,.72);
+    background: rgba(0,0,0,.72);
 
     display: none;
-
     align-items: flex-end;
-
     justify-content: center;
 }
 
@@ -597,29 +458,19 @@ button:disabled {
 
 .modal {
     width: 100%;
-
     max-width: 520px;
-
     max-height: 90vh;
-
     overflow-y: auto;
 
     background: #1e293b;
 
-    border-radius:
-        22px
-        22px
-        0
-        0;
-
+    border-radius: 22px 22px 0 0;
     padding: 17px;
 }
 
 .modal-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
 }
 
@@ -630,51 +481,40 @@ button:disabled {
 
 .close-btn {
     background: #334155;
-
     color: white;
-
     border-radius: 10px;
-
     padding: 8px 11px;
 }
 
 .text-input {
     width: 100%;
-
     border: none;
-
     border-radius: 12px;
-
     padding: 13px;
-
     font-size: 16px;
-
     margin: 7px 0;
 }
 
 .input-label {
     text-align: left;
-
     margin-top: 12px;
-
     margin-bottom: 2px;
-
     font-size: 13px;
-
     opacity: .8;
+}
+
+.time-row {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 8px;
 }
 
 .submit-btn {
     width: 100%;
-
     border-radius: 12px;
-
     padding: 14px;
-
     margin-top: 8px;
-
     background: #22c55e;
-
     color: white;
 }
 
@@ -682,102 +522,73 @@ button:disabled {
     background: #2563eb;
 }
 
-/* =========================
-   DEPOSIT
-========================= */
+/* DEPOSIT */
 
 .deposit-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
+    grid-template-columns: repeat(3,1fr);
     gap: 8px;
-
     margin-top: 15px;
 }
 
 .deposit-item {
     background: #0f172a;
-
     border: 2px solid #334155;
-
     border-radius: 14px;
-
     padding: 7px 5px;
 }
 
 .deposit-item img {
     width: 72px;
     height: 72px;
-
     object-fit: contain;
 }
 
 .deposit-item-name {
     font-size: 10px;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .deposit-item-price {
     font-size: 12px;
-
     color: #22c55e;
-
     margin-top: 3px;
 }
 
 .quantity-controls {
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
     gap: 5px;
-
     margin-top: 6px;
 }
 
 .quantity-btn {
     width: 27px;
     height: 27px;
-
     border-radius: 7px;
-
     background: #334155;
-
     color: white;
 }
 
 .quantity-number {
     min-width: 20px;
-
     font-weight: bold;
 }
 
 .deposit-summary {
     background: #0f172a;
-
     border-radius: 13px;
-
     padding: 12px;
-
     margin: 15px 0;
 }
 
-/* =========================
-   BOTTOM MENU
-========================= */
+/* MENU */
 
 .bottom-menu {
     position: fixed;
-
     bottom: 0;
     left: 0;
     right: 0;
@@ -785,26 +596,20 @@ button:disabled {
     display: flex;
 
     background: #1e293b;
-
-    border-top:
-        1px solid #334155;
+    border-top: 1px solid #334155;
 
     z-index: 100;
 }
 
 .nav-btn {
     width: 33.333%;
-
     padding: 11px 3px;
-
     background: transparent;
-
     color: #94a3b8;
 }
 
 .nav-btn.active {
     background: #334155;
-
     color: white;
 }
 
@@ -812,10 +617,6 @@ button:disabled {
 </head>
 
 <body>
-
-<!-- =========================
-     TOP BAR
-========================= -->
 
 <div class="topbar">
 
@@ -826,10 +627,7 @@ button:disabled {
 <div class="top-right">
 
 <div class="balance-box">
-💰
-<span id="coins">
-0
-</span>
+💰 <span id="coins">0</span>
 </div>
 
 <button
@@ -846,9 +644,7 @@ button:disabled {
 
 <div class="game">
 
-<!-- =========================
-     CASES PAGE
-========================= -->
+<!-- CASES -->
 
 <div
     id="casesPage"
@@ -873,9 +669,7 @@ button:disabled {
 
 <div class="panel">
 
-<h2 id="activeCaseName">
-Кейс
-</h2>
+<h2 id="activeCaseName"></h2>
 
 <div id="activeCasePrice"></div>
 
@@ -888,8 +682,7 @@ button:disabled {
 ▼
 </div>
 
-<div class="roulette-line">
-</div>
+<div class="roulette-line"></div>
 
 <div
     id="rouletteTrack"
@@ -911,9 +704,7 @@ button:disabled {
     class="result"
 ></div>
 
-<div
-    id="quickSellArea"
-></div>
+<div id="quickSellArea"></div>
 
 </div>
 
@@ -921,9 +712,8 @@ button:disabled {
 
 </div>
 
-<!-- =========================
-     UPGRADER PAGE
-========================= -->
+
+<!-- UPGRADER -->
 
 <div
     id="upgraderPage"
@@ -973,8 +763,7 @@ button:disabled {
     class="needle-rotor"
 >
 
-<div class="upgrade-needle">
-</div>
+<div class="upgrade-needle"></div>
 
 </div>
 
@@ -1004,9 +793,8 @@ button:disabled {
 
 </div>
 
-<!-- =========================
-     INVENTORY PAGE
-========================= -->
+
+<!-- INVENTORY -->
 
 <div
     id="inventoryPage"
@@ -1017,16 +805,14 @@ button:disabled {
 🎒 Инвентарь
 </h2>
 
-<div id="inventory">
-</div>
+<div id="inventory"></div>
 
 </div>
 
 </div>
 
-<!-- =========================
-     BOTTOM MENU
-========================= -->
+
+<!-- MENU -->
 
 <div class="bottom-menu">
 
@@ -1035,9 +821,7 @@ button:disabled {
     class="nav-btn active"
     onclick="showPage('cases')"
 >
-🎁
-<br>
-Кейсы
+🎁<br>Кейсы
 </button>
 
 <button
@@ -1045,9 +829,7 @@ button:disabled {
     class="nav-btn"
     onclick="showPage('upgrader')"
 >
-⚡
-<br>
-Апгрейдер
+⚡<br>Апгрейдер
 </button>
 
 <button
@@ -1055,16 +837,13 @@ button:disabled {
     class="nav-btn"
     onclick="showPage('inventory')"
 >
-🎒
-<br>
-Инвентарь
+🎒<br>Инвентарь
 </button>
 
 </div>
 
-<!-- =========================
-     DEPOSIT MODAL
-========================= -->
+
+<!-- DEPOSIT -->
 
 <div
     id="depositModal"
@@ -1101,22 +880,12 @@ Garama и всё дороже.
 <div class="deposit-summary">
 
 Выбрано:
-
-<b id="depositCount">
-0
-</b>
-
-/ 10
+<b id="depositCount">0</b> / 10
 
 <br><br>
 
 Будет начислено:
-
-<b id="depositTotal">
-0
-</b>
-
-монет
+<b id="depositTotal">0</b> монет
 
 </div>
 
@@ -1147,9 +916,8 @@ Roblox ник
 
 </div>
 
-<!-- =========================
-     WITHDRAW MODAL
-========================= -->
+
+<!-- WITHDRAW -->
 
 <div
     id="withdrawModal"
@@ -1173,8 +941,7 @@ Roblox ник
 
 </div>
 
-<div id="withdrawItemInfo">
-</div>
+<div id="withdrawItemInfo"></div>
 
 <div class="input-label">
 Roblox ник
@@ -1190,11 +957,35 @@ Roblox ник
 Когда будешь в игре
 </div>
 
+<div class="time-row">
+
 <input
-    id="withdrawTime"
+    id="withdrawDay"
     class="text-input"
-    type="datetime-local"
+    type="number"
+    min="1"
+    max="31"
+    placeholder="День: 16"
 >
+
+<input
+    id="withdrawClock"
+    class="text-input"
+    type="time"
+>
+
+</div>
+
+<div
+    style="
+        text-align:left;
+        font-size:12px;
+        opacity:.65;
+        margin:0 2px 8px;
+    "
+>
+Например: 16 в 23:45
+</div>
 
 <button
     id="withdrawSubmit"
@@ -1216,34 +1007,21 @@ Roblox ник
 
 <script>
 
-/* =========================
-   TELEGRAM
-========================= */
-
 const tg =
     window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
-/* =========================
-   DATA
-========================= */
-
 let coins = 0;
-
 let inventory = [];
-
 let brainrots = [];
-
 let cases = [];
-
 let caseItems = [];
 
 let selectedCase = null;
 
 let selectedSourceId = null;
-
 let selectedTargetId = null;
 
 let selectedWithdrawItem = null;
@@ -1251,25 +1029,14 @@ let selectedWithdrawItem = null;
 let depositSelection = {};
 
 let caseSpinning = false;
-
 let upgrading = false;
 
 let needleRotation = 0;
 
-let lastCaseItemId = null;
-
-
-/* =========================
-   FUNCTION URL
-========================= */
 
 const FUNCTION_URL =
 "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
-
-/* =========================
-   IMAGES
-========================= */
 
 const BRAINROT_IMAGES = {
 
@@ -1320,18 +1087,12 @@ function getImage(name) {
 
     return (
         BRAINROT_IMAGES[
-            normalizeName(
-                name
-            )
+            normalizeName(name)
         ] ||
         ""
     );
 }
 
-
-/* =========================
-   API
-========================= */
 
 async function apiRequest(data) {
 
@@ -1361,9 +1122,7 @@ async function apiRequest(data) {
 }
 
 
-/* =========================
-   LOAD PLAYER
-========================= */
+/* LOAD */
 
 async function loadPlayer() {
 
@@ -1430,9 +1189,7 @@ async function loadPlayer() {
 
     catch (error) {
 
-        console.log(
-            error
-        );
+        console.log(error);
 
         document
             .getElementById(
@@ -1443,10 +1200,6 @@ async function loadPlayer() {
     }
 }
 
-
-/* =========================
-   BALANCE
-========================= */
 
 function updateBalance() {
 
@@ -1459,9 +1212,7 @@ function updateBalance() {
 }
 
 
-/* =========================
-   PAGES
-========================= */
+/* PAGES */
 
 function showPage(page) {
 
@@ -1471,18 +1222,11 @@ function showPage(page) {
         "inventoryPage"
     ]
     .forEach(
-        id => {
-
+        id =>
             document
-                .getElementById(
-                    id
-                )
+                .getElementById(id)
                 .classList
-                .remove(
-                    "active"
-                );
-
-        }
+                .remove("active")
     );
 
 
@@ -1492,18 +1236,11 @@ function showPage(page) {
         "inventoryButton"
     ]
     .forEach(
-        id => {
-
+        id =>
             document
-                .getElementById(
-                    id
-                )
+                .getElementById(id)
                 .classList
-                .remove(
-                    "active"
-                );
-
-        }
+                .remove("active")
     );
 
 
@@ -1513,9 +1250,7 @@ function showPage(page) {
             "Page"
         )
         .classList
-        .add(
-            "active"
-        );
+        .add("active");
 
 
     document
@@ -1524,9 +1259,7 @@ function showPage(page) {
             "Button"
         )
         .classList
-        .add(
-            "active"
-        );
+        .add("active");
 
 
     if (
@@ -1554,17 +1287,14 @@ function showPage(page) {
 }
 
 
-/* =========================
-   CASES
-========================= */
+/* CASES */
 
 function renderCases() {
 
     const box =
-        document
-            .getElementById(
-                "caseList"
-            );
+        document.getElementById(
+            "caseList"
+        );
 
 
     box.innerHTML =
@@ -1581,10 +1311,9 @@ function renderCases() {
 
 
     const list =
-        document
-            .createElement(
-                "div"
-            );
+        document.createElement(
+            "div"
+        );
 
 
     list.className =
@@ -1596,24 +1325,20 @@ function renderCases() {
 
 
             const items =
-                caseItems
-                    .filter(
-                        item =>
-                            Number(
-                                item.case_id
-                            ) ===
-                            Number(
-                                gameCase.id
-                            )
-                    );
+                caseItems.filter(
+                    item =>
+                        Number(
+                            item.case_id
+                        ) ===
+                        Number(
+                            gameCase.id
+                        )
+                );
 
 
             const preview =
                 items
-                    .slice(
-                        0,
-                        5
-                    )
+                    .slice(0,5)
                     .map(
                         item => `
 
@@ -1628,10 +1353,9 @@ function renderCases() {
 
 
             const card =
-                document
-                    .createElement(
-                        "div"
-                    );
+                document.createElement(
+                    "div"
+                );
 
 
             card.className =
@@ -1646,15 +1370,13 @@ function renderCases() {
 
                 </div>
 
-
                 <div class="case-price">
 
-                    💰 Цена:
+                    Цена:
                     ${gameCase.price}
                     монет
 
                 </div>
-
 
                 <div class="case-preview">
 
@@ -1662,32 +1384,27 @@ function renderCases() {
 
                 </div>
 
-
                 <button
                     class="case-btn"
                     onclick="selectCase(${gameCase.id})"
                 >
-
                     ОТКРЫТЬ КЕЙС
-
                 </button>
 
             `;
 
 
-            list
-                .appendChild(
-                    card
-                );
+            list.appendChild(
+                card
+            );
 
         }
     );
 
 
-    box
-        .appendChild(
-            list
-        );
+    box.appendChild(
+        list
+    );
 }
 
 
@@ -1710,13 +1427,9 @@ function selectCase(id) {
     }
 
 
-    lastCaseItemId =
-        null;
-
-
     document
         .getElementById(
-            "quickSellArea"
+            "caseResult"
         )
         .innerHTML =
             "";
@@ -1724,7 +1437,7 @@ function selectCase(id) {
 
     document
         .getElementById(
-            "caseResult"
+            "quickSellArea"
         )
         .innerHTML =
             "";
@@ -1777,10 +1490,6 @@ function closeCase() {
         null;
 
 
-    lastCaseItemId =
-        null;
-
-
     document
         .getElementById(
             "caseList"
@@ -1807,26 +1516,24 @@ function getSelectedCaseItems() {
     }
 
 
-    return caseItems
-        .filter(
-            item =>
-                Number(
-                    item.case_id
-                ) ===
-                Number(
-                    selectedCase.id
-                )
-        );
+    return caseItems.filter(
+        item =>
+            Number(
+                item.case_id
+            ) ===
+            Number(
+                selectedCase.id
+            )
+    );
 }
 
 
 function rouletteCard(item) {
 
     const div =
-        document
-            .createElement(
-                "div"
-            );
+        document.createElement(
+            "div"
+        );
 
 
     div.className =
@@ -1855,10 +1562,9 @@ function rouletteCard(item) {
 function createIdleRoulette() {
 
     const track =
-        document
-            .getElementById(
-                "rouletteTrack"
-            );
+        document.getElementById(
+            "rouletteTrack"
+        );
 
 
     const items =
@@ -1900,6 +1606,7 @@ function createIdleRoulette() {
             )
 
         );
+
     }
 }
 
@@ -1909,17 +1616,15 @@ async function animateCase(
 ) {
 
     const track =
-        document
-            .getElementById(
-                "rouletteTrack"
-            );
+        document.getElementById(
+            "rouletteTrack"
+        );
 
 
     const container =
-        document
-            .getElementById(
-                "rouletteContainer"
-            );
+        document.getElementById(
+            "rouletteContainer"
+        );
 
 
     const items =
@@ -1976,6 +1681,7 @@ async function animateCase(
                         items.length
                     )
                 ];
+
         }
 
 
@@ -1996,10 +1702,10 @@ async function animateCase(
         }
 
 
-        track
-            .appendChild(
-                card
-            );
+        track.appendChild(
+            card
+        );
+
     }
 
 
@@ -2068,24 +1774,21 @@ async function openSelectedCase() {
 
 
     const button =
-        document
-            .getElementById(
-                "spinButton"
-            );
+        document.getElementById(
+            "spinButton"
+        );
 
 
     const result =
-        document
-            .getElementById(
-                "caseResult"
-            );
+        document.getElementById(
+            "caseResult"
+        );
 
 
-    const quickSellArea =
-        document
-            .getElementById(
-                "quickSellArea"
-            );
+    const quick =
+        document.getElementById(
+            "quickSellArea"
+        );
 
 
     button.disabled =
@@ -2096,7 +1799,7 @@ async function openSelectedCase() {
         "🎰 Крутим...";
 
 
-    quickSellArea.innerHTML =
+    quick.innerHTML =
         "";
 
 
@@ -2131,7 +1834,6 @@ async function openSelectedCase() {
                         data.coins
                     );
 
-
                 updateBalance();
 
             }
@@ -2165,10 +1867,6 @@ async function openSelectedCase() {
         );
 
 
-        lastCaseItemId =
-            data.item.id;
-
-
         updateBalance();
 
 
@@ -2178,22 +1876,23 @@ async function openSelectedCase() {
         renderSourceGrid();
 
 
+        /*
+        НИКАКОЙ ИКОНКИ ПОСЛЕ ВЫПАДЕНИЯ.
+        Только название и цена.
+        */
+
         result.innerHTML = `
 
-            <div class="case-result-card">
+            <div class="case-win-text">
 
-                <img
-                    class="case-result-image"
-                    src="${getImage(data.item.brainrot_name)}"
-                >
+                <div class="case-win-name">
 
-                <div class="case-result-name">
-
-                    🎉 ${data.item.brainrot_name}
+                    🎉 Выпал:
+                    ${data.item.brainrot_name}
 
                 </div>
 
-                <div class="case-result-price">
+                <div class="case-win-price">
 
                     💰 Цена:
                     ${data.item.value}
@@ -2206,14 +1905,14 @@ async function openSelectedCase() {
         `;
 
 
-        quickSellArea.innerHTML = `
+        quick.innerHTML = `
 
             <button
                 class="quick-sell-btn"
                 onclick="quickSellCaseItem(${data.item.id})"
             >
 
-                💰 ПРОДАТЬ СРАЗУ ЗА
+                ПРОДАТЬ ЗА
                 ${data.item.value}
 
             </button>
@@ -2224,9 +1923,7 @@ async function openSelectedCase() {
 
     catch (error) {
 
-        console.log(
-            error
-        );
+        console.log(error);
 
 
         result.innerText =
@@ -2244,15 +1941,12 @@ async function openSelectedCase() {
 }
 
 
-async function quickSellCaseItem(
-    id
-) {
+async function quickSellCaseItem(id) {
 
     const area =
-        document
-            .getElementById(
-                "quickSellArea"
-            );
+        document.getElementById(
+            "quickSellArea"
+        );
 
 
     area.innerHTML =
@@ -2312,9 +2006,9 @@ async function quickSellCaseItem(
 
         <div
             style="
-                margin-top:10px;
                 color:#22c55e;
                 font-weight:bold;
+                margin-top:10px;
             "
         >
 
@@ -2325,24 +2019,17 @@ async function quickSellCaseItem(
         </div>
 
     `;
-
-
-    lastCaseItemId =
-        null;
 }
 
 
-/* =========================
-   INVENTORY
-========================= */
+/* INVENTORY */
 
 function renderInventory() {
 
     const box =
-        document
-            .getElementById(
-                "inventory"
-            );
+        document.getElementById(
+            "inventory"
+        );
 
 
     box.innerHTML =
@@ -2363,14 +2050,14 @@ function renderInventory() {
 
 
             const locked =
-                item.locked === true;
+                item.locked ===
+                true;
 
 
             const div =
-                document
-                    .createElement(
-                        "div"
-                    );
+                document.createElement(
+                    "div"
+                );
 
 
             div.className =
@@ -2391,7 +2078,6 @@ function renderInventory() {
                     src="${getImage(item.brainrot_name)}"
                 >
 
-
                 <div class="inventory-info">
 
                     <div class="inventory-name">
@@ -2400,20 +2086,13 @@ function renderInventory() {
 
                     </div>
 
-
                     <div>
-
                         💰 ${item.value}
-
                     </div>
-
 
                     <div>
-
                         ⭐ ${item.rarity}
-
                     </div>
-
 
                     ${
                         locked
@@ -2440,19 +2119,14 @@ function renderInventory() {
                                 class="sell-btn"
                                 onclick="sellItem(${item.id})"
                             >
-
                                 Продать
-
                             </button>
-
 
                             <button
                                 class="withdraw-btn"
                                 onclick="openWithdrawModal(${item.id})"
                             >
-
                                 Вывод
-
                             </button>
 
                         </div>
@@ -2465,10 +2139,9 @@ function renderInventory() {
             `;
 
 
-            box
-                .appendChild(
-                    div
-                );
+            box.appendChild(
+                div
+            );
 
         }
     );
@@ -2537,30 +2210,19 @@ async function sellItem(id) {
 
     updateBalance();
 
-
     renderInventory();
-
 
     renderSourceGrid();
 
-
     renderTargetGrid();
-
 
     updateUpgradeUI();
 }
 
 
-/* =========================
-   UPGRADER
-========================= */
+/* UPGRADER */
 
 function getSource() {
-
-    if (!selectedSourceId) {
-        return null;
-    }
-
 
     return (
         inventory.find(
@@ -2578,11 +2240,6 @@ function getSource() {
 
 
 function getTarget() {
-
-    if (!selectedTargetId) {
-        return null;
-    }
-
 
     return (
         brainrots.find(
@@ -2602,10 +2259,9 @@ function getTarget() {
 function renderSourceGrid() {
 
     const box =
-        document
-            .getElementById(
-                "sourceGrid"
-            );
+        document.getElementById(
+            "sourceGrid"
+        );
 
 
     box.innerHTML =
@@ -2613,11 +2269,10 @@ function renderSourceGrid() {
 
 
     const available =
-        inventory
-            .filter(
-                item =>
-                    !item.locked
-            );
+        inventory.filter(
+            item =>
+                !item.locked
+        );
 
 
     if (!available.length) {
@@ -2629,98 +2284,92 @@ function renderSourceGrid() {
     }
 
 
-    available
-        .forEach(
-            item => {
+    available.forEach(
+        item => {
 
 
-                const card =
-                    document
-                        .createElement(
-                            "div"
-                        );
+            const card =
+                document.createElement(
+                    "div"
+                );
 
 
-                card.className =
-                    "upgrade-choice";
+            card.className =
+                "upgrade-choice";
 
 
-                if (
-                    Number(
-                        selectedSourceId
-                    ) ===
-                    Number(
-                        item.id
-                    )
-                ) {
+            if (
+                Number(
+                    selectedSourceId
+                ) ===
+                Number(
+                    item.id
+                )
+            ) {
 
-                    card.classList.add(
-                        "selected"
-                    );
-
-                }
-
-
-                card.innerHTML = `
-
-                    <img
-                        src="${getImage(item.brainrot_name)}"
-                    >
-
-                    <div class="choice-name">
-
-                        ${item.brainrot_name}
-
-                    </div>
-
-                    <div class="choice-price">
-
-                        💰 ${item.value}
-
-                    </div>
-
-                `;
-
-
-                card.onclick =
-                    () => {
-
-                        selectedSourceId =
-                            item.id;
-
-
-                        selectedTargetId =
-                            null;
-
-
-                        renderSourceGrid();
-
-
-                        renderTargetGrid();
-
-
-                        updateUpgradeUI();
-
-                    };
-
-
-                box
-                    .appendChild(
-                        card
-                    );
+                card.classList.add(
+                    "selected"
+                );
 
             }
-        );
+
+
+            card.innerHTML = `
+
+                <img
+                    src="${getImage(item.brainrot_name)}"
+                >
+
+                <div class="choice-name">
+
+                    ${item.brainrot_name}
+
+                </div>
+
+                <div class="choice-price">
+
+                    💰 ${item.value}
+
+                </div>
+
+            `;
+
+
+            card.onclick =
+                () => {
+
+                    selectedSourceId =
+                        item.id;
+
+
+                    selectedTargetId =
+                        null;
+
+
+                    renderSourceGrid();
+
+                    renderTargetGrid();
+
+                    updateUpgradeUI();
+
+                };
+
+
+            box.appendChild(
+                card
+            );
+
+        }
+    );
 }
 
 
 function renderTargetGrid() {
 
     const box =
-        document
-            .getElementById(
-                "targetGrid"
-            );
+        document.getElementById(
+            "targetGrid"
+        );
 
 
     box.innerHTML =
@@ -2752,10 +2401,7 @@ function renderTargetGrid() {
                     )
             )
             .sort(
-                (
-                    a,
-                    b
-                ) =>
+                (a,b) =>
                     Number(
                         a.value
                     ) -
@@ -2765,24 +2411,14 @@ function renderTargetGrid() {
             );
 
 
-    if (!targets.length) {
-
-        box.innerHTML =
-            "Нет более дорогих Brainrot";
-
-        return;
-    }
-
-
     targets.forEach(
         item => {
 
 
             const card =
-                document
-                    .createElement(
-                        "div"
-                    );
+                document.createElement(
+                    "div"
+                );
 
 
             card.className =
@@ -2835,16 +2471,14 @@ function renderTargetGrid() {
 
                     renderTargetGrid();
 
-
                     updateUpgradeUI();
 
                 };
 
 
-            box
-                .appendChild(
-                    card
-                );
+            box.appendChild(
+                card
+            );
 
         }
     );
@@ -2860,9 +2494,7 @@ function calculateChance(
         !source ||
         !target
     ) {
-
         return 0;
-
     }
 
 
@@ -2877,7 +2509,7 @@ function calculateChance(
                 )
             ) *
             100 *
-            .75
+            0.75
         );
 
 
@@ -2932,13 +2564,10 @@ function updateUpgradeUI() {
         )
         .style
         .setProperty(
-
             "--green-angle",
-
             chance *
             3.6 +
             "deg"
-
         );
 }
 
@@ -2965,10 +2594,9 @@ async function spinNeedle(
 ) {
 
     const rotor =
-        document
-            .getElementById(
-                "needleRotor"
-            );
+        document.getElementById(
+            "needleRotor"
+        );
 
 
     const green =
@@ -3082,10 +2710,9 @@ async function upgradeItem() {
 
 
     const result =
-        document
-            .getElementById(
-                "upgradeResult"
-            );
+        document.getElementById(
+            "upgradeResult"
+        );
 
 
     if (!source) {
@@ -3094,7 +2721,6 @@ async function upgradeItem() {
             "❌ Выбери свой Brainrot";
 
         return;
-
     }
 
 
@@ -3104,7 +2730,6 @@ async function upgradeItem() {
             "❌ Выбери цель";
 
         return;
-
     }
 
 
@@ -3112,12 +2737,14 @@ async function upgradeItem() {
         true;
 
 
-    document
-        .getElementById(
+    const button =
+        document.getElementById(
             "upgradeButton"
-        )
-        .disabled =
-            true;
+        );
+
+
+    button.disabled =
+        true;
 
 
     result.innerText =
@@ -3152,12 +2779,8 @@ async function upgradeItem() {
                 false;
 
 
-            document
-                .getElementById(
-                    "upgradeButton"
-                )
-                .disabled =
-                    false;
+            button.disabled =
+                false;
 
 
             return;
@@ -3222,12 +2845,9 @@ async function upgradeItem() {
 
         renderInventory();
 
-
         renderSourceGrid();
 
-
         renderTargetGrid();
-
 
         updateUpgradeUI();
 
@@ -3250,18 +2870,12 @@ async function upgradeItem() {
         false;
 
 
-    document
-        .getElementById(
-            "upgradeButton"
-        )
-        .disabled =
-            false;
+    button.disabled =
+        false;
 }
 
 
-/* =========================
-   DEPOSIT
-========================= */
+/* DEPOSIT */
 
 function getGaramaValue() {
 
@@ -3290,15 +2904,11 @@ function getGaramaValue() {
 
 
     return garama
-
         ?
-
         Number(
             garama.value
         )
-
         :
-
         Infinity;
 }
 
@@ -3318,10 +2928,7 @@ function getDepositBrainrots() {
                 min
         )
         .sort(
-            (
-                a,
-                b
-            ) =>
+            (a,b) =>
                 Number(
                     a.value
                 ) -
@@ -3335,10 +2942,9 @@ function getDepositBrainrots() {
 function renderDepositGrid() {
 
     const box =
-        document
-            .getElementById(
-                "depositGrid"
-            );
+        document.getElementById(
+            "depositGrid"
+        );
 
 
     box.innerHTML =
@@ -3370,10 +2976,9 @@ function renderDepositGrid() {
 
 
                 const div =
-                    document
-                        .createElement(
-                            "div"
-                        );
+                    document.createElement(
+                        "div"
+                    );
 
 
                 div.className =
@@ -3394,8 +2999,7 @@ function renderDepositGrid() {
 
                     <div class="deposit-item-price">
 
-                        +${value}
-                        монет
+                        +${value} монет
 
                     </div>
 
@@ -3405,9 +3009,7 @@ function renderDepositGrid() {
                             class="quantity-btn"
                             onclick="changeDepositQuantity(${item.brainrot_id}, -1)"
                         >
-
                             −
-
                         </button>
 
                         <span class="quantity-number">
@@ -3420,9 +3022,7 @@ function renderDepositGrid() {
                             class="quantity-btn"
                             onclick="changeDepositQuantity(${item.brainrot_id}, 1)"
                         >
-
                             +
-
                         </button>
 
                     </div>
@@ -3430,10 +3030,9 @@ function renderDepositGrid() {
                 `;
 
 
-                box
-                    .appendChild(
-                        div
-                    );
+                box.appendChild(
+                    div
+                );
 
             }
         );
@@ -3489,7 +3088,6 @@ function changeDepositQuantity(
         );
 
         return;
-
     }
 
 
@@ -3532,50 +3130,49 @@ function updateDepositSummary() {
         0;
 
 
-    Object
-        .entries(
-            depositSelection
-        )
-        .forEach(
-            (
-                [
-                    brainrotId,
-                    quantity
-                ]
-            ) => {
+    Object.entries(
+        depositSelection
+    )
+    .forEach(
+        (
+            [
+                brainrotId,
+                quantity
+            ]
+        ) => {
 
 
-                const item =
-                    brainrots.find(
-                        b =>
-                            Number(
-                                b.brainrot_id
-                            ) ===
-                            Number(
-                                brainrotId
-                            )
-                    );
-
-
-                if (!item) {
-                    return;
-                }
-
-
-                total +=
-                    Math.max(
-                        0,
+            const item =
+                brainrots.find(
+                    b =>
                         Number(
-                            item.value
-                        ) -
-                        8
-                    ) *
-                    Number(
-                        quantity
-                    );
+                            b.brainrot_id
+                        ) ===
+                        Number(
+                            brainrotId
+                        )
+                );
 
+
+            if (!item) {
+                return;
             }
-        );
+
+
+            total +=
+                Math.max(
+                    0,
+                    Number(
+                        item.value
+                    ) -
+                    8
+                ) *
+                Number(
+                    quantity
+                );
+
+        }
+    );
 
 
     document
@@ -3617,9 +3214,7 @@ function openDepositModal() {
             "depositModal"
         )
         .classList
-        .add(
-            "show"
-        );
+        .add("show");
 }
 
 
@@ -3630,9 +3225,7 @@ function closeDepositModal() {
             "depositModal"
         )
         .classList
-        .remove(
-            "show"
-        );
+        .remove("show");
 }
 
 
@@ -3648,10 +3241,9 @@ async function submitDeposit() {
 
 
     const result =
-        document
-            .getElementById(
-                "depositResult"
-            );
+        document.getElementById(
+            "depositResult"
+        );
 
 
     const items =
@@ -3662,7 +3254,7 @@ async function submitDeposit() {
             .filter(
                 (
                     [
-                        brainrotId,
+                        id,
                         quantity
                     ]
                 ) =>
@@ -3699,7 +3291,6 @@ async function submitDeposit() {
             "❌ Выбери Brainrot";
 
         return;
-
     }
 
 
@@ -3712,7 +3303,6 @@ async function submitDeposit() {
             "❌ Введи Roblox ник";
 
         return;
-
     }
 
 
@@ -3720,59 +3310,40 @@ async function submitDeposit() {
         "⏳ Отправляем заявку...";
 
 
-    try {
+    const data =
+        await apiRequest({
 
-        const data =
-            await apiRequest({
+            action:
+                "create_balance_request",
 
-                action:
-                    "create_balance_request",
+            roblox_username:
+                username,
 
-                roblox_username:
-                    username,
+            items:
+                items
 
-                items:
-                    items
-
-            });
+        });
 
 
-        if (!data.ok) {
-
-            result.innerText =
-                "❌ " +
-                data.error;
-
-            return;
-
-        }
-
+    if (!data.ok) {
 
         result.innerText =
-            "✅ Заявка #" +
-            data.request_id +
-            " отправлена.\n" +
-            "Ожидай подтверждения администратора.";
+            "❌ " +
+            data.error;
 
+        return;
     }
 
-    catch (error) {
 
-        console.log(
-            error
-        );
-
-
-        result.innerText =
-            "❌ Ошибка подключения";
-
-    }
+    result.innerText =
+        "✅ Заявка #" +
+        data.request_id +
+        " отправлена.\n" +
+        "Ожидай подтверждения администратора.";
 }
 
 
-/* =========================
-   WITHDRAW
-========================= */
+/* WITHDRAW */
 
 function openWithdrawModal(
     inventoryId
@@ -3812,76 +3383,24 @@ function openWithdrawModal(
 
 
     /*
-    Минимальное время —
-    сейчас.
+    По умолчанию ставим сегодняшний день.
     */
 
-    const now =
-        new Date();
-
-
-    const year =
-        now.getFullYear();
-
-
-    const month =
-        String(
-            now.getMonth() +
-            1
+    document
+        .getElementById(
+            "withdrawDay"
         )
-        .padStart(
-            2,
-            "0"
-        );
+        .value =
+            new Date()
+                .getDate();
 
 
-    const day =
-        String(
-            now.getDate()
+    document
+        .getElementById(
+            "withdrawClock"
         )
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    const hours =
-        String(
-            now.getHours()
-        )
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    const minutes =
-        String(
-            now.getMinutes()
-        )
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    const minDateTime =
-        `${year}-${month}-${day}T${hours}:${minutes}`;
-
-
-    const timeInput =
-        document
-            .getElementById(
-                "withdrawTime"
-            );
-
-
-    timeInput.min =
-        minDateTime;
-
-
-    timeInput.value =
-        "";
+        .value =
+            "";
 
 
     document
@@ -3919,9 +3438,7 @@ function openWithdrawModal(
             "withdrawModal"
         )
         .classList
-        .add(
-            "show"
-        );
+        .add("show");
 }
 
 
@@ -3936,9 +3453,172 @@ function closeWithdrawModal() {
             "withdrawModal"
         )
         .classList
-        .remove(
-            "show"
+        .remove("show");
+}
+
+
+/*
+Создаём настоящую дату,
+хотя пользователь видит
+только ДЕНЬ + ВРЕМЯ.
+
+Пример:
+16 + 23:45
+
+Если 16 число текущего месяца
+ещё не прошло — используем его.
+
+Если уже прошло —
+используем 16 число следующего месяца.
+*/
+
+function buildWithdrawDate(
+    day,
+    clock
+) {
+
+    const parts =
+        clock.split(":");
+
+
+    if (
+        parts.length !==
+        2
+    ) {
+
+        return null;
+
+    }
+
+
+    const hour =
+        Number(
+            parts[0]
         );
+
+
+    const minute =
+        Number(
+            parts[1]
+        );
+
+
+    if (
+        day <
+        1 ||
+        day >
+        31 ||
+        hour <
+        0 ||
+        hour >
+        23 ||
+        minute <
+        0 ||
+        minute >
+        59
+    ) {
+
+        return null;
+
+    }
+
+
+    const now =
+        new Date();
+
+
+    let year =
+        now.getFullYear();
+
+
+    let month =
+        now.getMonth();
+
+
+    let date =
+        new Date(
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            0,
+            0
+        );
+
+
+    /*
+    Проверяем, существует ли
+    такой день в этом месяце.
+
+    Например 31 февраля
+    автоматически превратился бы
+    в март — такое запрещаем.
+    */
+
+    if (
+        date.getDate() !==
+        day
+    ) {
+
+        return null;
+
+    }
+
+
+    /*
+    Если время уже прошло,
+    пробуем следующий месяц.
+    */
+
+    if (
+        date.getTime() <=
+        now.getTime()
+    ) {
+
+        month +=
+            1;
+
+
+        if (
+            month >
+            11
+        ) {
+
+            month =
+                0;
+
+            year +=
+                1;
+
+        }
+
+
+        date =
+            new Date(
+                year,
+                month,
+                day,
+                hour,
+                minute,
+                0,
+                0
+            );
+
+
+        if (
+            date.getDate() !==
+            day
+        ) {
+
+            return null;
+
+        }
+
+    }
+
+
+    return date;
 }
 
 
@@ -3958,19 +3638,28 @@ async function submitWithdraw() {
             .trim();
 
 
-    const timeValue =
+    const day =
+        Number(
+            document
+                .getElementById(
+                    "withdrawDay"
+                )
+                .value
+        );
+
+
+    const clock =
         document
             .getElementById(
-                "withdrawTime"
+                "withdrawClock"
             )
             .value;
 
 
     const result =
-        document
-            .getElementById(
-                "withdrawResult"
-            );
+        document.getElementById(
+            "withdrawResult"
+        );
 
 
     if (
@@ -3982,61 +3671,46 @@ async function submitWithdraw() {
             "❌ Введи Roblox ник";
 
         return;
-
     }
 
 
-    if (!timeValue) {
+    if (
+        !day ||
+        day <
+        1 ||
+        day >
+        31
+    ) {
 
         result.innerText =
-            "❌ Выбери дату и время";
+            "❌ Введи день от 1 до 31";
 
         return;
-
     }
 
 
-    /*
-    datetime-local возвращает
-    локальное время пользователя.
+    if (!clock) {
 
-    new Date(timeValue)
-    преобразует его в нормальный Date,
-    после чего toISOString()
-    отправляет серверу правильное время.
-    */
+        result.innerText =
+            "❌ Выбери время";
+
+        return;
+    }
+
 
     const requestedDate =
-        new Date(
-            timeValue
+        buildWithdrawDate(
+            day,
+            clock
         );
 
 
-    if (
-        Number.isNaN(
-            requestedDate.getTime()
-        )
-    ) {
+    if (!requestedDate) {
 
         result.innerText =
-            "❌ Неверная дата или время";
+            "❌ Такой даты нет";
 
         return;
-
-    }
-
-
-    if (
-        requestedDate.getTime() <
-        Date.now() -
-        60000
-    ) {
-
-        result.innerText =
-            "❌ Выбери будущее время";
-
-        return;
-
     }
 
 
@@ -4059,7 +3733,8 @@ async function submitWithdraw() {
                     username,
 
                 requested_time:
-                    requestedDate.toISOString()
+                    requestedDate
+                        .toISOString()
 
             });
 
@@ -4071,7 +3746,6 @@ async function submitWithdraw() {
                 data.error;
 
             return;
-
         }
 
 
@@ -4097,31 +3771,7 @@ async function submitWithdraw() {
 
         renderInventory();
 
-
         renderSourceGrid();
-
-
-        const readable =
-            requestedDate
-                .toLocaleString(
-                    "ru-RU",
-                    {
-                        day:
-                            "2-digit",
-
-                        month:
-                            "2-digit",
-
-                        year:
-                            "numeric",
-
-                        hour:
-                            "2-digit",
-
-                        minute:
-                            "2-digit"
-                    }
-                );
 
 
         result.innerText =
@@ -4129,16 +3779,17 @@ async function submitWithdraw() {
             data.request_id +
             " создана.\n" +
             "Время: " +
-            readable +
-            "\nОжидай подтверждения администратора.";
+            day +
+            " в " +
+            clock +
+            "\n" +
+            "Ожидай подтверждения администратора.";
 
     }
 
     catch (error) {
 
-        console.log(
-            error
-        );
+        console.log(error);
 
 
         result.innerText =
@@ -4148,9 +3799,7 @@ async function submitWithdraw() {
 }
 
 
-/* =========================
-   START
-========================= */
+/* START */
 
 loadPlayer();
 
