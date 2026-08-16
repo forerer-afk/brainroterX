@@ -18,53 +18,86 @@
         }
 
         .game {
-            max-width: 500px;
+            max-width: 520px;
             margin: auto;
-            padding: 25px 15px;
+            padding: 20px 12px 40px;
         }
 
         h1 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .balance {
-            font-size: 20px;
-            margin: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 18px 0;
         }
 
         .case {
             background: #1f2937;
             border-radius: 20px;
-            padding: 30px 15px;
-            margin-top: 20px;
+            padding: 25px 15px;
+            margin-bottom: 25px;
         }
 
         .case-icon {
-            font-size: 80px;
+            font-size: 75px;
         }
 
         button {
-            width: 90%;
-            max-width: 350px;
-            padding: 16px;
-            margin: 10px;
             border: none;
-            border-radius: 14px;
-            font-size: 18px;
+            border-radius: 12px;
+            padding: 13px 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
         }
 
         .open {
+            width: 90%;
+            max-width: 350px;
             background: #f59e0b;
             color: white;
         }
 
         .result {
             white-space: pre-line;
-            font-size: 22px;
+            margin-top: 18px;
+            min-height: 45px;
+            font-size: 19px;
+        }
+
+        .inventory {
             margin-top: 25px;
-            min-height: 50px;
+        }
+
+        .item {
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 15px;
+            margin: 12px 0;
+            text-align: left;
+        }
+
+        .item-name {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .item-info {
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .sell {
+            width: 100%;
+            background: #16a34a;
+            color: white;
+        }
+
+        .empty {
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -76,74 +109,141 @@
     <h1>🧠 Brainroter X</h1>
 
     <div class="balance">
-        💰 Монеты: <span id="coins">0</span>
+        💰 Баланс: <span id="coins">0</span>
     </div>
 
     <div class="case">
-
         <div class="case-icon">🎁</div>
 
         <h2>Starter Case</h2>
 
-        <p>Цена открытия: 19 монет</p>
+        <p>Цена: 19 монет</p>
 
         <button class="open" onclick="openCase()">
             🎰 КРУТИТЬ КЕЙС
         </button>
 
         <div class="result" id="result"></div>
+    </div>
 
+    <div class="inventory">
+        <h2>🎒 Инвентарь</h2>
+
+        <div id="inventory">
+            Загрузка...
+        </div>
     </div>
 
 </div>
 
 <script>
 const tg = window.Telegram.WebApp;
+
 tg.ready();
 tg.expand();
 
 let coins = 0;
+let inventory = [];
 
-// ТВОЯ Edge Function
 const FUNCTION_URL =
     "https://obbxdztisfeutsvljiek.supabase.co/functions/v1/telegram-player";
 
 
-async function loadPlayer() {
+async function apiRequest(data) {
 
-    const result = document.getElementById("result");
+    const response = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            ...data,
+            initData: tg.initData
+        })
+    });
+
+    return await response.json();
+}
+
+
+async function loadPlayer() {
 
     try {
 
-        const response = await fetch(FUNCTION_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                action: "get_player",
-                initData: tg.initData
-            })
+        const data = await apiRequest({
+            action: "get_player"
         });
 
-        const data = await response.json();
-
         if (!data.ok) {
-            result.innerText = "❌ Ошибка загрузки: " + data.error;
+            document.getElementById("result").innerText =
+                "❌ " + data.error;
+
             return;
         }
 
         coins = Number(data.coins);
+        inventory = data.inventory || [];
 
-        document.getElementById("coins").innerText = coins;
+        updateBalance();
+        renderInventory();
 
     } catch (error) {
 
         console.log(error);
 
-        result.innerText =
-            "❌ Не удалось подключиться к серверу";
+        document.getElementById("result").innerText =
+            "❌ Ошибка подключения";
     }
+}
+
+
+function updateBalance() {
+
+    document.getElementById("coins").innerText = coins;
+
+}
+
+
+function renderInventory() {
+
+    const box = document.getElementById("inventory");
+
+    if (!inventory || inventory.length === 0) {
+
+        box.innerHTML =
+            '<div class="empty">У тебя пока нет Brainrot 🧠</div>';
+
+        return;
+    }
+
+    box.innerHTML = "";
+
+    inventory.forEach(item => {
+
+        const element = document.createElement("div");
+
+        element.className = "item";
+
+        element.innerHTML = `
+            <div class="item-name">
+                🧠 ${item.brainrot_name}
+            </div>
+
+            <div class="item-info">
+                ⭐ ${item.rarity}<br>
+                💰 Цена продажи: ${item.value}
+            </div>
+
+            <button
+                class="sell"
+                onclick="sellItem(${item.id})"
+            >
+                💰 ПРОДАТЬ ЗА ${item.value}
+            </button>
+        `;
+
+        box.appendChild(element);
+    });
 }
 
 
@@ -155,40 +255,35 @@ async function openCase() {
 
     try {
 
-        const response = await fetch(FUNCTION_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                action: "open_case",
-                case_id: 1,
-                initData: tg.initData
-            })
+        const data = await apiRequest({
+            action: "open_case",
+            case_id: 1
         });
-
-        const data = await response.json();
 
         if (!data.ok) {
 
             if (data.coins !== undefined) {
                 coins = Number(data.coins);
-                document.getElementById("coins").innerText = coins;
+                updateBalance();
             }
 
-            result.innerText = "❌ " + data.error;
+            result.innerText =
+                "❌ " + data.error;
 
             return;
         }
 
         coins = Number(data.coins);
 
-        document.getElementById("coins").innerText = coins;
+        inventory.unshift(data.item);
+
+        updateBalance();
+        renderInventory();
 
         result.innerText =
             "🎉 Выпал: " +
             data.item.brainrot_name +
-            "\n⭐ Редкость: " +
+            "\n⭐ " +
             data.item.rarity +
             "\n💰 Цена: " +
             data.item.value;
@@ -198,7 +293,66 @@ async function openCase() {
         console.log(error);
 
         result.innerText =
-            "❌ Ошибка подключения к серверу";
+            "❌ Ошибка подключения";
+    }
+}
+
+
+async function sellItem(inventoryId) {
+
+    const item = inventory.find(
+        x => Number(x.id) === Number(inventoryId)
+    );
+
+    if (!item) {
+        return;
+    }
+
+    const confirmed = confirm(
+        "Продать " +
+        item.brainrot_name +
+        " за " +
+        item.value +
+        " монет?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const data = await apiRequest({
+            action: "sell_item",
+            inventory_id: inventoryId
+        });
+
+        if (!data.ok) {
+            alert("Ошибка: " + data.error);
+            return;
+        }
+
+        coins = Number(data.coins);
+
+        inventory = inventory.filter(
+            x => Number(x.id) !== Number(inventoryId)
+        );
+
+        updateBalance();
+        renderInventory();
+
+        document.getElementById("result").innerText =
+            "💰 Продано: " +
+            data.sold_item.brainrot_name +
+            "\n+" +
+            data.added_coins +
+            " монет";
+
+    } catch (error) {
+
+        console.log(error);
+
+        alert("Ошибка подключения");
     }
 }
 
