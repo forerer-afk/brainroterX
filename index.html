@@ -17,7 +17,7 @@
 <style>
 
 /* =====================================================
-   BASE — БЕЗ ЗАДЕРЖЕК
+   BASE
 ===================================================== */
 
 * {
@@ -34,16 +34,19 @@ body {
     margin: 0;
     min-height: 100vh;
 
-    font-family: Arial, sans-serif;
+    font-family:
+        Arial,
+        sans-serif;
 
     color: white;
 
     background:
         radial-gradient(
-            circle at top,
-            #172554 0%,
-            #0f172a 35%,
-            #080d19 100%
+            circle at 50% -10%,
+            #1d3470 0%,
+            #111c36 27%,
+            #0b1220 55%,
+            #070b13 100%
         );
 
     overflow-x: hidden;
@@ -63,10 +66,6 @@ button {
     -webkit-tap-highlight-color: transparent;
 
     transition: none;
-}
-
-button:active {
-    transform: none;
 }
 
 button:disabled {
@@ -131,21 +130,40 @@ img {
         12px;
 
     background:
-        rgba(15,23,42,.93);
+        rgba(
+            11,
+            18,
+            32,
+            .93
+        );
 
     backdrop-filter:
-        blur(14px);
+        blur(16px);
 
     border-bottom:
-        1px solid rgba(148,163,184,.12);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .12
+        );
 
     box-shadow:
-        0 6px 25px rgba(0,0,0,.18);
+        0 8px 26px
+        rgba(
+            0,
+            0,
+            0,
+            .22
+        );
 }
 
 .logo {
     font-size: 18px;
     font-weight: 900;
+
+    letter-spacing: -.3px;
 }
 
 .top-right {
@@ -193,7 +211,22 @@ img {
         );
 
     border:
-        1px solid rgba(148,163,184,.10);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .10
+        );
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(
+            255,
+            255,
+            255,
+            .03
+        );
 }
 
 .deposit-top-btn {
@@ -211,11 +244,17 @@ img {
         linear-gradient(
             135deg,
             #22c55e,
-            #16a34a
+            #15803d
         );
 
     box-shadow:
-        0 5px 16px rgba(34,197,94,.2);
+        0 5px 16px
+        rgba(
+            34,
+            197,
+            94,
+            .2
+        );
 }
 
 
@@ -231,15 +270,37 @@ img {
     background:
         linear-gradient(
             145deg,
-            rgba(30,41,59,.97),
-            rgba(20,30,48,.97)
+            rgba(
+                30,
+                41,
+                59,
+                .98
+            ),
+            rgba(
+                15,
+                23,
+                42,
+                .98
+            )
         );
 
     border:
-        1px solid rgba(148,163,184,.08);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .09
+        );
 
     box-shadow:
-        0 10px 30px rgba(0,0,0,.18);
+        0 12px 32px
+        rgba(
+            0,
+            0,
+            0,
+            .22
+        );
 }
 
 
@@ -251,45 +312,97 @@ img {
     display: grid;
 
     grid-template-columns:
-        repeat(2,minmax(0,1fr));
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
     gap: 10px;
 }
 
 .case-card {
+    position: relative;
+
     min-width: 0;
 
     padding:
         11px
         8px;
 
-    border-radius: 17px;
+    overflow: hidden;
+
+    border-radius: 18px;
 
     cursor: pointer;
-
-    touch-action: manipulation;
 
     background:
         linear-gradient(
             145deg,
-            rgba(30,41,59,.97),
-            rgba(20,30,48,.97)
+            rgba(
+                30,
+                41,
+                59,
+                .98
+            ),
+            rgba(
+                14,
+                22,
+                37,
+                .98
+            )
         );
 
     border:
-        1px solid rgba(148,163,184,.08);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .09
+        );
 
     box-shadow:
-        0 8px 22px rgba(0,0,0,.17);
-
-    transition: none;
+        0 8px 22px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
 }
 
-.case-card:active {
-    transform: none;
+.case-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 95px;
+    height: 95px;
+
+    top: -55px;
+    right: -45px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(
+            99,
+            102,
+            241,
+            .10
+        );
+
+    filter: blur(8px);
 }
 
 .case-name {
+    position: relative;
+
+    z-index: 2;
+
     min-height: 36px;
 
     display: flex;
@@ -304,6 +417,10 @@ img {
 }
 
 .case-price {
+    position: relative;
+
+    z-index: 2;
+
     margin:
         4px
         0
@@ -317,10 +434,17 @@ img {
 }
 
 .case-preview {
+    position: relative;
+
+    z-index: 2;
+
     display: grid;
 
     grid-template-columns:
-        repeat(3,1fr);
+        repeat(
+            3,
+            1fr
+        );
 
     gap: 3px;
 }
@@ -344,6 +468,10 @@ img {
 }
 
 .case-tap-hint {
+    position: relative;
+
+    z-index: 2;
+
     margin-top: 6px;
 
     text-align: center;
@@ -427,7 +555,13 @@ img {
         );
 
     border:
-        1px solid rgba(148,163,184,.12);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .12
+        );
 }
 
 .speed-mini-btn.active,
@@ -442,7 +576,13 @@ img {
         );
 
     box-shadow:
-        0 0 16px rgba(147,51,234,.55);
+        0 0 16px
+        rgba(
+            147,
+            51,
+            234,
+            .55
+        );
 }
 
 
@@ -471,10 +611,25 @@ img {
         );
 
     border:
-        1px solid rgba(148,163,184,.18);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .18
+        );
 
     box-shadow:
-        inset 0 0 30px rgba(0,0,0,.35);
+        inset
+        0
+        0
+        30px
+        rgba(
+            0,
+            0,
+            0,
+            .35
+        );
 }
 
 .roulette-pointer {
@@ -509,7 +664,12 @@ img {
         translateX(-50%);
 
     background:
-        rgba(250,204,21,.6);
+        rgba(
+            250,
+            204,
+            21,
+            .6
+        );
 }
 
 .roulette-track {
@@ -553,7 +713,13 @@ img {
         );
 
     border:
-        1px solid rgba(148,163,184,.15);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .15
+        );
 }
 
 .roulette-item img {
@@ -635,7 +801,12 @@ img {
     color: #facc15;
 
     background:
-        rgba(15,23,42,.55);
+        rgba(
+            15,
+            23,
+            42,
+            .55
+        );
 }
 
 .spin-btn {
@@ -710,10 +881,21 @@ img {
     border-radius: 15px;
 
     background:
-        rgba(15,23,42,.65);
+        rgba(
+            15,
+            23,
+            42,
+            .65
+        );
 
     border:
-        1px solid rgba(148,163,184,.10);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .10
+        );
 }
 
 .case-content-title {
@@ -748,7 +930,12 @@ img {
     border-radius: 9px;
 
     background:
-        rgba(30,41,59,.66);
+        rgba(
+            30,
+            41,
+            59,
+            .66
+        );
 }
 
 .case-content-left {
@@ -843,7 +1030,13 @@ img {
         );
 
     border:
-        5px solid #475569;
+        5px solid
+        #475569;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
 }
 
 .upgrade-wheel::after {
@@ -858,7 +1051,10 @@ img {
     top: 50%;
 
     transform:
-        translate(-50%,-50%);
+        translate(
+            -50%,
+            -50%
+        );
 
     border-radius: 50%;
 
@@ -868,6 +1064,9 @@ img {
             #172033,
             #0b1220
         );
+
+    transition:
+        background .2s ease;
 }
 
 .needle-rotor {
@@ -911,7 +1110,10 @@ img {
     top: 50%;
 
     transform:
-        translate(-50%,-50%);
+        translate(
+            -50%,
+            -50%
+        );
 
     font-size: 28px;
 
@@ -950,29 +1152,45 @@ img {
     color: #cbd5e1;
 }
 
+
+/* =====================================================
+   FAST SELECT + MYSTERY
+===================================================== */
+
 .upgrade-preset-buttons {
     display: grid;
 
     grid-template-columns:
-        repeat(5,1fr);
+        54px
+        repeat(
+            5,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    align-items: center;
 
     gap: 5px;
 
     margin:
-        8px
+        9px
         0;
 }
 
 .upgrade-preset-btn {
+    height: 38px;
+
     padding:
-        9px
-        2px;
+        7px
+        1px;
 
     border-radius: 9px;
 
     color: white;
 
-    font-size: 11px;
+    font-size: 10px;
 
     background:
         linear-gradient(
@@ -980,7 +1198,724 @@ img {
             #334155,
             #1e293b
         );
+
+    border:
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .08
+        );
 }
+
+
+/* =====================================================
+   MYSTERY CRYSTAL
+===================================================== */
+
+.mystery-mode-wrap {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 2px;
+}
+
+.mystery-crystal {
+    position: relative;
+
+    width: 50px;
+    height: 50px;
+
+    padding: 0;
+
+    overflow: hidden;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color:
+        rgba(
+            167,
+            243,
+            208,
+            .95
+        );
+
+    background:
+        radial-gradient(
+            circle at 50% 28%,
+            #44d29c 0%,
+            #18a574 12%,
+            #086149 40%,
+            #033b2e 67%,
+            #021d17 100%
+        );
+
+    border:
+        3px solid
+        #35d399;
+
+    box-shadow:
+        inset
+        0
+        4px
+        8px
+        rgba(
+            185,
+            255,
+            225,
+            .18
+        ),
+
+        inset
+        0
+        -11px
+        15px
+        rgba(
+            0,
+            0,
+            0,
+            .40
+        ),
+
+        0
+        0
+        7px
+        rgba(
+            16,
+            185,
+            129,
+            .30
+        );
+
+    animation:
+        mysteryPulse
+        2.4s
+        ease-in-out
+        infinite;
+}
+
+
+/* тёмное внутреннее ядро */
+
+.mystery-crystal::before {
+    content: "";
+
+    position: absolute;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 45% 35%,
+            rgba(
+                52,
+                211,
+                153,
+                .18
+            ),
+            rgba(
+                2,
+                44,
+                34,
+                .92
+            )
+            58%,
+            #011b15
+            100%
+        );
+
+    border:
+        1px solid
+        rgba(
+            110,
+            231,
+            183,
+            .58
+        );
+
+    box-shadow:
+        inset
+        0
+        0
+        13px
+        rgba(
+            16,
+            185,
+            129,
+            .25
+        );
+
+    z-index: 1;
+}
+
+
+/* бегущий стеклянный блик */
+
+.mystery-crystal::after {
+    content: "";
+
+    position: absolute;
+
+    z-index: 3;
+
+    top: -40%;
+    left: -55%;
+
+    width: 21%;
+    height: 180%;
+
+    transform:
+        rotate(
+            25deg
+        );
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(
+                236,
+                253,
+                245,
+                .58
+            ),
+            transparent
+        );
+
+    animation:
+        mysteryShine
+        3.2s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+.mystery-question {
+    position: relative;
+
+    z-index: 4;
+
+    font-size: 21px;
+
+    font-weight: 1000;
+
+    color:
+        #6ee7b7;
+
+    text-shadow:
+        0
+        0
+        5px
+        rgba(
+            110,
+            231,
+            183,
+            .75
+        ),
+
+        0
+        0
+        10px
+        rgba(
+            16,
+            185,
+            129,
+            .45
+        );
+}
+
+.mystery-label {
+    font-size: 6px;
+
+    font-weight: 900;
+
+    letter-spacing: .45px;
+
+    color:
+        #6ee7b7;
+
+    opacity: .82;
+}
+
+
+/* выбран */
+
+.mystery-crystal.active {
+    border-color:
+        #a7f3d0;
+
+    box-shadow:
+        inset
+        0
+        0
+        12px
+        rgba(
+            167,
+            243,
+            208,
+            .60
+        ),
+
+        inset
+        0
+        -9px
+        15px
+        rgba(
+            0,
+            0,
+            0,
+            .30
+        ),
+
+        0
+        0
+        11px
+        rgba(
+            52,
+            211,
+            153,
+            .80
+        ),
+
+        0
+        0
+        24px
+        rgba(
+            16,
+            185,
+            129,
+            .50
+        );
+
+    animation:
+        mysterySelected
+        1.5s
+        ease-in-out
+        infinite;
+}
+
+
+@keyframes mysteryPulse {
+
+    0%,
+    100% {
+
+        box-shadow:
+            inset
+            0
+            4px
+            8px
+            rgba(
+                185,
+                255,
+                225,
+                .15
+            ),
+
+            inset
+            0
+            -11px
+            15px
+            rgba(
+                0,
+                0,
+                0,
+                .40
+            ),
+
+            0
+            0
+            6px
+            rgba(
+                16,
+                185,
+                129,
+                .22
+            );
+
+    }
+
+
+    50% {
+
+        box-shadow:
+            inset
+            0
+            4px
+            10px
+            rgba(
+                185,
+                255,
+                225,
+                .22
+            ),
+
+            inset
+            0
+            -11px
+            15px
+            rgba(
+                0,
+                0,
+                0,
+                .40
+            ),
+
+            0
+            0
+            14px
+            rgba(
+                16,
+                185,
+                129,
+                .48
+            );
+
+    }
+
+}
+
+
+@keyframes mysterySelected {
+
+    0%,
+    100% {
+
+        box-shadow:
+            inset
+            0
+            0
+            12px
+            rgba(
+                167,
+                243,
+                208,
+                .48
+            ),
+
+            0
+            0
+            11px
+            rgba(
+                52,
+                211,
+                153,
+                .60
+            ),
+
+            0
+            0
+            21px
+            rgba(
+                16,
+                185,
+                129,
+                .35
+            );
+
+    }
+
+
+    50% {
+
+        box-shadow:
+            inset
+            0
+            0
+            17px
+            rgba(
+                167,
+                243,
+                208,
+                .72
+            ),
+
+            0
+            0
+            17px
+            rgba(
+                52,
+                211,
+                153,
+                .95
+            ),
+
+            0
+            0
+            31px
+            rgba(
+                16,
+                185,
+                129,
+                .60
+            );
+
+    }
+
+}
+
+
+@keyframes mysteryShine {
+
+    0%,
+    64% {
+        left: -55%;
+        opacity: 0;
+    }
+
+    69% {
+        opacity: .8;
+    }
+
+    90% {
+        left: 135%;
+        opacity: .45;
+    }
+
+    100% {
+        left: 135%;
+        opacity: 0;
+    }
+
+}
+
+
+/* =====================================================
+   MYSTERY BIG WHEEL
+===================================================== */
+
+.upgrade-wheel.mystery-wheel {
+    background:
+        radial-gradient(
+            circle at 50% 43%,
+            #38cb93 0%,
+            #0b7b59 28%,
+            #064e3b 53%,
+            #022c22 78%,
+            #011c16 100%
+        );
+
+    border-color:
+        #34d399;
+
+    box-shadow:
+        inset
+        0
+        0
+        28px
+        rgba(
+            16,
+            185,
+            129,
+            .38
+        ),
+
+        inset
+        0
+        -22px
+        28px
+        rgba(
+            0,
+            0,
+            0,
+            .24
+        ),
+
+        0
+        0
+        15px
+        rgba(
+            16,
+            185,
+            129,
+            .40
+        ),
+
+        0
+        0
+        31px
+        rgba(
+            16,
+            185,
+            129,
+            .18
+        );
+
+    animation:
+        mysteryWheelGlow
+        2s
+        ease-in-out
+        infinite;
+}
+
+.upgrade-wheel.mystery-wheel::after {
+    background:
+        radial-gradient(
+            circle at 45% 35%,
+            #0a503e,
+            #032c23 50%,
+            #011c17 75%
+        );
+
+    border:
+        1px solid
+        rgba(
+            110,
+            231,
+            183,
+            .48
+        );
+
+    box-shadow:
+        inset
+        0
+        0
+        28px
+        rgba(
+            16,
+            185,
+            129,
+            .28
+        ),
+
+        0
+        0
+        8px
+        rgba(
+            16,
+            185,
+            129,
+            .18
+        );
+}
+
+@keyframes mysteryWheelGlow {
+
+    0%,
+    100% {
+
+        box-shadow:
+            inset
+            0
+            0
+            25px
+            rgba(
+                16,
+                185,
+                129,
+                .30
+            ),
+
+            0
+            0
+            12px
+            rgba(
+                16,
+                185,
+                129,
+                .30
+            );
+
+    }
+
+
+    50% {
+
+        box-shadow:
+            inset
+            0
+            0
+            34px
+            rgba(
+                52,
+                211,
+                153,
+                .45
+            ),
+
+            0
+            0
+            23px
+            rgba(
+                16,
+                185,
+                129,
+                .55
+            );
+
+    }
+
+}
+
+.wheel-text.mystery-text {
+    color:
+        #6ee7b7;
+
+    font-size: 50px;
+
+    text-shadow:
+        0
+        0
+        8px
+        rgba(
+            110,
+            231,
+            183,
+            .78
+        ),
+
+        0
+        0
+        22px
+        rgba(
+            16,
+            185,
+            129,
+            .58
+        );
+}
+
+.upgrade-btn.mystery-upgrade-btn {
+    background:
+        linear-gradient(
+            135deg,
+            #0ca678,
+            #047857
+        );
+
+    box-shadow:
+        0
+        0
+        15px
+        rgba(
+            16,
+            185,
+            129,
+            .38
+        );
+
+    color:
+        #ecfdf5;
+}
+
+
+/* =====================================================
+   SAVED TARGET
+===================================================== */
 
 .saved-target-info {
     display: none;
@@ -996,16 +1931,79 @@ img {
     font-size: 11px;
 
     background:
-        rgba(124,58,237,.14);
+        rgba(
+            124,
+            58,
+            237,
+            .14
+        );
 
     color: #c4b5fd;
 }
+
+.mystery-info {
+    display: none;
+
+    margin:
+        7px
+        0;
+
+    padding:
+        10px;
+
+    border-radius: 11px;
+
+    text-align: left;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    color: #a7f3d0;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(
+                5,
+                150,
+                105,
+                .15
+            ),
+            rgba(
+                2,
+                44,
+                34,
+                .24
+            )
+        );
+
+    border:
+        1px solid
+        rgba(
+            52,
+            211,
+            153,
+            .18
+        );
+}
+
+
+/* =====================================================
+   UPGRADE GRIDS
+===================================================== */
 
 .upgrade-grid {
     display: grid;
 
     grid-template-columns:
-        repeat(3,minmax(0,1fr));
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
     gap: 6px;
 }
@@ -1019,25 +2017,47 @@ img {
 
     cursor: pointer;
 
-    touch-action: manipulation;
-
     background: #0f172a;
 
     border:
-        2px solid #334155;
-
-    transition: none;
-}
-
-.upgrade-choice:active {
-    transform: none;
+        2px solid
+        #334155;
 }
 
 .upgrade-choice.selected {
     border-color: #a855f7;
 
     background:
-        rgba(88,28,135,.30);
+        rgba(
+            88,
+            28,
+            135,
+            .30
+        );
+}
+
+.upgrade-choice.mystery-source-selected {
+    border-color:
+        #34d399;
+
+    background:
+        rgba(
+            6,
+            78,
+            59,
+            .34
+        );
+
+    box-shadow:
+        0
+        0
+        10px
+        rgba(
+            16,
+            185,
+            129,
+            .20
+        );
 }
 
 .upgrade-choice img {
@@ -1084,15 +2104,37 @@ img {
     background:
         linear-gradient(
             145deg,
-            rgba(49,46,129,.80),
-            rgba(30,41,59,.96)
+            rgba(
+                49,
+                46,
+                129,
+                .80
+            ),
+            rgba(
+                30,
+                41,
+                59,
+                .96
+            )
         );
 
     border:
-        1px solid rgba(167,139,250,.18);
+        1px solid
+        rgba(
+            167,
+            139,
+            250,
+            .18
+        );
 
     box-shadow:
-        0 12px 35px rgba(0,0,0,.22);
+        0 12px 35px
+        rgba(
+            0,
+            0,
+            0,
+            .22
+        );
 }
 
 .profile-glow {
@@ -1107,10 +2149,17 @@ img {
     border-radius: 50%;
 
     background:
-        rgba(139,92,246,.25);
+        rgba(
+            139,
+            92,
+            246,
+            .25
+        );
 
     filter:
-        blur(15px);
+        blur(
+            15px
+        );
 }
 
 .profile-top {
@@ -1155,10 +2204,22 @@ img {
         );
 
     border:
-        3px solid rgba(255,255,255,.16);
+        3px solid
+        rgba(
+            255,
+            255,
+            255,
+            .16
+        );
 
     box-shadow:
-        0 7px 22px rgba(0,0,0,.25);
+        0 7px 22px
+        rgba(
+            0,
+            0,
+            0,
+            .25
+        );
 }
 
 .profile-avatar img {
@@ -1202,7 +2263,10 @@ img {
     display: grid;
 
     grid-template-columns:
-        repeat(2,1fr);
+        repeat(
+            2,
+            1fr
+        );
 
     gap: 8px;
 
@@ -1219,10 +2283,21 @@ img {
     text-align: center;
 
     background:
-        rgba(15,23,42,.48);
+        rgba(
+            15,
+            23,
+            42,
+            .48
+        );
 
     border:
-        1px solid rgba(255,255,255,.06);
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            .06
+        );
 }
 
 .profile-stat-number {
@@ -1288,7 +2363,13 @@ img {
     display: grid;
 
     grid-template-columns:
-        repeat(4,minmax(0,1fr));
+        repeat(
+            4,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
     gap: 6px;
 }
@@ -1303,15 +2384,37 @@ img {
     background:
         linear-gradient(
             145deg,
-            rgba(30,41,59,.98),
-            rgba(15,23,42,.98)
+            rgba(
+                30,
+                41,
+                59,
+                .98
+            ),
+            rgba(
+                15,
+                23,
+                42,
+                .98
+            )
         );
 
     border:
-        1px solid rgba(148,163,184,.09);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .09
+        );
 
     box-shadow:
-        0 5px 15px rgba(0,0,0,.14);
+        0 5px 15px
+        rgba(
+            0,
+            0,
+            0,
+            .14
+        );
 }
 
 .inventory-card.locked {
@@ -1322,7 +2425,7 @@ img {
     width: 100%;
 
     aspect-ratio:
-        1/1;
+        1 / 1;
 
     padding: 2px;
 
@@ -1374,7 +2477,13 @@ img {
     display: grid;
 
     grid-template-columns:
-        repeat(2,minmax(0,1fr));
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
     gap: 3px;
 
@@ -1405,7 +2514,7 @@ img {
 
 .mini-exchange {
     grid-column:
-        1/-1;
+        1 / -1;
 
     background:
         linear-gradient(
@@ -1450,10 +2559,17 @@ img {
     justify-content: center;
 
     background:
-        rgba(0,0,0,.72);
+        rgba(
+            0,
+            0,
+            0,
+            .72
+        );
 
     backdrop-filter:
-        blur(5px);
+        blur(
+            5px
+        );
 }
 
 .modal-overlay.show {
@@ -1485,7 +2601,15 @@ img {
         );
 
     box-shadow:
-        0 -10px 40px rgba(0,0,0,.3);
+        0
+        -10px
+        40px
+        rgba(
+            0,
+            0,
+            0,
+            .3
+        );
 }
 
 .sell-all-overlay {
@@ -1501,9 +2625,6 @@ img {
     max-width: 500px;
 
     border-radius: 22px;
-
-    box-shadow:
-        0 15px 45px rgba(0,0,0,.40);
 }
 
 .raised-modal-overlay {
@@ -1523,9 +2644,6 @@ img {
     max-height: 82vh;
 
     border-radius: 22px;
-
-    box-shadow:
-        0 15px 45px rgba(0,0,0,.40);
 }
 
 .modal-header {
@@ -1575,7 +2693,13 @@ img {
     border-radius: 12px;
 
     border:
-        1px solid rgba(148,163,184,.16);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .16
+        );
 
     outline: none;
 
@@ -1589,9 +2713,6 @@ img {
             #111827,
             #172033
         );
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03);
 }
 
 .text-input::placeholder {
@@ -1602,7 +2723,16 @@ img {
     border-color: #8b5cf6;
 
     box-shadow:
-        0 0 0 3px rgba(124,58,237,.14);
+        0
+        0
+        0
+        3px
+        rgba(
+            124,
+            58,
+            237,
+            .14
+        );
 }
 
 input[type="time"] {
@@ -1666,7 +2796,10 @@ input[type="time"] {
     display: grid;
 
     grid-template-columns:
-        repeat(3,1fr);
+        repeat(
+            3,
+            1fr
+        );
 
     gap: 7px;
 
@@ -1686,7 +2819,8 @@ input[type="time"] {
         );
 
     border:
-        1px solid #334155;
+        1px solid
+        #334155;
 }
 
 .deposit-item img {
@@ -1758,7 +2892,12 @@ input[type="time"] {
     border-radius: 12px;
 
     background:
-        rgba(15,23,42,.7);
+        rgba(
+            15,
+            23,
+            42,
+            .7
+        );
 }
 
 
@@ -1776,10 +2915,21 @@ input[type="time"] {
     text-align: left;
 
     background:
-        rgba(127,29,29,.22);
+        rgba(
+            127,
+            29,
+            29,
+            .22
+        );
 
     border:
-        1px solid rgba(248,113,113,.20);
+        1px solid
+        rgba(
+            248,
+            113,
+            113,
+            .20
+        );
 }
 
 .warning-title {
@@ -1856,7 +3006,12 @@ input[type="time"] {
     gap: 10px;
 
     background:
-        rgba(15,23,42,.65);
+        rgba(
+            15,
+            23,
+            42,
+            .65
+        );
 }
 
 .exchange-source img {
@@ -1899,7 +3054,13 @@ input[type="time"] {
     display: grid;
 
     grid-template-columns:
-        repeat(2,minmax(0,1fr));
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
     gap: 7px;
 }
@@ -1913,19 +3074,22 @@ input[type="time"] {
 
     cursor: pointer;
 
-    touch-action: manipulation;
-
     background:
-        rgba(15,23,42,.75);
+        rgba(
+            15,
+            23,
+            42,
+            .75
+        );
 
     border:
-        1px solid rgba(148,163,184,.12);
-
-    transition: none;
-}
-
-.exchange-option:active {
-    transform: none;
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .12
+        );
 }
 
 .exchange-option img {
@@ -1976,13 +3140,26 @@ input[type="time"] {
     display: flex;
 
     background:
-        rgba(15,23,42,.95);
+        rgba(
+            15,
+            23,
+            42,
+            .95
+        );
 
     backdrop-filter:
-        blur(15px);
+        blur(
+            15px
+        );
 
     border-top:
-        1px solid rgba(148,163,184,.10);
+        1px solid
+        rgba(
+            148,
+            163,
+            184,
+            .10
+        );
 }
 
 .nav-btn {
@@ -2005,8 +3182,18 @@ input[type="time"] {
     background:
         linear-gradient(
             180deg,
-            rgba(99,102,241,.16),
-            rgba(51,65,85,.60)
+            rgba(
+                99,
+                102,
+                241,
+                .16
+            ),
+            rgba(
+                51,
+                65,
+                85,
+                .60
+            )
         );
 }
 
@@ -2018,7 +3205,9 @@ input[type="time"] {
 <body>
 
 
-<!-- TOP BAR -->
+<!-- =====================================================
+     TOP BAR
+===================================================== -->
 
 <div class="topbar">
 
@@ -2055,7 +3244,9 @@ input[type="time"] {
 <div class="game">
 
 
-<!-- CASES -->
+<!-- =====================================================
+     CASES
+===================================================== -->
 
 <div
     id="casesPage"
@@ -2065,6 +3256,7 @@ input[type="time"] {
     <div id="caseList">
         Загрузка...
     </div>
+
 
     <div
         id="activeCase"
@@ -2078,11 +3270,14 @@ input[type="time"] {
             ← Назад
         </button>
 
+
         <div class="panel">
+
 
             <div class="case-title-row">
 
-                <h2 id="activeCaseName"></h2>
+                <h2 id="activeCaseName">
+                </h2>
 
                 <button
                     id="speedButton"
@@ -2094,6 +3289,7 @@ input[type="time"] {
 
             </div>
 
+
             <div
                 id="activeCasePrice"
                 style="
@@ -2102,7 +3298,9 @@ input[type="time"] {
                     opacity:.7;
                     font-size:12px;
                 "
-            ></div>
+            >
+            </div>
+
 
             <div
                 id="rouletteContainer"
@@ -2113,14 +3311,17 @@ input[type="time"] {
                     ▼
                 </div>
 
-                <div class="roulette-line"></div>
+                <div class="roulette-line">
+                </div>
 
                 <div
                     id="rouletteTrack"
                     class="roulette-track"
-                ></div>
+                >
+                </div>
 
             </div>
+
 
             <div class="case-controls">
 
@@ -2158,12 +3359,14 @@ input[type="time"] {
 
             </div>
 
+
             <div
                 id="totalCasePrice"
                 class="total-case-price"
             >
                 Будет потрачено: 0 монет
             </div>
+
 
             <button
                 id="spinButton"
@@ -2173,12 +3376,17 @@ input[type="time"] {
                 🎰 КРУТИТЬ
             </button>
 
-            <div id="quickSellArea"></div>
+
+            <div id="quickSellArea">
+            </div>
+
 
             <div
                 id="caseResult"
                 class="result"
-            ></div>
+            >
+            </div>
+
 
             <div class="case-content-box">
 
@@ -2189,9 +3397,11 @@ input[type="time"] {
                 <div
                     id="caseContentList"
                     class="case-content-list"
-                ></div>
+                >
+                </div>
 
             </div>
+
 
         </div>
 
@@ -2200,7 +3410,9 @@ input[type="time"] {
 </div>
 
 
-<!-- UPGRADER -->
+<!-- =====================================================
+     UPGRADER
+===================================================== -->
 
 <div
     id="upgraderPage"
@@ -2208,6 +3420,7 @@ input[type="time"] {
 >
 
     <div class="panel">
+
 
         <div class="upgrader-title-row">
 
@@ -2225,6 +3438,7 @@ input[type="time"] {
 
         </div>
 
+
         <h3>
 
             Шанс:
@@ -2235,21 +3449,26 @@ input[type="time"] {
 
         </h3>
 
+
         <div class="upgrade-wheel-wrap">
 
             <div
                 id="upgradeWheel"
                 class="upgrade-wheel"
-            ></div>
+            >
+            </div>
+
 
             <div
                 id="needleRotor"
                 class="needle-rotor"
             >
 
-                <div class="upgrade-needle"></div>
+                <div class="upgrade-needle">
+                </div>
 
             </div>
+
 
             <div
                 id="wheelText"
@@ -2260,6 +3479,7 @@ input[type="time"] {
 
         </div>
 
+
         <button
             id="upgradeButton"
             class="upgrade-btn"
@@ -2268,16 +3488,40 @@ input[type="time"] {
             ⚡ АПГРЕЙД
         </button>
 
+
         <div
             id="upgradeResult"
             class="result"
-        ></div>
+        >
+        </div>
+
 
         <div class="upgrade-section-title">
             Быстрый выбор
         </div>
 
+
         <div class="upgrade-preset-buttons">
+
+
+            <div class="mystery-mode-wrap">
+
+                <button
+                    id="mysteryButton"
+                    class="mystery-crystal"
+                    onclick="toggleMysteryMode()"
+                >
+                    <span class="mystery-question">
+                        ?
+                    </span>
+                </button>
+
+                <div class="mystery-label">
+                    MYSTERY
+                </div>
+
+            </div>
+
 
             <button
                 class="upgrade-preset-btn"
@@ -2286,12 +3530,14 @@ input[type="time"] {
                 70%
             </button>
 
+
             <button
                 class="upgrade-preset-btn"
                 onclick="selectUpgradeByChance(50)"
             >
                 50%
             </button>
+
 
             <button
                 class="upgrade-preset-btn"
@@ -2300,12 +3546,14 @@ input[type="time"] {
                 30%
             </button>
 
+
             <button
                 class="upgrade-preset-btn"
                 onclick="selectUpgradeMultiplier(5)"
             >
                 x5
             </button>
+
 
             <button
                 class="upgrade-preset-btn"
@@ -2314,46 +3562,78 @@ input[type="time"] {
                 x10
             </button>
 
+
         </div>
+
+
+        <div
+            id="mysteryInfo"
+            class="mystery-info"
+        >
+            💎 Mystery Mode: ставишь один Brainrot и получаешь случайный другой. Предмет не исчезает без результата.
+        </div>
+
 
         <div
             id="savedTargetInfo"
             class="saved-target-info"
-        ></div>
+        >
+        </div>
 
-        <div class="upgrade-section-title">
+
+        <div
+            id="sourceTitle"
+            class="upgrade-section-title"
+        >
             Твой Brainrot
         </div>
+
 
         <div
             id="sourceGrid"
             class="upgrade-grid"
-        ></div>
-
-        <div class="upgrade-section-title">
-            Brainrot, который хочешь получить
+        >
         </div>
 
+
         <div
-            id="targetGrid"
-            class="upgrade-grid"
-        ></div>
+            id="targetSection"
+        >
+
+            <div class="upgrade-section-title">
+                Brainrot, который хочешь получить
+            </div>
+
+
+            <div
+                id="targetGrid"
+                class="upgrade-grid"
+            >
+            </div>
+
+        </div>
+
 
     </div>
 
 </div>
 
 
-<!-- PROFILE -->
+<!-- =====================================================
+     PROFILE
+===================================================== -->
 
 <div
     id="inventoryPage"
     class="page"
 >
 
+
     <div class="profile-card">
 
-        <div class="profile-glow"></div>
+        <div class="profile-glow">
+        </div>
+
 
         <div class="profile-top">
 
@@ -2364,6 +3644,7 @@ input[type="time"] {
                 ?
             </div>
 
+
             <div class="profile-info">
 
                 <div
@@ -2373,16 +3654,20 @@ input[type="time"] {
                     Игрок
                 </div>
 
+
                 <div
                     id="profileId"
                     class="profile-id"
-                ></div>
+                >
+                </div>
 
             </div>
 
         </div>
 
+
         <div class="profile-stats">
+
 
             <div class="profile-stat">
 
@@ -2399,6 +3684,7 @@ input[type="time"] {
 
             </div>
 
+
             <div class="profile-stat">
 
                 <div
@@ -2414,15 +3700,18 @@ input[type="time"] {
 
             </div>
 
+
         </div>
 
     </div>
+
 
     <div class="inventory-toolbar">
 
         <h3>
             🎒 Инвентарь
         </h3>
+
 
         <button
             class="sell-all-btn"
@@ -2433,10 +3722,13 @@ input[type="time"] {
 
     </div>
 
+
     <div
         id="inventory"
         class="inventory-grid"
-    ></div>
+    >
+    </div>
+
 
 </div>
 
@@ -2444,7 +3736,9 @@ input[type="time"] {
 </div>
 
 
-<!-- BOTTOM MENU -->
+<!-- =====================================================
+     BOTTOM MENU
+===================================================== -->
 
 <div class="bottom-menu">
 
@@ -2458,6 +3752,7 @@ input[type="time"] {
         Кейсы
     </button>
 
+
     <button
         id="upgraderButton"
         class="nav-btn"
@@ -2467,6 +3762,7 @@ input[type="time"] {
         <br>
         Апгрейдер
     </button>
+
 
     <button
         id="inventoryButton"
@@ -2481,7 +3777,9 @@ input[type="time"] {
 </div>
 
 
-<!-- DEPOSIT -->
+<!-- =====================================================
+     DEPOSIT
+===================================================== -->
 
 <div
     id="depositModal"
@@ -2489,6 +3787,7 @@ input[type="time"] {
 >
 
     <div class="modal">
+
 
         <div class="modal-header">
 
@@ -2505,15 +3804,19 @@ input[type="time"] {
 
         </div>
 
+
         <p>
             Выбери до 10 Brainrot.
             Garama и всё дороже.
         </p>
 
+
         <div
             id="depositGrid"
             class="deposit-grid"
-        ></div>
+        >
+        </div>
+
 
         <div class="deposit-summary">
 
@@ -2537,9 +3840,11 @@ input[type="time"] {
 
         </div>
 
+
         <div class="input-label">
             Roblox ник
         </div>
+
 
         <input
             id="depositRoblox"
@@ -2548,6 +3853,7 @@ input[type="time"] {
             autocomplete="off"
         >
 
+
         <button
             class="submit-btn"
             onclick="submitDeposit()"
@@ -2555,17 +3861,22 @@ input[type="time"] {
             ОТПРАВИТЬ ЗАЯВКУ
         </button>
 
+
         <div
             id="depositResult"
             class="result"
-        ></div>
+        >
+        </div>
+
 
     </div>
 
 </div>
 
 
-<!-- WITHDRAW -->
+<!-- =====================================================
+     WITHDRAW
+===================================================== -->
 
 <div
     id="withdrawModal"
@@ -2573,6 +3884,7 @@ input[type="time"] {
 >
 
     <div class="modal">
+
 
         <div class="modal-header">
 
@@ -2589,11 +3901,15 @@ input[type="time"] {
 
         </div>
 
-        <div id="withdrawItemInfo"></div>
+
+        <div id="withdrawItemInfo">
+        </div>
+
 
         <div class="input-label">
             Roblox ник
         </div>
+
 
         <input
             id="withdrawRoblox"
@@ -2602,9 +3918,11 @@ input[type="time"] {
             autocomplete="off"
         >
 
+
         <div class="input-label">
             Когда будешь в игре
         </div>
+
 
         <div class="time-row">
 
@@ -2625,6 +3943,7 @@ input[type="time"] {
 
         </div>
 
+
         <button
             class="submit-btn withdraw-submit"
             onclick="submitWithdraw()"
@@ -2632,17 +3951,22 @@ input[type="time"] {
             ОТПРАВИТЬ ЗАЯВКУ
         </button>
 
+
         <div
             id="withdrawResult"
             class="result"
-        ></div>
+        >
+        </div>
+
 
     </div>
 
 </div>
 
 
-<!-- SELL ALL -->
+<!-- =====================================================
+     SELL ALL
+===================================================== -->
 
 <div
     id="sellAllModal"
@@ -2650,6 +3974,7 @@ input[type="time"] {
 >
 
     <div class="modal">
+
 
         <div class="modal-header">
 
@@ -2666,18 +3991,22 @@ input[type="time"] {
 
         </div>
 
+
         <div class="warning-box">
 
             <div class="warning-title">
                 Вы точно хотите продать весь инвентарь?
             </div>
 
+
             <div
                 id="sellAllInfo"
                 class="warning-description"
-            ></div>
+            >
+            </div>
 
         </div>
+
 
         <div class="confirm-actions">
 
@@ -2687,6 +4016,7 @@ input[type="time"] {
             >
                 Отмена
             </button>
+
 
             <button
                 id="confirmSellAllButton"
@@ -2698,17 +4028,22 @@ input[type="time"] {
 
         </div>
 
+
         <div
             id="sellAllResult"
             class="result"
-        ></div>
+        >
+        </div>
+
 
     </div>
 
 </div>
 
 
-<!-- EXCHANGE -->
+<!-- =====================================================
+     EXCHANGE
+===================================================== -->
 
 <div
     id="exchangeModal"
@@ -2716,6 +4051,7 @@ input[type="time"] {
 >
 
     <div class="modal">
+
 
         <div class="modal-header">
 
@@ -2732,24 +4068,32 @@ input[type="time"] {
 
         </div>
 
+
         <div
             id="exchangeSource"
             class="exchange-source"
-        ></div>
+        >
+        </div>
+
 
         <div class="exchange-title">
             Выбери, на что обменять
         </div>
 
+
         <div
             id="exchangeGrid"
             class="exchange-grid"
-        ></div>
+        >
+        </div>
+
 
         <div
             id="exchangeResult"
             class="result"
-        ></div>
+        >
+        </div>
+
 
     </div>
 
@@ -2757,6 +4101,7 @@ input[type="time"] {
 
 
 <script>
+
 
 /* =====================================================
    TELEGRAM
@@ -2837,6 +4182,10 @@ let exchanging =
     false;
 
 
+let mysteryMode =
+    false;
+
+
 let needleRotation =
     0;
 
@@ -2913,7 +4262,8 @@ const BRAINROT_IMAGES = {
 function normalizeName(name) {
 
     return String(
-        name || ""
+        name ||
+        ""
     )
     .trim()
     .toLowerCase();
@@ -2967,21 +4317,27 @@ async function apiRequest(data) {
         await fetch(
             FUNCTION_URL,
             {
+
                 method:
                     "POST",
 
                 headers: {
+
                     "Content-Type":
                         "application/json"
+
                 },
 
                 body:
                     JSON.stringify({
+
                         ...data,
 
                         initData:
                             tg.initData
+
                     })
+
             }
         );
 
@@ -3105,6 +4461,8 @@ async function loadPlayer() {
         updateUpgradeUI();
 
         updateSavedTargetInfo();
+
+        updateMysteryUI();
 
     }
 
@@ -3269,7 +4627,9 @@ function renderProfile() {
                 ||
                 "B"
             )
-            .charAt(0)
+            .charAt(
+                0
+            )
             .toUpperCase();
 
 
@@ -3378,6 +4738,8 @@ function showPage(page) {
 
         updateSavedTargetInfo();
 
+        updateMysteryUI();
+
     }
 
 }
@@ -3422,7 +4784,8 @@ function setCaseCount(count) {
                 .classList
                 .toggle(
                     "active",
-                    value === count
+                    value ===
+                    count
                 );
 
         }
@@ -3439,7 +4802,8 @@ function setCaseCount(count) {
 function toggleCaseSpeed() {
 
     caseSpeed =
-        caseSpeed === 1
+        caseSpeed ===
+        1
         ?
         5
         :
@@ -3453,7 +4817,8 @@ function toggleCaseSpeed() {
         .classList
         .toggle(
             "active",
-            caseSpeed === 5
+            caseSpeed ===
+            5
         );
 
 }
@@ -3462,12 +4827,15 @@ function toggleCaseSpeed() {
 function toggleUpgradeSpeed() {
 
     if (upgrading) {
+
         return;
+
     }
 
 
     upgradeSpeed =
-        upgradeSpeed === 1
+        upgradeSpeed ===
+        1
         ?
         5
         :
@@ -3481,7 +4849,8 @@ function toggleUpgradeSpeed() {
         .classList
         .toggle(
             "active",
-            upgradeSpeed === 5
+            upgradeSpeed ===
+            5
         );
 
 }
@@ -3541,7 +4910,8 @@ function updateTotalCasePrice() {
 
 
     element.style.color =
-        coins < total
+        coins <
+        total
         ?
         "#f87171"
         :
@@ -3567,7 +4937,8 @@ function updateSpinButtonText() {
 
 
     button.innerText =
-        caseOpenCount === 1
+        caseOpenCount ===
+        1
         ?
         "🎰 КРУТИТЬ"
         :
@@ -4153,8 +5524,10 @@ async function animateCase(winner) {
         ) {
 
             item = {
+
                 brainrot_name:
                     winner.brainrot_name
+
             };
 
         }
@@ -4220,12 +5593,14 @@ async function animateCase(winner) {
     const winnerCenter =
         winnerCard.offsetLeft
         +
-        winnerCard.offsetWidth /
+        winnerCard.offsetWidth
+        /
         2;
 
 
     const containerCenter =
-        container.clientWidth /
+        container.clientWidth
+        /
         2;
 
 
@@ -4236,7 +5611,8 @@ async function animateCase(winner) {
 
 
     const animationTime =
-        4200 /
+        4200
+        /
         caseSpeed;
 
 
@@ -4253,8 +5629,9 @@ async function animateCase(winner) {
 
             setTimeout(
                 resolve,
-                animationTime +
-                100
+                animationTime
+                +
+                80
             )
     );
 
@@ -4268,7 +5645,8 @@ async function animateCase(winner) {
 async function openSelectedCase() {
 
     if (
-        !selectedCase ||
+        !selectedCase
+        ||
         caseSpinning
     ) {
 
@@ -4296,7 +5674,8 @@ async function openSelectedCase() {
 
 
     if (
-        coins <
+        coins
+        <
         totalCost
     ) {
 
@@ -4372,7 +5751,8 @@ async function openSelectedCase() {
             if (!data.ok) {
 
                 throw new Error(
-                    data.error ||
+                    data.error
+                    ||
                     "Ошибка открытия кейса"
                 );
 
@@ -4412,7 +5792,8 @@ async function openSelectedCase() {
 
         await animateCase(
             winners[
-                winners.length -
+                winners.length
+                -
                 1
             ]
         );
@@ -4538,7 +5919,8 @@ async function openSelectedCase() {
             "❌ "
             +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка"
             );
 
@@ -4559,7 +5941,7 @@ async function openSelectedCase() {
 
 
 /* =====================================================
-   SELL ONE
+   SELL
 ===================================================== */
 
 async function quickSellCaseItem(id) {
@@ -4727,8 +6109,8 @@ async function quickSellMany(ids) {
 
 
     for (
-        const id of
-        ids
+        const id
+        of ids
     ) {
 
         const data =
@@ -4972,8 +6354,10 @@ function getSellAllData() {
 
 
     return {
+
         available,
         total
+
     };
 
 }
@@ -5190,7 +6574,8 @@ async function confirmSellAll() {
             "❌ "
             +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка"
             );
 
@@ -5230,7 +6615,8 @@ function openExchangeModal(inventoryId) {
 
 
     if (
-        !selectedExchangeItem ||
+        !selectedExchangeItem
+        ||
         selectedExchangeItem.locked
     ) {
 
@@ -5407,7 +6793,8 @@ function renderExchangeOptions() {
 
             const quantity =
                 Math.floor(
-                    sourceValue /
+                    sourceValue
+                    /
                     value
                 );
 
@@ -5415,7 +6802,8 @@ function renderExchangeOptions() {
             const remainder =
                 sourceValue
                 -
-                quantity *
+                quantity
+                *
                 value;
 
 
@@ -5480,7 +6868,8 @@ function renderExchangeOptions() {
 async function exchangeItem(targetBrainrotId) {
 
     if (
-        exchanging ||
+        exchanging
+        ||
         !selectedExchangeItem
     ) {
 
@@ -5647,7 +7036,8 @@ async function exchangeItem(targetBrainrotId) {
             "❌ "
             +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка обмена"
             );
 
@@ -5707,14 +7097,194 @@ function getTarget() {
 
 
 /* =====================================================
-   UPGRADE LOCK
+   MYSTERY MODE
+===================================================== */
+
+function toggleMysteryMode() {
+
+    if (upgrading) {
+
+        return;
+
+    }
+
+
+    mysteryMode =
+        !mysteryMode;
+
+
+    if (mysteryMode) {
+
+        selectedTargetId =
+            null;
+
+    }
+
+
+    updateMysteryUI();
+
+    renderSourceGrid();
+
+    renderTargetGrid();
+
+    updateUpgradeUI();
+
+    updateSavedTargetInfo();
+
+}
+
+
+function disableMysteryMode() {
+
+    if (!mysteryMode) {
+
+        return;
+
+    }
+
+
+    mysteryMode =
+        false;
+
+
+    updateMysteryUI();
+
+}
+
+
+function updateMysteryUI() {
+
+    const mysteryButton =
+        document
+            .getElementById(
+                "mysteryButton"
+            );
+
+
+    const wheel =
+        document
+            .getElementById(
+                "upgradeWheel"
+            );
+
+
+    const wheelText =
+        document
+            .getElementById(
+                "wheelText"
+            );
+
+
+    const chanceText =
+        document
+            .getElementById(
+                "chanceText"
+            );
+
+
+    const upgradeButton =
+        document
+            .getElementById(
+                "upgradeButton"
+            );
+
+
+    const mysteryInfo =
+        document
+            .getElementById(
+                "mysteryInfo"
+            );
+
+
+    const targetSection =
+        document
+            .getElementById(
+                "targetSection"
+            );
+
+
+    mysteryButton
+        .classList
+        .toggle(
+            "active",
+            mysteryMode
+        );
+
+
+    wheel
+        .classList
+        .toggle(
+            "mystery-wheel",
+            mysteryMode
+        );
+
+
+    wheelText
+        .classList
+        .toggle(
+            "mystery-text",
+            mysteryMode
+        );
+
+
+    upgradeButton
+        .classList
+        .toggle(
+            "mystery-upgrade-btn",
+            mysteryMode
+        );
+
+
+    if (mysteryMode) {
+
+        chanceText.innerText =
+            "?";
+
+
+        wheelText.innerText =
+            "?";
+
+
+        upgradeButton.innerText =
+            "💎 MYSTERY";
+
+
+        mysteryInfo.style.display =
+            "block";
+
+
+        targetSection.style.display =
+            "none";
+
+    }
+
+    else {
+
+        mysteryInfo.style.display =
+            "none";
+
+
+        targetSection.style.display =
+            "block";
+
+
+        upgradeButton.innerText =
+            "⚡ АПГРЕЙД";
+
+    }
+
+}
+
+
+/* =====================================================
+   LOCK UPGRADE
 ===================================================== */
 
 function lockUpgradeControls() {
 
     document
         .querySelectorAll(
-            ".upgrade-preset-btn, .upgrade-choice"
+            ".upgrade-preset-btn, .upgrade-choice, .mystery-crystal"
         )
         .forEach(
             element => {
@@ -5750,7 +7320,7 @@ function unlockUpgradeControls() {
 
     document
         .querySelectorAll(
-            ".upgrade-preset-btn, .upgrade-choice"
+            ".upgrade-preset-btn, .upgrade-choice, .mystery-crystal"
         )
         .forEach(
             element => {
@@ -5844,6 +7414,10 @@ function renderSourceGrid() {
             ) {
 
                 card.classList.add(
+                    mysteryMode
+                    ?
+                    "mystery-source-selected"
+                    :
                     "selected"
                 );
 
@@ -5886,23 +7460,28 @@ function renderSourceGrid() {
                         item.id;
 
 
-                    const savedTarget =
-                        getTarget();
+                    if (!mysteryMode) {
+
+                        const savedTarget =
+                            getTarget();
 
 
-                    if (
-                        savedTarget &&
-                        Number(
-                            savedTarget.value
-                        )
-                        <=
-                        Number(
-                            item.value
-                        )
-                    ) {
+                        if (
+                            savedTarget
+                            &&
+                            Number(
+                                savedTarget.value
+                            )
+                            <=
+                            Number(
+                                item.value
+                            )
+                        ) {
 
-                        selectedTargetId =
-                            null;
+                            selectedTargetId =
+                                null;
+
+                        }
 
                     }
 
@@ -5943,6 +7522,13 @@ function renderTargetGrid() {
 
     box.innerHTML =
         "";
+
+
+    if (mysteryMode) {
+
+        return;
+
+    }
 
 
     const source =
@@ -6101,7 +7687,8 @@ function calculateChance(
 ) {
 
     if (
-        !source ||
+        !source
+        ||
         !target
     ) {
 
@@ -6157,6 +7744,29 @@ function calculateChance(
 
 function updateUpgradeUI() {
 
+    if (mysteryMode) {
+
+        document
+            .getElementById(
+                "chanceText"
+            )
+            .innerText =
+                "?";
+
+
+        document
+            .getElementById(
+                "wheelText"
+            )
+            .innerText =
+                "?";
+
+
+        return;
+
+    }
+
+
     const chance =
         calculateChance(
             getSource(),
@@ -6191,7 +7801,8 @@ function updateUpgradeUI() {
         .style
         .setProperty(
             "--green-angle",
-            chance *
+            chance
+            *
             3.6
             +
             "deg"
@@ -6211,6 +7822,16 @@ function updateSavedTargetInfo() {
             .getElementById(
                 "savedTargetInfo"
             );
+
+
+    if (mysteryMode) {
+
+        box.style.display =
+            "none";
+
+        return;
+
+    }
 
 
     const target =
@@ -6256,6 +7877,13 @@ function selectUpgradeByChance(
     if (upgrading) {
 
         return;
+
+    }
+
+
+    if (mysteryMode) {
+
+        disableMysteryMode();
 
     }
 
@@ -6315,13 +7943,15 @@ function selectUpgradeByChance(
 
             const diff =
                 Math.abs(
-                    chance -
+                    chance
+                    -
                     wantedChance
                 );
 
 
             if (
-                diff <
+                diff
+                <
                 difference
             ) {
 
@@ -6348,7 +7978,11 @@ function selectUpgradeByChance(
         best.brainrot_id;
 
 
+    updateMysteryUI();
+
     renderTargetGrid();
+
+    renderSourceGrid();
 
     updateUpgradeUI();
 
@@ -6368,6 +8002,13 @@ function selectUpgradeMultiplier(
     if (upgrading) {
 
         return;
+
+    }
+
+
+    if (mysteryMode) {
+
+        disableMysteryMode();
 
     }
 
@@ -6437,7 +8078,8 @@ function selectUpgradeMultiplier(
 
 
             if (
-                diff <
+                diff
+                <
                 difference
             ) {
 
@@ -6464,7 +8106,11 @@ function selectUpgradeMultiplier(
         best.brainrot_id;
 
 
+    updateMysteryUI();
+
     renderTargetGrid();
+
+    renderSourceGrid();
 
     updateUpgradeUI();
 
@@ -6488,7 +8134,8 @@ function randomBetween(
         Math.random()
         *
         (
-            max -
+            max
+            -
             min
         )
     );
@@ -6509,7 +8156,8 @@ async function spinNeedle(
 
 
     const green =
-        chance *
+        chance
+        *
         3.6;
 
 
@@ -6519,15 +8167,18 @@ async function spinNeedle(
     if (win) {
 
         target =
-            green <=
+            green
+            <=
             8
             ?
-            green /
+            green
+            /
             2
             :
             randomBetween(
                 4,
-                green -
+                green
+                -
                 4
             );
 
@@ -6537,7 +8188,8 @@ async function spinNeedle(
 
         target =
             randomBetween(
-                green +
+                green
+                +
                 5,
                 355
             );
@@ -6580,14 +8232,16 @@ async function spinNeedle(
 
 
     needleRotation +=
-        turns *
+        turns
+        *
         360
         +
         delta;
 
 
     const time =
-        4000 /
+        4000
+        /
         upgradeSpeed;
 
 
@@ -6601,9 +8255,79 @@ async function spinNeedle(
 
     await new Promise(
         resolve =>
+
             setTimeout(
                 resolve,
-                time +
+                time
+                +
+                50
+            )
+    );
+
+}
+
+
+/* =====================================================
+   MYSTERY PREVIEW ANIMATION
+   SERVER WILL BE ADDED NEXT
+===================================================== */
+
+async function spinMysteryVisual() {
+
+    const rotor =
+        document
+            .getElementById(
+                "needleRotor"
+            );
+
+
+    const turns =
+        4
+        +
+        Math.floor(
+            Math.random()
+            *
+            3
+        );
+
+
+    const randomAngle =
+        Math.floor(
+            Math.random()
+            *
+            360
+        );
+
+
+    needleRotation +=
+        turns
+        *
+        360
+        +
+        randomAngle;
+
+
+    const time =
+        3400
+        /
+        upgradeSpeed;
+
+
+    rotor.style.transition =
+        `transform ${time}ms cubic-bezier(.10,.72,.10,1)`;
+
+
+    rotor.style.transform =
+        `rotate(${needleRotation}deg)`;
+
+
+    await new Promise(
+        resolve =>
+
+            setTimeout(
+                resolve,
+                time
+                +
                 50
             )
     );
@@ -6628,10 +8352,6 @@ async function upgradeItem() {
         getSource();
 
 
-    const target =
-        getTarget();
-
-
     const result =
         document
             .getElementById(
@@ -6647,6 +8367,25 @@ async function upgradeItem() {
         return;
 
     }
+
+
+    /*
+       Пока серверный Mystery ещё не добавлен.
+       Не позволяем потратить предмет.
+    */
+
+    if (mysteryMode) {
+
+        result.innerText =
+            "💎 Mystery Mode уже добавлен визуально.\nСледующий шаг — подключить его в telegram-player.";
+
+        return;
+
+    }
+
+
+    const target =
+        getTarget();
 
 
     if (!target) {
@@ -6742,9 +8481,7 @@ async function upgradeItem() {
         }
 
 
-        if (
-            data.win
-        ) {
+        if (data.win) {
 
             inventory.unshift(
                 data.item
@@ -6808,7 +8545,8 @@ async function upgradeItem() {
             "❌ "
             +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка"
             );
 
@@ -6840,6 +8578,7 @@ function getGaramaValue() {
     const garama =
         brainrots.find(
             item => {
+
 
                 const name =
                     normalizeName(
@@ -7057,10 +8796,12 @@ function changeDepositQuantity(
 
 
     if (
-        delta >
+        delta
+        >
         0
         &&
-        getDepositCount() >=
+        getDepositCount()
+        >=
         10
     ) {
 
@@ -7076,7 +8817,8 @@ function changeDepositQuantity(
     const next =
         Math.max(
             0,
-            current +
+            current
+            +
             delta
         );
 
@@ -7301,7 +9043,8 @@ async function submitDeposit() {
 
 
     if (
-        username.length <
+        username.length
+        <
         3
     ) {
 
@@ -7360,7 +9103,8 @@ async function submitDeposit() {
             "❌ "
             +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка"
             );
 
@@ -7521,7 +9265,8 @@ function buildWithdrawDate(
 
 
     if (
-        parts.length !==
+        parts.length
+        !==
         2
     ) {
 
@@ -7587,7 +9332,8 @@ function buildWithdrawDate(
 
 
         if (
-            month >
+            month
+            >
             11
         ) {
 
@@ -7662,7 +9408,8 @@ async function submitWithdraw() {
 
 
     if (
-        username.length <
+        username.length
+        <
         3
     ) {
 
@@ -7675,8 +9422,10 @@ async function submitWithdraw() {
 
 
     if (
-        !day ||
-        day < 1 ||
+        !day
+        ||
+        day < 1
+        ||
         day > 31
     ) {
 
@@ -7800,7 +9549,8 @@ async function submitWithdraw() {
             "❌ "
             +
             (
-                error.message ||
+                error.message
+                ||
                 "Ошибка"
             );
 
@@ -7818,4 +9568,5 @@ loadPlayer();
 </script>
 
 </body>
+
 </html>
