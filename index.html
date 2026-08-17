@@ -49,7 +49,6 @@ button {
     transition:
         transform .14s ease,
         opacity .14s ease,
-        filter .14s ease,
         background .14s ease,
         box-shadow .14s ease;
 }
@@ -189,18 +188,24 @@ button:disabled {
 
 
 /* ================================
-   CASE LIST
+   CASE GRID 2 PER ROW
 ================================ */
 
 .case-list {
     display: grid;
-    gap: 13px;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap: 10px;
 }
 
 .case-card {
-    padding: 15px;
+    min-width: 0;
 
-    border-radius: 20px;
+    padding: 11px 8px;
+
+    border-radius: 17px;
 
     cursor: pointer;
 
@@ -215,7 +220,7 @@ button:disabled {
         1px solid rgba(148,163,184,.08);
 
     box-shadow:
-        0 10px 30px rgba(0,0,0,.18);
+        0 8px 22px rgba(0,0,0,.17);
 
     transition:
         transform .15s ease,
@@ -229,40 +234,52 @@ button:disabled {
 }
 
 .case-card:active {
-    transform: scale(.975);
+    transform: scale(.97);
 }
 
 .case-name {
-    font-size: 20px;
+    min-height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+    line-height: 1.15;
+
     font-weight: 800;
 }
 
 .case-price {
-    margin: 7px 0;
+    margin: 5px 0 7px;
 
-    opacity: .8;
+    font-size: 12px;
+
+    color: #facc15;
 }
 
 .case-preview {
-    display: flex;
-    justify-content: center;
+    display: grid;
 
-    gap: 5px;
+    grid-template-columns:
+        repeat(3,1fr);
 
-    margin: 10px 0;
+    gap: 3px;
+
+    margin: 7px 0;
 
     overflow: hidden;
 }
 
 .preview-img {
-    width: 50px;
-    height: 50px;
+    width: 100%;
+    height: 43px;
 
     object-fit: contain;
 
     padding: 2px;
 
-    border-radius: 10px;
+    border-radius: 8px;
 
     background:
         radial-gradient(
@@ -273,11 +290,11 @@ button:disabled {
 }
 
 .case-tap-hint {
-    margin-top: 7px;
+    margin-top: 6px;
 
-    font-size: 11px;
+    font-size: 9px;
 
-    opacity: .5;
+    opacity: .45;
 }
 
 
@@ -575,6 +592,106 @@ button:disabled {
 
 
 /* ================================
+   CASE CONTENT
+================================ */
+
+.case-content-box {
+    margin-top: 14px;
+
+    padding: 12px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(15,23,42,.6);
+
+    border:
+        1px solid rgba(148,163,184,.1);
+}
+
+.case-content-title {
+    margin-bottom: 9px;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    color: #cbd5e1;
+}
+
+.case-content-list {
+    display: grid;
+
+    gap: 6px;
+}
+
+.case-content-item {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    padding: 7px 8px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(30,41,59,.65);
+
+    font-size: 11px;
+}
+
+.case-content-left {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-width: 0;
+}
+
+.case-content-img {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    object-fit: contain;
+
+    border-radius: 7px;
+
+    background:
+        radial-gradient(
+            circle,
+            #172033,
+            #0b1220
+        );
+}
+
+.case-content-name {
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+.case-content-value {
+    flex: 0 0 auto;
+
+    color: #facc15;
+
+    font-weight: 800;
+}
+
+
+/* ================================
    CASE RESULT
 ================================ */
 
@@ -791,9 +908,6 @@ button:disabled {
         0 7px 20px rgba(147,51,234,.25);
 }
 
-
-/* QUICK PRESETS */
-
 .upgrade-section-title {
     margin: 12px 0 7px;
 
@@ -837,18 +951,6 @@ button:disabled {
         1px solid rgba(148,163,184,.12);
 }
 
-.upgrade-preset-btn.active {
-    background:
-        linear-gradient(
-            135deg,
-            #9333ea,
-            #6d28d9
-        );
-
-    box-shadow:
-        0 0 14px rgba(147,51,234,.4);
-}
-
 .saved-target-info {
     display: none;
 
@@ -865,9 +967,6 @@ button:disabled {
 
     color: #c4b5fd;
 }
-
-
-/* UPGRADER ITEMS */
 
 .upgrade-grid {
     display: grid;
@@ -889,15 +988,6 @@ button:disabled {
 
     border:
         2px solid #334155;
-
-    transition:
-        transform .14s ease,
-        border-color .14s ease,
-        box-shadow .14s ease;
-}
-
-.upgrade-choice:active {
-    transform: scale(.95);
 }
 
 .upgrade-choice.selected {
@@ -1122,9 +1212,6 @@ button:disabled {
 
     background: #334155;
 }
-
-
-/* INPUT */
 
 .text-input {
     width: 100%;
@@ -1368,10 +1455,9 @@ input[type="time"] {
 </style>
 </head>
 
+
 <body>
 
-
-<!-- TOP -->
 
 <div class="topbar">
 
@@ -1400,9 +1486,7 @@ input[type="time"] {
 <div class="game">
 
 
-<!-- ================================
-     CASES
-================================ -->
+<!-- CASES -->
 
 <div
     id="casesPage"
@@ -1431,8 +1515,7 @@ input[type="time"] {
 
 <div class="case-title-row">
 
-<h2 id="activeCaseName">
-</h2>
+<h2 id="activeCaseName"></h2>
 
 <button
     id="speedButton"
@@ -1453,8 +1536,7 @@ input[type="time"] {
         opacity:.75;
         font-size:13px;
     "
->
-</div>
+></div>
 
 
 <div
@@ -1466,14 +1548,12 @@ input[type="time"] {
 ▼
 </div>
 
-<div class="roulette-line">
-</div>
+<div class="roulette-line"></div>
 
 <div
     id="rouletteTrack"
     class="roulette-track"
->
-</div>
+></div>
 
 </div>
 
@@ -1532,25 +1612,36 @@ x5
 </button>
 
 
-<div id="quickSellArea">
-</div>
+<div id="quickSellArea"></div>
 
 <div
     id="caseResult"
     class="result"
->
+></div>
+
+
+<div class="case-content-box">
+
+<div class="case-content-title">
+📦 Содержимое кейса
+</div>
+
+<div
+    id="caseContentList"
+    class="case-content-list"
+></div>
+
+</div>
+
+
 </div>
 
 </div>
 
 </div>
 
-</div>
 
-
-<!-- ================================
-     UPGRADER
-================================ -->
+<!-- UPGRADER -->
 
 <div
     id="upgraderPage"
@@ -1579,8 +1670,6 @@ x5
 <div class="upgrader-main">
 
 
-<!-- WHEEL -->
-
 <div class="upgrade-wheel-section">
 
 <h3>
@@ -1596,16 +1685,14 @@ x5
 <div
     id="upgradeWheel"
     class="upgrade-wheel"
->
-</div>
+></div>
 
 <div
     id="needleRotor"
     class="needle-rotor"
 >
 
-<div class="upgrade-needle">
-</div>
+<div class="upgrade-needle"></div>
 
 </div>
 
@@ -1631,13 +1718,10 @@ x5
 <div
     id="upgradeResult"
     class="result"
->
-</div>
+></div>
 
 </div>
 
-
-<!-- PRESETS -->
 
 <div class="upgrade-preset-section">
 
@@ -1688,13 +1772,10 @@ x10
 <div
     id="savedTargetInfo"
     class="saved-target-info"
->
-</div>
+></div>
 
 </div>
 
-
-<!-- ITEMS -->
 
 <div class="upgrade-select-section">
 
@@ -1705,8 +1786,7 @@ x10
 <div
     id="sourceGrid"
     class="upgrade-grid"
->
-</div>
+></div>
 
 
 <div class="upgrade-section-title">
@@ -1716,8 +1796,7 @@ Brainrot, который хочешь получить
 <div
     id="targetGrid"
     class="upgrade-grid"
->
-</div>
+></div>
 
 </div>
 
@@ -1729,9 +1808,7 @@ Brainrot, который хочешь получить
 </div>
 
 
-<!-- ================================
-     INVENTORY
-================================ -->
+<!-- INVENTORY -->
 
 <div
     id="inventoryPage"
@@ -1742,8 +1819,7 @@ Brainrot, который хочешь получить
 🎒 Инвентарь
 </h2>
 
-<div id="inventory">
-</div>
+<div id="inventory"></div>
 
 </div>
 
@@ -1751,9 +1827,7 @@ Brainrot, который хочешь получить
 </div>
 
 
-<!-- ================================
-     BOTTOM MENU
-================================ -->
+<!-- MENU -->
 
 <div class="bottom-menu">
 
@@ -1790,9 +1864,7 @@ Brainrot, который хочешь получить
 </div>
 
 
-<!-- ================================
-     DEPOSIT
-================================ -->
+<!-- DEPOSIT -->
 
 <div
     id="depositModal"
@@ -1826,28 +1898,19 @@ Garama и всё дороже.
 <div
     id="depositGrid"
     class="deposit-grid"
->
-</div>
+></div>
 
 
 <div class="deposit-summary">
 
 Выбрано:
-
-<b id="depositCount">
-0
-</b>
-
+<b id="depositCount">0</b>
 / 10
 
 <br><br>
 
 Будет начислено:
-
-<b id="depositTotal">
-0
-</b>
-
+<b id="depositTotal">0</b>
 монет
 
 </div>
@@ -1876,17 +1939,14 @@ Roblox ник
 <div
     id="depositResult"
     class="result"
->
-</div>
+></div>
 
 </div>
 
 </div>
 
 
-<!-- ================================
-     WITHDRAW
-================================ -->
+<!-- WITHDRAW -->
 
 <div
     id="withdrawModal"
@@ -1911,8 +1971,7 @@ Roblox ник
 </div>
 
 
-<div id="withdrawItemInfo">
-</div>
+<div id="withdrawItemInfo"></div>
 
 
 <div class="input-label">
@@ -1975,8 +2034,7 @@ Roblox ник
 <div
     id="withdrawResult"
     class="result"
->
-</div>
+></div>
 
 </div>
 
@@ -1984,7 +2042,6 @@ Roblox ник
 
 
 <script>
-
 
 const tg =
     window.Telegram.WebApp;
@@ -2065,7 +2122,19 @@ const BRAINROT_IMAGES = {
         "./cerberus.png",
 
     "cash or card":
-        "./cashorcard.png"
+        "./cashorcard.png",
+
+    "popcuru and fizzuru":
+        "./popcuru.png",
+
+    "capitano moby":
+        "./capitano.png",
+
+    "burguru and fryuro":
+        "./burguru.png",
+
+    "la secret":
+        "./lasecret.png"
 
 };
 
@@ -2090,6 +2159,24 @@ function getImage(name) {
         ||
         ""
     );
+
+}
+
+
+function getBrainrotDataByName(name) {
+
+    return brainrots.find(
+        item =>
+            normalizeName(
+                item.name
+            )
+            ===
+            normalizeName(
+                name
+            )
+    )
+    ||
+    null;
 
 }
 
@@ -2133,9 +2220,7 @@ async function apiRequest(data) {
 }
 
 
-/* ================================
-   LOAD
-================================ */
+/* LOAD */
 
 async function loadPlayer() {
 
@@ -2238,9 +2323,7 @@ function updateBalance() {
 }
 
 
-/* ================================
-   PAGES
-================================ */
+/* PAGES */
 
 function showPage(page) {
 
@@ -2324,9 +2407,7 @@ function showPage(page) {
 }
 
 
-/* ================================
-   CASE SETTINGS
-================================ */
+/* CASE SETTINGS */
 
 function setCaseCount(count) {
 
@@ -2511,9 +2592,7 @@ function updateSpinButtonText() {
 }
 
 
-/* ================================
-   CASE LIST
-================================ */
+/* CASE LIST */
 
 function renderCases() {
 
@@ -2573,7 +2652,7 @@ function renderCases() {
                 items
                     .slice(
                         0,
-                        5
+                        6
                     )
                     .map(
                         item => `
@@ -2659,9 +2738,138 @@ function renderCases() {
 }
 
 
-/* ================================
-   CASE
-================================ */
+/* CASE CONTENT */
+
+function renderCaseContent() {
+
+    const box =
+        document
+            .getElementById(
+                "caseContentList"
+            );
+
+
+    box.innerHTML =
+        "";
+
+
+    if (!selectedCase) {
+        return;
+    }
+
+
+    const items =
+        caseItems
+            .filter(
+                item =>
+                    Number(
+                        item.case_id
+                    )
+                    ===
+                    Number(
+                        selectedCase.id
+                    )
+            )
+            .map(
+                item => {
+
+                    const brainrot =
+                        getBrainrotDataByName(
+                            item.brainrot_name
+                        );
+
+
+                    return {
+
+                        name:
+                            item.brainrot_name,
+
+                        value:
+                            brainrot
+                            ?
+                            Number(
+                                brainrot.value
+                            )
+                            :
+                            0
+
+                    };
+
+                }
+            )
+            .sort(
+                (
+                    a,
+                    b
+                ) =>
+                    b.value -
+                    a.value
+            );
+
+
+    if (!items.length) {
+
+        box.innerHTML =
+            "Нет содержимого";
+
+        return;
+
+    }
+
+
+    items.forEach(
+        item => {
+
+
+            const div =
+                document
+                    .createElement(
+                        "div"
+                    );
+
+
+            div.className =
+                "case-content-item";
+
+
+            div.innerHTML = `
+
+                <div class="case-content-left">
+
+                    <img
+                        class="case-content-img"
+                        src="${getImage(item.name)}"
+                    >
+
+                    <div class="case-content-name">
+
+                        ${item.name}
+
+                    </div>
+
+                </div>
+
+
+                <div class="case-content-value">
+
+                    ${item.value} 🪙
+
+                </div>
+
+            `;
+
+
+            box.appendChild(
+                div
+            );
+
+        }
+    );
+
+}
+
+
+/* CASE */
 
 function selectCase(id) {
 
@@ -2739,6 +2947,8 @@ function selectCase(id) {
 
     createIdleRoulette();
 
+    renderCaseContent();
+
     updateSpinButtonText();
 
     updateTotalCasePrice();
@@ -2758,7 +2968,7 @@ function closeCase() {
         )
         .style
         .display =
-            "block";
+            "grid";
 
 
     document
@@ -3359,9 +3569,7 @@ async function openSelectedCase() {
 }
 
 
-/* ================================
-   SELL
-================================ */
+/* SELL */
 
 async function quickSellCaseItem(id) {
 
@@ -3558,9 +3766,7 @@ async function quickSellMany(ids) {
 }
 
 
-/* ================================
-   INVENTORY
-================================ */
+/* INVENTORY */
 
 function renderInventory() {
 
@@ -3782,9 +3988,7 @@ async function sellItem(id) {
 }
 
 
-/* ================================
-   UPGRADER HELPERS
-================================ */
+/* UPGRADER */
 
 function getSource() {
 
@@ -3920,15 +4124,6 @@ function renderSourceGrid() {
 
                     selectedSourceId =
                         item.id;
-
-
-                    /*
-                    Сохраняем выбранную цель.
-
-                    Но если цель уже не дороже
-                    выбранного Brainrot,
-                    тогда цель сбрасываем.
-                    */
 
 
                     const savedTarget =
@@ -4121,10 +4316,6 @@ function renderTargetGrid() {
 }
 
 
-/* ================================
-   CHANCE
-================================ */
-
 function calculateChance(
     source,
     target
@@ -4226,10 +4417,6 @@ function updateUpgradeUI() {
 }
 
 
-/* ================================
-   SAVED TARGET
-================================ */
-
 function updateSavedTargetInfo() {
 
     const box =
@@ -4278,10 +4465,6 @@ function updateSavedTargetInfo() {
 
 }
 
-
-/* ================================
-   PRESET CHANCE
-================================ */
 
 function selectUpgradeByChance(
     wantedChance
@@ -4390,16 +4573,11 @@ function selectUpgradeByChance(
 
     updateSavedTargetInfo();
 
-
     result.innerText =
         "";
 
 }
 
-
-/* ================================
-   PRESET MULTIPLIER
-================================ */
 
 function selectUpgradeMultiplier(
     multiplier
@@ -4516,16 +4694,11 @@ function selectUpgradeMultiplier(
 
     updateSavedTargetInfo();
 
-
     result.innerText =
         "";
 
 }
 
-
-/* ================================
-   NEEDLE
-================================ */
 
 function randomBetween(
     min,
@@ -4665,10 +4838,6 @@ async function spinNeedle(
 
 }
 
-
-/* ================================
-   UPGRADE
-================================ */
 
 async function upgradeItem() {
 
@@ -4828,12 +4997,6 @@ async function upgradeItem() {
         }
 
 
-        /*
-        ИСТОЧНИК СБРАСЫВАЕМ,
-        НО ЦЕЛЬ СОХРАНЯЕМ
-        */
-
-
         selectedSourceId =
             null;
 
@@ -4871,9 +5034,7 @@ async function upgradeItem() {
 }
 
 
-/* ================================
-   DEPOSIT
-================================ */
+/* DEPOSIT */
 
 function getGaramaValue() {
 
@@ -5417,9 +5578,7 @@ async function submitDeposit() {
 }
 
 
-/* ================================
-   WITHDRAW
-================================ */
+/* WITHDRAW */
 
 function openWithdrawModal(
     inventoryId
@@ -5865,9 +6024,7 @@ async function submitWithdraw() {
 }
 
 
-/* ================================
-   START
-================================ */
+/* START */
 
 loadPlayer();
 
