@@ -26,13 +26,8 @@
 html,
 body{
     margin:0;
-
     min-height:100%;
-
-    font-family:
-        Arial,
-        sans-serif;
-
+    font-family:Arial,sans-serif;
     color:#fff;
 
     background:
@@ -51,39 +46,27 @@ body{
 
 button{
     border:0;
-
     outline:0;
-
     font-family:inherit;
-
     font-weight:800;
-
     cursor:pointer;
 }
 
 button:disabled{
     cursor:default;
-
     opacity:.45;
 }
 
 img{
     user-select:none;
-
     -webkit-user-drag:none;
 }
 
 .game{
     width:100%;
-
     max-width:540px;
-
     margin:auto;
-
-    padding:
-        12px
-        10px
-        105px;
+    padding:12px 10px 105px;
 }
 
 .page{
@@ -101,114 +84,58 @@ img{
 
 .topbar{
     position:sticky;
-
     top:0;
-
     z-index:100;
 
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
-    padding:
-        10px
-        12px;
+    padding:10px 12px;
 
-    background:
-        rgba(
-            8,
-            14,
-            27,
-            .92
-        );
+    background:rgba(8,14,27,.92);
+    backdrop-filter:blur(17px);
 
-    backdrop-filter:
-        blur(17px);
+    border-bottom:1px solid rgba(255,255,255,.06);
 
-    border-bottom:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
-
-    box-shadow:
-        0
-        8px
-        25px
-        rgba(
-            0,
-            0,
-            0,
-            .25
-        );
+    box-shadow:0 8px 25px rgba(0,0,0,.25);
 }
 
 .logo{
     font-size:18px;
-
     font-weight:1000;
 }
 
 .top-right{
     display:flex;
-
     align-items:center;
-
     gap:6px;
 }
 
 .balance-box{
     display:flex;
-
     align-items:center;
 
-    padding:
-        9px
-        10px;
+    padding:9px 10px;
 
     border-radius:12px;
 
-    background:
-        linear-gradient(
-            145deg,
-            #202c40,
-            #172033
-        );
+    background:linear-gradient(145deg,#202c40,#172033);
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
+    border:1px solid rgba(255,255,255,.06);
 
     font-size:13px;
-
     font-weight:900;
 }
 
 .coin{
     margin-right:5px;
-
     font-size:17px;
 }
 
 .deposit-top{
-    padding:
-        10px
-        11px;
-
+    padding:10px 11px;
     border-radius:12px;
-
     color:#fff;
 
     background:
@@ -219,15 +146,8 @@ img{
         );
 
     box-shadow:
-        0
-        5px
-        15px
-        rgba(
-            34,
-            197,
-            94,
-            .2
-        );
+        0 5px 15px
+        rgba(34,197,94,.2);
 
     font-size:11px;
 }
@@ -239,46 +159,20 @@ img{
 
 .panel{
     padding:14px;
-
     border-radius:22px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(
-                30,
-                41,
-                59,
-                .98
-            ),
-            rgba(
-                13,
-                21,
-                37,
-                .98
-            )
+            rgba(30,41,59,.98),
+            rgba(13,21,37,.98)
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
+    border:1px solid rgba(255,255,255,.06);
 
     box-shadow:
-        0
-        14px
-        35px
-        rgba(
-            0,
-            0,
-            0,
-            .23
-        );
+        0 14px 35px
+        rgba(0,0,0,.23);
 }
 
 
@@ -288,67 +182,28 @@ img{
 
 .case-list{
     display:grid;
-
-    grid-template-columns:
-        repeat(
-            2,
-            minmax(
-                0,
-                1fr
-            )
-        );
-
+    grid-template-columns:repeat(2,minmax(0,1fr));
     gap:10px;
 }
 
 .case-card{
     position:relative;
-
     overflow:hidden;
 
-    padding:
-        11px
-        8px;
+    padding:11px 8px;
 
     border-radius:18px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(
-                32,
-                44,
-                64,
-                .98
-            ),
-            rgba(
-                12,
-                19,
-                33,
-                .98
-            )
+            rgba(32,44,64,.98),
+            rgba(12,19,33,.98)
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
+    border:1px solid rgba(255,255,255,.06);
 
-    box-shadow:
-        0
-        8px
-        22px
-        rgba(
-            0,
-            0,
-            0,
-            .19
-        );
+    box-shadow:0 8px 22px rgba(0,0,0,.19);
 
     cursor:pointer;
 }
@@ -359,56 +214,39 @@ img{
     position:absolute;
 
     width:105px;
-
     height:105px;
 
     right:-55px;
-
     top:-60px;
 
     border-radius:50%;
 
-    background:
-        rgba(
-            124,
-            58,
-            237,
-            .17
-        );
+    background:rgba(124,58,237,.17);
 
-    filter:
-        blur(12px);
+    filter:blur(12px);
 }
 
 .case-name{
     position:relative;
-
     z-index:2;
 
     min-height:36px;
 
     display:flex;
-
     align-items:center;
-
     justify-content:center;
 
     text-align:center;
 
     font-size:14px;
-
     font-weight:1000;
 }
 
 .case-price{
     position:relative;
-
     z-index:2;
 
-    margin:
-        4px
-        0
-        7px;
+    margin:4px 0 7px;
 
     color:#facc15;
 
@@ -419,23 +257,15 @@ img{
 
 .case-preview{
     position:relative;
-
     z-index:2;
 
     display:grid;
-
-    grid-template-columns:
-        repeat(
-            3,
-            1fr
-        );
-
+    grid-template-columns:repeat(3,1fr);
     gap:3px;
 }
 
 .preview-img{
     width:100%;
-
     height:44px;
 
     object-fit:contain;
@@ -481,9 +311,7 @@ img{
 
 .case-title-row{
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
     gap:8px;
@@ -491,19 +319,14 @@ img{
 
 .case-title-row h2{
     margin:0;
-
     font-size:21px;
 }
 
 .speed-btn{
     width:38px;
-
     height:38px;
 
-    flex:
-        0
-        0
-        38px;
+    flex:0 0 38px;
 
     border-radius:11px;
 
@@ -530,15 +353,8 @@ img{
         );
 
     box-shadow:
-        0
-        0
-        16px
-        rgba(
-            147,
-            51,
-            234,
-            .55
-        );
+        0 0 16px
+        rgba(147,51,234,.55);
 }
 
 
@@ -551,9 +367,7 @@ img{
 
     height:155px;
 
-    margin:
-        15px
-        0;
+    margin:15px 0;
 
     overflow:hidden;
 
@@ -566,27 +380,11 @@ img{
             #101827
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .08
-        );
+    border:1px solid rgba(255,255,255,.08);
 
     box-shadow:
-        inset
-        0
-        0
-        30px
-        rgba(
-            0,
-            0,
-            0,
-            .4
-        );
+        inset 0 0 30px
+        rgba(0,0,0,.4);
 }
 
 .roulette-pointer{
@@ -595,11 +393,9 @@ img{
     z-index:20;
 
     top:-3px;
-
     left:50%;
 
-    transform:
-        translateX(-50%);
+    transform:translateX(-50%);
 
     color:#facc15;
 
@@ -612,56 +408,40 @@ img{
     z-index:10;
 
     top:0;
-
     bottom:0;
 
     left:50%;
 
     width:3px;
 
-    transform:
-        translateX(-50%);
+    transform:translateX(-50%);
 
-    background:
-        rgba(
-            250,
-            204,
-            21,
-            .65
-        );
+    background:rgba(250,204,21,.65);
 }
 
 .roulette-track{
     height:100%;
 
     display:flex;
-
     align-items:center;
 
     gap:8px;
 
     padding-left:10px;
 
-    will-change:
-        transform;
+    will-change:transform;
 }
 
 .roulette-item{
-    flex:
-        0
-        0
-        116px;
+    flex:0 0 116px;
 
     height:128px;
 
     padding:6px;
 
     display:flex;
-
     flex-direction:column;
-
     align-items:center;
-
     justify-content:center;
 
     border-radius:13px;
@@ -673,22 +453,12 @@ img{
             #111827
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .08
-        );
+    border:1px solid rgba(255,255,255,.08);
 }
 
 .roulette-item img{
     width:88px;
-
     height:88px;
-
     object-fit:contain;
 }
 
@@ -696,15 +466,12 @@ img{
     width:100%;
 
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     text-align:center;
 
     font-size:10px;
-
     font-weight:800;
 }
 
@@ -718,18 +485,13 @@ img{
 
     gap:6px;
 
-    margin:
-        8px
-        0
-        5px;
+    margin:8px 0 5px;
 }
 
 .case-count-btn{
     flex:1;
 
-    padding:
-        9px
-        4px;
+    padding:9px 4px;
 
     border-radius:9px;
 
@@ -748,29 +510,17 @@ img{
 }
 
 .total-case-price{
-    margin:
-        5px
-        0
-        8px;
+    margin:5px 0 8px;
 
-    padding:
-        8px
-        9px;
+    padding:8px 9px;
 
     border-radius:10px;
 
     color:#facc15;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .6
-        );
+    background:rgba(15,23,42,.6);
 
     font-size:13px;
-
     font-weight:900;
 }
 
@@ -822,7 +572,6 @@ img{
 
 .error{
     color:#f87171;
-
     font-weight:900;
 }
 
@@ -838,66 +587,39 @@ img{
 
     border-radius:15px;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .65
-        );
+    background:rgba(15,23,42,.65);
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
+    border:1px solid rgba(255,255,255,.06);
 }
 
 .case-content-title{
     margin-bottom:8px;
 
     font-size:13px;
-
     font-weight:900;
 }
 
 .case-content-list{
     display:grid;
-
     gap:5px;
 }
 
 .case-content-item{
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
     gap:7px;
 
-    padding:
-        6px
-        7px;
+    padding:6px 7px;
 
     border-radius:9px;
 
-    background:
-        rgba(
-            30,
-            41,
-            59,
-            .66
-        );
+    background:rgba(30,41,59,.66);
 }
 
 .case-content-left{
     display:flex;
-
     align-items:center;
 
     min-width:0;
@@ -907,22 +629,16 @@ img{
 
 .case-content-img{
     width:32px;
-
     height:32px;
 
-    flex:
-        0
-        0
-        32px;
+    flex:0 0 32px;
 
     object-fit:contain;
 }
 
 .case-content-name{
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     font-size:10px;
@@ -932,7 +648,6 @@ img{
     color:#facc15;
 
     font-size:11px;
-
     font-weight:900;
 }
 
@@ -943,9 +658,7 @@ img{
 
 .upgrader-title{
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 }
 
@@ -957,12 +670,9 @@ img{
     position:relative;
 
     width:220px;
-
     height:220px;
 
-    margin:
-        13px
-        auto;
+    margin:13px auto;
 }
 
 .upgrade-wheel{
@@ -974,18 +684,11 @@ img{
 
     background:
         conic-gradient(
-            #22c55e
-            0deg
-            var(--green-angle),
-            #ef4444
-            var(--green-angle)
-            360deg
+            #22c55e 0deg var(--green-angle),
+            #ef4444 var(--green-angle) 360deg
         );
 
-    border:
-        5px
-        solid
-        #475569;
+    border:5px solid #475569;
 }
 
 .upgrade-wheel::after{
@@ -994,18 +697,12 @@ img{
     position:absolute;
 
     width:140px;
-
     height:140px;
 
     left:50%;
-
     top:50%;
 
-    transform:
-        translate(
-            -50%,
-            -50%
-        );
+    transform:translate(-50%,-50%);
 
     border-radius:50%;
 
@@ -1031,30 +728,16 @@ img{
     position:absolute;
 
     top:5px;
-
     left:50%;
 
-    transform:
-        translateX(-50%);
+    transform:translateX(-50%);
 
     width:0;
-
     height:0;
 
-    border-left:
-        10px
-        solid
-        transparent;
-
-    border-right:
-        10px
-        solid
-        transparent;
-
-    border-bottom:
-        35px
-        solid
-        #facc15;
+    border-left:10px solid transparent;
+    border-right:10px solid transparent;
+    border-bottom:35px solid #facc15;
 }
 
 .wheel-text{
@@ -1063,17 +746,11 @@ img{
     z-index:5;
 
     left:50%;
-
     top:50%;
 
-    transform:
-        translate(
-            -50%,
-            -50%
-        );
+    transform:translate(-50%,-50%);
 
     font-size:28px;
-
     font-weight:1000;
 }
 
@@ -1103,30 +780,19 @@ img{
     display:grid;
 
     grid-template-columns:
-        54px
-        repeat(
-            5,
-            minmax(
-                0,
-                1fr
-            )
-        );
+        54px repeat(5,minmax(0,1fr));
 
     align-items:center;
 
     gap:5px;
 
-    margin:
-        10px
-        0;
+    margin:10px 0;
 }
 
 .fast-btn{
     height:39px;
 
-    padding:
-        5px
-        1px;
+    padding:5px 1px;
 
     border-radius:9px;
 
@@ -1143,30 +809,23 @@ img{
 }
 
 .section-title{
-    margin:
-        14px
-        0
-        7px;
+    margin:14px 0 7px;
 
     color:#cbd5e1;
 
     font-size:13px;
-
     font-weight:900;
 }
 
 
 /* =====================================================
-   MYSTERY CRYSTAL
+   MYSTERY
 ===================================================== */
 
 .mystery-wrap{
     display:flex;
-
     flex-direction:column;
-
     align-items:center;
-
     justify-content:center;
 
     gap:2px;
@@ -1176,7 +835,6 @@ img{
     position:relative;
 
     width:50px;
-
     height:50px;
 
     padding:0;
@@ -1195,41 +853,12 @@ img{
             #011e17 100%
         );
 
-    border:
-        3px
-        solid
-        #34d399;
+    border:3px solid #34d399;
 
     box-shadow:
-        inset
-        0
-        4px
-        9px
-        rgba(
-            200,
-            255,
-            230,
-            .2
-        ),
-        inset
-        0
-        -12px
-        16px
-        rgba(
-            0,
-            0,
-            0,
-            .38
-        ),
-        0
-        0
-        8px
-        rgba(
-            16,
-            185,
-            129,
-            .35
-        );
+        inset 0 4px 9px rgba(200,255,230,.2),
+        inset 0 -12px 16px rgba(0,0,0,.38),
+        0 0 8px rgba(16,185,129,.35);
 
     animation:
         mysteryGlow
@@ -1244,50 +873,24 @@ img{
     position:absolute;
 
     width:34px;
-
     height:34px;
 
     left:50%;
-
     top:50%;
 
-    transform:
-        translate(
-            -50%,
-            -50%
-        );
+    transform:translate(-50%,-50%);
 
     border-radius:50%;
 
     background:
         radial-gradient(
             circle at 43% 34%,
-            rgba(
-                52,
-                211,
-                153,
-                .2
-            ),
-            rgba(
-                2,
-                44,
-                34,
-                .92
-            )
-            58%,
-            #011b15
-            100%
+            rgba(52,211,153,.2),
+            rgba(2,44,34,.92) 58%,
+            #011b15 100%
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            110,
-            231,
-            183,
-            .6
-        );
+    border:1px solid rgba(110,231,183,.6);
 }
 
 .mystery-crystal::after{
@@ -1298,26 +901,18 @@ img{
     z-index:3;
 
     top:-40%;
-
     left:-55%;
 
     width:22%;
-
     height:180%;
 
-    transform:
-        rotate(25deg);
+    transform:rotate(25deg);
 
     background:
         linear-gradient(
             90deg,
             transparent,
-            rgba(
-                255,
-                255,
-                255,
-                .65
-            ),
+            rgba(255,255,255,.65),
             transparent
         );
 
@@ -1336,35 +931,17 @@ img{
     color:#86efc1;
 
     font-size:22px;
-
     font-weight:1000;
 
     text-shadow:
-        0
-        0
-        6px
-        rgba(
-            110,
-            231,
-            183,
-            .9
-        ),
-        0
-        0
-        13px
-        rgba(
-            16,
-            185,
-            129,
-            .6
-        );
+        0 0 6px rgba(110,231,183,.9),
+        0 0 13px rgba(16,185,129,.6);
 }
 
 .mystery-label{
     color:#6ee7b7;
 
     font-size:6px;
-
     font-weight:900;
 
     letter-spacing:.4px;
@@ -1374,112 +951,30 @@ img{
     border-color:#a7f3d0;
 
     box-shadow:
-        inset
-        0
-        0
-        15px
-        rgba(
-            167,
-            243,
-            208,
-            .7
-        ),
-        0
-        0
-        15px
-        rgba(
-            52,
-            211,
-            153,
-            .9
-        ),
-        0
-        0
-        30px
-        rgba(
-            16,
-            185,
-            129,
-            .55
-        );
+        inset 0 0 15px rgba(167,243,208,.7),
+        0 0 15px rgba(52,211,153,.9),
+        0 0 30px rgba(16,185,129,.55);
 }
 
 @keyframes mysteryGlow{
-
-    0%,
-    100%{
+    0%,100%{
         box-shadow:
-            inset
-            0
-            4px
-            9px
-            rgba(
-                200,
-                255,
-                230,
-                .16
-            ),
-            inset
-            0
-            -12px
-            16px
-            rgba(
-                0,
-                0,
-                0,
-                .38
-            ),
-            0
-            0
-            7px
-            rgba(
-                16,
-                185,
-                129,
-                .25
-            );
+            inset 0 4px 9px rgba(200,255,230,.16),
+            inset 0 -12px 16px rgba(0,0,0,.38),
+            0 0 7px rgba(16,185,129,.25);
     }
 
     50%{
         box-shadow:
-            inset
-            0
-            4px
-            10px
-            rgba(
-                200,
-                255,
-                230,
-                .25
-            ),
-            inset
-            0
-            -12px
-            16px
-            rgba(
-                0,
-                0,
-                0,
-                .38
-            ),
-            0
-            0
-            15px
-            rgba(
-                16,
-                185,
-                129,
-                .55
-            );
+            inset 0 4px 10px rgba(200,255,230,.25),
+            inset 0 -12px 16px rgba(0,0,0,.38),
+            0 0 15px rgba(16,185,129,.55);
     }
 }
 
 @keyframes mysteryShine{
-
-    0%,
-    65%{
+    0%,65%{
         left:-55%;
-
         opacity:0;
     }
 
@@ -1489,21 +984,14 @@ img{
 
     92%{
         left:140%;
-
         opacity:.4;
     }
 
     100%{
         left:140%;
-
         opacity:0;
     }
 }
-
-
-/* =====================================================
-   MYSTERY WHEEL
-===================================================== */
 
 .upgrade-wheel.mystery-wheel{
     background:
@@ -1519,40 +1007,9 @@ img{
     border-color:#34d399;
 
     box-shadow:
-        inset
-        0
-        0
-        30px
-        rgba(
-            16,
-            185,
-            129,
-            .38
-        ),
-        0
-        0
-        17px
-        rgba(
-            16,
-            185,
-            129,
-            .48
-        ),
-        0
-        0
-        35px
-        rgba(
-            16,
-            185,
-            129,
-            .18
-        );
-
-    animation:
-        bigMysteryGlow
-        1.9s
-        ease-in-out
-        infinite;
+        inset 0 0 30px rgba(16,185,129,.38),
+        0 0 17px rgba(16,185,129,.48),
+        0 0 35px rgba(16,185,129,.18);
 }
 
 .upgrade-wheel.mystery-wheel::after{
@@ -1564,65 +1021,7 @@ img{
             #011d17
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            110,
-            231,
-            183,
-            .45
-        );
-}
-
-@keyframes bigMysteryGlow{
-
-    0%,
-    100%{
-        box-shadow:
-            inset
-            0
-            0
-            26px
-            rgba(
-                16,
-                185,
-                129,
-                .3
-            ),
-            0
-            0
-            13px
-            rgba(
-                16,
-                185,
-                129,
-                .35
-            );
-    }
-
-    50%{
-        box-shadow:
-            inset
-            0
-            0
-            35px
-            rgba(
-                52,
-                211,
-                153,
-                .48
-            ),
-            0
-            0
-            24px
-            rgba(
-                16,
-                185,
-                129,
-                .6
-            );
-    }
+    border:1px solid rgba(110,231,183,.45);
 }
 
 .wheel-text.mystery-text{
@@ -1631,24 +1030,8 @@ img{
     font-size:50px;
 
     text-shadow:
-        0
-        0
-        8px
-        rgba(
-            110,
-            231,
-            183,
-            .85
-        ),
-        0
-        0
-        22px
-        rgba(
-            16,
-            185,
-            129,
-            .65
-        );
+        0 0 8px rgba(110,231,183,.85),
+        0 0 22px rgba(16,185,129,.65);
 }
 
 .upgrade-main-btn.mystery-btn{
@@ -1660,29 +1043,13 @@ img{
         );
 
     box-shadow:
-        0
-        0
-        17px
-        rgba(
-            16,
-            185,
-            129,
-            .4
-        );
+        0 0 17px rgba(16,185,129,.4);
 }
-
-
-/* =====================================================
-   MYSTERY INFO
-===================================================== */
 
 .mystery-info{
     display:none;
 
-    margin:
-        8px
-        0
-        12px;
+    margin:8px 0 12px;
 
     padding:11px;
 
@@ -1693,80 +1060,35 @@ img{
     background:
         linear-gradient(
             135deg,
-            rgba(
-                5,
-                150,
-                105,
-                .14
-            ),
-            rgba(
-                2,
-                44,
-                34,
-                .25
-            )
+            rgba(5,150,105,.14),
+            rgba(2,44,34,.25)
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            52,
-            211,
-            153,
-            .2
-        );
+    border:1px solid rgba(52,211,153,.2);
 
     font-size:11px;
-
     line-height:1.45;
 }
-
-
-/* =====================================================
-   НОВЫЙ КОМПАКТНЫЙ MYSTERY RESULT
-===================================================== */
 
 .mystery-result{
     margin-top:8px;
 
-    padding:
-        7px
-        9px;
+    padding:7px 9px;
 
     border-radius:11px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(
-                6,
-                78,
-                59,
-                .32
-            ),
-            rgba(
-                2,
-                44,
-                34,
-                .38
-            )
+            rgba(6,78,59,.32),
+            rgba(2,44,34,.38)
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            52,
-            211,
-            153,
-            .22
-        );
+    border:1px solid rgba(52,211,153,.22);
 }
 
 .mystery-result-compact{
     display:flex;
-
     align-items:center;
 
     gap:8px;
@@ -1774,42 +1096,28 @@ img{
 
 .mystery-result-image{
     width:38px;
-
     height:38px;
 
-    flex:
-        0
-        0
-        38px;
+    flex:0 0 38px;
 
     object-fit:contain;
 
     border-radius:8px;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .65
-        );
+    background:rgba(15,23,42,.65);
 }
 
 .mystery-result-info{
     min-width:0;
-
     flex:1;
 }
 
 .mystery-result-name{
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     font-size:11px;
-
     font-weight:900;
 }
 
@@ -1819,32 +1127,16 @@ img{
     color:#facc15;
 
     font-size:10px;
-
     font-weight:900;
 }
 
 .mystery-result-multiplier{
-    flex:
-        0
-        0
-        auto;
+    flex:0 0 auto;
 
     color:#6ee7b7;
 
     font-size:18px;
-
     font-weight:1000;
-
-    text-shadow:
-        0
-        0
-        8px
-        rgba(
-            16,
-            185,
-            129,
-            .45
-        );
 }
 
 
@@ -1856,13 +1148,7 @@ img{
     display:grid;
 
     grid-template-columns:
-        repeat(
-            3,
-            minmax(
-                0,
-                1fr
-            )
-        );
+        repeat(3,minmax(0,1fr));
 
     gap:6px;
 }
@@ -1876,72 +1162,37 @@ img{
 
     background:#0f172a;
 
-    border:
-        2px
-        solid
-        #334155;
+    border:2px solid #334155;
 
     cursor:pointer;
-
-    transition:
-        opacity
-        .12s
-        ease,
-        border-color
-        .12s
-        ease,
-        background
-        .12s
-        ease;
 }
 
 .upgrade-choice.selected{
     border-color:#a855f7;
 
-    background:
-        rgba(
-            88,
-            28,
-            135,
-            .3
-        );
+    background:rgba(88,28,135,.3);
 }
 
 .upgrade-choice.mystery-selected{
     border-color:#34d399;
 
-    background:
-        rgba(
-            6,
-            78,
-            59,
-            .32
-        );
+    background:rgba(6,78,59,.32);
 
     box-shadow:
-        0
-        0
-        12px
-        rgba(
-            16,
-            185,
-            129,
-            .2
-        );
+        0 0 12px
+        rgba(16,185,129,.2);
 }
 
 .upgrade-choice.mystery-disabled{
     opacity:.28;
 
-    filter:
-        grayscale(.7);
+    filter:grayscale(.7);
 
     cursor:not-allowed;
 }
 
 .upgrade-choice img{
     width:64px;
-
     height:64px;
 
     max-width:100%;
@@ -1951,9 +1202,7 @@ img{
 
 .choice-name{
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     font-size:9px;
@@ -1980,7 +1229,6 @@ img{
 
 .profile-card{
     position:relative;
-
     overflow:hidden;
 
     margin-bottom:12px;
@@ -1992,65 +1240,31 @@ img{
     background:
         linear-gradient(
             145deg,
-            rgba(
-                56,
-                48,
-                138,
-                .83
-            ),
-            rgba(
-                27,
-                39,
-                59,
-                .98
-            )
+            rgba(56,48,138,.83),
+            rgba(27,39,59,.98)
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            167,
-            139,
-            250,
-            .17
-        );
+    border:1px solid rgba(167,139,250,.17);
 
     box-shadow:
-        0
-        12px
-        35px
-        rgba(
-            0,
-            0,
-            0,
-            .23
-        );
+        0 12px 35px
+        rgba(0,0,0,.23);
 }
 
 .profile-glow{
     position:absolute;
 
     width:180px;
-
     height:180px;
 
     right:-70px;
-
     top:-90px;
 
     border-radius:50%;
 
-    background:
-        rgba(
-            139,
-            92,
-            246,
-            .25
-        );
+    background:rgba(139,92,246,.25);
 
-    filter:
-        blur(18px);
+    filter:blur(18px);
 }
 
 .profile-top{
@@ -2059,7 +1273,6 @@ img{
     z-index:2;
 
     display:flex;
-
     align-items:center;
 
     gap:12px;
@@ -2067,20 +1280,14 @@ img{
 
 .profile-avatar{
     width:70px;
-
     height:70px;
 
-    flex:
-        0
-        0
-        70px;
+    flex:0 0 70px;
 
     overflow:hidden;
 
     display:flex;
-
     align-items:center;
-
     justify-content:center;
 
     border-radius:50%;
@@ -2092,24 +1299,14 @@ img{
             #4f46e5
         );
 
-    border:
-        3px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .16
-        );
+    border:3px solid rgba(255,255,255,.16);
 
     font-size:28px;
-
     font-weight:900;
 }
 
 .profile-avatar img{
     width:100%;
-
     height:100%;
 
     object-fit:cover;
@@ -2121,13 +1318,10 @@ img{
 
 .profile-name{
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     font-size:19px;
-
     font-weight:1000;
 }
 
@@ -2145,10 +1339,7 @@ img{
     z-index:2;
 
     display:grid;
-
-    grid-template-columns:
-        1fr
-        1fr;
+    grid-template-columns:1fr 1fr;
 
     gap:8px;
 
@@ -2156,36 +1347,19 @@ img{
 }
 
 .profile-stat{
-    padding:
-        10px
-        7px;
+    padding:10px 7px;
 
     border-radius:13px;
 
     text-align:center;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .48
-        );
+    background:rgba(15,23,42,.48);
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .05
-        );
+    border:1px solid rgba(255,255,255,.05);
 }
 
 .profile-number{
     font-size:19px;
-
     font-weight:1000;
 }
 
@@ -2204,17 +1378,12 @@ img{
 
 .inventory-toolbar{
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
     gap:8px;
 
-    margin:
-        13px
-        0
-        9px;
+    margin:13px 0 9px;
 }
 
 .inventory-toolbar h3{
@@ -2222,9 +1391,7 @@ img{
 }
 
 .sell-all-btn{
-    padding:
-        8px
-        10px;
+    padding:8px 10px;
 
     border-radius:10px;
 
@@ -2244,13 +1411,7 @@ img{
     display:grid;
 
     grid-template-columns:
-        repeat(
-            4,
-            minmax(
-                0,
-                1fr
-            )
-        );
+        repeat(4,minmax(0,1fr));
 
     gap:6px;
 }
@@ -2269,15 +1430,7 @@ img{
             #0f172a
         );
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
+    border:1px solid rgba(255,255,255,.06);
 }
 
 .inventory-card.locked{
@@ -2308,18 +1461,13 @@ img{
 
     overflow:hidden;
 
-    display:
-        -webkit-box;
+    display:-webkit-box;
 
     -webkit-line-clamp:2;
-
-    -webkit-box-orient:
-        vertical;
+    -webkit-box-orient:vertical;
 
     font-size:8px;
-
     line-height:1.15;
-
     font-weight:800;
 }
 
@@ -2329,16 +1477,13 @@ img{
     color:#facc15;
 
     font-size:9px;
-
     font-weight:900;
 }
 
 .inventory-actions{
     display:grid;
 
-    grid-template-columns:
-        1fr
-        1fr;
+    grid-template-columns:1fr 1fr;
 
     gap:3px;
 
@@ -2346,9 +1491,7 @@ img{
 }
 
 .inventory-action{
-    padding:
-        5px
-        1px;
+    padding:5px 1px;
 
     border-radius:6px;
 
@@ -2366,10 +1509,7 @@ img{
 }
 
 .exchange-one{
-    grid-column:
-        1
-        /
-        -1;
+    grid-column:1/-1;
 
     background:
         linear-gradient(
@@ -2404,24 +1544,13 @@ img{
     display:none;
 
     align-items:center;
-
     justify-content:center;
 
-    padding:
-        20px
-        12px
-        85px;
+    padding:20px 12px 85px;
 
-    background:
-        rgba(
-            0,
-            0,
-            0,
-            .72
-        );
+    background:rgba(0,0,0,.72);
 
-    backdrop-filter:
-        blur(6px);
+    backdrop-filter:blur(6px);
 }
 
 .overlay.show{
@@ -2430,7 +1559,6 @@ img{
 
 .modal{
     width:100%;
-
     max-width:500px;
 
     max-height:82vh;
@@ -2449,22 +1577,13 @@ img{
         );
 
     box-shadow:
-        0
-        10px
-        40px
-        rgba(
-            0,
-            0,
-            0,
-            .4
-        );
+        0 10px 40px
+        rgba(0,0,0,.4);
 }
 
 .modal-header{
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
     gap:8px;
@@ -2472,14 +1591,11 @@ img{
 
 .modal-title{
     font-size:20px;
-
     font-weight:1000;
 }
 
 .close{
-    padding:
-        8px
-        11px;
+    padding:8px 11px;
 
     border-radius:10px;
 
@@ -2491,25 +1607,13 @@ img{
 .text-input{
     width:100%;
 
-    margin:
-        7px
-        0;
+    margin:7px 0;
 
-    padding:
-        13px
-        14px;
+    padding:13px 14px;
 
     border-radius:12px;
 
-    border:
-        1px
-        solid
-        rgba(
-            148,
-            163,
-            184,
-            .17
-        );
+    border:1px solid rgba(148,163,184,.17);
 
     outline:0;
 
@@ -2529,16 +1633,8 @@ img{
     border-color:#8b5cf6;
 
     box-shadow:
-        0
-        0
-        0
-        3px
-        rgba(
-            124,
-            58,
-            237,
-            .14
-        );
+        0 0 0 3px
+        rgba(124,58,237,.14);
 }
 
 .text-input::placeholder{
@@ -2580,11 +1676,7 @@ img{
 .deposit-grid{
     display:grid;
 
-    grid-template-columns:
-        repeat(
-            3,
-            1fr
-        );
+    grid-template-columns:repeat(3,1fr);
 
     gap:7px;
 
@@ -2603,17 +1695,13 @@ img{
             #111827
         );
 
-    border:
-        1px
-        solid
-        #334155;
+    border:1px solid #334155;
 
     text-align:center;
 }
 
 .deposit-item img{
     width:65px;
-
     height:65px;
 
     max-width:100%;
@@ -2623,9 +1711,7 @@ img{
 
 .deposit-item-name{
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     font-size:9px;
@@ -2641,9 +1727,7 @@ img{
 
 .quantity-row{
     display:flex;
-
     align-items:center;
-
     justify-content:center;
 
     gap:5px;
@@ -2653,7 +1737,6 @@ img{
 
 .quantity-btn{
     width:25px;
-
     height:25px;
 
     padding:0;
@@ -2666,21 +1749,13 @@ img{
 }
 
 .deposit-summary{
-    margin:
-        13px
-        0;
+    margin:13px 0;
 
     padding:11px;
 
     border-radius:12px;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .7
-        );
+    background:rgba(15,23,42,.7);
 }
 
 
@@ -2694,25 +1769,17 @@ img{
     padding:10px;
 
     display:flex;
-
     align-items:center;
 
     gap:10px;
 
     border-radius:14px;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .65
-        );
+    background:rgba(15,23,42,.65);
 }
 
 .exchange-source img{
     width:65px;
-
     height:65px;
 
     object-fit:contain;
@@ -2722,13 +1789,7 @@ img{
     display:grid;
 
     grid-template-columns:
-        repeat(
-            2,
-            minmax(
-                0,
-                1fr
-            )
-        );
+        repeat(2,minmax(0,1fr));
 
     gap:7px;
 
@@ -2740,23 +1801,9 @@ img{
 
     border-radius:13px;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .75
-        );
+    background:rgba(15,23,42,.75);
 
-    border:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .08
-        );
+    border:1px solid rgba(255,255,255,.08);
 
     text-align:center;
 
@@ -2765,7 +1812,6 @@ img{
 
 .exchange-option img{
     width:65px;
-
     height:65px;
 
     object-fit:contain;
@@ -2773,9 +1819,7 @@ img{
 
 .exchange-option-name{
     overflow:hidden;
-
     white-space:nowrap;
-
     text-overflow:ellipsis;
 
     font-size:9px;
@@ -2801,30 +1845,15 @@ img{
 
     border-radius:14px;
 
-    background:
-        rgba(
-            127,
-            29,
-            29,
-            .22
-        );
+    background:rgba(127,29,29,.22);
 
-    border:
-        1px
-        solid
-        rgba(
-            248,
-            113,
-            113,
-            .2
-        );
+    border:1px solid rgba(248,113,113,.2);
 }
 
 .warning-title{
     color:#fca5a5;
 
     font-size:16px;
-
     font-weight:900;
 }
 
@@ -2834,16 +1863,12 @@ img{
     color:#cbd5e1;
 
     font-size:12px;
-
     line-height:1.5;
 }
 
 .confirm-row{
     display:grid;
-
-    grid-template-columns:
-        1fr
-        1fr;
+    grid-template-columns:1fr 1fr;
 
     gap:8px;
 
@@ -2883,41 +1908,22 @@ img{
     z-index:100;
 
     bottom:0;
-
     left:0;
-
     right:0;
 
     display:flex;
 
-    background:
-        rgba(
-            15,
-            23,
-            42,
-            .96
-        );
+    background:rgba(15,23,42,.96);
 
-    backdrop-filter:
-        blur(15px);
+    backdrop-filter:blur(15px);
 
-    border-top:
-        1px
-        solid
-        rgba(
-            255,
-            255,
-            255,
-            .06
-        );
+    border-top:1px solid rgba(255,255,255,.06);
 }
 
 .nav-btn{
     width:33.333%;
 
-    padding:
-        10px
-        2px;
+    padding:10px 2px;
 
     color:#94a3b8;
 
@@ -2932,25 +1938,14 @@ img{
     background:
         linear-gradient(
             180deg,
-            rgba(
-                99,
-                102,
-                241,
-                .16
-            ),
-            rgba(
-                51,
-                65,
-                85,
-                .6
-            )
+            rgba(99,102,241,.16),
+            rgba(51,65,85,.6)
         );
 }
 
 </style>
 
 </head>
-
 
 <body>
 
@@ -2990,10 +1985,6 @@ img{
 <div class="game">
 
 
-<!-- =====================================================
-     CASES PAGE
-===================================================== -->
-
 <div
     id="casesPage"
     class="page active"
@@ -3002,7 +1993,6 @@ img{
     <div id="caseList">
         Загрузка...
     </div>
-
 
     <div
         id="activeCase"
@@ -3016,9 +2006,7 @@ img{
             ← Назад
         </button>
 
-
         <div class="panel">
-
 
             <div class="case-title-row">
 
@@ -3034,7 +2022,6 @@ img{
 
             </div>
 
-
             <div
                 id="activeCasePrice"
                 style="
@@ -3043,7 +2030,6 @@ img{
                     font-size:12px;
                 "
             ></div>
-
 
             <div
                 id="rouletteContainer"
@@ -3062,7 +2048,6 @@ img{
                 ></div>
 
             </div>
-
 
             <div class="case-controls">
 
@@ -3100,12 +2085,10 @@ img{
 
             </div>
 
-
             <div
                 id="totalCasePrice"
                 class="total-case-price"
             ></div>
-
 
             <button
                 id="spinButton"
@@ -3115,15 +2098,12 @@ img{
                 🎰 КРУТИТЬ
             </button>
 
-
             <div id="quickSellArea"></div>
-
 
             <div
                 id="caseResult"
                 class="result"
             ></div>
-
 
             <div class="case-content">
 
@@ -3138,7 +2118,6 @@ img{
 
             </div>
 
-
         </div>
 
     </div>
@@ -3146,17 +2125,12 @@ img{
 </div>
 
 
-<!-- =====================================================
-     UPGRADER PAGE
-===================================================== -->
-
 <div
     id="upgraderPage"
     class="page"
 >
 
     <div class="panel">
-
 
         <div class="upgrader-title">
 
@@ -3174,14 +2148,12 @@ img{
 
         </div>
 
-
         <div class="upgrade-wheel-wrap">
 
             <div
                 id="upgradeWheel"
                 class="upgrade-wheel"
             ></div>
-
 
             <div
                 id="needleRotor"
@@ -3192,7 +2164,6 @@ img{
 
             </div>
 
-
             <div
                 id="wheelText"
                 class="wheel-text"
@@ -3202,7 +2173,6 @@ img{
 
         </div>
 
-
         <button
             id="upgradeButton"
             class="upgrade-main-btn"
@@ -3211,20 +2181,16 @@ img{
             ⚡ АПГРЕЙД
         </button>
 
-
         <div
             id="upgradeResult"
             class="result"
         ></div>
 
-
         <div class="section-title">
             Быстрый выбор
         </div>
 
-
         <div class="fast-buttons">
-
 
             <div class="mystery-wrap">
 
@@ -3246,14 +2212,12 @@ img{
 
             </div>
 
-
             <button
                 class="fast-btn"
                 onclick="selectByChance(70)"
             >
                 70%
             </button>
-
 
             <button
                 class="fast-btn"
@@ -3262,14 +2226,12 @@ img{
                 50%
             </button>
 
-
             <button
                 class="fast-btn"
                 onclick="selectByChance(30)"
             >
                 30%
             </button>
-
 
             <button
                 class="fast-btn"
@@ -3278,7 +2240,6 @@ img{
                 x5
             </button>
 
-
             <button
                 class="fast-btn"
                 onclick="selectMultiplier(10)"
@@ -3286,9 +2247,7 @@ img{
                 x10
             </button>
 
-
         </div>
-
 
         <div
             id="mysteryInfo"
@@ -3312,17 +2271,14 @@ img{
 
         </div>
 
-
         <div class="section-title">
             Твой Brainrot
         </div>
-
 
         <div
             id="sourceGrid"
             class="upgrade-grid"
         ></div>
-
 
         <div id="targetSection">
 
@@ -3337,30 +2293,21 @@ img{
 
         </div>
 
-
     </div>
 
 </div>
 
-
-<!-- =====================================================
-     PROFILE
-===================================================== -->
 
 <div
     id="inventoryPage"
     class="page"
 >
 
-
     <div class="profile-card">
-
 
         <div class="profile-glow"></div>
 
-
         <div class="profile-top">
-
 
             <div
                 id="profileAvatar"
@@ -3368,7 +2315,6 @@ img{
             >
                 B
             </div>
-
 
             <div class="profile-info">
 
@@ -3386,12 +2332,9 @@ img{
 
             </div>
 
-
         </div>
 
-
         <div class="profile-stats">
-
 
             <div class="profile-stat">
 
@@ -3408,7 +2351,6 @@ img{
 
             </div>
 
-
             <div class="profile-stat">
 
                 <div
@@ -3424,12 +2366,9 @@ img{
 
             </div>
 
-
         </div>
 
-
     </div>
-
 
     <div class="inventory-toolbar">
 
@@ -3446,25 +2385,17 @@ img{
 
     </div>
 
-
     <div
         id="inventory"
         class="inventory-grid"
     ></div>
 
+</div>
 
 </div>
 
-
-</div>
-
-
-<!-- =====================================================
-     BOTTOM MENU
-===================================================== -->
 
 <div class="bottom-menu">
-
 
     <button
         id="casesButton"
@@ -3476,7 +2407,6 @@ img{
         Кейсы
     </button>
 
-
     <button
         id="upgraderButton"
         class="nav-btn"
@@ -3486,7 +2416,6 @@ img{
         <br>
         Апгрейдер
     </button>
-
 
     <button
         id="inventoryButton"
@@ -3498,13 +2427,8 @@ img{
         Профиль
     </button>
 
-
 </div>
 
-
-<!-- =====================================================
-     DEPOSIT
-===================================================== -->
 
 <div
     id="depositModal"
@@ -3512,7 +2436,6 @@ img{
 >
 
     <div class="modal">
-
 
         <div class="modal-header">
 
@@ -3529,12 +2452,10 @@ img{
 
         </div>
 
-
         <div
             id="depositGrid"
             class="deposit-grid"
         ></div>
-
 
         <div class="deposit-summary">
 
@@ -3546,9 +2467,7 @@ img{
 
             / 10
 
-
             <br><br>
-
 
             Будет начислено:
 
@@ -3560,18 +2479,15 @@ img{
 
         </div>
 
-
         <div class="input-label">
             Roblox ник
         </div>
-
 
         <input
             id="depositRoblox"
             class="text-input"
             placeholder="Например: Topor123"
         >
-
 
         <button
             class="submit-btn"
@@ -3580,21 +2496,15 @@ img{
             ОТПРАВИТЬ ЗАЯВКУ
         </button>
 
-
         <div
             id="depositResult"
             class="result"
         ></div>
 
-
     </div>
 
 </div>
 
-
-<!-- =====================================================
-     WITHDRAW
-===================================================== -->
 
 <div
     id="withdrawModal"
@@ -3602,7 +2512,6 @@ img{
 >
 
     <div class="modal">
-
 
         <div class="modal-header">
 
@@ -3619,14 +2528,11 @@ img{
 
         </div>
 
-
         <div id="withdrawItemInfo"></div>
-
 
         <div class="input-label">
             Roblox ник
         </div>
-
 
         <input
             id="withdrawRoblox"
@@ -3634,11 +2540,9 @@ img{
             placeholder="Например: Topor123"
         >
 
-
         <div class="input-label">
             День
         </div>
-
 
         <input
             id="withdrawDay"
@@ -3649,18 +2553,15 @@ img{
             placeholder="День"
         >
 
-
         <div class="input-label">
             Время
         </div>
-
 
         <input
             id="withdrawClock"
             type="time"
             class="text-input"
         >
-
 
         <button
             class="submit-btn"
@@ -3669,21 +2570,15 @@ img{
             ОТПРАВИТЬ ЗАЯВКУ
         </button>
 
-
         <div
             id="withdrawResult"
             class="result"
         ></div>
 
-
     </div>
 
 </div>
 
-
-<!-- =====================================================
-     SELL ALL
-===================================================== -->
 
 <div
     id="sellAllModal"
@@ -3691,7 +2586,6 @@ img{
 >
 
     <div class="modal">
-
 
         <div class="modal-header">
 
@@ -3708,7 +2602,6 @@ img{
 
         </div>
 
-
         <div class="warning">
 
             <div class="warning-title">
@@ -3721,7 +2614,6 @@ img{
             ></div>
 
         </div>
-
 
         <div class="confirm-row">
 
@@ -3741,21 +2633,15 @@ img{
 
         </div>
 
-
         <div
             id="sellAllResult"
             class="result"
         ></div>
 
-
     </div>
 
 </div>
 
-
-<!-- =====================================================
-     EXCHANGE
-===================================================== -->
 
 <div
     id="exchangeModal"
@@ -3763,7 +2649,6 @@ img{
 >
 
     <div class="modal">
-
 
         <div class="modal-header">
 
@@ -3780,29 +2665,24 @@ img{
 
         </div>
 
-
         <div
             id="exchangeSource"
             class="exchange-source"
         ></div>
 
-
         <div class="section-title">
             Выбери Brainrot
         </div>
-
 
         <div
             id="exchangeGrid"
             class="exchange-grid"
         ></div>
 
-
         <div
             id="exchangeResultText"
             class="result"
         ></div>
-
 
     </div>
 
@@ -3817,13 +2697,9 @@ img{
 ===================================================== */
 
 const tg =
-    window
-        .Telegram
-        .WebApp;
-
+    window.Telegram.WebApp;
 
 tg.ready();
-
 tg.expand();
 
 
@@ -3839,102 +2715,59 @@ const FUNCTION_URL =
    STATE
 ===================================================== */
 
-let coins =
-    0;
+let coins = 0;
 
+let inventory = [];
 
-let inventory =
-    [];
+let brainrots = [];
 
+let cases = [];
 
-let brainrots =
-    [];
-
-
-let cases =
-    [];
-
-
-let caseItems =
-    [];
-
+let caseItems = [];
 
 let playerProfile = {
 
-    telegram_id:
-        "",
+    telegram_id:"",
 
-    first_name:
-        "",
+    first_name:"",
 
-    last_name:
-        "",
+    last_name:"",
 
-    username:
-        "",
+    username:"",
 
-    photo_url:
-        "",
+    photo_url:"",
 
-    cases_opened:
-        0,
+    cases_opened:0,
 
-    upgrades_done:
-        0
+    upgrades_done:0
 
 };
 
+let selectedCase = null;
 
-let selectedCase =
-    null;
+let selectedSourceId = null;
 
+let selectedTargetId = null;
 
-let selectedSourceId =
-    null;
+let selectedWithdrawItem = null;
 
+let selectedExchangeItem = null;
 
-let selectedTargetId =
-    null;
+let caseOpenCount = 1;
 
+let caseSpeed = 1;
 
-let selectedWithdrawItem =
-    null;
+let upgradeSpeed = 1;
 
+let caseSpinning = false;
 
-let selectedExchangeItem =
-    null;
+let upgrading = false;
 
+let mysteryMode = false;
 
-let caseOpenCount =
-    1;
+let needleRotation = 0;
 
-
-let caseSpeed =
-    1;
-
-
-let upgradeSpeed =
-    1;
-
-
-let caseSpinning =
-    false;
-
-
-let upgrading =
-    false;
-
-
-let mysteryMode =
-    false;
-
-
-let needleRotation =
-    0;
-
-
-let depositSelection =
-    {};
+let depositSelection = {};
 
 
 /* =====================================================
@@ -3943,66 +2776,50 @@ let depositSelection =
 
 const BRAINROT_IMAGES = {
 
-
     "nuclearo dinossauro":
         "./nuclearo.png",
-
 
     "la grande":
         "./lagrande.webp",
 
-
     "tang tang keletang":
         "./tangtang.png",
-
 
     "lavadorito spinito":
         "./lavadorito.png",
 
-
     "garama and madundung":
         "./garama.png",
-
 
     "ketchuru and musturu":
         "./ketchuru.png",
 
-
     "tkethuru and musturu":
         "./ketchuru.png",
-
 
     "los tangcitos":
         "./lostangcitos.png",
 
-
     "los tictacs":
         "./lostictacs.png",
-
 
     "cerberus":
         "./cerberus.png",
 
-
     "cash or card":
         "./cashorcard.png",
-
 
     "popcuru and fizzuru":
         "./popcuru.png",
 
-
     "popcuru and fizzzuru":
         "./popcuru.png",
-
 
     "capitano moby":
         "./capitano.png",
 
-
     "burguru and fryuro":
         "./burguru.png",
-
 
     "la secret":
         "./lasecret.png"
@@ -4015,8 +2832,7 @@ function normalizeName(
 ){
 
     return String(
-        name ||
-        ""
+        name || ""
     )
     .trim()
     .toLowerCase();
@@ -4030,9 +2846,7 @@ function getImage(
 
     return (
         BRAINROT_IMAGES[
-            normalizeName(
-                name
-            )
+            normalizeName(name)
         ]
         ||
         ""
@@ -4048,13 +2862,9 @@ function getBrainrotByName(
     return (
         brainrots.find(
             item =>
-                normalizeName(
-                    item.name
-                )
+                normalizeName(item.name)
                 ===
-                normalizeName(
-                    name
-                )
+                normalizeName(name)
         )
         ||
         null
@@ -4075,8 +2885,7 @@ async function apiRequest(
         await fetch(
             FUNCTION_URL,
             {
-                method:
-                    "POST",
+                method:"POST",
 
                 headers:{
                     "Content-Type":
@@ -4093,14 +2902,13 @@ async function apiRequest(
             }
         );
 
-
     return await response.json();
 
 }
 
 
 /* =====================================================
-   LOAD PLAYER
+   LOAD
 ===================================================== */
 
 async function loadPlayer(){
@@ -4112,7 +2920,6 @@ async function loadPlayer(){
                 action:
                     "get_player"
             });
-
 
         if(
             !data.ok
@@ -4126,7 +2933,6 @@ async function loadPlayer(){
 
         }
 
-
         coins =
             Number(
                 data.coins
@@ -4134,30 +2940,25 @@ async function loadPlayer(){
                 0
             );
 
-
         inventory =
             data.inventory
             ||
             [];
-
 
         brainrots =
             data.brainrots
             ||
             [];
 
-
         cases =
             data.cases
             ||
             [];
 
-
         caseItems =
             data.case_items
             ||
             [];
-
 
         playerProfile = {
 
@@ -4202,7 +3003,6 @@ async function loadPlayer(){
 
         };
 
-
         updateBalance();
 
         renderProfile();
@@ -4218,7 +3018,6 @@ async function loadPlayer(){
         renderDepositGrid();
 
         updateUpgradeUI();
-
 
     }
     catch(
@@ -4267,7 +3066,6 @@ function renderProfile(){
 
     let displayName;
 
-
     if(
         playerProfile.username
     ){
@@ -4292,7 +3090,6 @@ function renderProfile(){
 
     }
 
-
     if(
         !displayName
     ){
@@ -4302,14 +3099,12 @@ function renderProfile(){
 
     }
 
-
     document
         .getElementById(
             "profileName"
         )
         .innerText =
             displayName;
-
 
     document
         .getElementById(
@@ -4324,14 +3119,12 @@ function renderProfile(){
             :
             "";
 
-
     document
         .getElementById(
             "profileCases"
         )
         .innerText =
             playerProfile.cases_opened;
-
 
     document
         .getElementById(
@@ -4340,13 +3133,11 @@ function renderProfile(){
         .innerText =
             playerProfile.upgrades_done;
 
-
     const avatar =
         document
             .getElementById(
                 "profileAvatar"
             );
-
 
     if(
         playerProfile.photo_url
@@ -4366,9 +3157,7 @@ function renderProfile(){
                 ||
                 "B"
             )
-            .charAt(
-                0
-            )
+            .charAt(0)
             .toUpperCase();
 
     }
@@ -4378,11 +3167,29 @@ function renderProfile(){
 
 /* =====================================================
    PAGES
+
+   НОВОЕ:
+   при переходе по нижнему меню
+   открытый кейс автоматически закрывается.
 ===================================================== */
 
 function showPage(
     page
 ){
+
+    /*
+    Если игрок находится внутри кейса,
+    закрываем кейс перед переходом.
+    */
+
+    if(
+        selectedCase
+    ){
+
+        closeCase();
+
+    }
+
 
     [
         "cases",
@@ -4485,10 +3292,8 @@ function renderCases(){
                 "caseList"
             );
 
-
     root.innerHTML =
         "";
-
 
     if(
         !cases.length
@@ -4501,21 +3306,17 @@ function renderCases(){
 
     }
 
-
     const list =
         document
             .createElement(
                 "div"
             );
 
-
     list.className =
         "case-list";
 
-
     cases.forEach(
         gameCase => {
-
 
             const items =
                 caseItems.filter(
@@ -4528,7 +3329,6 @@ function renderCases(){
                             gameCase.id
                         )
                 );
-
 
             const preview =
                 items
@@ -4545,10 +3345,7 @@ function renderCases(){
                         >
                         `
                 )
-                .join(
-                    ""
-                );
-
+                .join("");
 
             const card =
                 document
@@ -4556,10 +3353,8 @@ function renderCases(){
                         "div"
                     );
 
-
             card.className =
                 "case-card";
-
 
             card.innerHTML =
                 `
@@ -4580,13 +3375,11 @@ function renderCases(){
                 </div>
                 `;
 
-
             card.onclick =
                 () =>
                     selectCase(
                         gameCase.id
                     );
-
 
             list
                 .appendChild(
@@ -4595,7 +3388,6 @@ function renderCases(){
 
         }
     );
-
 
     root
         .appendChild(
@@ -4621,7 +3413,6 @@ function selectCase(
                 )
         );
 
-
     if(
         !selectedCase
     ){
@@ -4630,7 +3421,6 @@ function selectCase(
 
     }
 
-
     document
         .getElementById(
             "caseList"
@@ -4638,14 +3428,12 @@ function selectCase(
         .style.display =
             "none";
 
-
     document
         .getElementById(
             "activeCase"
         )
         .style.display =
             "block";
-
 
     document
         .getElementById(
@@ -4655,7 +3443,6 @@ function selectCase(
             "🎁 "
             +
             selectedCase.name;
-
 
     document
         .getElementById(
@@ -4668,7 +3455,6 @@ function selectCase(
             +
             " 💰";
 
-
     document
         .getElementById(
             "caseResult"
@@ -4676,14 +3462,12 @@ function selectCase(
         .innerHTML =
             "";
 
-
     document
         .getElementById(
             "quickSellArea"
         )
         .innerHTML =
             "";
-
 
     createIdleRoulette();
 
@@ -4699,14 +3483,12 @@ function closeCase(){
     selectedCase =
         null;
 
-
     document
         .getElementById(
             "caseList"
         )
         .style.display =
             "block";
-
 
     document
         .getElementById(
@@ -4730,10 +3512,8 @@ function setCaseCount(
 
     }
 
-
     caseOpenCount =
         count;
-
 
     [
         1,
@@ -4761,7 +3541,6 @@ function setCaseCount(
         }
     );
 
-
     updateCaseCost();
 
 }
@@ -4777,7 +3556,6 @@ function updateCaseCost(){
 
     }
 
-
     const total =
         Number(
             selectedCase.price
@@ -4785,13 +3563,11 @@ function updateCaseCost(){
         *
         caseOpenCount;
 
-
     const element =
         document
             .getElementById(
                 "totalCasePrice"
             );
-
 
     element.innerText =
         "Будет потрачено: "
@@ -4799,7 +3575,6 @@ function updateCaseCost(){
         total
         +
         " 💰";
-
 
     element.style.color =
         coins
@@ -4809,7 +3584,6 @@ function updateCaseCost(){
         "#facc15"
         :
         "#f87171";
-
 
     document
         .getElementById(
@@ -4837,7 +3611,6 @@ function toggleCaseSpeed(){
 
     }
 
-
     caseSpeed =
         caseSpeed
         ===
@@ -4846,7 +3619,6 @@ function toggleCaseSpeed(){
         5
         :
         1;
-
 
     document
         .getElementById(
@@ -4873,7 +3645,6 @@ function getCaseItems(){
 
     }
 
-
     return caseItems.filter(
         item =>
             Number(
@@ -4898,10 +3669,8 @@ function rouletteCard(
                 "div"
             );
 
-
     div.className =
         "roulette-item";
-
 
     div.innerHTML =
         `
@@ -4913,7 +3682,6 @@ function rouletteCard(
             ${item.brainrot_name}
         </div>
         `;
-
 
     return div;
 
@@ -4928,22 +3696,17 @@ function createIdleRoulette(){
                 "rouletteTrack"
             );
 
-
     const items =
         getCaseItems();
-
 
     track.innerHTML =
         "";
 
-
     track.style.transition =
         "none";
 
-
     track.style.transform =
         "translateX(0)";
-
 
     if(
         !items.length
@@ -4952,7 +3715,6 @@ function createIdleRoulette(){
         return;
 
     }
-
 
     for(
         let i = 0;
@@ -4986,17 +3748,14 @@ async function animateCase(
                 "rouletteTrack"
             );
 
-
     const container =
         document
             .getElementById(
                 "rouletteContainer"
             );
 
-
     const items =
         getCaseItems();
-
 
     if(
         !items.length
@@ -5006,26 +3765,20 @@ async function animateCase(
 
     }
 
-
     track.innerHTML =
         "";
-
 
     track.style.transition =
         "none";
 
-
     track.style.transform =
         "translateX(0)";
-
 
     const winnerIndex =
         39;
 
-
     let winnerElement =
         null;
-
 
     for(
         let i = 0;
@@ -5034,7 +3787,6 @@ async function animateCase(
     ){
 
         let item;
-
 
         if(
             i
@@ -5061,12 +3813,10 @@ async function animateCase(
 
         }
 
-
         const card =
             rouletteCard(
                 item
             );
-
 
         if(
             i
@@ -5079,14 +3829,12 @@ async function animateCase(
 
         }
 
-
         track
             .appendChild(
                 card
             );
 
     }
-
 
     await new Promise(
         resolve =>
@@ -5098,12 +3846,10 @@ async function animateCase(
             )
     );
 
-
     const center =
         container.clientWidth
         /
         2;
-
 
     const winnerCenter =
         winnerElement.offsetLeft
@@ -5112,26 +3858,21 @@ async function animateCase(
         /
         2;
 
-
     const x =
         center
         -
         winnerCenter;
-
 
     const time =
         4200
         /
         caseSpeed;
 
-
     track.style.transition =
         `transform ${time}ms cubic-bezier(.08,.68,.12,1)`;
 
-
     track.style.transform =
         `translateX(${x}px)`;
-
 
     await sleep(
         time
@@ -5154,7 +3895,6 @@ async function openSelectedCase(){
 
     }
 
-
     const total =
         Number(
             selectedCase.price
@@ -5162,20 +3902,17 @@ async function openSelectedCase(){
         *
         caseOpenCount;
 
-
     const result =
         document
             .getElementById(
                 "caseResult"
             );
 
-
     const quick =
         document
             .getElementById(
                 "quickSellArea"
             );
-
 
     if(
         coins
@@ -5192,10 +3929,8 @@ async function openSelectedCase(){
 
     }
 
-
     caseSpinning =
         true;
-
 
     document
         .getElementById(
@@ -5204,21 +3939,16 @@ async function openSelectedCase(){
         .disabled =
             true;
 
-
     result.innerText =
         `🎰 Открываем ×${caseOpenCount}...`;
-
 
     quick.innerHTML =
         "";
 
-
     const winners =
         [];
 
-
     try{
-
 
         for(
             let i = 0;
@@ -5235,7 +3965,6 @@ async function openSelectedCase(){
                         selectedCase.id
                 });
 
-
             if(
                 !data.ok
             ){
@@ -5248,12 +3977,10 @@ async function openSelectedCase(){
 
             }
 
-
             coins =
                 Number(
                     data.coins
                 );
-
 
             playerProfile.cases_opened =
                 Number(
@@ -5262,18 +3989,15 @@ async function openSelectedCase(){
                     playerProfile.cases_opened
                 );
 
-
             winners.push(
                 data.item
             );
-
 
             inventory.unshift(
                 data.item
             );
 
         }
-
 
         await animateCase(
             winners[
@@ -5282,7 +4006,6 @@ async function openSelectedCase(){
                 1
             ]
         );
-
 
         updateBalance();
 
@@ -5294,7 +4017,6 @@ async function openSelectedCase(){
 
         updateCaseCost();
 
-
         if(
             winners.length
             ===
@@ -5302,10 +4024,7 @@ async function openSelectedCase(){
         ){
 
             const item =
-                winners[
-                    0
-                ];
-
+                winners[0];
 
             quick.innerHTML =
                 `
@@ -5316,7 +4035,6 @@ async function openSelectedCase(){
                     ПРОДАТЬ ЗА ${item.value} 💰
                 </button>
                 `;
-
 
             result.innerText =
                 item.brainrot_name
@@ -5342,7 +4060,6 @@ async function openSelectedCase(){
 
         }
 
-
     }
     catch(
         error
@@ -5357,15 +4074,12 @@ async function openSelectedCase(){
                 "Ошибка"
             );
 
-
         await loadPlayer();
 
     }
 
-
     caseSpinning =
         false;
-
 
     document
         .getElementById(
@@ -5385,10 +4099,8 @@ function renderCaseContent(){
                 "caseContentList"
             );
 
-
     root.innerHTML =
         "";
-
 
     if(
         !selectedCase
@@ -5398,18 +4110,15 @@ function renderCaseContent(){
 
     }
 
-
     const items =
         getCaseItems()
         .map(
             item => {
 
-
                 const brainrot =
                     getBrainrotByName(
                         item.brainrot_name
                     );
-
 
                 return {
 
@@ -5443,10 +4152,8 @@ function renderCaseContent(){
                 a.value
         );
 
-
     items.forEach(
         item => {
-
 
             const div =
                 document
@@ -5454,10 +4161,8 @@ function renderCaseContent(){
                         "div"
                     );
 
-
             div.className =
                 "case-content-item";
-
 
             div.innerHTML =
                 `
@@ -5478,7 +4183,6 @@ function renderCaseContent(){
                     ${item.value} 💰
                 </div>
                 `;
-
 
             root
                 .appendChild(
@@ -5503,10 +4207,8 @@ function renderInventory(){
                 "inventory"
             );
 
-
     root.innerHTML =
         "";
-
 
     if(
         !inventory.length
@@ -5515,30 +4217,24 @@ function renderInventory(){
         root.style.display =
             "block";
 
-
         root.innerText =
             "Инвентарь пуст";
-
 
         return;
 
     }
 
-
     root.style.display =
         "grid";
 
-
     inventory.forEach(
         item => {
-
 
             const div =
                 document
                     .createElement(
                         "div"
                     );
-
 
             div.className =
                 "inventory-card"
@@ -5550,7 +4246,6 @@ function renderInventory(){
                     :
                     ""
                 );
-
 
             div.innerHTML =
                 `
@@ -5605,7 +4300,6 @@ function renderInventory(){
                 }
                 `;
 
-
             root
                 .appendChild(
                     div
@@ -5634,7 +4328,6 @@ async function sellItem(
                 id
         });
 
-
     if(
         !data.ok
     ){
@@ -5645,17 +4338,14 @@ async function sellItem(
             "Ошибка"
         );
 
-
         return;
 
     }
-
 
     coins =
         Number(
             data.coins
         );
-
 
     inventory =
         inventory.filter(
@@ -5668,7 +4358,6 @@ async function sellItem(
                     id
                 )
         );
-
 
     if(
         Number(
@@ -5684,7 +4373,6 @@ async function sellItem(
             null;
 
     }
-
 
     updateBalance();
 
@@ -5711,7 +4399,6 @@ function openSellAll(){
                 !item.locked
         );
 
-
     const total =
         available.reduce(
             (
@@ -5725,7 +4412,6 @@ function openSellAll(){
                 ),
             0
         );
-
 
     document
         .getElementById(
@@ -5747,14 +4433,12 @@ function openSellAll(){
             проданы не будут.
             `;
 
-
     document
         .getElementById(
             "sellAllResult"
         )
         .innerText =
             "";
-
 
     document
         .getElementById(
@@ -5790,17 +4474,14 @@ async function confirmSellAll(){
                 "sellAllResult"
             );
 
-
     result.innerText =
         "⏳ Продажа...";
-
 
     const data =
         await apiRequest({
             action:
                 "sell_all"
         });
-
 
     if(
         !data.ok
@@ -5811,17 +4492,14 @@ async function confirmSellAll(){
             +
             data.error;
 
-
         return;
 
     }
-
 
     coins =
         Number(
             data.coins
         );
-
 
     inventory =
         inventory.filter(
@@ -5829,10 +4507,8 @@ async function confirmSellAll(){
                 item.locked
         );
 
-
     selectedSourceId =
         null;
-
 
     updateBalance();
 
@@ -5844,10 +4520,8 @@ async function confirmSellAll(){
 
     updateUpgradeUI();
 
-
     result.innerText =
         `✅ Продано: ${data.sold_count}\n+${data.added_coins} 💰`;
-
 
     setTimeout(
         closeSellAll,
@@ -5877,7 +4551,6 @@ function openExchange(
                 )
         );
 
-
     if(
         !selectedExchangeItem
     ){
@@ -5885,7 +4558,6 @@ function openExchange(
         return;
 
     }
-
 
     document
         .getElementById(
@@ -5912,7 +4584,6 @@ function openExchange(
             </div>
             `;
 
-
     document
         .getElementById(
             "exchangeResultText"
@@ -5920,9 +4591,7 @@ function openExchange(
         .innerText =
             "";
 
-
     renderExchangeGrid();
-
 
     document
         .getElementById(
@@ -5940,7 +4609,6 @@ function closeExchange(){
 
     selectedExchangeItem =
         null;
-
 
     document
         .getElementById(
@@ -5962,10 +4630,8 @@ function renderExchangeGrid(){
                 "exchangeGrid"
             );
 
-
     root.innerHTML =
         "";
-
 
     if(
         !selectedExchangeItem
@@ -5975,12 +4641,10 @@ function renderExchangeGrid(){
 
     }
 
-
     const sourceValue =
         Number(
             selectedExchangeItem.value
         );
-
 
     const options =
         brainrots
@@ -6006,10 +4670,8 @@ function renderExchangeGrid(){
                 )
         );
 
-
     options.forEach(
         item => {
-
 
             const quantity =
                 Math.floor(
@@ -6020,7 +4682,6 @@ function renderExchangeGrid(){
                     )
                 );
 
-
             const remainder =
                 sourceValue
                 -
@@ -6030,17 +4691,14 @@ function renderExchangeGrid(){
                     item.value
                 );
 
-
             const div =
                 document
                     .createElement(
                         "div"
                     );
 
-
             div.className =
                 "exchange-option";
-
 
             div.innerHTML =
                 `
@@ -6069,13 +4727,11 @@ function renderExchangeGrid(){
                 </div>
                 `;
 
-
             div.onclick =
                 () =>
                     exchangeItem(
                         item.brainrot_id
                     );
-
 
             root
                 .appendChild(
@@ -6100,10 +4756,8 @@ async function exchangeItem(
 
     }
 
-
     const sourceId =
         selectedExchangeItem.id;
-
 
     const result =
         document
@@ -6111,10 +4765,8 @@ async function exchangeItem(
                 "exchangeResultText"
             );
 
-
     result.innerText =
         "⏳ Обмен...";
-
 
     const data =
         await apiRequest({
@@ -6130,7 +4782,6 @@ async function exchangeItem(
 
         });
 
-
     if(
         !data.ok
     ){
@@ -6140,11 +4791,9 @@ async function exchangeItem(
             +
             data.error;
 
-
         return;
 
     }
-
 
     inventory =
         inventory.filter(
@@ -6158,7 +4807,6 @@ async function exchangeItem(
                 )
         );
 
-
     if(
         Array.isArray(
             data.added_items
@@ -6171,12 +4819,10 @@ async function exchangeItem(
 
     }
 
-
     coins =
         Number(
             data.coins
         );
-
 
     updateBalance();
 
@@ -6185,7 +4831,6 @@ async function exchangeItem(
     renderSourceGrid();
 
     renderTargetGrid();
-
 
     result.innerText =
         `✅ ${data.target_quantity}× ${data.target_item.name}`
@@ -6201,7 +4846,6 @@ async function exchangeItem(
             :
             ""
         );
-
 
     setTimeout(
         closeExchange,
@@ -6270,7 +4914,6 @@ function calculateChance(
 
     }
 
-
     let chance =
         Math.floor(
             (
@@ -6288,13 +4931,11 @@ function calculateChance(
             .75
         );
 
-
     chance =
         Math.min(
             chance,
             70
         );
-
 
     chance =
         Math.max(
@@ -6302,19 +4943,10 @@ function calculateChance(
             0
         );
 
-
     return chance;
 
 }
 
-
-/* =====================================================
-   SOURCE GRID
-
-   ИСПРАВЛЕНО:
-   класс mystery-disabled существует ТОЛЬКО
-   когда mysteryMode === true.
-===================================================== */
 
 function renderSourceGrid(){
 
@@ -6324,17 +4956,14 @@ function renderSourceGrid(){
                 "sourceGrid"
             );
 
-
     root.innerHTML =
         "";
-
 
     const items =
         inventory.filter(
             item =>
                 !item.locked
         );
-
 
     if(
         !items.length
@@ -6343,21 +4972,17 @@ function renderSourceGrid(){
         root.innerText =
             "Нет доступных Brainrot";
 
-
         return;
 
     }
 
-
     items.forEach(
         item => {
-
 
             const value =
                 Number(
                     item.value
                 );
-
 
             const mysteryDisabled =
                 mysteryMode
@@ -6368,17 +4993,14 @@ function renderSourceGrid(){
                 <
                 30;
 
-
             const div =
                 document
                     .createElement(
                         "div"
                     );
 
-
             div.className =
                 "upgrade-choice";
-
 
             if(
                 mysteryDisabled
@@ -6391,7 +5013,6 @@ function renderSourceGrid(){
                     );
 
             }
-
 
             if(
                 Number(
@@ -6414,7 +5035,6 @@ function renderSourceGrid(){
                     );
 
             }
-
 
             div.innerHTML =
                 `
@@ -6443,10 +5063,8 @@ function renderSourceGrid(){
                 }
                 `;
 
-
             div.onclick =
                 () => {
-
 
                     if(
                         upgrading
@@ -6455,7 +5073,6 @@ function renderSourceGrid(){
                         return;
 
                     }
-
 
                     if(
                         mysteryMode
@@ -6472,15 +5089,12 @@ function renderSourceGrid(){
                             .innerText =
                                 "❌ Для Mystery нужен Brainrot стоимостью минимум 30 💰";
 
-
                         return;
 
                     }
 
-
                     selectedSourceId =
                         item.id;
-
 
                     if(
                         !mysteryMode
@@ -6488,7 +5102,6 @@ function renderSourceGrid(){
 
                         const target =
                             getTarget();
-
 
                         if(
                             target
@@ -6507,7 +5120,6 @@ function renderSourceGrid(){
 
                     }
 
-
                     renderSourceGrid();
 
                     renderTargetGrid();
@@ -6515,7 +5127,6 @@ function renderSourceGrid(){
                     updateUpgradeUI();
 
                 };
-
 
             root
                 .appendChild(
@@ -6528,10 +5139,6 @@ function renderSourceGrid(){
 }
 
 
-/* =====================================================
-   TARGET GRID
-===================================================== */
-
 function renderTargetGrid(){
 
     const root =
@@ -6540,10 +5147,8 @@ function renderTargetGrid(){
                 "targetGrid"
             );
 
-
     root.innerHTML =
         "";
-
 
     if(
         mysteryMode
@@ -6553,10 +5158,8 @@ function renderTargetGrid(){
 
     }
 
-
     const source =
         getSource();
-
 
     if(
         !source
@@ -6565,11 +5168,9 @@ function renderTargetGrid(){
         root.innerText =
             "Сначала выбери свой Brainrot";
 
-
         return;
 
     }
-
 
     const targets =
         brainrots
@@ -6597,10 +5198,8 @@ function renderTargetGrid(){
                 )
         );
 
-
     targets.forEach(
         item => {
-
 
             const div =
                 document
@@ -6608,10 +5207,8 @@ function renderTargetGrid(){
                         "div"
                     );
 
-
             div.className =
                 "upgrade-choice";
-
 
             if(
                 Number(
@@ -6631,7 +5228,6 @@ function renderTargetGrid(){
 
             }
 
-
             div.innerHTML =
                 `
                 <img
@@ -6647,10 +5243,8 @@ function renderTargetGrid(){
                 </div>
                 `;
 
-
             div.onclick =
                 () => {
-
 
                     if(
                         upgrading
@@ -6660,17 +5254,14 @@ function renderTargetGrid(){
 
                     }
 
-
                     selectedTargetId =
                         item.brainrot_id;
-
 
                     renderTargetGrid();
 
                     updateUpgradeUI();
 
                 };
-
 
             root
                 .appendChild(
@@ -6683,10 +5274,6 @@ function renderTargetGrid(){
 }
 
 
-/* =====================================================
-   UPGRADE UI
-===================================================== */
-
 function updateUpgradeUI(){
 
     const wheel =
@@ -6695,13 +5282,11 @@ function updateUpgradeUI(){
                 "upgradeWheel"
             );
 
-
     const wheelText =
         document
             .getElementById(
                 "wheelText"
             );
-
 
     const mysteryInfo =
         document
@@ -6709,20 +5294,17 @@ function updateUpgradeUI(){
                 "mysteryInfo"
             );
 
-
     const button =
         document
             .getElementById(
                 "upgradeButton"
             );
 
-
     const targetSection =
         document
             .getElementById(
                 "targetSection"
             );
-
 
     document
         .getElementById(
@@ -6734,14 +5316,12 @@ function updateUpgradeUI(){
             mysteryMode
         );
 
-
     wheel
         .classList
         .toggle(
             "mystery-wheel",
             mysteryMode
         );
-
 
     wheelText
         .classList
@@ -6750,14 +5330,12 @@ function updateUpgradeUI(){
             mysteryMode
         );
 
-
     button
         .classList
         .toggle(
             "mystery-btn",
             mysteryMode
         );
-
 
     if(
         mysteryMode
@@ -6766,35 +5344,27 @@ function updateUpgradeUI(){
         wheelText.innerText =
             "?";
 
-
         button.innerText =
             "💎 MYSTERY";
-
 
         mysteryInfo.style.display =
             "block";
 
-
         targetSection.style.display =
             "none";
-
 
         return;
 
     }
 
-
     mysteryInfo.style.display =
         "none";
-
 
     targetSection.style.display =
         "block";
 
-
     button.innerText =
         "⚡ АПГРЕЙД";
-
 
     const chance =
         calculateChance(
@@ -6802,12 +5372,10 @@ function updateUpgradeUI(){
             getTarget()
         );
 
-
     wheelText.innerText =
         chance
         +
         "%";
-
 
     wheel.style.setProperty(
         "--green-angle",
@@ -6821,14 +5389,6 @@ function updateUpgradeUI(){
 }
 
 
-/* =====================================================
-   MYSTERY TOGGLE
-
-   ИСПРАВЛЕНО:
-   при выключении Mystery ВСЁ сразу
-   перерисовывается.
-===================================================== */
-
 function toggleMystery(){
 
     if(
@@ -6839,14 +5399,11 @@ function toggleMystery(){
 
     }
 
-
     mysteryMode =
         !mysteryMode;
 
-
     selectedTargetId =
         null;
-
 
     if(
         mysteryMode
@@ -6854,7 +5411,6 @@ function toggleMystery(){
 
         const source =
             getSource();
-
 
         if(
             source
@@ -6873,19 +5429,12 @@ function toggleMystery(){
 
     }
 
-
     document
         .getElementById(
             "upgradeResult"
         )
         .innerText =
             "";
-
-
-    /*
-    КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ:
-    полностью создаём карточки заново.
-    */
 
     renderSourceGrid();
 
@@ -6895,14 +5444,6 @@ function toggleMystery(){
 
 }
 
-
-/* =====================================================
-   DISABLE MYSTERY
-
-   ИСПРАВЛЕНО:
-   раньше эта функция только меняла режим.
-   Теперь сразу снимает серый mystery-disabled.
-===================================================== */
 
 function disableMystery(){
 
@@ -6914,18 +5455,11 @@ function disableMystery(){
 
     }
 
-
     mysteryMode =
         false;
 
-
     selectedTargetId =
         null;
-
-
-    /*
-    Обязательно сначала перерисовываем карточки.
-    */
 
     renderSourceGrid();
 
@@ -6935,10 +5469,6 @@ function disableMystery(){
 
 }
 
-
-/* =====================================================
-   FAST CHANCE
-===================================================== */
 
 function selectByChance(
     wantedChance
@@ -6952,7 +5482,6 @@ function selectByChance(
 
     }
 
-
     if(
         mysteryMode
     ){
@@ -6961,10 +5490,8 @@ function selectByChance(
 
     }
 
-
     const source =
         getSource();
-
 
     if(
         !source
@@ -6977,11 +5504,9 @@ function selectByChance(
             .innerText =
                 "❌ Сначала выбери Brainrot";
 
-
         return;
 
     }
-
 
     const targets =
         brainrots.filter(
@@ -6995,18 +5520,14 @@ function selectByChance(
                 )
         );
 
-
     let best =
         null;
-
 
     let difference =
         Infinity;
 
-
     targets.forEach(
         item => {
-
 
             const chance =
                 calculateChance(
@@ -7014,14 +5535,12 @@ function selectByChance(
                     item
                 );
 
-
             const diff =
                 Math.abs(
                     chance
                     -
                     wantedChance
                 );
-
 
             if(
                 diff
@@ -7032,7 +5551,6 @@ function selectByChance(
                 difference =
                     diff;
 
-
                 best =
                     item;
 
@@ -7040,7 +5558,6 @@ function selectByChance(
 
         }
     );
-
 
     if(
         best
@@ -7051,7 +5568,6 @@ function selectByChance(
 
     }
 
-
     renderSourceGrid();
 
     renderTargetGrid();
@@ -7060,10 +5576,6 @@ function selectByChance(
 
 }
 
-
-/* =====================================================
-   MULTIPLIER
-===================================================== */
 
 function selectMultiplier(
     multiplier
@@ -7077,7 +5589,6 @@ function selectMultiplier(
 
     }
 
-
     if(
         mysteryMode
     ){
@@ -7086,10 +5597,8 @@ function selectMultiplier(
 
     }
 
-
     const source =
         getSource();
-
 
     if(
         !source
@@ -7102,11 +5611,9 @@ function selectMultiplier(
             .innerText =
                 "❌ Сначала выбери Brainrot";
 
-
         return;
 
     }
-
 
     const wanted =
         Number(
@@ -7114,7 +5621,6 @@ function selectMultiplier(
         )
         *
         multiplier;
-
 
     const targets =
         brainrots.filter(
@@ -7128,18 +5634,14 @@ function selectMultiplier(
                 )
         );
 
-
     let best =
         null;
-
 
     let difference =
         Infinity;
 
-
     targets.forEach(
         item => {
-
 
             const diff =
                 Math.abs(
@@ -7150,7 +5652,6 @@ function selectMultiplier(
                     wanted
                 );
 
-
             if(
                 diff
                 <
@@ -7160,7 +5661,6 @@ function selectMultiplier(
                 difference =
                     diff;
 
-
                 best =
                     item;
 
@@ -7168,7 +5668,6 @@ function selectMultiplier(
 
         }
     );
-
 
     if(
         best
@@ -7179,7 +5678,6 @@ function selectMultiplier(
 
     }
 
-
     renderSourceGrid();
 
     renderTargetGrid();
@@ -7188,10 +5686,6 @@ function selectMultiplier(
 
 }
 
-
-/* =====================================================
-   SPEED
-===================================================== */
 
 function toggleUpgradeSpeed(){
 
@@ -7203,7 +5697,6 @@ function toggleUpgradeSpeed(){
 
     }
 
-
     upgradeSpeed =
         upgradeSpeed
         ===
@@ -7212,7 +5705,6 @@ function toggleUpgradeSpeed(){
         5
         :
         1;
-
 
     document
         .getElementById(
@@ -7229,10 +5721,6 @@ function toggleUpgradeSpeed(){
 }
 
 
-/* =====================================================
-   LOCK UI
-===================================================== */
-
 function lockUpgrade(){
 
     document
@@ -7247,7 +5735,6 @@ function lockUpgrade(){
 
             }
         );
-
 
     document
         .getElementById(
@@ -7274,7 +5761,6 @@ function unlockUpgrade(){
             }
         );
 
-
     document
         .getElementById(
             "upgradeSpeedButton"
@@ -7284,10 +5770,6 @@ function unlockUpgrade(){
 
 }
 
-
-/* =====================================================
-   NORMAL NEEDLE
-===================================================== */
 
 async function spinNeedle(
     win,
@@ -7300,15 +5782,12 @@ async function spinNeedle(
                 "needleRotor"
             );
 
-
     const green =
         chance
         *
         3.6;
 
-
     let target;
-
 
     if(
         win
@@ -7343,7 +5822,6 @@ async function spinNeedle(
 
     }
 
-
     const current =
         (
             needleRotation
@@ -7355,7 +5833,6 @@ async function spinNeedle(
         %
         360;
 
-
     const delta =
         (
             target
@@ -7366,7 +5843,6 @@ async function spinNeedle(
         )
         %
         360;
-
 
     needleRotation +=
         (
@@ -7383,20 +5859,16 @@ async function spinNeedle(
         +
         delta;
 
-
     const time =
         4000
         /
         upgradeSpeed;
 
-
     rotor.style.transition =
         `transform ${time}ms cubic-bezier(.12,.75,.12,1)`;
 
-
     rotor.style.transform =
         `rotate(${needleRotation}deg)`;
-
 
     await sleep(
         time
@@ -7407,10 +5879,6 @@ async function spinNeedle(
 }
 
 
-/* =====================================================
-   MYSTERY SPIN
-===================================================== */
-
 async function spinMystery(){
 
     const rotor =
@@ -7418,7 +5886,6 @@ async function spinMystery(){
             .getElementById(
                 "needleRotor"
             );
-
 
     needleRotation +=
         (
@@ -7439,20 +5906,16 @@ async function spinMystery(){
             360
         );
 
-
     const time =
         3400
         /
         upgradeSpeed;
 
-
     rotor.style.transition =
         `transform ${time}ms cubic-bezier(.10,.72,.10,1)`;
 
-
     rotor.style.transform =
         `rotate(${needleRotation}deg)`;
-
 
     await sleep(
         time
@@ -7462,10 +5925,6 @@ async function spinMystery(){
 
 }
 
-
-/* =====================================================
-   UPGRADE
-===================================================== */
 
 async function upgradeItem(){
 
@@ -7477,17 +5936,14 @@ async function upgradeItem(){
 
     }
 
-
     const source =
         getSource();
-
 
     const result =
         document
             .getElementById(
                 "upgradeResult"
             );
-
 
     if(
         !source
@@ -7496,20 +5952,14 @@ async function upgradeItem(){
         result.innerText =
             "❌ Выбери свой Brainrot";
 
-
         return;
 
     }
 
 
-    /* =================================================
-       MYSTERY
-    ================================================= */
-
     if(
         mysteryMode
     ){
-
 
         if(
             Number(
@@ -7522,18 +5972,14 @@ async function upgradeItem(){
             result.innerText =
                 "❌ Минимальная ставка Mystery — Brainrot стоимостью от 30 💰";
 
-
             return;
 
         }
 
-
         upgrading =
             true;
 
-
         lockUpgrade();
-
 
         document
             .getElementById(
@@ -7542,13 +5988,10 @@ async function upgradeItem(){
             .disabled =
                 true;
 
-
         result.innerText =
             "💎 Mystery прокручивается...";
 
-
         try{
-
 
             const data =
                 await apiRequest({
@@ -7560,7 +6003,6 @@ async function upgradeItem(){
                         source.id
 
                 });
-
 
             if(
                 !data.ok
@@ -7574,9 +6016,7 @@ async function upgradeItem(){
 
             }
 
-
             await spinMystery();
-
 
             inventory =
                 inventory.filter(
@@ -7590,11 +6030,9 @@ async function upgradeItem(){
                         )
                 );
 
-
             inventory.unshift(
                 data.item
             );
-
 
             playerProfile.upgrades_done =
                 Number(
@@ -7602,7 +6040,6 @@ async function upgradeItem(){
                     ??
                     playerProfile.upgrades_done
                 );
-
 
             const multiplier =
                 Number(
@@ -7621,15 +6058,6 @@ async function upgradeItem(){
                 .toFixed(
                     2
                 );
-
-
-            /*
-            НОВЫЙ КОМПАКТНЫЙ РЕЗУЛЬТАТ.
-
-            Показываем только новый Brainrot,
-            маленькую картинку,
-            цену и multiplier.
-            */
 
             result.innerHTML =
                 `
@@ -7663,10 +6091,8 @@ async function upgradeItem(){
                 </div>
                 `;
 
-
             selectedSourceId =
                 null;
-
 
             renderProfile();
 
@@ -7677,7 +6103,6 @@ async function upgradeItem(){
             renderTargetGrid();
 
             updateUpgradeUI();
-
 
         }
         catch(
@@ -7699,9 +6124,7 @@ async function upgradeItem(){
             upgrading =
                 false;
 
-
             unlockUpgrade();
-
 
             document
                 .getElementById(
@@ -7712,20 +6135,13 @@ async function upgradeItem(){
 
         }
 
-
         return;
 
     }
 
 
-    /* =================================================
-       NORMAL UPGRADE
-    ================================================= */
-
-
     const target =
         getTarget();
-
 
     if(
         !target
@@ -7734,18 +6150,14 @@ async function upgradeItem(){
         result.innerText =
             "❌ Выбери цель";
 
-
         return;
 
     }
 
-
     upgrading =
         true;
 
-
     lockUpgrade();
-
 
     document
         .getElementById(
@@ -7754,13 +6166,10 @@ async function upgradeItem(){
         .disabled =
             true;
 
-
     result.innerText =
         "⚡ Апгрейд...";
 
-
     try{
-
 
         const data =
             await apiRequest({
@@ -7776,7 +6185,6 @@ async function upgradeItem(){
 
             });
 
-
         if(
             !data.ok
         ){
@@ -7789,12 +6197,10 @@ async function upgradeItem(){
 
         }
 
-
         await spinNeedle(
             data.win,
             data.chance
         );
-
 
         inventory =
             inventory.filter(
@@ -7808,14 +6214,12 @@ async function upgradeItem(){
                     )
             );
 
-
         playerProfile.upgrades_done =
             Number(
                 data.upgrades_done
                 ??
                 playerProfile.upgrades_done
             );
-
 
         if(
             data.win
@@ -7824,7 +6228,6 @@ async function upgradeItem(){
             inventory.unshift(
                 data.item
             );
-
 
             result.innerText =
                 "✅ УСПЕХ!\n"
@@ -7857,10 +6260,8 @@ async function upgradeItem(){
 
         }
 
-
         selectedSourceId =
             null;
-
 
         renderProfile();
 
@@ -7871,7 +6272,6 @@ async function upgradeItem(){
         renderTargetGrid();
 
         updateUpgradeUI();
-
 
     }
     catch(
@@ -7893,9 +6293,7 @@ async function upgradeItem(){
         upgrading =
             false;
 
-
         unlockUpgrade();
-
 
         document
             .getElementById(
@@ -7919,12 +6317,10 @@ function getGaramaValue(){
         brainrots.find(
             brainrot => {
 
-
                 const name =
                     normalizeName(
                         brainrot.name
                     );
-
 
                 return (
                     name.includes(
@@ -7938,7 +6334,6 @@ function getGaramaValue(){
 
             }
         );
-
 
     return item
         ?
@@ -7955,7 +6350,6 @@ function getDepositItems(){
 
     const minimum =
         getGaramaValue();
-
 
     return brainrots
         .filter(
@@ -7988,7 +6382,6 @@ function openDeposit(){
     depositSelection =
         {};
 
-
     document
         .getElementById(
             "depositResult"
@@ -7996,9 +6389,7 @@ function openDeposit(){
         .innerText =
             "";
 
-
     renderDepositGrid();
-
 
     document
         .getElementById(
@@ -8062,7 +6453,6 @@ function changeDeposit(
             0
         );
 
-
     if(
         delta
         >
@@ -8077,11 +6467,9 @@ function changeDeposit(
             "Максимум 10 Brainrot"
         );
 
-
         return;
 
     }
-
 
     const next =
         Math.max(
@@ -8090,7 +6478,6 @@ function changeDeposit(
             +
             delta
         );
-
 
     if(
         next
@@ -8112,7 +6499,6 @@ function changeDeposit(
 
     }
 
-
     renderDepositGrid();
 
 }
@@ -8126,7 +6512,6 @@ function renderDepositGrid(){
                 "depositGrid"
             );
 
-
     if(
         !root
     ){
@@ -8135,15 +6520,12 @@ function renderDepositGrid(){
 
     }
 
-
     root.innerHTML =
         "";
-
 
     getDepositItems()
     .forEach(
         item => {
-
 
             const quantity =
                 Number(
@@ -8153,7 +6535,6 @@ function renderDepositGrid(){
                     ||
                     0
                 );
-
 
             const value =
                 Math.max(
@@ -8165,17 +6546,14 @@ function renderDepositGrid(){
                     8
                 );
 
-
             const div =
                 document
                     .createElement(
                         "div"
                     );
 
-
             div.className =
                 "deposit-item";
-
 
             div.innerHTML =
                 `
@@ -8214,7 +6592,6 @@ function renderDepositGrid(){
                 </div>
                 `;
 
-
             root
                 .appendChild(
                     div
@@ -8222,7 +6599,6 @@ function renderDepositGrid(){
 
         }
     );
-
 
     updateDepositSummary();
 
@@ -8233,7 +6609,6 @@ function updateDepositSummary(){
 
     let total =
         0;
-
 
     Object
     .entries(
@@ -8247,7 +6622,6 @@ function updateDepositSummary(){
             ]
         ) => {
 
-
             const item =
                 brainrots.find(
                     brainrot =>
@@ -8260,7 +6634,6 @@ function updateDepositSummary(){
                         )
                 );
 
-
             if(
                 !item
             ){
@@ -8268,7 +6641,6 @@ function updateDepositSummary(){
                 return;
 
             }
-
 
             total +=
                 Math.max(
@@ -8287,14 +6659,12 @@ function updateDepositSummary(){
         }
     );
 
-
     document
         .getElementById(
             "depositCount"
         )
         .innerText =
             getDepositCount();
-
 
     document
         .getElementById(
@@ -8316,13 +6686,11 @@ async function submitDeposit(){
             .value
             .trim();
 
-
     const result =
         document
             .getElementById(
                 "depositResult"
             );
-
 
     const items =
         Object
@@ -8363,7 +6731,6 @@ async function submitDeposit(){
             })
         );
 
-
     if(
         !items.length
     ){
@@ -8371,11 +6738,9 @@ async function submitDeposit(){
         result.innerText =
             "❌ Выбери Brainrot";
 
-
         return;
 
     }
-
 
     if(
         username.length
@@ -8386,15 +6751,12 @@ async function submitDeposit(){
         result.innerText =
             "❌ Введи Roblox ник";
 
-
         return;
 
     }
 
-
     result.innerText =
         "⏳ Отправляем...";
-
 
     const data =
         await apiRequest({
@@ -8410,7 +6772,6 @@ async function submitDeposit(){
 
         });
 
-
     if(
         !data.ok
     ){
@@ -8420,11 +6781,9 @@ async function submitDeposit(){
             +
             data.error;
 
-
         return;
 
     }
-
 
     result.innerText =
         `✅ Заявка #${data.request_id} создана.\n\n⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
@@ -8452,7 +6811,6 @@ function openWithdraw(
                 )
         );
 
-
     if(
         !selectedWithdrawItem
     ){
@@ -8460,7 +6818,6 @@ function openWithdraw(
         return;
 
     }
-
 
     document
         .getElementById(
@@ -8497,14 +6854,12 @@ function openWithdraw(
             </div>
             `;
 
-
     document
         .getElementById(
             "withdrawRoblox"
         )
         .value =
             "";
-
 
     document
         .getElementById(
@@ -8514,7 +6869,6 @@ function openWithdraw(
             new Date()
                 .getDate();
 
-
     document
         .getElementById(
             "withdrawClock"
@@ -8522,14 +6876,12 @@ function openWithdraw(
         .value =
             "";
 
-
     document
         .getElementById(
             "withdrawResult"
         )
         .innerText =
             "";
-
 
     document
         .getElementById(
@@ -8547,7 +6899,6 @@ function closeWithdraw(){
 
     selectedWithdrawItem =
         null;
-
 
     document
         .getElementById(
@@ -8574,7 +6925,6 @@ function buildWithdrawDate(
 
     }
 
-
     const [
         hour,
         minute
@@ -8587,10 +6937,8 @@ function buildWithdrawDate(
             Number
         );
 
-
     const now =
         new Date();
-
 
     let date =
         new Date(
@@ -8602,7 +6950,6 @@ function buildWithdrawDate(
             0,
             0
         );
-
 
     if(
         date.getTime()
@@ -8625,7 +6972,6 @@ function buildWithdrawDate(
 
     }
 
-
     return date;
 
 }
@@ -8641,7 +6987,6 @@ async function submitWithdraw(){
 
     }
 
-
     const username =
         document
             .getElementById(
@@ -8649,7 +6994,6 @@ async function submitWithdraw(){
             )
             .value
             .trim();
-
 
     const day =
         Number(
@@ -8660,7 +7004,6 @@ async function submitWithdraw(){
                 .value
         );
 
-
     const time =
         document
             .getElementById(
@@ -8668,13 +7011,11 @@ async function submitWithdraw(){
             )
             .value;
 
-
     const result =
         document
             .getElementById(
                 "withdrawResult"
             );
-
 
     if(
         username.length
@@ -8685,11 +7026,9 @@ async function submitWithdraw(){
         result.innerText =
             "❌ Введи Roblox ник";
 
-
         return;
 
     }
-
 
     if(
         !day
@@ -8706,18 +7045,15 @@ async function submitWithdraw(){
         result.innerText =
             "❌ Неверный день";
 
-
         return;
 
     }
-
 
     const date =
         buildWithdrawDate(
             day,
             time
         );
-
 
     if(
         !date
@@ -8726,15 +7062,12 @@ async function submitWithdraw(){
         result.innerText =
             "❌ Выбери время";
 
-
         return;
 
     }
 
-
     result.innerText =
         "⏳ Создаём заявку...";
-
 
     const data =
         await apiRequest({
@@ -8753,7 +7086,6 @@ async function submitWithdraw(){
 
         });
 
-
     if(
         !data.ok
     ){
@@ -8763,11 +7095,9 @@ async function submitWithdraw(){
             +
             data.error;
 
-
         return;
 
     }
-
 
     const item =
         inventory.find(
@@ -8781,7 +7111,6 @@ async function submitWithdraw(){
                 )
         );
 
-
     if(
         item
     ){
@@ -8791,11 +7120,9 @@ async function submitWithdraw(){
 
     }
 
-
     renderInventory();
 
     renderSourceGrid();
-
 
     result.innerText =
         `✅ Заявка #${data.request_id} создана.`;
