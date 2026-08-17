@@ -14,7 +14,6 @@
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-
 <style>
 
 /* =====================================================
@@ -38,7 +37,7 @@ body {
         Arial,
         sans-serif;
 
-    color: #ffffff;
+    color: white;
 
     background:
         radial-gradient(
@@ -163,19 +162,32 @@ img {
 
 .logo {
     font-size: 18px;
-
     font-weight: 900;
 }
 
 .top-right {
     display: flex;
-
     align-items: center;
-
     gap: 6px;
 }
 
+.coin-icon {
+    display: inline-block;
+
+    margin-right: 3px;
+
+    font-size: 15px;
+
+    line-height: 1;
+
+    vertical-align: -1px;
+}
+
 .balance-box {
+    display: flex;
+
+    align-items: center;
+
     padding:
         9px
         10px;
@@ -1462,7 +1474,7 @@ img {
 
 
 /* =====================================================
-   INVENTORY HEADER
+   INVENTORY
 ===================================================== */
 
 .inventory-toolbar {
@@ -1504,11 +1516,6 @@ img {
             #b91c1c
         );
 }
-
-
-/* =====================================================
-   INVENTORY 4 IN ROW
-===================================================== */
 
 .inventory-grid {
     display: grid;
@@ -1574,7 +1581,9 @@ img {
 
 .inventory-card-image {
     width: 100%;
-    aspect-ratio: 1 / 1;
+
+    aspect-ratio:
+        1 / 1;
 
     padding: 2px;
 
@@ -1601,7 +1610,9 @@ img {
         -webkit-box;
 
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+
+    -webkit-box-orient:
+        vertical;
 
     font-size: 8px;
 
@@ -1691,7 +1702,7 @@ img {
 
 
 /* =====================================================
-   MODAL
+   MODALS
 ===================================================== */
 
 .modal-overlay {
@@ -1756,6 +1767,27 @@ img {
             .3
         );
 }
+
+
+/* =====================================================
+   SELL ALL MODAL HIGHER
+===================================================== */
+
+.sell-all-overlay {
+    align-items: center;
+
+    padding:
+        18px
+        12px
+        90px;
+}
+
+.sell-all-overlay .modal {
+    max-width: 500px;
+
+    border-radius: 22px;
+}
+
 
 .modal-header {
     display: flex;
@@ -2330,9 +2362,7 @@ input[type="time"] {
 <body>
 
 
-<!-- =====================================================
-     TOP BAR
-===================================================== -->
+<!-- TOP BAR -->
 
 <div class="topbar">
 
@@ -2340,12 +2370,14 @@ input[type="time"] {
         🧠 Brainroter X
     </div>
 
-
     <div class="top-right">
 
         <div class="balance-box">
 
-            🪙
+            <span class="coin-icon">
+                🪙
+            </span>
+
             <span id="coins">
                 0
             </span>
@@ -2369,7 +2401,7 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     CASES PAGE
+     CASES
 ===================================================== -->
 
 <div
@@ -2378,9 +2410,7 @@ input[type="time"] {
 >
 
     <div id="caseList">
-
         Загрузка...
-
     </div>
 
 
@@ -2404,7 +2434,6 @@ input[type="time"] {
 
                 <h2 id="activeCaseName">
                 </h2>
-
 
                 <button
                     id="speedButton"
@@ -2538,7 +2567,7 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     UPGRADER PAGE
+     UPGRADER
 ===================================================== -->
 
 <div
@@ -2554,7 +2583,6 @@ input[type="time"] {
             <h2>
                 ⚡ Апгрейдер
             </h2>
-
 
             <button
                 id="upgradeSpeedButton"
@@ -2706,7 +2734,7 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     PROFILE / INVENTORY PAGE
+     PROFILE
 ===================================================== -->
 
 <div
@@ -2722,7 +2750,6 @@ input[type="time"] {
 
 
         <div class="profile-top">
-
 
             <div
                 id="profileAvatar"
@@ -2749,7 +2776,6 @@ input[type="time"] {
                 </div>
 
             </div>
-
 
         </div>
 
@@ -2866,7 +2892,7 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     DEPOSIT MODAL
+     DEPOSIT
 ===================================================== -->
 
 <div
@@ -2963,7 +2989,7 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     WITHDRAW MODAL
+     WITHDRAW
 ===================================================== -->
 
 <div
@@ -3053,12 +3079,12 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     SELL ALL CONFIRM
+     SELL ALL
 ===================================================== -->
 
 <div
     id="sellAllModal"
-    class="modal-overlay"
+    class="modal-overlay sell-all-overlay"
 >
 
     <div class="modal">
@@ -3130,7 +3156,7 @@ input[type="time"] {
 
 
 <!-- =====================================================
-     EXCHANGE MODAL
+     EXCHANGE
 ===================================================== -->
 
 <div
@@ -3190,6 +3216,7 @@ input[type="time"] {
 
 <script>
 
+
 /* =====================================================
    TELEGRAM
 ===================================================== */
@@ -3218,13 +3245,21 @@ let caseItems = [];
 
 
 let playerProfile = {
+
     first_name: "",
+
     last_name: "",
+
     username: "",
+
     photo_url: "",
+
     telegram_id: "",
+
     cases_opened: 0,
+
     upgrades_done: 0
+
 };
 
 
@@ -3425,8 +3460,10 @@ async function loadPlayer() {
 
         const data =
             await apiRequest({
+
                 action:
                     "get_player"
+
             });
 
 
@@ -3437,16 +3474,19 @@ async function loadPlayer() {
                     "caseList"
                 )
                 .innerText =
-                    "❌ " +
+                    "❌ "
+                    +
                     data.error;
 
             return;
+
         }
 
 
         coins =
             Number(
-                data.coins || 0
+                data.coins ||
+                0
             );
 
 
@@ -3612,7 +3652,8 @@ function renderProfile() {
     ) {
 
         displayName =
-            "@" +
+            "@"
+            +
             playerProfile.username;
 
     }
@@ -3647,7 +3688,8 @@ function renderProfile() {
     idElement.innerText =
         playerProfile.telegram_id
         ?
-        "Telegram ID: " +
+        "Telegram ID: "
+        +
         playerProfile.telegram_id
         :
         "";
@@ -3748,7 +3790,8 @@ function showPage(page) {
 
     document
         .getElementById(
-            page +
+            page
+            +
             "Page"
         )
         .classList
@@ -3759,7 +3802,8 @@ function showPage(page) {
 
     document
         .getElementById(
-            page +
+            page
+            +
             "Button"
         )
         .classList
@@ -3820,13 +3864,16 @@ function setCaseCount(count) {
             const button =
                 document
                     .getElementById(
-                        "count" +
+                        "count"
+                        +
                         value
                     );
 
 
             if (!button) {
+
                 return;
+
             }
 
 
@@ -3897,7 +3944,9 @@ function toggleUpgradeSpeed() {
 function getTotalCaseCost() {
 
     if (!selectedCase) {
+
         return 0;
+
     }
 
 
@@ -3965,7 +4014,9 @@ function updateSpinButtonText() {
 
 
     if (!button) {
+
         return;
+
     }
 
 
@@ -5120,7 +5171,7 @@ async function sellItem(id) {
 
 
 /* =====================================================
-   QUICK SELL MULTIPLE CASE WINS
+   QUICK SELL MANY
 ===================================================== */
 
 async function quickSellMany(ids) {
@@ -6060,7 +6111,7 @@ async function exchangeItem(targetBrainrotId) {
 
 
 /* =====================================================
-   UPGRADER HELPERS
+   UPGRADER
 ===================================================== */
 
 function getSource() {
@@ -6108,10 +6159,6 @@ function getTarget() {
 
 }
 
-
-/* =====================================================
-   UPGRADER SOURCE
-===================================================== */
 
 function renderSourceGrid() {
 
@@ -6247,10 +6294,6 @@ function renderSourceGrid() {
 
 }
 
-
-/* =====================================================
-   TARGET GRID
-===================================================== */
 
 function renderTargetGrid() {
 
@@ -6403,10 +6446,6 @@ function renderTargetGrid() {
 }
 
 
-/* =====================================================
-   CHANCE
-===================================================== */
-
 function calculateChance(
     source,
     target
@@ -6552,10 +6591,6 @@ function updateSavedTargetInfo() {
 
 }
 
-
-/* =====================================================
-   FAST TARGET BUTTONS
-===================================================== */
 
 function selectUpgradeByChance(
     wantedChance
@@ -6763,10 +6798,6 @@ function selectUpgradeMultiplier(
 }
 
 
-/* =====================================================
-   NEEDLE
-===================================================== */
-
 function randomBetween(
     min,
     max
@@ -6896,10 +6927,6 @@ async function spinNeedle(
 
 }
 
-
-/* =====================================================
-   UPGRADE
-===================================================== */
 
 async function upgradeItem() {
 
