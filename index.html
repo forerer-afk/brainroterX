@@ -17,16 +17,17 @@
 <style>
 
 /* =====================================================
-   BASE
+   BASE — БЕЗ ЗАДЕРЖЕК
 ===================================================== */
 
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
 }
 
 body {
@@ -51,20 +52,21 @@ body {
 button {
     border: none;
     outline: none;
+
     cursor: pointer;
 
     font-family: inherit;
     font-weight: 700;
 
-    transition:
-        transform .14s ease,
-        opacity .14s ease,
-        background .14s ease,
-        box-shadow .14s ease;
+    touch-action: manipulation;
+
+    -webkit-tap-highlight-color: transparent;
+
+    transition: none;
 }
 
 button:active {
-    transform: scale(.96);
+    transform: none;
 }
 
 button:disabled {
@@ -74,6 +76,7 @@ button:disabled {
 
 img {
     user-select: none;
+    pointer-events: none;
 }
 
 .game {
@@ -82,7 +85,10 @@ img {
 
     margin: auto;
 
-    padding: 14px 10px 105px;
+    padding:
+        14px
+        10px
+        105px;
 }
 
 .page {
@@ -120,7 +126,9 @@ img {
     align-items: center;
     justify-content: space-between;
 
-    padding: 10px 12px;
+    padding:
+        10px
+        12px;
 
     background:
         rgba(15,23,42,.93);
@@ -148,6 +156,7 @@ img {
 
 .coin-icon {
     display: inline-flex;
+
     align-items: center;
     justify-content: center;
 
@@ -167,7 +176,9 @@ img {
     display: flex;
     align-items: center;
 
-    padding: 9px 10px;
+    padding:
+        9px
+        10px;
 
     border-radius: 12px;
 
@@ -186,7 +197,9 @@ img {
 }
 
 .deposit-top-btn {
-    padding: 10px 11px;
+    padding:
+        10px
+        11px;
 
     border-radius: 12px;
 
@@ -246,11 +259,15 @@ img {
 .case-card {
     min-width: 0;
 
-    padding: 11px 8px;
+    padding:
+        11px
+        8px;
 
     border-radius: 17px;
 
     cursor: pointer;
+
+    touch-action: manipulation;
 
     background:
         linear-gradient(
@@ -265,18 +282,11 @@ img {
     box-shadow:
         0 8px 22px rgba(0,0,0,.17);
 
-    transition:
-        transform .14s ease,
-        border-color .14s ease;
+    transition: none;
 }
 
 .case-card:active {
-    transform: scale(.97);
-}
-
-.case-card:hover {
-    border-color:
-        rgba(245,158,11,.30);
+    transform: none;
 }
 
 .case-name {
@@ -290,12 +300,14 @@ img {
     text-align: center;
 
     font-size: 14px;
-
     font-weight: 900;
 }
 
 .case-price {
-    margin: 4px 0 7px;
+    margin:
+        4px
+        0
+        7px;
 
     text-align: center;
 
@@ -369,7 +381,6 @@ img {
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
     gap: 8px;
@@ -390,7 +401,10 @@ img {
     width: 38px;
     height: 38px;
 
-    flex: 0 0 38px;
+    flex:
+        0
+        0
+        38px;
 
     padding: 0;
 
@@ -441,7 +455,9 @@ img {
 
     height: 155px;
 
-    margin: 15px 0;
+    margin:
+        15px
+        0;
 
     overflow: hidden;
 
@@ -511,7 +527,10 @@ img {
 }
 
 .roulette-item {
-    flex: 0 0 116px;
+    flex:
+        0
+        0
+        116px;
 
     height: 128px;
 
@@ -568,13 +587,18 @@ img {
 
     gap: 6px;
 
-    margin: 8px 0 5px;
+    margin:
+        8px
+        0
+        5px;
 }
 
 .case-count-btn {
     flex: 1;
 
-    padding: 9px 4px;
+    padding:
+        9px
+        4px;
 
     border-radius: 9px;
 
@@ -593,9 +617,14 @@ img {
 }
 
 .total-case-price {
-    margin: 5px 0 8px;
+    margin:
+        5px
+        0
+        8px;
 
-    padding: 7px 9px;
+    padding:
+        7px
+        9px;
 
     border-radius: 10px;
 
@@ -712,7 +741,9 @@ img {
 
     gap: 7px;
 
-    padding: 6px 7px;
+    padding:
+        6px
+        7px;
 
     border-radius: 9px;
 
@@ -734,7 +765,10 @@ img {
     width: 32px;
     height: 32px;
 
-    flex: 0 0 32px;
+    flex:
+        0
+        0
+        32px;
 
     object-fit: contain;
 }
@@ -750,7 +784,10 @@ img {
 }
 
 .case-content-value {
-    flex: 0 0 auto;
+    flex:
+        0
+        0
+        auto;
 
     font-size: 11px;
 
@@ -782,7 +819,9 @@ img {
     width: 220px;
     height: 220px;
 
-    margin: 13px auto;
+    margin:
+        13px
+        auto;
 }
 
 .upgrade-wheel {
@@ -897,7 +936,10 @@ img {
 }
 
 .upgrade-section-title {
-    margin: 13px 0 7px;
+    margin:
+        13px
+        0
+        7px;
 
     text-align: left;
 
@@ -916,11 +958,15 @@ img {
 
     gap: 5px;
 
-    margin: 8px 0;
+    margin:
+        8px
+        0;
 }
 
 .upgrade-preset-btn {
-    padding: 9px 2px;
+    padding:
+        9px
+        2px;
 
     border-radius: 9px;
 
@@ -939,7 +985,9 @@ img {
 .saved-target-info {
     display: none;
 
-    margin: 7px 0;
+    margin:
+        7px
+        0;
 
     padding: 8px;
 
@@ -971,15 +1019,18 @@ img {
 
     cursor: pointer;
 
+    touch-action: manipulation;
+
     background: #0f172a;
 
     border:
         2px solid #334155;
 
-    transition:
-        opacity .15s ease,
-        border-color .15s ease,
-        background .15s ease;
+    transition: none;
+}
+
+.upgrade-choice:active {
+    transform: none;
 }
 
 .upgrade-choice.selected {
@@ -1078,7 +1129,10 @@ img {
     width: 70px;
     height: 70px;
 
-    flex: 0 0 70px;
+    flex:
+        0
+        0
+        70px;
 
     display: flex;
 
@@ -1156,7 +1210,9 @@ img {
 }
 
 .profile-stat {
-    padding: 10px 7px;
+    padding:
+        10px
+        7px;
 
     border-radius: 13px;
 
@@ -1197,7 +1253,10 @@ img {
 
     gap: 8px;
 
-    margin: 13px 0 9px;
+    margin:
+        13px
+        0
+        9px;
 }
 
 .inventory-toolbar h3 {
@@ -1207,7 +1266,9 @@ img {
 }
 
 .sell-all-btn {
-    padding: 8px 10px;
+    padding:
+        8px
+        10px;
 
     border-radius: 10px;
 
@@ -1260,7 +1321,8 @@ img {
 .inventory-card-image {
     width: 100%;
 
-    aspect-ratio: 1/1;
+    aspect-ratio:
+        1/1;
 
     padding: 2px;
 
@@ -1322,7 +1384,9 @@ img {
 .inventory-mini-btn {
     min-width: 0;
 
-    padding: 5px 1px;
+    padding:
+        5px
+        1px;
 
     border-radius: 6px;
 
@@ -1340,7 +1404,8 @@ img {
 }
 
 .mini-exchange {
-    grid-column: 1/-1;
+    grid-column:
+        1/-1;
 
     background:
         linear-gradient(
@@ -1407,7 +1472,10 @@ img {
     padding: 17px;
 
     border-radius:
-        22px 22px 0 0;
+        22px
+        22px
+        0
+        0;
 
     background:
         linear-gradient(
@@ -1423,7 +1491,10 @@ img {
 .sell-all-overlay {
     align-items: center;
 
-    padding: 18px 12px 90px;
+    padding:
+        18px
+        12px
+        90px;
 }
 
 .sell-all-overlay .modal {
@@ -1439,7 +1510,9 @@ img {
     align-items: center;
 
     padding:
-        20px 12px 80px;
+        20px
+        12px
+        80px;
 }
 
 .raised-modal-overlay .modal {
@@ -1472,7 +1545,9 @@ img {
 }
 
 .close-btn {
-    padding: 8px 11px;
+    padding:
+        8px
+        11px;
 
     border-radius: 10px;
 
@@ -1489,9 +1564,13 @@ img {
 .text-input {
     width: 100%;
 
-    margin: 7px 0;
+    margin:
+        7px
+        0;
 
-    padding: 13px 14px;
+    padding:
+        13px
+        14px;
 
     border-radius: 12px;
 
@@ -1544,7 +1623,8 @@ input[type="time"] {
     display: grid;
 
     grid-template-columns:
-        1fr 1.3fr;
+        1fr
+        1.3fr;
 
     gap: 8px;
 }
@@ -1669,7 +1749,9 @@ input[type="time"] {
 }
 
 .deposit-summary {
-    margin: 13px 0;
+    margin:
+        13px
+        0;
 
     padding: 11px;
 
@@ -1722,7 +1804,8 @@ input[type="time"] {
     display: grid;
 
     grid-template-columns:
-        1fr 1fr;
+        1fr
+        1fr;
 
     gap: 8px;
 
@@ -1800,7 +1883,10 @@ input[type="time"] {
 }
 
 .exchange-title {
-    margin: 15px 0 8px;
+    margin:
+        15px
+        0
+        8px;
 
     text-align: left;
 
@@ -1827,15 +1913,19 @@ input[type="time"] {
 
     cursor: pointer;
 
+    touch-action: manipulation;
+
     background:
         rgba(15,23,42,.75);
 
     border:
         1px solid rgba(148,163,184,.12);
+
+    transition: none;
 }
 
 .exchange-option:active {
-    transform: scale(.97);
+    transform: none;
 }
 
 .exchange-option img {
@@ -1898,7 +1988,9 @@ input[type="time"] {
 .nav-btn {
     width: 33.333%;
 
-    padding: 10px 2px;
+    padding:
+        10px
+        2px;
 
     color: #94a3b8;
 
@@ -1926,9 +2018,7 @@ input[type="time"] {
 <body>
 
 
-<!-- =====================================================
-     TOP BAR
-===================================================== -->
+<!-- TOP BAR -->
 
 <div class="topbar">
 
@@ -1965,9 +2055,7 @@ input[type="time"] {
 <div class="game">
 
 
-<!-- =====================================================
-     CASES
-===================================================== -->
+<!-- CASES -->
 
 <div
     id="casesPage"
@@ -1994,8 +2082,7 @@ input[type="time"] {
 
             <div class="case-title-row">
 
-                <h2 id="activeCaseName">
-                </h2>
+                <h2 id="activeCaseName"></h2>
 
                 <button
                     id="speedButton"
@@ -2015,8 +2102,7 @@ input[type="time"] {
                     opacity:.7;
                     font-size:12px;
                 "
-            >
-            </div>
+            ></div>
 
             <div
                 id="rouletteContainer"
@@ -2027,14 +2113,12 @@ input[type="time"] {
                     ▼
                 </div>
 
-                <div class="roulette-line">
-                </div>
+                <div class="roulette-line"></div>
 
                 <div
                     id="rouletteTrack"
                     class="roulette-track"
-                >
-                </div>
+                ></div>
 
             </div>
 
@@ -2089,14 +2173,12 @@ input[type="time"] {
                 🎰 КРУТИТЬ
             </button>
 
-            <div id="quickSellArea">
-            </div>
+            <div id="quickSellArea"></div>
 
             <div
                 id="caseResult"
                 class="result"
-            >
-            </div>
+            ></div>
 
             <div class="case-content-box">
 
@@ -2107,8 +2189,7 @@ input[type="time"] {
                 <div
                     id="caseContentList"
                     class="case-content-list"
-                >
-                </div>
+                ></div>
 
             </div>
 
@@ -2119,9 +2200,7 @@ input[type="time"] {
 </div>
 
 
-<!-- =====================================================
-     UPGRADER
-===================================================== -->
+<!-- UPGRADER -->
 
 <div
     id="upgraderPage"
@@ -2161,16 +2240,14 @@ input[type="time"] {
             <div
                 id="upgradeWheel"
                 class="upgrade-wheel"
-            >
-            </div>
+            ></div>
 
             <div
                 id="needleRotor"
                 class="needle-rotor"
             >
 
-                <div class="upgrade-needle">
-                </div>
+                <div class="upgrade-needle"></div>
 
             </div>
 
@@ -2194,8 +2271,7 @@ input[type="time"] {
         <div
             id="upgradeResult"
             class="result"
-        >
-        </div>
+        ></div>
 
         <div class="upgrade-section-title">
             Быстрый выбор
@@ -2243,8 +2319,7 @@ input[type="time"] {
         <div
             id="savedTargetInfo"
             class="saved-target-info"
-        >
-        </div>
+        ></div>
 
         <div class="upgrade-section-title">
             Твой Brainrot
@@ -2253,8 +2328,7 @@ input[type="time"] {
         <div
             id="sourceGrid"
             class="upgrade-grid"
-        >
-        </div>
+        ></div>
 
         <div class="upgrade-section-title">
             Brainrot, который хочешь получить
@@ -2263,17 +2337,14 @@ input[type="time"] {
         <div
             id="targetGrid"
             class="upgrade-grid"
-        >
-        </div>
+        ></div>
 
     </div>
 
 </div>
 
 
-<!-- =====================================================
-     PROFILE
-===================================================== -->
+<!-- PROFILE -->
 
 <div
     id="inventoryPage"
@@ -2282,8 +2353,7 @@ input[type="time"] {
 
     <div class="profile-card">
 
-        <div class="profile-glow">
-        </div>
+        <div class="profile-glow"></div>
 
         <div class="profile-top">
 
@@ -2306,8 +2376,7 @@ input[type="time"] {
                 <div
                     id="profileId"
                     class="profile-id"
-                >
-                </div>
+                ></div>
 
             </div>
 
@@ -2367,8 +2436,7 @@ input[type="time"] {
     <div
         id="inventory"
         class="inventory-grid"
-    >
-    </div>
+    ></div>
 
 </div>
 
@@ -2376,9 +2444,7 @@ input[type="time"] {
 </div>
 
 
-<!-- =====================================================
-     BOTTOM MENU
-===================================================== -->
+<!-- BOTTOM MENU -->
 
 <div class="bottom-menu">
 
@@ -2415,9 +2481,7 @@ input[type="time"] {
 </div>
 
 
-<!-- =====================================================
-     DEPOSIT
-===================================================== -->
+<!-- DEPOSIT -->
 
 <div
     id="depositModal"
@@ -2449,8 +2513,7 @@ input[type="time"] {
         <div
             id="depositGrid"
             class="deposit-grid"
-        >
-        </div>
+        ></div>
 
         <div class="deposit-summary">
 
@@ -2495,17 +2558,14 @@ input[type="time"] {
         <div
             id="depositResult"
             class="result"
-        >
-        </div>
+        ></div>
 
     </div>
 
 </div>
 
 
-<!-- =====================================================
-     WITHDRAW
-===================================================== -->
+<!-- WITHDRAW -->
 
 <div
     id="withdrawModal"
@@ -2529,8 +2589,7 @@ input[type="time"] {
 
         </div>
 
-        <div id="withdrawItemInfo">
-        </div>
+        <div id="withdrawItemInfo"></div>
 
         <div class="input-label">
             Roblox ник
@@ -2576,17 +2635,14 @@ input[type="time"] {
         <div
             id="withdrawResult"
             class="result"
-        >
-        </div>
+        ></div>
 
     </div>
 
 </div>
 
 
-<!-- =====================================================
-     SELL ALL
-===================================================== -->
+<!-- SELL ALL -->
 
 <div
     id="sellAllModal"
@@ -2619,8 +2675,7 @@ input[type="time"] {
             <div
                 id="sellAllInfo"
                 class="warning-description"
-            >
-            </div>
+            ></div>
 
         </div>
 
@@ -2646,17 +2701,14 @@ input[type="time"] {
         <div
             id="sellAllResult"
             class="result"
-        >
-        </div>
+        ></div>
 
     </div>
 
 </div>
 
 
-<!-- =====================================================
-     EXCHANGE
-===================================================== -->
+<!-- EXCHANGE -->
 
 <div
     id="exchangeModal"
@@ -2683,8 +2735,7 @@ input[type="time"] {
         <div
             id="exchangeSource"
             class="exchange-source"
-        >
-        </div>
+        ></div>
 
         <div class="exchange-title">
             Выбери, на что обменять
@@ -2693,14 +2744,12 @@ input[type="time"] {
         <div
             id="exchangeGrid"
             class="exchange-grid"
-        >
-        </div>
+        ></div>
 
         <div
             id="exchangeResult"
             class="result"
-        >
-        </div>
+        ></div>
 
     </div>
 
@@ -2717,6 +2766,7 @@ const tg =
     window.Telegram.WebApp;
 
 tg.ready();
+
 tg.expand();
 
 
@@ -3410,6 +3460,11 @@ function toggleCaseSpeed() {
 
 
 function toggleUpgradeSpeed() {
+
+    if (upgrading) {
+        return;
+    }
+
 
     upgradeSpeed =
         upgradeSpeed === 1
@@ -5124,7 +5179,7 @@ async function confirmSellAll() {
                 closeSellAllModal();
 
             },
-            1200
+            300
         );
 
     }
@@ -5577,7 +5632,7 @@ async function exchangeItem(targetBrainrotId) {
                 closeExchangeModal();
 
             },
-            1400
+            300
         );
 
     }
@@ -5652,7 +5707,7 @@ function getTarget() {
 
 
 /* =====================================================
-   LOCK / UNLOCK UPGRADER CONTROLS
+   UPGRADE LOCK
 ===================================================== */
 
 function lockUpgradeControls() {
@@ -6549,7 +6604,7 @@ async function spinNeedle(
             setTimeout(
                 resolve,
                 time +
-                100
+                50
             )
     );
 
@@ -6619,11 +6674,6 @@ async function upgradeItem() {
         true;
 
 
-    /*
-    Блокируем проценты, x5/x10,
-    Brainrot и кнопку скорости.
-    */
-
     lockUpgradeControls();
 
 
@@ -6656,12 +6706,6 @@ async function upgradeItem() {
 
         }
 
-
-        /*
-        Используем шанс именно этой попытки.
-        Пользователь уже не может
-        визуально поменять его во время прокрутки.
-        */
 
         await spinNeedle(
             data.win,
@@ -6698,7 +6742,9 @@ async function upgradeItem() {
         }
 
 
-        if (data.win) {
+        if (
+            data.win
+        ) {
 
             inventory.unshift(
                 data.item
@@ -6737,11 +6783,6 @@ async function upgradeItem() {
 
         }
 
-
-        /*
-        Источник сбрасываем.
-        Цель сохраняется.
-        */
 
         selectedSourceId =
             null;
