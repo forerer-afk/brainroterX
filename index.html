@@ -1670,99 +1670,6 @@ img{
 
 
 /* =====================================================
-   PROMO CODE
-===================================================== */
-
-async function redeemPromo(){
-
-    const input =
-        document
-            .getElementById(
-                "promoInput"
-            );
-
-    const result =
-        document
-            .getElementById(
-                "promoResult"
-            );
-
-    const code =
-        String(
-            input.value
-            ||
-            ""
-        )
-        .trim();
-
-    if(
-        !code
-    ){
-        result.innerText =
-            "❌ Введите промокод";
-
-        return;
-    }
-
-    result.innerText =
-        "⏳ Активируем...";
-
-    try{
-
-        const data =
-            await apiRequest({
-                action:
-                    "redeem_promo",
-
-                code:
-                    code
-            });
-
-        if(
-            !data.ok
-        ){
-            throw new Error(
-                data.error
-                ||
-                "Не удалось активировать промокод"
-            );
-        }
-
-        coins =
-            Number(
-                data.coins
-                ??
-                coins
-            );
-
-        updateBalance();
-
-        input.value =
-            "";
-
-        result.innerText =
-            `✅ Промокод активирован: +${data.reward_coins} 💰`;
-
-    }
-    catch(
-        error
-    ){
-
-        result.innerText =
-            "❌ "
-            +
-            (
-                error.message
-                ||
-                "Ошибка"
-            );
-
-    }
-
-}
-
-
-/* =====================================================
    DEPOSIT
 ===================================================== */
 
@@ -2257,6 +2164,90 @@ async function redeemPromo(){
 
 .withdraw-rule-bad{
     color:#fca5a5;
+}
+
+
+
+/* =====================================================
+   FIX 2026-08-18 — PROMO + LOCAL SCROLL + UPGRADER
+===================================================== */
+
+.upgrade-wheel{
+    background:
+        conic-gradient(
+            from var(--zone-start, 180deg),
+            #f97316 0deg var(--zone-angle, 0deg),
+            #0b0b0b var(--zone-angle, 0deg) 360deg
+        ) !important;
+}
+
+.upgrade-needle{
+    border-bottom-color:#22c55e !important;
+    filter:
+        drop-shadow(0 0 3px #86efac)
+        drop-shadow(0 0 9px rgba(34,197,94,.9)) !important;
+}
+
+.upgrade-needle::after{
+    background:
+        linear-gradient(
+            180deg,
+            #bbf7d0,
+            #22c55e
+        ) !important;
+}
+
+.deposit-grid,
+.exchange-grid,
+#sourceGrid,
+#targetGrid{
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+    scrollbar-color:#475569 transparent;
+    padding-right:3px;
+}
+
+.deposit-grid{
+    max-height:42vh;
+}
+
+.exchange-grid{
+    max-height:44vh;
+}
+
+#sourceGrid{
+    max-height:260px;
+}
+
+#targetGrid{
+    max-height:300px;
+}
+
+#depositModal .modal,
+#exchangeModal .modal{
+    overflow:hidden;
+}
+
+#depositModal .deposit-grid,
+#exchangeModal .exchange-grid{
+    min-height:110px;
+}
+
+@media (max-height:700px){
+    .deposit-grid{
+        max-height:34vh;
+    }
+
+    .exchange-grid{
+        max-height:36vh;
+    }
+
+    #sourceGrid,
+    #targetGrid{
+        max-height:220px;
+    }
 }
 
 </style>
@@ -5935,13 +5926,21 @@ function updateUpgradeUI(){
         +
         "%";
 
+    const zoneAngle =
+        chance * 3.6;
+
+    const zoneStart =
+        180 -
+        zoneAngle / 2;
+
     wheel.style.setProperty(
-        "--green-angle",
-        chance
-        *
-        3.6
-        +
-        "deg"
+        "--zone-angle",
+        zoneAngle + "deg"
+    );
+
+    wheel.style.setProperty(
+        "--zone-start",
+        zoneStart + "deg"
     );
 
 }
@@ -6370,74 +6369,103 @@ async function spinNeedle(
                 "needleRotor"
             );
 
-    /*
-    Каждый новый апгрейд ВСЕГДА начинается
-    из одной точки — строго сверху по центру.
-    */
     await resetNeedleToTop();
 
-    const orangeAngle =
-        chance
-        *
-        3.6;
+    const zoneAngle =
+        chance * 3.6;
+
+    const zoneStart =
+        180 -
+        zoneAngle / 2;
+
+    const zoneEnd =
+        180 +
+        zoneAngle / 2;
 
     let target;
 
     if(
         win
     ){
-
-        target =
-            orangeAngle
-            <=
-            8
-            ?
-            orangeAngle
-            /
-            2
-            :
-            randomBetween(
-                4,
-                orangeAngle
-                -
-                4
-            );
-
+        if(
+            zoneAngle <= 8
+        ){
+            target = 180;
+        }
+        else{
+            target =
+                randomBetween(
+                    zoneStart + 4,
+                    zoneEnd - 4
+                );
+        }
     }
     else{
-
-        target =
-            randomBetween(
-                Math.min(
-                    359,
-                    orangeAngle
-                    +
-                    5
-                ),
-                359
+        const leftSize =
+            Math.max(
+                0,
+                zoneStart - 5
             );
 
+        const rightStart =
+            Math.min(
+                359,
+                zoneEnd + 5
+            );
+
+        const rightSize =
+            Math.max(
+                0,
+                359 - rightStart
+            );
+
+        const totalLoseSize =
+            leftSize + rightSize;
+
+        if(
+            totalLoseSize <= 0
+        ){
+            target = 0;
+        }
+        else{
+            const r =
+                Math.random() *
+                totalLoseSize;
+
+            if(
+                r < leftSize
+            ){
+                target =
+                    randomBetween(
+                        0,
+                        Math.max(
+                            0,
+                            zoneStart - 5
+                        )
+                    );
+            }
+            else{
+                target =
+                    randomBetween(
+                        rightStart,
+                        359
+                    );
+            }
+        }
     }
 
     const fullTurns =
-        4
-        +
+        4 +
         Math.floor(
-            Math.random()
-            *
-            2
+            Math.random() * 2
         );
 
     needleRotation =
-        fullTurns
-        *
-        360
-        +
+        fullTurns * 360 +
         target;
 
     const time =
-        4000
-        /
+        4000 /
         upgradeSpeed;
 
     rotor.style.transition =
@@ -6447,9 +6475,7 @@ async function spinNeedle(
         `rotate(${needleRotation}deg)`;
 
     await sleep(
-        time
-        +
-        60
+        time + 60
     );
 
 }
@@ -6888,6 +6914,101 @@ async function upgradeItem(){
 /* =====================================================
    DEPOSIT
 ===================================================== */
+
+/* =====================================================
+   PROMO CODE
+===================================================== */
+
+async function redeemPromo(){
+
+    const input =
+        document
+            .getElementById(
+                "promoInput"
+            );
+
+    const result =
+        document
+            .getElementById(
+                "promoResult"
+            );
+
+    const code =
+        String(
+            input.value
+            ||
+            ""
+        )
+        .trim();
+
+    if(
+        !code
+    ){
+        result.innerText =
+            "❌ Введите промокод";
+
+        return;
+    }
+
+    result.innerText =
+        "⏳ Активируем...";
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "redeem_promo",
+
+                code:
+                    code
+            });
+
+        if(
+            !data.ok
+        ){
+            throw new Error(
+                data.error
+                ||
+                "Не удалось активировать промокод"
+            );
+        }
+
+        coins =
+            Number(
+                data.coins
+                ??
+                coins
+            );
+
+        updateBalance();
+
+        input.value =
+            "";
+
+        result.innerText =
+            `✅ Промокод активирован: +${data.reward_coins} 💰`;
+
+    }
+    catch(
+        error
+    ){
+
+        result.innerText =
+            "❌ "
+            +
+            (
+                error.message
+                ||
+                "Ошибка"
+            );
+
+    }
+
+}
+
+
+
 
 function getGaramaValue(){
 
