@@ -2250,6 +2250,64 @@ img{
     }
 }
 
+
+
+/* =====================================================
+   MYSTERY — БЕЗ СТРЕЛКИ, ТОЛЬКО ПУЛЬСИРУЮЩИЙ "?"
+===================================================== */
+
+.upgrade-wheel-wrap.mystery-active .needle-rotor{
+    display:none !important;
+}
+
+.upgrade-wheel-wrap.mystery-active .upgrade-wheel{
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            #3bd59a,
+            #087354 31%,
+            #044c39 58%,
+            #02281f 80%,
+            #011a14
+        ) !important;
+
+    border-color:#34d399 !important;
+
+    box-shadow:
+        inset 0 0 30px rgba(16,185,129,.38),
+        0 0 17px rgba(16,185,129,.48),
+        0 0 35px rgba(16,185,129,.18) !important;
+}
+
+.upgrade-wheel-wrap.mystery-active .wheel-text{
+    color:#6ee7b7 !important;
+    font-size:50px !important;
+
+    text-shadow:
+        0 0 8px rgba(110,231,183,.85),
+        0 0 22px rgba(16,185,129,.65);
+
+    animation:
+        mysteryQuestionPulse
+        1.05s
+        ease-in-out
+        infinite;
+}
+
+@keyframes mysteryQuestionPulse{
+    0%,100%{
+        transform:
+            translate(-50%,-50%)
+            scale(1);
+    }
+
+    50%{
+        transform:
+            translate(-50%,-50%)
+            scale(1.14);
+    }
+}
+
 </style>
 
 </head>
@@ -5855,6 +5913,23 @@ function updateUpgradeUI(){
                 "targetSection"
             );
 
+    const wheelWrap =
+        document
+            .querySelector(
+                ".upgrade-wheel-wrap"
+            );
+
+    if(
+        wheelWrap
+    ){
+        wheelWrap
+            .classList
+            .toggle(
+                "mystery-active",
+                mysteryMode
+            );
+    }
+
     document
         .getElementById(
             "mysteryButton"
@@ -5889,6 +5964,16 @@ function updateUpgradeUI(){
     if(
         mysteryMode
     ){
+
+        // Полностью убираем остаток оранжевой полосы
+        // от обычного апгрейдера.
+        wheel.style.removeProperty(
+            "--zone-angle"
+        );
+
+        wheel.style.removeProperty(
+            "--zone-start"
+        );
 
         wheelText.innerText =
             "?";
@@ -6483,48 +6568,18 @@ async function spinNeedle(
 
 async function spinMystery(){
 
-    const rotor =
-        document
-            .getElementById(
-                "needleRotor"
-            );
-
-    await resetNeedleToTop();
-
-    needleRotation =
-        (
-            5
-            +
-            Math.floor(
-                Math.random()
-                *
-                2
-            )
-        )
-        *
-        360
-        +
-        Math.floor(
-            Math.random()
-            *
-            360
-        );
+    /*
+    В Mystery стрелки нет.
+    Анимация прокрута — только знак "?", который
+    плавно увеличивается и уменьшается.
+    */
 
     const time =
-        3400
-        /
+        1700 /
         upgradeSpeed;
-
-    rotor.style.transition =
-        `transform ${time}ms cubic-bezier(.10,.72,.10,1)`;
-
-    rotor.style.transform =
-        `rotate(${needleRotation}deg)`;
 
     await sleep(
         time
-        +
-        60
     );
 
 }
