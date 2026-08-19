@@ -2899,6 +2899,397 @@ img{
     .code-case-shell{top:29px;height:46px}
 }
 
+
+
+/* =====================================================
+   CASES V2 — КАЖДЫЙ КЕЙС СВОЙ + НАЗВАНИЯ ВЛЕЗАЮТ
+===================================================== */
+
+.case-list{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:12px !important;
+}
+
+.case-card{
+    --case-accent:#8b5cf6;
+    --case-accent2:#4c1d95;
+    --case-panel:#111827;
+
+    position:relative;
+    isolation:isolate;
+    min-height:178px;
+    padding:9px 7px 10px !important;
+    overflow:hidden;
+
+    border-radius:19px !important;
+    border:1px solid rgba(255,255,255,.09) !important;
+
+    background:
+        radial-gradient(circle at 50% 22%,rgba(255,255,255,.055),transparent 32%),
+        linear-gradient(155deg,var(--case-panel),#070b13 76%) !important;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+
+/* свет за кейсом */
+.case-card::before{
+    content:"" !important;
+    position:absolute !important;
+    z-index:-2 !important;
+    width:150px !important;
+    height:110px !important;
+    left:50% !important;
+    right:auto !important;
+    top:18px !important;
+    transform:translateX(-50%) !important;
+    border-radius:50% !important;
+    background:var(--case-accent) !important;
+    filter:blur(34px) !important;
+    opacity:.22 !important;
+}
+
+/* нижняя тематическая полоса */
+.case-card::after{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    left:9px;
+    right:9px;
+    bottom:6px;
+    height:38px;
+    border-radius:12px;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            color-mix(in srgb,var(--case-accent) 13%,transparent),
+            transparent
+        );
+    opacity:.8;
+}
+
+.case-card:active{
+    transform:scale(.965) !important;
+}
+
+/* Названия не обрезаются */
+.case-name{
+    min-height:35px !important;
+    padding:0 3px;
+    margin-top:1px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    overflow-wrap:anywhere;
+    word-break:normal;
+
+    text-align:center;
+    font-size:clamp(10px,3.25vw,13px) !important;
+    line-height:1.08 !important;
+    font-weight:1000;
+}
+
+.case-price{
+    min-height:21px;
+    margin-top:1px !important;
+    font-size:12px !important;
+}
+
+/* Сам "сундук" стал крупнее и более объёмный */
+.code-case-art{
+    width:126px !important;
+    height:101px !important;
+    max-width:96% !important;
+    margin:0 auto !important;
+}
+
+.code-case-glow{
+    left:10% !important;
+    right:10% !important;
+    bottom:2px !important;
+    height:25px !important;
+    opacity:.42 !important;
+}
+
+.code-case-lid{
+    left:8px !important;
+    right:8px !important;
+    top:14px !important;
+    height:26px !important;
+
+    border-color:var(--case-accent) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.22),
+            var(--case-accent2) 18%,
+            #171b24 82%
+        ) !important;
+
+    box-shadow:
+        inset 0 4px 7px rgba(255,255,255,.14),
+        0 5px 0 rgba(0,0,0,.27),
+        0 0 16px color-mix(in srgb,var(--case-accent) 35%,transparent) !important;
+}
+
+.code-case-shell{
+    left:12px !important;
+    right:12px !important;
+    top:35px !important;
+    height:54px !important;
+
+    border-color:color-mix(in srgb,var(--case-accent) 72%,#8a93a3) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            color-mix(in srgb,var(--case-accent2) 55%,#272c38),
+            #080b12 68%
+        ) !important;
+}
+
+.code-case-symbol{
+    max-width:80% !important;
+    font-size:16px !important;
+    letter-spacing:-.35px !important;
+}
+
+/* ---------- NOOB ---------- */
+.case-theme-noob{
+    --case-accent:#c6935e;
+    --case-accent2:#59402a;
+    --case-panel:#211a15;
+}
+.case-theme-noob .code-case-shell{
+    border-style:dashed !important;
+}
+.case-theme-noob .code-case-symbol{
+    color:#e1b37a !important;
+    text-shadow:0 1px 0 #3a281a !important;
+    font-size:14px !important;
+}
+
+/* ---------- LUCKY ---------- */
+.case-theme-lucky{
+    --case-accent:#42df66;
+    --case-accent2:#0f682c;
+    --case-panel:#0d2015;
+}
+.case-theme-lucky .code-case-shell::before,
+.case-theme-lucky .code-case-shell::after{
+    background:linear-gradient(#5cf47b,#155b29) !important;
+}
+.case-theme-lucky .code-case-symbol{
+    font-size:27px !important;
+    filter:drop-shadow(0 0 7px rgba(66,223,102,.65));
+}
+
+/* ---------- CHAOS ---------- */
+.case-theme-chaos{
+    --case-accent:#ff6b00;
+    --case-accent2:#7e2200;
+    --case-panel:#24120b;
+}
+.case-theme-chaos .code-case-shell{
+    clip-path:polygon(2% 4%,96% 0,100% 22%,96% 100%,3% 96%,0 72%) !important;
+}
+.case-theme-chaos .code-case-symbol{
+    transform:rotate(-4deg);
+    color:#ff8c35 !important;
+    text-shadow:2px 1px 0 #561900,0 0 12px #ff6b00 !important;
+}
+
+/* ---------- NEON ---------- */
+.case-theme-neon{
+    --case-accent:#24b8ff;
+    --case-accent2:#075f95;
+    --case-panel:#091c29;
+}
+.case-theme-neon .code-case-shell{
+    box-shadow:
+        inset 0 0 18px rgba(0,0,0,.6),
+        0 0 5px #24b8ff,
+        0 0 18px rgba(36,184,255,.32) !important;
+}
+.case-theme-neon .code-case-symbol{
+    font-size:25px !important;
+    color:#8fe4ff !important;
+}
+
+/* ---------- MYSTERY ---------- */
+.case-theme-mystery{
+    --case-accent:#b76cff;
+    --case-accent2:#54218c;
+    --case-panel:#1d102b;
+}
+.case-theme-mystery .code-case-shell{
+    border-radius:17px 17px 11px 11px !important;
+}
+.case-theme-mystery .code-case-symbol{
+    font-size:26px !important;
+    animation:mysteryCaseFloat 1.8s ease-in-out infinite;
+}
+@keyframes mysteryCaseFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-3px)}
+}
+
+/* ---------- ELITE ---------- */
+.case-theme-elite{
+    --case-accent:#ffd51f;
+    --case-accent2:#8b6500;
+    --case-panel:#282109;
+}
+.case-theme-elite .code-case-lid{
+    clip-path:polygon(0 22%,12% 0,28% 21%,50% 0,72% 21%,88% 0,100% 22%,100% 100%,0 100%);
+}
+.case-theme-elite .code-case-symbol{
+    color:#ffe77a !important;
+    font-size:15px !important;
+}
+
+/* ---------- PRO ---------- */
+.case-theme-pro{
+    --case-accent:#f8b92a;
+    --case-accent2:#5f4405;
+    --case-panel:#17150d;
+}
+.case-theme-pro .code-case-shell{
+    background:
+        linear-gradient(135deg,#2c2b27,#0b0b0a 63%) !important;
+    border-width:3px !important;
+}
+.case-theme-pro .code-case-symbol{
+    color:#ffd86c !important;
+    font-size:21px !important;
+}
+
+/* ---------- PHANTOM ---------- */
+.case-theme-phantom{
+    --case-accent:#5ef0e7;
+    --case-accent2:#12645f;
+    --case-panel:#09211f;
+}
+.case-theme-phantom .code-case-art{
+    filter:drop-shadow(0 0 9px rgba(94,240,231,.32));
+}
+.case-theme-phantom .code-case-shell{
+    opacity:.86;
+    border-radius:22px 22px 12px 12px !important;
+}
+.case-theme-phantom .code-case-symbol{
+    font-size:12px !important;
+    color:#a5fff9 !important;
+    letter-spacing:.2px !important;
+}
+
+/* ---------- 666 ---------- */
+.case-theme-hell{
+    --case-accent:#ff2424;
+    --case-accent2:#790909;
+    --case-panel:#280909;
+}
+.case-theme-hell .code-case-lid{
+    clip-path:polygon(0 18%,12% 0,25% 18%,38% 0,51% 18%,64% 0,77% 18%,90% 0,100% 18%,100% 100%,0 100%);
+}
+.case-theme-hell .code-case-symbol{
+    color:#ff5757 !important;
+    font-size:26px !important;
+    text-shadow:0 0 6px #ff2424,0 0 18px #ff2424 !important;
+}
+
+/* ---------- RANDOM ---------- */
+.case-theme-random{
+    --case-accent:#d855ff;
+    --case-accent2:#6e168c;
+    --case-panel:#210d2b;
+}
+.case-theme-random .code-case-symbol{
+    font-size:27px !important;
+    animation:randomCaseGlitch 1.55s steps(2,end) infinite;
+}
+@keyframes randomCaseGlitch{
+    0%,86%,100%{transform:translate(0)}
+    90%{transform:translate(-2px,1px)}
+    94%{transform:translate(2px,-1px)}
+}
+
+/* ---------- DRAGON ---------- */
+.case-theme-dragon{
+    --case-accent:#ff7029;
+    --case-accent2:#7a2105;
+    --case-panel:#2a1108;
+}
+.case-theme-dragon .code-case-shell{
+    clip-path:polygon(5% 0,95% 0,100% 18%,95% 100%,72% 92%,50% 100%,28% 92%,5% 100%,0 18%);
+}
+.case-theme-dragon .code-case-symbol{
+    font-size:12px !important;
+    color:#ffb17a !important;
+    letter-spacing:.25px !important;
+}
+
+/* ---------- SECRET ---------- */
+.case-theme-secret{
+    --case-accent:#45df8b;
+    --case-accent2:#135f39;
+    --case-panel:#0a2116;
+}
+.case-theme-secret .code-case-shell{
+    border-style:double !important;
+    border-width:4px !important;
+}
+.case-theme-secret .code-case-symbol{
+    font-size:12px !important;
+    color:#8df3ba !important;
+}
+
+/* ---------- LAVAKA ---------- */
+.case-theme-lavaka{
+    --case-accent:#ff944f;
+    --case-accent2:#8d3912;
+    --case-panel:#28150c;
+}
+.case-theme-lavaka .code-case-shell{
+    background:
+        radial-gradient(circle at 35% 20%,rgba(255,184,94,.28),transparent 24%),
+        linear-gradient(150deg,#6d2d12,#120b08 68%) !important;
+}
+.case-theme-lavaka .code-case-symbol{
+    font-size:13px !important;
+    color:#ffc391 !important;
+}
+
+/* Чуть больше места на очень узких телефонах */
+@media (max-width:370px){
+    .case-list{
+        gap:8px !important;
+    }
+
+    .case-card{
+        min-height:168px;
+        padding-left:5px !important;
+        padding-right:5px !important;
+    }
+
+    .code-case-art{
+        width:112px !important;
+        height:94px !important;
+    }
+
+    .case-name{
+        font-size:10px !important;
+    }
+}
+
 </style>
 
 </head>
@@ -4468,12 +4859,12 @@ const CASE_VISUALS = {
     "mystery case":{theme:"mystery",symbol:"???"},
     "elite case":{theme:"elite",symbol:"ELITE"},
     "pro case":{theme:"pro",symbol:"PRO"},
-    "phantom case":{theme:"phantom",symbol:"PHANTOM"},
+    "phantom case":{theme:"phantom",symbol:"GHOST"},
     "666 case":{theme:"hell",symbol:"666"},
-    "random case":{theme:"random",symbol:"???"},
+    "random case":{theme:"random",symbol:"RNG"},
     "dragon case":{theme:"dragon",symbol:"DRAGON"},
-    "secret case":{theme:"secret",symbol:"SECRET"},
-    "lavaka case":{theme:"lavaka",symbol:"LAVAKA"}
+    "secret case":{theme:"secret",symbol:"LOCK"},
+    "lavaka case":{theme:"lavaka",symbol:"LAVA"}
 };
 
 
