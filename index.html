@@ -4224,11 +4224,6 @@ img{
             autocomplete="off"
         >
 
-        <div class="referral-input-help">
-            С действующим кодом ты получишь +10% к пополнению,
-            а владелец кода получит столько же в реферальный баланс.
-        </div>
-
         <button
             class="submit-btn"
             onclick="submitDeposit()"
@@ -4647,6 +4642,8 @@ let referralProfile = {
 
 let silentSyncRunning = false;
 
+let depositEnabled = true;
+
 
 /* =====================================================
    IMAGES
@@ -4922,6 +4919,9 @@ async function loadPlayer(){
                 )
 
         };
+
+        depositEnabled =
+            data.deposit_enabled !== false;
 
         referralProfile = {
             code:
@@ -8842,6 +8842,26 @@ function getDepositItems(){
 
 function openDeposit(){
 
+    if(
+        !depositEnabled
+    ){
+        if(
+            tg &&
+            typeof tg.showAlert === "function"
+        ){
+            tg.showAlert(
+                "Пополнение временно недоступно"
+            );
+        }
+        else{
+            alert(
+                "Пополнение временно недоступно"
+            );
+        }
+
+        return;
+    }
+
     depositSelection =
         {};
 
@@ -9618,6 +9638,9 @@ async function silentSync(){
                     data.can_withdraw
                 )
         };
+
+        depositEnabled =
+            data.deposit_enabled !== false;
 
         referralProfile = {
             code:
