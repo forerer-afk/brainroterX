@@ -1,3 +1,4 @@
+import os
 from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -17,16 +18,26 @@ import json
 # НАСТРОЙКИ
 # =====================================================
 
-ADMIN_BOT_TOKEN = "8862922604:AAH2DIlU_rzBK_pOiQUgp5SyAWew-z_jexA"
+ADMIN_BOT_TOKEN = os.getenv("ADMIN_BOT_TOKEN", "").strip()
 
-ADMIN_SECRET = "topik121"
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "").strip()
 
-ADMIN_TELEGRAM_ID = 1273118871
+ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "1273118871"))
 
 FUNCTION_URL = (
     "https://obbxdztisfeutsvljiek.supabase.co/"
     "functions/v1/telegram-player"
 )
+
+if not ADMIN_BOT_TOKEN:
+    raise RuntimeError(
+        "В Railway Variables не найден ADMIN_BOT_TOKEN"
+    )
+
+if not ADMIN_SECRET:
+    raise RuntimeError(
+        "В Railway Variables не найден ADMIN_SECRET"
+    )
 
 
 # =====================================================
