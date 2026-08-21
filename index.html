@@ -3605,6 +3605,131 @@ img{
     opacity:.65;
 }
 
+
+/* =====================================================
+   UPDATE — SUPPORT + SORT/SEARCH + TOASTS
+===================================================== */
+
+.profile-support-btn{
+    width:100%;
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:13px;
+    color:#fff;
+    background:linear-gradient(135deg,#229ED9,#1476a8);
+    box-shadow:0 7px 18px rgba(34,158,217,.20);
+    font-size:12px;
+}
+
+.profile-support-btn:active{
+    transform:scale(.985);
+}
+
+.inventory-tools{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.ui-select,
+.upgrade-search{
+    border:1px solid rgba(148,163,184,.18);
+    outline:0;
+    color:#fff;
+    background:#0f172a;
+}
+
+.ui-select{
+    max-width:135px;
+    padding:8px 8px;
+    border-radius:9px;
+    font-size:10px;
+}
+
+.upgrade-target-tools{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:6px;
+    margin:7px 0 8px;
+}
+
+.upgrade-search{
+    min-width:0;
+    width:100%;
+    padding:10px 11px;
+    border-radius:10px;
+    font-size:12px;
+}
+
+.upgrade-search:focus,
+.ui-select:focus{
+    border-color:#8b5cf6;
+    box-shadow:0 0 0 3px rgba(124,58,237,.12);
+}
+
+.toast-stack{
+    position:fixed;
+    z-index:2000;
+    top:70px;
+    right:10px;
+    width:min(310px,calc(100vw - 20px));
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:7px;
+    pointer-events:none;
+}
+
+.game-toast{
+    width:100%;
+    padding:10px 12px;
+    border-radius:12px;
+    color:#fff;
+    background:rgba(15,23,42,.97);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 12px 28px rgba(0,0,0,.38);
+    font-size:11px;
+    font-weight:800;
+    line-height:1.35;
+    opacity:0;
+    transform:translateX(22px);
+    transition:opacity .18s ease,transform .18s ease;
+    pointer-events:auto;
+    cursor:pointer;
+}
+
+.game-toast.show{
+    opacity:1;
+    transform:translateX(0);
+}
+
+.game-toast.success{
+    border-left:4px solid #22c55e;
+}
+
+.game-toast.error{
+    border-left:4px solid #ef4444;
+}
+
+.game-toast.info{
+    border-left:4px solid #38bdf8;
+}
+
+@media (max-width:390px){
+    .inventory-toolbar{
+        align-items:flex-start;
+    }
+
+    .inventory-tools{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .ui-select{
+        max-width:122px;
+    }
+}
+
 </style>
 
 </head>
@@ -3945,6 +4070,30 @@ img{
                 Что хочешь получить
             </div>
 
+            <div class="upgrade-target-tools">
+
+                <input
+                    id="targetSearch"
+                    class="upgrade-search"
+                    placeholder="🔎 Найти Brainrot"
+                    oninput="renderTargetGrid()"
+                >
+
+                <select
+                    id="targetSort"
+                    class="ui-select"
+                    onchange="renderTargetGrid()"
+                >
+                    <option value="asc">
+                        Цена ↑
+                    </option>
+                    <option value="desc">
+                        Цена ↓
+                    </option>
+                </select>
+
+            </div>
+
             <div
                 id="targetGrid"
                 class="upgrade-grid"
@@ -4060,6 +4209,13 @@ img{
 
         </div>
 
+        <button
+            class="profile-support-btn"
+            onclick="openSupport()"
+        >
+            💬 Поддержка
+        </button>
+
         <div class="profile-extra-card">
 
             <div class="profile-extra-title">
@@ -4099,12 +4255,32 @@ img{
             🎒 Инвентарь
         </h3>
 
-        <button
-            class="sell-all-btn"
-            onclick="openSellAll()"
-        >
-            ⓧ Продать всё
-        </button>
+        <div class="inventory-tools">
+
+            <select
+                id="inventorySort"
+                class="ui-select"
+                onchange="renderInventory()"
+            >
+                <option value="default">
+                    По умолчанию
+                </option>
+                <option value="desc">
+                    Дорогие ↑
+                </option>
+                <option value="asc">
+                    Дешёвые ↑
+                </option>
+            </select>
+
+            <button
+                class="sell-all-btn"
+                onclick="openSellAll()"
+            >
+                ⓧ Продать всё
+            </button>
+
+        </div>
 
     </div>
 
@@ -4117,6 +4293,11 @@ img{
 
 </div>
 
+
+<div
+    id="toastStack"
+    class="toast-stack"
+></div>
 
 <div class="bottom-menu">
 
@@ -4734,6 +4915,94 @@ function normalizeName(
     .toLowerCase();
 
 }
+
+function openSupport(){
+
+    const supportUrl =
+        "tg://user?id=1273118871";
+
+    try{
+        window.location.href =
+            supportUrl;
+    }
+    catch(error){
+        showToast(
+            "Не удалось открыть поддержку",
+            "error"
+        );
+    }
+
+}
+
+
+function showToast(
+    message,
+    type = "success"
+){
+
+    const root =
+        document.getElementById(
+            "toastStack"
+        );
+
+    if(!root){
+        return;
+    }
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+    toast.className =
+        `game-toast ${type}`;
+
+    toast.innerText =
+        message;
+
+    root.appendChild(
+        toast
+    );
+
+    requestAnimationFrame(
+        () =>
+            toast.classList.add(
+                "show"
+            )
+    );
+
+    let removed = false;
+
+    const removeToast =
+        () => {
+
+            if(removed){
+                return;
+            }
+
+            removed = true;
+
+            toast.classList.remove(
+                "show"
+            );
+
+            setTimeout(
+                () => toast.remove(),
+                190
+            );
+
+        };
+
+    toast.onclick =
+        removeToast;
+
+    setTimeout(
+        removeToast,
+        3000
+    );
+
+}
+
 
 
 function getImage(
@@ -6538,7 +6807,38 @@ function renderInventory(){
     root.style.display =
         "grid";
 
-    inventory.forEach(
+    const inventorySort =
+        document.getElementById(
+            "inventorySort"
+        )?.value
+        ||
+        "default";
+
+    const inventoryItems =
+        [...inventory];
+
+    if(
+        inventorySort === "asc"
+    ){
+        inventoryItems.sort(
+            (a,b) =>
+                Number(a.value)
+                -
+                Number(b.value)
+        );
+    }
+    else if(
+        inventorySort === "desc"
+    ){
+        inventoryItems.sort(
+            (a,b) =>
+                Number(b.value)
+                -
+                Number(a.value)
+        );
+    }
+
+    inventoryItems.forEach(
         item => {
 
             const div =
@@ -6630,6 +6930,14 @@ async function sellItem(
     id
 ){
 
+    const soldItem =
+        inventory.find(
+            item =>
+                Number(item.id)
+                ===
+                Number(id)
+        );
+
     const data =
         await apiRequest({
             action:"sell_item",
@@ -6671,6 +6979,15 @@ async function sellItem(
     renderSourceGrid();
     renderTargetGrid();
     updateUpgradeUI();
+
+    if(
+        soldItem
+    ){
+        showToast(
+            `✅ Вы продали ${soldItem.brainrot_name} за ${soldItem.value} X`,
+            "success"
+        );
+    }
 
     return true;
 
@@ -7145,6 +7462,11 @@ async function exchangeItem(
 
     renderTargetGrid();
 
+    showToast(
+        `🔄 Обмен: ${data.target_quantity}× ${data.target_item.name}`,
+        "success"
+    );
+
     result.innerText =
         `✅ ${data.target_quantity}× ${data.target_item.name}`
         +
@@ -7485,6 +7807,24 @@ function renderTargetGrid(){
 
     }
 
+    const targetSearch =
+        String(
+            document.getElementById(
+                "targetSearch"
+            )?.value
+            ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+    const targetSort =
+        document.getElementById(
+            "targetSort"
+        )?.value
+        ||
+        "asc";
+
     const targets =
         brainrots
         .filter(
@@ -7496,19 +7836,37 @@ function renderTargetGrid(){
                 Number(
                     source.value
                 )
+                &&
+                (
+                    !targetSearch
+                    ||
+                    String(
+                        item.name
+                        ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(
+                        targetSearch
+                    )
+                )
         )
         .sort(
             (
                 a,
                 b
             ) =>
-                Number(
-                    a.value
-                )
+                targetSort
+                ===
+                "desc"
+                ?
+                Number(b.value)
                 -
-                Number(
-                    b.value
-                )
+                Number(a.value)
+                :
+                Number(a.value)
+                -
+                Number(b.value)
         );
 
     targets.forEach(
@@ -8750,6 +9108,11 @@ async function redeemPromo(){
         result.innerText =
             `✅ Промокод активирован: +${data.reward_coins} ⓧ`;
 
+        showToast(
+            `🎟 Промокод: +${data.reward_coins} X`,
+            "success"
+        );
+
     }
     catch(
         error
@@ -8825,7 +9188,11 @@ function getDepositItems(){
                     "los tictacs",
                     "eviledon",
                     "gold gold gold",
-                    "swaggy bros"
+                    "swaggy bros",
+                    "chillin chili",
+                    "money money reindeer",
+                    "guest 666",
+                    "los tacoritas"
                 ].includes(
                     normalizeName(
                         item.name
@@ -9312,6 +9679,11 @@ async function submitDeposit(){
 
     result.innerText =
         `✅ Заявка #${data.request_id} создана.${bonusText}\n💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ\n\n⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
+
+    showToast(
+        `💰 Заявка на пополнение #${data.request_id} создана`,
+        "info"
+    );
 
 }
 
