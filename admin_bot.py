@@ -18,11 +18,11 @@ import json
 # НАСТРОЙКИ
 # =====================================================
 
-ADMIN_BOT_TOKEN = os.getenv("8862922604:AAEzM6hmGtcZKp_oQfgSqybdQfxOuwy2j0M", "").strip()
+ADMIN_BOT_TOKEN = os.getenv("ADMIN_BOT_TOKEN", "").strip()
 
-ADMIN_SECRET = os.getenv("topik121", "").strip()
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "").strip()
 
-ADMIN_TELEGRAM_ID = int(os.getenv("1273118871", "1273118871"))
+ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "1273118871"))
 
 FUNCTION_URL = (
     "https://obbxdztisfeutsvljiek.supabase.co/"
