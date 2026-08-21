@@ -3730,6 +3730,54 @@ img{
     }
 }
 
+
+/* =====================================================
+   STAGE 2A — ACTION CONFIRMATIONS
+===================================================== */
+
+.confirm-action-box{
+    text-align:center;
+    padding:8px 2px 2px;
+}
+
+.confirm-action-icon{
+    width:82px;
+    height:82px;
+    object-fit:contain;
+    margin:2px auto 8px;
+    display:block;
+}
+
+.confirm-action-title{
+    font-size:15px;
+    font-weight:1000;
+    color:#fff;
+}
+
+.confirm-action-text{
+    margin-top:7px;
+    color:#cbd5e1;
+    font-size:11px;
+    line-height:1.45;
+}
+
+.confirm-dont-show{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:13px 0 2px;
+    color:#94a3b8;
+    font-size:10px;
+    user-select:none;
+}
+
+.confirm-dont-show input{
+    width:17px;
+    height:17px;
+    accent-color:#8b5cf6;
+}
+
 </style>
 
 </head>
@@ -4544,6 +4592,87 @@ img{
 </div>
 
 
+
+<div
+    id="actionConfirmModal"
+    class="overlay"
+>
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div
+                id="actionConfirmHeader"
+                class="modal-title"
+            >
+                Подтверждение
+            </div>
+
+            <button
+                class="close"
+                onclick="closeActionConfirm(false)"
+            >
+                ✕
+            </button>
+
+        </div>
+
+        <div class="confirm-action-box">
+
+            <img
+                id="actionConfirmImage"
+                class="confirm-action-icon"
+                style="display:none"
+            >
+
+            <div
+                id="actionConfirmTitle"
+                class="confirm-action-title"
+            ></div>
+
+            <div
+                id="actionConfirmText"
+                class="confirm-action-text"
+            ></div>
+
+            <label class="confirm-dont-show">
+
+                <input
+                    id="actionConfirmDontShow"
+                    type="checkbox"
+                >
+
+                <span>
+                    Больше не показывать
+                </span>
+
+            </label>
+
+        </div>
+
+        <div class="confirm-row">
+
+            <button
+                class="cancel-btn"
+                onclick="closeActionConfirm(false)"
+            >
+                Отмена
+            </button>
+
+            <button
+                id="actionConfirmButton"
+                class="danger-btn"
+                onclick="closeActionConfirm(true)"
+            >
+                Подтвердить
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+
 <div
     id="withdrawModal"
     class="overlay"
@@ -4915,6 +5044,160 @@ function normalizeName(
     .toLowerCase();
 
 }
+
+
+let pendingActionConfirm = null;
+
+function confirmationDisabled(
+    actionType
+){
+    return (
+        localStorage.getItem(
+            `brainroter_confirm_${actionType}`
+        )
+        ===
+        "off"
+    );
+}
+
+
+function askActionConfirm({
+    type,
+    header,
+    title,
+    text,
+    image = "",
+    confirmText = "Подтвердить"
+}){
+
+    if(
+        confirmationDisabled(
+            type
+        )
+    ){
+        return Promise.resolve(
+            true
+        );
+    }
+
+    return new Promise(
+        resolve => {
+
+            pendingActionConfirm = {
+                resolve,
+                type
+            };
+
+            const modal =
+                document.getElementById(
+                    "actionConfirmModal"
+                );
+
+            const imageEl =
+                document.getElementById(
+                    "actionConfirmImage"
+                );
+
+            document.getElementById(
+                "actionConfirmHeader"
+            ).innerText =
+                header;
+
+            document.getElementById(
+                "actionConfirmTitle"
+            ).innerText =
+                title;
+
+            document.getElementById(
+                "actionConfirmText"
+            ).innerText =
+                text;
+
+            document.getElementById(
+                "actionConfirmButton"
+            ).innerText =
+                confirmText;
+
+            document.getElementById(
+                "actionConfirmDontShow"
+            ).checked =
+                false;
+
+            if(image){
+                imageEl.src =
+                    image;
+
+                imageEl.style.display =
+                    "block";
+            }
+            else{
+                imageEl.removeAttribute(
+                    "src"
+                );
+
+                imageEl.style.display =
+                    "none";
+            }
+
+            modal.classList.add(
+                "show"
+            );
+
+        }
+    );
+
+}
+
+
+function closeActionConfirm(
+    accepted
+){
+
+    const modal =
+        document.getElementById(
+            "actionConfirmModal"
+        );
+
+    modal.classList.remove(
+        "show"
+    );
+
+    if(
+        !pendingActionConfirm
+    ){
+        return;
+    }
+
+    const dontShow =
+        document.getElementById(
+            "actionConfirmDontShow"
+        ).checked;
+
+    if(
+        accepted
+        &&
+        dontShow
+    ){
+        localStorage.setItem(
+            `brainroter_confirm_${pendingActionConfirm.type}`,
+            "off"
+        );
+    }
+
+    const resolve =
+        pendingActionConfirm.resolve;
+
+    pendingActionConfirm =
+        null;
+
+    resolve(
+        Boolean(
+            accepted
+        )
+    );
+
+}
+
 
 function openSupport(){
 
@@ -6938,6 +7221,41 @@ async function sellItem(
                 Number(id)
         );
 
+    if(
+        !soldItem
+    ){
+        return false;
+    }
+
+    const sellConfirmed =
+        await askActionConfirm({
+            type:
+                "sell",
+
+            header:
+                "ⓧ Продажа",
+
+            title:
+                `Продать ${soldItem.brainrot_name}?`,
+
+            text:
+                `Вы получите ${soldItem.value} X.`,
+
+            image:
+                getImage(
+                    soldItem.brainrot_name
+                ),
+
+            confirmText:
+                "Продать"
+        });
+
+    if(
+        !sellConfirmed
+    ){
+        return false;
+    }
+
     const data =
         await apiRequest({
             action:"sell_item",
@@ -7388,6 +7706,49 @@ async function exchangeItem(
 
     const sourceId =
         selectedExchangeItem.id;
+
+    const targetItemForConfirm =
+        brainrots.find(
+            item =>
+                Number(item.brainrot_id)
+                ===
+                Number(targetId)
+        );
+
+    if(
+        !targetItemForConfirm
+    ){
+        return;
+    }
+
+    const exchangeConfirmed =
+        await askActionConfirm({
+            type:
+                "exchange",
+
+            header:
+                "🔄 Обмен",
+
+            title:
+                `Обменять ${selectedExchangeItem.brainrot_name}?`,
+
+            text:
+                `Получить ${targetItemForConfirm.name}? Остаток стоимости, если он будет, начислится монетами.`,
+
+            image:
+                getImage(
+                    targetItemForConfirm.name
+                ),
+
+            confirmText:
+                "Обменять"
+        });
+
+    if(
+        !exchangeConfirmed
+    ){
+        return;
+    }
 
     const result =
         document
@@ -10225,6 +10586,57 @@ function openWithdraw(
 
     }
 
+    askActionConfirm({
+        type:
+            "withdraw",
+
+        header:
+            "📤 Вывод",
+
+        title:
+            `Вывести ${selectedWithdrawItem.brainrot_name}?`,
+
+        text:
+            `Brainrot стоимостью ${selectedWithdrawItem.value} X будет заблокирован после создания заявки.`,
+
+        image:
+            getImage(
+                selectedWithdrawItem.brainrot_name
+            ),
+
+        confirmText:
+            "Продолжить"
+    })
+    .then(
+        confirmed => {
+
+            if(
+                !confirmed
+            ){
+                selectedWithdrawItem =
+                    null;
+
+                return;
+            }
+
+            openWithdrawForm();
+
+        }
+    );
+
+    return;
+
+}
+
+
+function openWithdrawForm(){
+
+    if(
+        !selectedWithdrawItem
+    ){
+        return;
+    }
+
     document
         .getElementById(
             "withdrawItemInfo"
@@ -10532,6 +10944,11 @@ async function submitWithdraw(){
 
     result.innerText =
         `✅ Заявка #${data.request_id} создана.`;
+
+    showToast(
+        `📤 Заявка на вывод #${data.request_id} создана`,
+        "success"
+    );
 
 }
 
