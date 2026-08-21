@@ -4342,10 +4342,13 @@ img{
                 ПОЛУЧИТЬ МОНЕТЫ
             </button>
 
-            <div class="referral-note">
+            <div
+                id="referralNote"
+                class="referral-note"
+            >
                 Если кто-то пополняет баланс с твоим кодом,
                 он получает +10% к пополнению, а тебе начисляется
-                такой же бонус сюда.
+                +10% в реферальный баланс.
             </div>
 
             <div
@@ -9344,6 +9347,36 @@ function renderReferral(){
             referralProfile.code
             ||
             "...";
+    }
+
+    const note =
+        document.getElementById(
+            "referralNote"
+        );
+
+    if(note){
+
+        const ownCode =
+            String(
+                referralProfile.code
+                ||
+                ""
+            )
+            .trim()
+            .toUpperCase();
+
+        if(
+            ownCode ===
+            "SHARKBITE"
+        ){
+            note.innerText =
+                "Твой специальный код SHARKBITE даёт игроку +25% к пополнению, а тебе начисляется +30% в реферальный баланс.";
+        }
+        else{
+            note.innerText =
+                "Если кто-то пополняет баланс с твоим кодом, он получает +10% к пополнению, а тебе начисляется +10% в реферальный баланс.";
+        }
+
     }
 
     if(uses){
