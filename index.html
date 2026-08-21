@@ -8820,11 +8820,16 @@ function getDepositItems(){
                 >=
                 minimum
                 &&
-                normalizeName(
-                    item.name
+                ![
+                    "la jolly grande",
+                    "los tictacs",
+                    "eviledon",
+                    "gold gold gold"
+                ].includes(
+                    normalizeName(
+                        item.name
+                    )
                 )
-                !==
-                "la jolly grande"
         )
         .sort(
             (
