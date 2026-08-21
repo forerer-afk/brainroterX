@@ -3430,6 +3430,181 @@ img{
     margin:0 0 0 auto !important;
 }
 
+
+
+/* =====================================================
+   REFERRALS + SILENT SYNC
+===================================================== */
+
+.referral-fab{
+    position:absolute;
+    z-index:5;
+    top:14px;
+    right:14px;
+
+    width:42px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:none;
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #8b5cf6,
+            #5b21b6
+        );
+
+    color:white;
+
+    font-size:20px;
+
+    box-shadow:
+        0 8px 20px rgba(91,33,182,.35);
+
+    cursor:pointer;
+}
+
+.referral-fab:active{
+    transform:scale(.94);
+}
+
+.referral-card{
+    padding:13px;
+
+    border-radius:16px;
+
+    background:
+        rgba(15,23,42,.72);
+
+    border:
+        1px solid rgba(167,139,250,.14);
+}
+
+.referral-code-box{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+
+    margin-top:9px;
+    padding:11px 12px;
+
+    border-radius:13px;
+
+    background:
+        rgba(15,23,42,.8);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+}
+
+.referral-code{
+    font-size:18px;
+    font-weight:1000;
+    letter-spacing:1px;
+}
+
+.referral-stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+
+    margin-top:10px;
+}
+
+.referral-stat{
+    padding:10px 8px;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    background:
+        rgba(15,23,42,.6);
+
+    border:
+        1px solid rgba(255,255,255,.05);
+}
+
+.referral-stat-value{
+    font-size:18px;
+    font-weight:1000;
+}
+
+.referral-stat-label{
+    margin-top:2px;
+
+    color:#94a3b8;
+
+    font-size:8px;
+}
+
+.referral-claim{
+    width:100%;
+
+    margin-top:11px;
+    padding:11px 12px;
+
+    border:none;
+    border-radius:13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #4f46e5
+        );
+
+    color:white;
+
+    font-weight:1000;
+
+    cursor:pointer;
+}
+
+.referral-claim:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+.referral-note{
+    margin-top:8px;
+
+    color:#94a3b8;
+
+    font-size:9px;
+    line-height:1.35;
+}
+
+.referral-input-help{
+    margin-top:4px;
+
+    color:#94a3b8;
+
+    font-size:8px;
+    line-height:1.3;
+}
+
+.sync-dot{
+    display:inline-block;
+
+    width:6px;
+    height:6px;
+
+    margin-left:5px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    opacity:.65;
+}
+
 </style>
 
 </head>
@@ -3791,6 +3966,14 @@ img{
 
         <div class="profile-glow"></div>
 
+        <button
+            class="referral-fab"
+            onclick="openReferral()"
+            title="Рефералы"
+        >
+            👥
+        </button>
+
         <div class="profile-top">
 
             <div
@@ -4029,6 +4212,23 @@ img{
             placeholder="Например: Topor123"
         >
 
+        <div class="input-label">
+            Реферальный код
+        </div>
+
+        <input
+            id="depositReferral"
+            class="text-input"
+            maxlength="40"
+            placeholder="Необязательно"
+            autocomplete="off"
+        >
+
+        <div class="referral-input-help">
+            С действующим кодом ты получишь +10% к пополнению,
+            а владелец кода получит столько же в реферальный баланс.
+        </div>
+
         <button
             class="submit-btn"
             onclick="submitDeposit()"
@@ -4040,6 +4240,125 @@ img{
             id="depositResult"
             class="result"
         ></div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="referralModal"
+    class="overlay"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div class="modal-title">
+                👥 Рефералы
+            </div>
+
+            <button
+                class="close"
+                onclick="closeReferral()"
+            >
+                ✕
+            </button>
+
+        </div>
+
+        <div class="referral-card">
+
+            <div class="input-label">
+                Твой реферальный код
+            </div>
+
+            <div class="referral-code-box">
+
+                <div
+                    id="referralCode"
+                    class="referral-code"
+                >
+                    ...
+                </div>
+
+                <span class="sync-dot"></span>
+
+            </div>
+
+            <div class="referral-stats">
+
+                <div class="referral-stat">
+
+                    <div
+                        id="referralUses"
+                        class="referral-stat-value"
+                    >
+                        0
+                    </div>
+
+                    <div class="referral-stat-label">
+                        ИСПОЛЬЗОВАНИЙ
+                    </div>
+
+                </div>
+
+                <div class="referral-stat">
+
+                    <div
+                        id="referralTotal"
+                        class="referral-stat-value"
+                    >
+                        0 ⓧ
+                    </div>
+
+                    <div class="referral-stat-label">
+                        ЗАРАБОТАНО ВСЕГО
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+                class="referral-stat"
+                style="margin-top:8px"
+            >
+
+                <div
+                    id="referralAvailable"
+                    class="referral-stat-value"
+                >
+                    0 ⓧ
+                </div>
+
+                <div class="referral-stat-label">
+                    ДОСТУПНО ПОЛУЧИТЬ
+                </div>
+
+            </div>
+
+            <button
+                id="referralClaimButton"
+                class="referral-claim"
+                onclick="claimReferral()"
+            >
+                ПОЛУЧИТЬ МОНЕТЫ
+            </button>
+
+            <div class="referral-note">
+                Если кто-то пополняет баланс с твоим кодом,
+                он получает +10% к пополнению, а тебе начисляется
+                такой же бонус сюда.
+            </div>
+
+            <div
+                id="referralResult"
+                class="result"
+            ></div>
+
+        </div>
 
     </div>
 
@@ -4319,6 +4638,15 @@ let needleRotation = 0;
 
 let depositSelection = {};
 
+let referralProfile = {
+    code:"",
+    referral_balance:0,
+    total_earned:0,
+    uses_count:0
+};
+
+let silentSyncRunning = false;
+
 
 /* =====================================================
    IMAGES
@@ -4373,7 +4701,7 @@ const BRAINROT_IMAGES = {
     "ketupat kepat":"./ketupatkepat.png",
     "tictac sahur":"./tictacsahur.png",
     "ventoliero pavlino":"./ventolieropavlino.png",
-    "w or l":"./globastepa.png",
+    "w or l":"./w_or_l_brainrot.png",
     "stekini fatini":"./stekinifatini.png",
     "gold gold gold":"./goldgoldgold.png",
     "tralaledon":"./tralaledon.png",
@@ -4595,6 +4923,34 @@ async function loadPlayer(){
 
         };
 
+        referralProfile = {
+            code:
+                data.referral?.code
+                ||
+                "",
+
+            referral_balance:
+                Number(
+                    data.referral?.referral_balance
+                    ||
+                    0
+                ),
+
+            total_earned:
+                Number(
+                    data.referral?.total_earned
+                    ||
+                    0
+                ),
+
+            uses_count:
+                Number(
+                    data.referral?.uses_count
+                    ||
+                    0
+                )
+        };
+
         updateBalance();
 
         renderProfile();
@@ -4608,6 +4964,8 @@ async function loadPlayer(){
         renderTargetGrid();
 
         renderDepositGrid();
+
+        renderReferral();
 
         updateUpgradeUI();
 
@@ -4967,6 +5325,10 @@ function showPage(
         top:0,
         behavior:"instant"
     });
+
+    // Тихая синхронизация данных при каждом переходе.
+    // Страница не перезагружается и не мигает.
+    silentSync();
 
     if(
         page === "inventory"
@@ -8454,6 +8816,12 @@ function getDepositItems(){
                 )
                 >=
                 minimum
+                &&
+                normalizeName(
+                    item.name
+                )
+                !==
+                "la jolly grande"
         )
         .sort(
             (
@@ -8483,6 +8851,17 @@ function openDeposit(){
         )
         .innerText =
             "";
+
+    const referralInput =
+        document.getElementById(
+            "depositReferral"
+        );
+
+    if(
+        referralInput
+    ){
+        referralInput.value = "";
+    }
 
     renderDepositGrid();
 
@@ -8781,6 +9160,15 @@ async function submitDeposit(){
             .value
             .trim();
 
+    const referralCode =
+        document
+            .getElementById(
+                "depositReferral"
+            )
+            .value
+            .trim()
+            .toUpperCase();
+
     const result =
         document
             .getElementById(
@@ -8862,6 +9250,9 @@ async function submitDeposit(){
             roblox_username:
                 username,
 
+            referral_code:
+                referralCode,
+
             items:
                 items
 
@@ -8880,10 +9271,435 @@ async function submitDeposit(){
 
     }
 
+    const bonusText =
+        Number(
+            data.referral_bonus ||
+            0
+        ) > 0
+            ?
+            `\n🎁 Реферальный бонус: +${data.referral_bonus} ⓧ`
+            :
+            "";
+
     result.innerText =
-        `✅ Заявка #${data.request_id} создана.\n\n⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
+        `✅ Заявка #${data.request_id} создана.${bonusText}\n💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ\n\n⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
 
 }
+
+
+
+/* =====================================================
+   REFERRALS
+===================================================== */
+
+function renderReferral(){
+
+    const code =
+        document.getElementById(
+            "referralCode"
+        );
+
+    const uses =
+        document.getElementById(
+            "referralUses"
+        );
+
+    const total =
+        document.getElementById(
+            "referralTotal"
+        );
+
+    const available =
+        document.getElementById(
+            "referralAvailable"
+        );
+
+    const button =
+        document.getElementById(
+            "referralClaimButton"
+        );
+
+    if(code){
+        code.innerText =
+            referralProfile.code
+            ||
+            "...";
+    }
+
+    if(uses){
+        uses.innerText =
+            Number(
+                referralProfile.uses_count
+                ||
+                0
+            );
+    }
+
+    if(total){
+        total.innerText =
+            Number(
+                referralProfile.total_earned
+                ||
+                0
+            )
+            +
+            " ⓧ";
+    }
+
+    const balance =
+        Number(
+            referralProfile.referral_balance
+            ||
+            0
+        );
+
+    if(available){
+        available.innerText =
+            balance
+            +
+            " ⓧ";
+    }
+
+    if(button){
+        button.disabled =
+            balance <= 0;
+
+        button.innerText =
+            balance > 0
+                ?
+                `ПОЛУЧИТЬ ${balance} ⓧ`
+                :
+                "НЕТ МОНЕТ ДЛЯ ПОЛУЧЕНИЯ";
+    }
+
+}
+
+
+function openReferral(){
+
+    renderReferral();
+
+    const result =
+        document.getElementById(
+            "referralResult"
+        );
+
+    if(result){
+        result.innerText = "";
+    }
+
+    document
+        .getElementById(
+            "referralModal"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+    // Перед показом тихо подтягиваем свежую статистику.
+    silentSync();
+
+}
+
+
+function closeReferral(){
+
+    document
+        .getElementById(
+            "referralModal"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+}
+
+
+async function claimReferral(){
+
+    const result =
+        document.getElementById(
+            "referralResult"
+        );
+
+    const button =
+        document.getElementById(
+            "referralClaimButton"
+        );
+
+    if(
+        Number(
+            referralProfile.referral_balance
+            ||
+            0
+        )
+        <=
+        0
+    ){
+        return;
+    }
+
+    if(button){
+        button.disabled = true;
+    }
+
+    result.innerText =
+        "⏳ Получаем монеты...";
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "claim_referral_balance"
+            });
+
+        if(
+            !data.ok
+        ){
+            throw new Error(
+                data.error
+                ||
+                "Ошибка получения"
+            );
+        }
+
+        result.innerText =
+            `✅ Получено ${data.claimed} ⓧ`;
+
+        await silentSync();
+
+    }
+    catch(
+        error
+    ){
+
+        result.innerText =
+            "❌ "
+            +
+            (
+                error.message
+                ||
+                "Ошибка"
+            );
+
+    }
+
+    renderReferral();
+
+}
+
+
+/* =====================================================
+   SILENT DATA SYNC
+===================================================== */
+
+async function silentSync(){
+
+    if(
+        silentSyncRunning
+    ){
+        return;
+    }
+
+    if(
+        !tg.initData
+    ){
+        return;
+    }
+
+    silentSyncRunning =
+        true;
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "get_player"
+            });
+
+        if(
+            !data.ok
+        ){
+            return;
+        }
+
+        coins =
+            Number(
+                data.coins
+                ||
+                0
+            );
+
+        inventory =
+            data.inventory
+            ||
+            [];
+
+        brainrots =
+            data.brainrots
+            ||
+            [];
+
+        cases =
+            data.cases
+            ||
+            [];
+
+        caseItems =
+            data.case_items
+            ||
+            [];
+
+        playerProfile = {
+            telegram_id:
+                data.telegram_id
+                ||
+                "",
+
+            first_name:
+                data.first_name
+                ||
+                "",
+
+            last_name:
+                data.last_name
+                ||
+                "",
+
+            username:
+                data.username
+                ||
+                "",
+
+            photo_url:
+                data.photo_url
+                ||
+                "",
+
+            cases_opened:
+                Number(
+                    data.cases_opened
+                    ||
+                    0
+                ),
+
+            upgrades_done:
+                Number(
+                    data.upgrades_done
+                    ||
+                    0
+                ),
+
+            has_deposited:
+                Boolean(
+                    data.has_deposited
+                ),
+
+            wager_required:
+                Number(
+                    data.wager_required
+                    ||
+                    0
+                ),
+
+            wager_progress:
+                Number(
+                    data.wager_progress
+                    ||
+                    0
+                ),
+
+            can_withdraw:
+                Boolean(
+                    data.can_withdraw
+                )
+        };
+
+        referralProfile = {
+            code:
+                data.referral?.code
+                ||
+                "",
+
+            referral_balance:
+                Number(
+                    data.referral?.referral_balance
+                    ||
+                    0
+                ),
+
+            total_earned:
+                Number(
+                    data.referral?.total_earned
+                    ||
+                    0
+                ),
+
+            uses_count:
+                Number(
+                    data.referral?.uses_count
+                    ||
+                    0
+                )
+        };
+
+        updateBalance();
+        renderProfile();
+        renderInventory();
+        renderCases();
+        renderSourceGrid();
+        renderTargetGrid();
+        renderDepositGrid();
+        renderReferral();
+        updateUpgradeUI();
+
+    }
+    catch(
+        error
+    ){
+
+        console.log(
+            "Silent sync:",
+            error
+        );
+
+    }
+    finally{
+
+        silentSyncRunning =
+            false;
+
+    }
+
+}
+
+
+/* Обновляем данные, когда пользователь вернулся в Mini App */
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if(
+            document.visibilityState
+            ===
+            "visible"
+        ){
+            silentSync();
+        }
+
+    }
+);
+
+window.addEventListener(
+    "focus",
+    () => {
+        silentSync();
+    }
+);
 
 
 /* =====================================================
