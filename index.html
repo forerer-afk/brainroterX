@@ -4000,6 +4000,30 @@ img{
     font-weight:800;
 }
 
+
+.history-toggle-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px 13px;
+    border-radius:13px;
+    color:#fff;
+    background:rgba(15,23,42,.82);
+    border:1px solid rgba(255,255,255,.06);
+    text-align:left;
+    font-size:10px;
+    font-weight:900;
+}
+.history-collapse{
+    display:none;
+    margin-top:8px;
+}
+.history-collapse.show{
+    display:block;
+}
+
 </style>
 
 </head>
@@ -4557,21 +4581,13 @@ img{
 
         <div class="inventory-tools">
 
-            <select
-                id="inventorySort"
+            <button
+                id="inventorySortButton"
                 class="ui-select"
-                onchange="renderInventory()"
+                onclick="toggleInventorySort()"
             >
-                <option value="default">
-                    По умолчанию
-                </option>
-                <option value="desc">
-                    Дорогие ↑
-                </option>
-                <option value="asc">
-                    Дешёвые ↑
-                </option>
-            </select>
+                Цена ↑
+            </button>
 
             <button
                 class="sell-all-btn"
@@ -5186,6 +5202,7 @@ function formatRemaining(seconds){
 }
 
 function renderDailyCard(){
+
     const note =
         document.getElementById(
             "dailyCaseNote"
@@ -5204,21 +5221,17 @@ function renderDailyCard(){
             0
         );
 
-    const available =
-        dailyState?.available !== false
-        ||
-        remaining <= 0;
-
     if(
-        available
+        remaining <= 0
     ){
         note.innerText =
-            "Доступен сейчас";
+            "Можно открыть";
     }
     else{
         note.innerText =
-            `Следующий через ${formatRemaining(remaining)}`;
+            `Через ${formatRemaining(remaining)}`;
     }
+
 }
 
 setInterval(()=>{
@@ -5658,6 +5671,8 @@ let selectedTargetId = null;
 
 let selectedWithdrawItem = null;
 
+let inventorySortMode = "asc";
+
 let withdrawSelection = {};
 let withdrawGroups = [];
 
@@ -5946,6 +5961,84 @@ function closeActionConfirm(
             accepted
         )
     );
+
+}
+
+
+
+
+function toggleInventorySort(){
+
+    inventorySortMode =
+        inventorySortMode
+        ===
+        "asc"
+        ?
+        "desc"
+        :
+        "asc";
+
+    const button =
+        document.getElementById(
+            "inventorySortButton"
+        );
+
+    if(
+        button
+    ){
+        button.innerText =
+            inventorySortMode
+            ===
+            "asc"
+            ?
+            "Цена ↑"
+            :
+            "Цена ↓";
+    }
+
+    renderInventory();
+
+}
+
+
+function toggleDropHistory(){
+
+    const wrap =
+        document.getElementById(
+            "dropHistoryWrap"
+        );
+
+    const arrow =
+        document.getElementById(
+            "historyToggleArrow"
+        );
+
+    if(
+        !wrap
+    ){
+        return;
+    }
+
+    const open =
+        !wrap.classList.contains(
+            "show"
+        );
+
+    wrap.classList.toggle(
+        "show",
+        open
+    );
+
+    if(
+        arrow
+    ){
+        arrow.innerText =
+            open
+            ?
+            "⌄"
+            :
+            "›";
+    }
 
 }
 
@@ -6814,7 +6907,7 @@ function renderCases(){
 
     dailyCard.onclick =
         () =>
-            claimDailyCase();
+            openDailyCase();
 
     list.appendChild(
         dailyCard
@@ -6994,6 +7087,41 @@ function selectCase(
 
 
 function closeCase(){
+    activeCaseIsDaily =
+        false;
+
+    const c3 =
+        document.getElementById(
+            "count3"
+        );
+
+    const c5 =
+        document.getElementById(
+            "count5"
+        );
+
+    if(c3){
+        c3.style.display =
+            "";
+    }
+
+    if(c5){
+        c5.style.display =
+            "";
+    }
+
+    const spinButton =
+        document.getElementById(
+            "openCaseButton"
+        );
+
+    if(
+        spinButton
+    ){
+        spinButton.innerText =
+            "🎰 КРУТИТЬ";
+    }
+
 
     if(
         caseSpinning
@@ -7579,7 +7707,542 @@ async function sellAllRecentCaseWinners(){
 }
 
 
+
+function getDailyCaseItems(){
+
+    return [
+        {
+            kind:"coins",
+            name:"3 X",
+            value:3,
+            chance:79
+        },
+        {
+            kind:"coins",
+            name:"5 X",
+            value:5,
+            chance:10
+        },
+        {
+            kind:"coins",
+            name:"7 X",
+            value:7,
+            chance:5
+        },
+        {
+            kind:"brainrot",
+            name:"La Grande",
+            chance:3
+        },
+        {
+            kind:"brainrot",
+            name:"Nuclearo Dinossauro",
+            chance:2
+        },
+        {
+            kind:"brainrot",
+            name:"Money Money Puggy",
+            chance:1
+        }
+    ];
+
+}
+
+
+function openDailyCase(){
+
+    activeCaseIsDaily =
+        true;
+
+    currentCase =
+        {
+            id:
+                "daily",
+
+            name:
+                "Ежедневный кейс",
+
+            price:
+                0
+        };
+
+    document
+        .getElementById(
+            "caseList"
+        )
+        .style.display =
+            "none";
+
+    document
+        .getElementById(
+            "activeCase"
+        )
+        .style.display =
+            "block";
+
+    document
+        .getElementById(
+            "activeCaseName"
+        )
+        .innerText =
+            "Ежедневный кейс";
+
+    document
+        .getElementById(
+            "activeCasePrice"
+        )
+        .innerHTML =
+            `<span class="daily-free-label">FREE</span>`;
+
+    setCaseCount(
+        1
+    );
+
+    document
+        .getElementById(
+            "count3"
+        )
+        .style.display =
+            "none";
+
+    document
+        .getElementById(
+            "count5"
+        )
+        .style.display =
+            "none";
+
+    const spinButton =
+        document
+            .getElementById(
+                "openCaseButton"
+            );
+
+    if(
+        spinButton
+    ){
+        spinButton.innerText =
+            "🎰 ОТКРЫТЬ БЕСПЛАТНО";
+    }
+
+    const result =
+        document
+            .getElementById(
+                "caseResult"
+            );
+
+    const remaining =
+        Number(
+            dailyState?.remaining_seconds
+            ||
+            0
+        );
+
+    result.innerText =
+        remaining > 0
+        ?
+        `⏳ Следующий бесплатный кейс через ${formatRemaining(remaining)}`
+        :
+        "";
+
+    renderDailyCaseContent();
+    resetCaseRoulette();
+
+}
+
+
+function renderDailyCaseContent(){
+
+    const root =
+        document
+            .getElementById(
+                "caseContentList"
+            );
+
+    if(
+        !root
+    ){
+        return;
+    }
+
+    root.innerHTML =
+        "";
+
+    getDailyCaseItems()
+        .forEach(
+            item => {
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+                div.className =
+                    "case-content-item";
+
+                const image =
+                    item.kind
+                    ===
+                    "coins"
+                    ?
+                    ""
+                    :
+                    `<img
+                        class="case-content-img"
+                        src="${getImage(item.name)}"
+                    >`;
+
+                div.innerHTML =
+                    `
+                    <div class="case-content-left">
+
+                        ${
+                            item.kind
+                            ===
+                            "coins"
+                            ?
+                            `<div class="xcoin" style="margin-right:8px">X</div>`
+                            :
+                            image
+                        }
+
+                        <div class="case-content-name">
+                            ${item.name}
+                        </div>
+
+                    </div>
+
+                    <div class="case-content-value">
+                        FREE
+                    </div>
+                    `;
+
+                root.appendChild(
+                    div
+                );
+
+            }
+        );
+
+}
+
+
+function buildDailyRoulettePool(){
+
+    const items =
+        getDailyCaseItems();
+
+    const pool =
+        [];
+
+    items.forEach(
+        item => {
+
+            const weight =
+                Math.max(
+                    1,
+                    Math.round(
+                        Number(
+                            item.chance
+                        )
+                    )
+                );
+
+            for(
+                let i = 0;
+                i < weight;
+                i++
+            ){
+                pool.push(
+                    item
+                );
+            }
+
+        }
+    );
+
+    return pool;
+
+}
+
+
+async function openDailyWithRoulette(){
+
+    if(
+        dailyOpening
+    ){
+        return;
+    }
+
+    const result =
+        document
+            .getElementById(
+                "caseResult"
+            );
+
+    const remaining =
+        Number(
+            dailyState?.remaining_seconds
+            ||
+            0
+        );
+
+    if(
+        remaining > 0
+    ){
+        result.innerText =
+            `⏳ Следующий бесплатный кейс через ${formatRemaining(remaining)}`;
+
+        return;
+    }
+
+    dailyOpening =
+        true;
+
+    result.innerText =
+        "🎁 Открываем...";
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "claim_daily_case"
+            });
+
+        if(
+            !data.ok
+        ){
+            throw new Error(
+                data.error
+                ||
+                "Не удалось открыть ежедневный кейс"
+            );
+        }
+
+        const pool =
+            buildDailyRoulettePool();
+
+        const serverPrizeName =
+            data.reward_type
+            ===
+            "coins"
+            ?
+            `${Number(data.coins_reward || 0)} X`
+            :
+            String(
+                data.item?.brainrot_name
+                ||
+                ""
+            );
+
+        const reward =
+            getDailyCaseItems()
+                .find(
+                    item =>
+                        item.name
+                        ===
+                        serverPrizeName
+                )
+            ||
+            (
+                data.reward_type
+                ===
+                "brainrot"
+                ?
+                getDailyCaseItems()
+                    .find(
+                        item =>
+                            normalizeName(
+                                item.name
+                            )
+                            ===
+                            normalizeName(
+                                serverPrizeName
+                            )
+                    )
+                :
+                null
+            )
+            ||
+            pool[0];
+
+        const roll =
+            [];
+
+        for(
+            let i = 0;
+            i < 45;
+            i++
+        ){
+            roll.push(
+                pool[
+                    Math.floor(
+                        Math.random()
+                        *
+                        pool.length
+                    )
+                ]
+            );
+        }
+
+        roll[38] =
+            reward;
+
+        const track =
+            document
+                .getElementById(
+                    "rouletteTrack"
+                );
+
+        track.innerHTML =
+            "";
+
+        roll.forEach(
+            item => {
+
+                const el =
+                    document.createElement(
+                        "div"
+                    );
+
+                el.className =
+                    "roulette-item";
+
+                el.innerHTML =
+                    item.kind
+                    ===
+                    "coins"
+                    ?
+                    `
+                    <div class="xcoin" style="font-size:34px;margin:0 auto 6px">
+                        X
+                    </div>
+                    <div>${item.name}</div>
+                    `
+                    :
+                    `
+                    <img src="${getImage(item.name)}">
+                    <div>${item.name}</div>
+                    `;
+
+                track.appendChild(
+                    el
+                );
+
+            }
+        );
+
+        await animateCaseRoulette(
+            38
+        );
+
+        if(
+            data.reward_type
+            ===
+            "coins"
+        ){
+            coins =
+                Number(
+                    data.coins
+                    ??
+                    coins
+                );
+
+            updateBalance();
+
+            result.innerText =
+                `✅ Выпало ${Number(data.coins_reward || 0)} X`;
+
+            showToast(
+                `🎁 Выпало ${Number(data.coins_reward || 0)} X`,
+                "success"
+            );
+        }
+        else{
+
+            if(
+                data.item
+            ){
+                inventory.unshift(
+                    data.item
+                );
+            }
+
+            renderInventory();
+            renderSourceGrid();
+            renderTargetGrid();
+
+            result.innerText =
+                `✅ Выпал ${data.item?.brainrot_name || reward.name}`;
+
+            showToast(
+                `🎁 Выпал ${data.item?.brainrot_name || reward.name}`,
+                "success"
+            );
+        }
+
+        dailyState =
+            {
+                available:
+                    false,
+
+                remaining_seconds:
+                    24 * 60 * 60
+            };
+
+        await silentSync();
+
+    }
+    catch(error){
+
+        const raw =
+            String(
+                error?.message
+                ||
+                "Ошибка"
+            );
+
+        const text =
+            raw.includes(
+                "DAILY_COOLDOWN"
+            )
+            ?
+            `Следующий бесплатный кейс через ${formatRemaining(Number(dailyState?.remaining_seconds || 0))}`
+            :
+            (
+                raw.includes(
+                    "DAILY_SUBSCRIBE"
+                )
+                ?
+                "Подпишись на @brainroterX_help, чтобы открыть ежедневный кейс"
+                :
+                raw
+            );
+
+        result.innerText =
+            `❌ ${text}`;
+
+    }
+    finally{
+
+        dailyOpening =
+            false;
+
+    }
+
+}
+
+
+
 async function openSelectedCase(){
+    if(
+        activeCaseIsDaily
+    ){
+        await openDailyWithRoulette();
+        return;
+    }
+
 
     if(
         !selectedCase
@@ -7926,11 +8589,7 @@ function renderInventory(){
         "grid";
 
     const inventorySort =
-        document.getElementById(
-            "inventorySort"
-        )?.value
-        ||
-        "default";
+        inventorySortMode;
 
     const inventoryItems =
         [...inventory];
