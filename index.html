@@ -8214,17 +8214,42 @@ function buildDailyRoulettePool(){
 
 async function openDailyWithRoulette(){
 
-    if(
-        dailyOpening
-    ){
-        return;
-    }
-
     const result =
         document
             .getElementById(
                 "caseResult"
             );
+
+    if(
+        !result
+    ){
+        showToast(
+            "❌ Не найден блок результата Daily Case",
+            "error"
+        );
+
+        return;
+    }
+
+    if(
+        dailyOpening
+    ){
+        result.innerText =
+            "❌ Кейс уже открывается. Подожди несколько секунд.";
+
+        return;
+    }
+
+    if(
+        !tg
+        ||
+        !tg.initData
+    ){
+        result.innerText =
+            "❌ Нет данных Telegram. Открой игру именно через кнопку бота в Telegram.";
+
+        return;
+    }
 
     const remaining =
         Number(
@@ -8237,7 +8262,7 @@ async function openDailyWithRoulette(){
         remaining > 0
     ){
         result.innerText =
-            `⏳ Следующий бесплатный кейс через ${formatRemaining(remaining)}`;
+            `❌ Ежедневный кейс ещё недоступен. Осталось: ${formatRemaining(remaining)}`;
 
         return;
     }
@@ -8245,25 +8270,174 @@ async function openDailyWithRoulette(){
     dailyOpening =
         true;
 
+    const spinButton =
+        document.getElementById(
+            "spinButton"
+        );
+
+    if(
+        spinButton
+    ){
+        spinButton.disabled =
+            true;
+
+        spinButton.innerText =
+            "⏳ ПРОВЕРКА...";
+    }
+
     result.innerText =
-        "🎁 Открываем...";
+        "⏳ Проверяем подписку и доступность кейса...";
 
     try{
 
-        const data =
-            await apiRequest({
-                action:
-                    "daily_claim"
-            });
+        let data;
+
+        try{
+
+            data =
+                await apiRequest({
+                    action:
+                        "daily_claim"
+                });
+
+        }
+        catch(
+            networkError
+        ){
+
+            throw new Error(
+                "Не удалось связаться с сервером. Проверь интернет и Deploy функции telegram-player."
+            );
+
+        }
+
+        if(
+            !data
+        ){
+            throw new Error(
+                "Сервер не вернул ответ."
+            );
+        }
 
         if(
             !data.ok
         ){
-            throw new Error(
-                data.error
+
+            const serverError =
+                String(
+                    data.error
+                    ||
+                    ""
+                );
+
+            if(
+                data.need_subscription
                 ||
-                "Не удалось открыть ежедневный кейс"
+                serverError
+                    .toLowerCase()
+                    .includes(
+                        "подпиш"
+                    )
+            ){
+
+                result.innerHTML =
+                    `
+                    ❌ Для открытия нужна подписка на @brainroterX_help.
+
+                    <div style="margin-top:10px">
+                        <button
+                            class="spin-btn"
+                            type="button"
+                            onclick="openDailyChannel()"
+                        >
+                            📣 ПОДПИСАТЬСЯ НА КАНАЛ
+                        </button>
+                    </div>
+
+                    <div style="margin-top:8px;font-size:10px;color:#94a3b8">
+                        После подписки вернись сюда и нажми «КРУТИТЬ» ещё раз.
+                    </div>
+                    `;
+
+                return;
+            }
+
+            if(
+                data.remaining_seconds
+            ){
+
+                dailyState =
+                    {
+                        ...dailyState,
+
+                        available:
+                            false,
+
+                        remaining_seconds:
+                            Number(
+                                data.remaining_seconds
+                            )
+                    };
+
+                result.innerText =
+                    `❌ Кейс уже был открыт. Осталось: ${formatRemaining(Number(data.remaining_seconds))}`;
+
+                return;
+            }
+
+            if(
+                serverError
+                    .includes(
+                        "BOT_TOKEN"
+                    )
+            ){
+                result.innerText =
+                    "❌ На сервере не настроен BOT_TOKEN. Добавь токен основного бота в Supabase Secrets.";
+
+                return;
+            }
+
+            if(
+                serverError
+                    .toLowerCase()
+                    .includes(
+                        "провер"
+                    )
+                &&
+                serverError
+                    .toLowerCase()
+                    .includes(
+                        "подпис"
+                    )
+            ){
+                result.innerHTML =
+                    `
+                    ❌ Telegram не смог проверить подписку.
+
+                    <div style="margin-top:8px;font-size:10px;color:#94a3b8">
+                        Проверь, что основной бот добавлен администратором в @brainroterX_help.
+                    </div>
+
+                    <div style="margin-top:10px">
+                        <button
+                            class="spin-btn"
+                            type="button"
+                            onclick="openDailyChannel()"
+                        >
+                            📣 ОТКРЫТЬ КАНАЛ
+                        </button>
+                    </div>
+                    `;
+
+                return;
+            }
+
+            throw new Error(
+                serverError
+                ||
+                "Сервер отклонил открытие Daily Case."
             );
+
         }
 
         const pool =
@@ -8341,6 +8515,14 @@ async function openDailyWithRoulette(){
                     "rouletteTrack"
                 );
 
+        if(
+            !track
+        ){
+            throw new Error(
+                "Не найден блок рулетки."
+            );
+        }
+
         track.innerHTML =
             "";
 
@@ -8379,6 +8561,9 @@ async function openDailyWithRoulette(){
             }
         );
 
+        result.innerText =
+            "🎰 Крутим...";
+
         await animateCaseRoulette(
             38
         );
@@ -8388,6 +8573,7 @@ async function openDailyWithRoulette(){
             ===
             "coins"
         ){
+
             coins =
                 Number(
                     data.coins
@@ -8404,6 +8590,7 @@ async function openDailyWithRoulette(){
                 `🎁 Выпало ${Number(data.reward_amount || 0)} X`,
                 "success"
             );
+
         }
         else{
 
@@ -8426,9 +8613,12 @@ async function openDailyWithRoulette(){
                 `🎁 Выпал ${data.item?.brainrot_name || reward.name}`,
                 "success"
             );
+
         }
 
         dailyState =
+            data.daily
+            ||
             {
                 available:
                     false,
@@ -8437,58 +8627,37 @@ async function openDailyWithRoulette(){
                     24 * 60 * 60
             };
 
-        await silentSync();
+        if(
+            Array.isArray(
+                data.drop_history
+            )
+        ){
+            dropHistory =
+                data.drop_history;
+        }
+
+        renderDailyCard();
+        renderDropHistory();
 
     }
-    catch(error){
+    catch(
+        error
+    ){
 
-        const raw =
+        const text =
             String(
                 error?.message
                 ||
-                "Ошибка"
+                "Неизвестная ошибка"
             );
 
-        const text =
-            raw.includes(
-                "DAILY_COOLDOWN"
-            )
-            ?
-            `Следующий бесплатный кейс через ${formatRemaining(Number(dailyState?.remaining_seconds || 0))}`
-            :
-            (
-                raw.includes(
-                    "DAILY_SUBSCRIBE"
-                )
-                ?
-                "Подпишись на @brainroterX_help, чтобы открыть ежедневный кейс"
-                :
-                raw
-            );
-
-        result.innerHTML =
+        result.innerText =
             `❌ ${text}`;
 
-        if(
-            raw.includes("Подпишись")
-            ||
-            raw.includes("подпис")
-            ||
-            raw.includes("DAILY_SUBSCRIBE")
-        ){
-            result.innerHTML +=
-                `
-                <div style="margin-top:10px">
-                    <button
-                        class="spin-btn"
-                        type="button"
-                        onclick="openDailyChannel()"
-                    >
-                        📣 ПОДПИСАТЬСЯ НА КАНАЛ
-                    </button>
-                </div>
-                `;
-        }
+        showToast(
+            `❌ ${text}`,
+            "error"
+        );
 
     }
     finally{
@@ -8496,11 +8665,19 @@ async function openDailyWithRoulette(){
         dailyOpening =
             false;
 
+        if(
+            spinButton
+        ){
+            spinButton.disabled =
+                false;
+
+            spinButton.innerText =
+                "🎰 КРУТИТЬ";
+        }
+
     }
 
 }
-
-
 
 async function openSelectedCase(){
     if(
