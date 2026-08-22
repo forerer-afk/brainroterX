@@ -181,152 +181,6 @@ img{
    DAILY CASE + HISTORY + LADDER
 ===================================================== */
 
-function formatRemaining(seconds){
-    seconds = Math.max(0, Number(seconds || 0));
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-}
-
-function renderDailyCard(){
-    const timer=document.getElementById("dailyTimer");
-    const button=document.getElementById("dailyOpenButton");
-    if(!timer||!button)return;
-    const available = dailyState?.available !== false || Number(dailyState?.remaining_seconds||0)<=0;
-    if(available){ timer.innerText="ДОСТУПЕН"; button.disabled=false; button.innerText="ОТКРЫТЬ БЕСПЛАТНО"; }
-    else{ timer.innerText=`Через ${formatRemaining(dailyState.remaining_seconds)}`; button.disabled=true; button.innerText="УЖЕ ЗАБРАН"; }
-}
-
-setInterval(()=>{
-    if(dailyState && Number(dailyState.remaining_seconds||0)>0){
-        dailyState.remaining_seconds=Math.max(0,Number(dailyState.remaining_seconds)-1);
-        if(dailyState.remaining_seconds===0) dailyState.available=true;
-        renderDailyCard();
-    }
-},1000);
-
-function openDailyChannel(){
-    const url="https://t.me/brainroterX_help";
-    try{ if(tg && typeof tg.openTelegramLink==="function") tg.openTelegramLink(url); else window.open(url,"_blank"); }
-    catch(e){ window.location.href=url; }
-}
-
-function closeDailyModal(){ document.getElementById("dailyModal")?.classList.remove("show"); }
-
-async function claimDailyCase(){
-    const modal=document.getElementById("dailyModal");
-    const body=document.getElementById("dailyModalBody");
-    const channel=document.getElementById("dailyChannelButton");
-    modal.classList.add("show"); channel.style.display="none";
-    body.innerHTML="<div style='padding:20px'>🎰 Открываем...</div>";
-    const data=await apiRequest({action:"daily_claim"});
-    if(!data.ok){
-        if(data.need_subscription){
-            body.innerHTML="<div style='font-size:14px;font-weight:900'>📣 Подпишись на @brainroterX_help</div><div style='margin-top:7px;font-size:10px;color:#94a3b8'>После подписки вернись и нажми открыть ещё раз.</div>";
-            channel.style.display="block";
-        } else body.innerText="❌ "+(data.error||"Ошибка");
-        if(data.remaining_seconds){ dailyState={...dailyState,available:false,remaining_seconds:Number(data.remaining_seconds)}; renderDailyCard(); }
-        return;
-    }
-    dailyState=data.daily||{available:false,remaining_seconds:86400};
-    if(data.reward_type==="coins"){
-        coins=Number(data.coins||coins);
-        body.innerHTML=`<div class="daily-result-coin">X</div><div style="margin-top:10px;font-size:16px;font-weight:1000">+${data.reward_amount} X</div>`;
-        showToast(`🪙 Вы получили ${data.reward_amount} X`,"success");
-    } else {
-        if(data.item) inventory.unshift(data.item);
-        body.innerHTML=`<img src="${getImage(data.item.brainrot_name)}"><div style="margin-top:7px;font-size:14px;font-weight:1000">${data.item.brainrot_name}</div><div style="color:#facc15;font-size:10px">${data.item.value} X</div>`;
-        showToast(`🎁 Выпал ${data.item.brainrot_name}`,"success");
-    }
-    if(Array.isArray(data.drop_history)) dropHistory=data.drop_history;
-    updateBalance(); renderInventory(); renderSourceGrid(); renderTargetGrid(); renderDailyCard(); renderDropHistory();
-}
-
-function renderDropHistory(){
-    const root=document.getElementById("dropHistoryList"); if(!root)return; root.innerHTML="";
-    if(!Array.isArray(dropHistory)||!dropHistory.length){ root.innerHTML="<div style='color:#94a3b8;font-size:9px'>Пока нет выпадений</div>"; return; }
-    dropHistory.slice(0,10).forEach(item=>{
-        const div=document.createElement("div"); div.className="history-item";
-        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div><div class="history-name">${item.brainrot_name}</div><div class="history-source">${item.source_label||item.source||"Кейс"}</div></div><div class="history-value">${item.value} X</div>`;
-        root.appendChild(div);
-    });
-}
-
-function setLadderStakeMode(mode){
-    ladderStakeMode=mode;
-    document.getElementById("ladderCoinTab")?.classList.toggle("active",mode==="coins");
-    document.getElementById("ladderBrainrotTab")?.classList.toggle("active",mode==="brainrot");
-    document.getElementById("ladderCoinsSetup").style.display=mode==="coins"?"block":"none";
-    document.getElementById("ladderBrainrotSetup").style.display=mode==="brainrot"?"block":"none";
-    renderLadderInventory(); renderLadderStakeVisual();
-}
-
-function renderLadderInventory(){
-    const root=document.getElementById("ladderInventory"); if(!root)return; root.innerHTML="";
-    inventory.filter(x=>!x.locked && Number(x.value)>=30).sort((a,b)=>Number(a.value)-Number(b.value)).forEach(item=>{
-        const div=document.createElement("div"); div.className="ladder-item"+(Number(selectedLadderInventoryId)===Number(item.id)?" selected":"");
-        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-item-name">${item.brainrot_name}</div><div class="ladder-item-value">${item.value} X</div>`;
-        div.onclick=()=>{ selectedLadderInventoryId=item.id; renderLadderInventory(); renderLadderStakeVisual(); };
-        root.appendChild(div);
-    });
-}
-
-function renderLadderStakeVisual(){
-    const root=document.getElementById("ladderStakeVisual"); if(!root)return;
-    if(ladderSession){
-        if(ladderSession.stake_type==="brainrot") root.innerHTML=`<img src="${getImage(ladderSession.brainrot_name)}"><div class="ladder-stake-name">${ladderSession.brainrot_name} · ${ladderSession.stake_value} X</div>`;
-        else root.innerHTML=`<div class="ladder-big-coin">X</div><div class="ladder-stake-name">Ставка: ${ladderSession.stake_value} X</div>`;
-        return;
-    }
-    if(ladderStakeMode==="brainrot" && selectedLadderInventoryId){
-        const item=inventory.find(x=>Number(x.id)===Number(selectedLadderInventoryId));
-        if(item){ root.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-stake-name">${item.brainrot_name} · ${item.value} X</div>`; return; }
-    }
-    root.innerHTML=`<div class="ladder-big-coin">X</div><div class="ladder-stake-name">${ladderStakeMode==="coins"?"Ставка X Coin":"Выбери Brainrot"}</div>`;
-}
-
-function renderLadder(){
-    const board=document.getElementById("ladderBoard"); if(!board)return; board.innerHTML="";
-    const current=Number(ladderSession?.current_step||0);
-    LADDER_MULTIPLIERS.forEach((m,i)=>{
-        const step=i+1; const div=document.createElement("div");
-        div.className="ladder-step"+(step<=current?" passed":"")+(step===current+1 && ladderSession?" current":"");
-        div.innerHTML=`<span class="ladder-num">${step} ступень</span><span class="ladder-x">×${m}</span><span class="ladder-chance">${LADDER_CHANCES[i]}%</span>`;
-        board.appendChild(div);
-    });
-    const setup=document.getElementById("ladderSetup"), actions=document.getElementById("ladderActions"), status=document.getElementById("ladderStatus");
-    if(ladderSession && ladderSession.status==="active"){
-        setup.style.display="none"; actions.style.display="grid";
-        const next=LADDER_MULTIPLIERS[current] || LADDER_MULTIPLIERS[LADDER_MULTIPLIERS.length-1];
-        status.innerText=current>0?`Сейчас можно забрать ×${LADDER_MULTIPLIERS[current-1]}`:`Нажми «Дальше», чтобы пойти на ×1.2`;
-    } else { setup.style.display="block"; actions.style.display="none"; if(status)status.innerText=""; }
-    renderLadderStakeVisual();
-}
-
-async function startLadder(){
-    let payload={action:"ladder_start",stake_type:ladderStakeMode};
-    if(ladderStakeMode==="coins") payload.stake_amount=Number(document.getElementById("ladderCoinAmount").value||0);
-    else payload.inventory_id=Number(selectedLadderInventoryId||0);
-    const data=await apiRequest(payload); if(!data.ok){showToast(data.error||"Ошибка лестницы","error");return;}
-    coins=Number(data.coins??coins); inventory=data.inventory||inventory; ladderSession=data.ladder_session; updateBalance(); renderInventory(); renderSourceGrid(); renderLadderInventory(); renderLadder(); showToast("🪜 Ставка принята","info");
-}
-
-async function stepLadder(){
-    if(!ladderSession)return;
-    const visual=document.getElementById("ladderStakeVisual"); visual?.classList.remove("fail"); visual?.classList.add("jump"); setTimeout(()=>visual?.classList.remove("jump"),600);
-    const data=await apiRequest({action:"ladder_step"});
-    if(!data.ok){showToast(data.error||"Ошибка лестницы","error");return;}
-    if(data.win){ ladderSession=data.ladder_session; renderLadder(); showToast(`✅ Ступень ${data.current_step}: ×${data.multiplier}`,"success"); }
-    else { ladderSession=null; visual?.classList.add("fail"); renderLadder(); renderLadderInventory(); showToast("💥 Лестница сломалась — ставка проиграна","error"); setTimeout(()=>visual?.classList.remove("fail"),800); }
-}
-
-async function cashoutLadder(){
-    const data=await apiRequest({action:"ladder_cashout"}); if(!data.ok){showToast(data.error||"Ошибка","error");return;}
-    coins=Number(data.coins??coins); if(Array.isArray(data.added_items)) inventory.unshift(...data.added_items); ladderSession=null; updateBalance(); renderInventory(); renderSourceGrid(); renderTargetGrid(); renderLadderInventory(); renderLadder();
-    showToast(data.message||"💰 Награда получена","success");
-}
-
 /* =====================================================
    CASES
 ===================================================== */
@@ -4058,23 +3912,24 @@ async function cashoutLadder(){
 ===================================================== */
 
 .daily-card{
-    margin-bottom:12px;
-    padding:14px;
-    border-radius:20px;
+    width:calc(50% - 5px);
+    margin-bottom:10px;
+    padding:10px 8px;
+    border-radius:18px;
     background:linear-gradient(145deg,rgba(107,33,168,.92),rgba(30,41,59,.98));
     border:1px solid rgba(216,180,254,.22);
     box-shadow:0 12px 28px rgba(0,0,0,.25);
 }
 .daily-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.daily-title{font-size:16px;font-weight:1000}
+.daily-title{font-size:13px;font-weight:1000}
 .daily-timer{color:#facc15;font-size:10px;font-weight:900}
-.daily-prizes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
-.daily-prize{min-width:0;padding:8px 4px;border-radius:12px;text-align:center;background:rgba(15,23,42,.55);border:1px solid rgba(255,255,255,.05)}
-.daily-prize img{width:48px;height:48px;object-fit:contain}
-.daily-coin-icon{width:48px;height:48px;margin:auto;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#171300;background:radial-gradient(circle at 36% 28%,#fff07a 0%,#ffd400 38%,#ffb800 72%,#e59a00 100%);border:1px solid #fff19b;font-size:23px;font-weight:1000}
-.daily-prize-name{margin-top:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:8px;font-weight:900}
-.daily-prize-chance{margin-top:2px;color:#94a3b8;font-size:7px}
-.daily-open-btn{width:100%;margin-top:10px;padding:12px;border-radius:12px;color:#fff;background:linear-gradient(135deg,#f59e0b,#ea580c)}
+.daily-prizes{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:7px}
+.daily-prize{min-width:0;padding:4px 2px;border-radius:8px;text-align:center;background:rgba(15,23,42,.55);border:1px solid rgba(255,255,255,.05)}
+.daily-prize img{width:32px;height:32px;object-fit:contain}
+.daily-coin-icon{width:32px;height:32px;margin:auto;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#171300;background:radial-gradient(circle at 36% 28%,#fff07a 0%,#ffd400 38%,#ffb800 72%,#e59a00 100%);border:1px solid #fff19b;font-size:16px;font-weight:1000}
+.daily-prize-name{margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:8px;font-weight:900}
+.daily-prize-chance{display:none}
+.daily-open-btn{width:100%;margin-top:7px;padding:8px 4px;font-size:9px;border-radius:12px;color:#fff;background:linear-gradient(135deg,#f59e0b,#ea580c)}
 .daily-channel-btn{width:100%;margin-top:7px;padding:11px;border-radius:11px;color:#fff;background:linear-gradient(135deg,#229ED9,#1476a8)}
 .daily-result-card{text-align:center;padding:15px;border-radius:16px;background:rgba(15,23,42,.68)}
 .daily-result-card img{width:100px;height:100px;object-fit:contain}
@@ -5312,6 +5167,154 @@ async function cashoutLadder(){
 
 
 <script>
+function formatRemaining(seconds){
+    seconds = Math.max(0, Number(seconds || 0));
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+function renderDailyCard(){
+    const timer=document.getElementById("dailyTimer");
+    const button=document.getElementById("dailyOpenButton");
+    if(!timer||!button)return;
+    const available = dailyState?.available !== false || Number(dailyState?.remaining_seconds||0)<=0;
+    if(available){ timer.innerText="ДОСТУПЕН"; button.disabled=false; button.innerText="ОТКРЫТЬ БЕСПЛАТНО"; }
+    else{ timer.innerText=`Через ${formatRemaining(dailyState.remaining_seconds)}`; button.disabled=true; button.innerText="УЖЕ ЗАБРАН"; }
+}
+
+setInterval(()=>{
+    if(dailyState && Number(dailyState.remaining_seconds||0)>0){
+        dailyState.remaining_seconds=Math.max(0,Number(dailyState.remaining_seconds)-1);
+        if(dailyState.remaining_seconds===0) dailyState.available=true;
+        renderDailyCard();
+    }
+},1000);
+
+function openDailyChannel(){
+    const url="https://t.me/brainroterX_help";
+    try{ if(tg && typeof tg.openTelegramLink==="function") tg.openTelegramLink(url); else window.open(url,"_blank"); }
+    catch(e){ window.location.href=url; }
+}
+
+function closeDailyModal(){ document.getElementById("dailyModal")?.classList.remove("show"); }
+
+async function claimDailyCase(){
+    const modal=document.getElementById("dailyModal");
+    const body=document.getElementById("dailyModalBody");
+    const channel=document.getElementById("dailyChannelButton");
+    modal.classList.add("show"); channel.style.display="none";
+    body.innerHTML="<div style='padding:20px'>🎰 Открываем...</div>";
+    const data=await apiRequest({action:"daily_claim"});
+    if(!data.ok){
+        if(data.need_subscription){
+            body.innerHTML="<div style='font-size:14px;font-weight:900'>📣 Подпишись на @brainroterX_help</div><div style='margin-top:7px;font-size:10px;color:#94a3b8'>После подписки вернись и нажми открыть ещё раз.</div>";
+            channel.style.display="block";
+        } else body.innerText="❌ "+(data.error||"Ошибка");
+        if(data.remaining_seconds){ dailyState={...dailyState,available:false,remaining_seconds:Number(data.remaining_seconds)}; renderDailyCard(); }
+        return;
+    }
+    dailyState=data.daily||{available:false,remaining_seconds:86400};
+    if(data.reward_type==="coins"){
+        coins=Number(data.coins||coins);
+        body.innerHTML=`<div class="daily-result-coin">X</div><div style="margin-top:10px;font-size:16px;font-weight:1000">+${data.reward_amount} X</div>`;
+        showToast(`🪙 Вы получили ${data.reward_amount} X`,"success");
+    } else {
+        if(data.item) inventory.unshift(data.item);
+        body.innerHTML=`<img src="${getImage(data.item.brainrot_name)}"><div style="margin-top:7px;font-size:14px;font-weight:1000">${data.item.brainrot_name}</div><div style="color:#facc15;font-size:10px">${data.item.value} X</div>`;
+        showToast(`🎁 Выпал ${data.item.brainrot_name}`,"success");
+    }
+    if(Array.isArray(data.drop_history)) dropHistory=data.drop_history;
+    updateBalance(); renderInventory(); renderSourceGrid(); renderTargetGrid(); renderDailyCard(); renderDropHistory();
+}
+
+function renderDropHistory(){
+    const root=document.getElementById("dropHistoryList"); if(!root)return; root.innerHTML="";
+    if(!Array.isArray(dropHistory)||!dropHistory.length){ root.innerHTML="<div style='color:#94a3b8;font-size:9px'>Пока нет выпадений</div>"; return; }
+    dropHistory.slice(0,10).forEach(item=>{
+        const div=document.createElement("div"); div.className="history-item";
+        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div><div class="history-name">${item.brainrot_name}</div><div class="history-source">${item.source_label||item.source||"Кейс"}</div></div><div class="history-value">${item.value} X</div>`;
+        root.appendChild(div);
+    });
+}
+
+function setLadderStakeMode(mode){
+    ladderStakeMode=mode;
+    document.getElementById("ladderCoinTab")?.classList.toggle("active",mode==="coins");
+    document.getElementById("ladderBrainrotTab")?.classList.toggle("active",mode==="brainrot");
+    document.getElementById("ladderCoinsSetup").style.display=mode==="coins"?"block":"none";
+    document.getElementById("ladderBrainrotSetup").style.display=mode==="brainrot"?"block":"none";
+    renderLadderInventory(); renderLadderStakeVisual();
+}
+
+function renderLadderInventory(){
+    const root=document.getElementById("ladderInventory"); if(!root)return; root.innerHTML="";
+    inventory.filter(x=>!x.locked && Number(x.value)>=30).sort((a,b)=>Number(a.value)-Number(b.value)).forEach(item=>{
+        const div=document.createElement("div"); div.className="ladder-item"+(Number(selectedLadderInventoryId)===Number(item.id)?" selected":"");
+        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-item-name">${item.brainrot_name}</div><div class="ladder-item-value">${item.value} X</div>`;
+        div.onclick=()=>{ selectedLadderInventoryId=item.id; renderLadderInventory(); renderLadderStakeVisual(); };
+        root.appendChild(div);
+    });
+}
+
+function renderLadderStakeVisual(){
+    const root=document.getElementById("ladderStakeVisual"); if(!root)return;
+    if(ladderSession){
+        if(ladderSession.stake_type==="brainrot") root.innerHTML=`<img src="${getImage(ladderSession.brainrot_name)}"><div class="ladder-stake-name">${ladderSession.brainrot_name} · ${ladderSession.stake_value} X</div>`;
+        else root.innerHTML=`<div class="ladder-big-coin">X</div><div class="ladder-stake-name">Ставка: ${ladderSession.stake_value} X</div>`;
+        return;
+    }
+    if(ladderStakeMode==="brainrot" && selectedLadderInventoryId){
+        const item=inventory.find(x=>Number(x.id)===Number(selectedLadderInventoryId));
+        if(item){ root.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-stake-name">${item.brainrot_name} · ${item.value} X</div>`; return; }
+    }
+    root.innerHTML=`<div class="ladder-big-coin">X</div><div class="ladder-stake-name">${ladderStakeMode==="coins"?"Ставка X Coin":"Выбери Brainrot"}</div>`;
+}
+
+function renderLadder(){
+    const board=document.getElementById("ladderBoard"); if(!board)return; board.innerHTML="";
+    const current=Number(ladderSession?.current_step||0);
+    LADDER_MULTIPLIERS.forEach((m,i)=>{
+        const step=i+1; const div=document.createElement("div");
+        div.className="ladder-step"+(step<=current?" passed":"")+(step===current+1 && ladderSession?" current":"");
+        div.innerHTML=`<span class="ladder-num">${step} ступень</span><span class="ladder-x">×${m}</span><span class="ladder-chance">${LADDER_CHANCES[i]}%</span>`;
+        board.appendChild(div);
+    });
+    const setup=document.getElementById("ladderSetup"), actions=document.getElementById("ladderActions"), status=document.getElementById("ladderStatus");
+    if(ladderSession && ladderSession.status==="active"){
+        setup.style.display="none"; actions.style.display="grid";
+        const next=LADDER_MULTIPLIERS[current] || LADDER_MULTIPLIERS[LADDER_MULTIPLIERS.length-1];
+        status.innerText=current>0?`Сейчас можно забрать ×${LADDER_MULTIPLIERS[current-1]}`:`Нажми «Дальше», чтобы пойти на ×1.2`;
+    } else { setup.style.display="block"; actions.style.display="none"; if(status)status.innerText=""; }
+    renderLadderStakeVisual();
+}
+
+async function startLadder(){
+    let payload={action:"ladder_start",stake_type:ladderStakeMode};
+    if(ladderStakeMode==="coins") payload.stake_amount=Number(document.getElementById("ladderCoinAmount").value||0);
+    else payload.inventory_id=Number(selectedLadderInventoryId||0);
+    const data=await apiRequest(payload); if(!data.ok){showToast(data.error||"Ошибка лестницы","error");return;}
+    coins=Number(data.coins??coins); inventory=data.inventory||inventory; ladderSession=data.ladder_session; updateBalance(); renderInventory(); renderSourceGrid(); renderLadderInventory(); renderLadder(); showToast("🪜 Ставка принята","info");
+}
+
+async function stepLadder(){
+    if(!ladderSession)return;
+    const visual=document.getElementById("ladderStakeVisual"); visual?.classList.remove("fail"); visual?.classList.add("jump"); setTimeout(()=>visual?.classList.remove("jump"),600);
+    const data=await apiRequest({action:"ladder_step"});
+    if(!data.ok){showToast(data.error||"Ошибка лестницы","error");return;}
+    if(data.win){ ladderSession=data.ladder_session; renderLadder(); showToast(`✅ Ступень ${data.current_step}: ×${data.multiplier}`,"success"); }
+    else { ladderSession=null; visual?.classList.add("fail"); renderLadder(); renderLadderInventory(); showToast("💥 Лестница сломалась — ставка проиграна","error"); setTimeout(()=>visual?.classList.remove("fail"),800); }
+}
+
+async function cashoutLadder(){
+    const data=await apiRequest({action:"ladder_cashout"}); if(!data.ok){showToast(data.error||"Ошибка","error");return;}
+    coins=Number(data.coins??coins); if(Array.isArray(data.added_items)) inventory.unshift(...data.added_items); ladderSession=null; updateBalance(); renderInventory(); renderSourceGrid(); renderTargetGrid(); renderLadderInventory(); renderLadder();
+    showToast(data.message||"💰 Награда получена","success");
+}
+
+
+
 
 
 /* =====================================================
@@ -6243,7 +6246,7 @@ function renderProfile(){
 
             <div class="${wagerOk ? "withdraw-rule-ok" : "withdraw-rule-bad"}">
                 ${wagerOk ? "✅" : "❌"}
-                Выполнить отыгрыш ×1.8
+                Выполнить отыгрыш ×1.5
             </div>
 
             <div>
@@ -8435,8 +8438,8 @@ function calculateChance(
             )
             *
             100
-            *
-            .75
+            /
+            1.8
         );
 
     chance =
