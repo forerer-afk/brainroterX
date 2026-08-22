@@ -5357,7 +5357,16 @@ async function claimDailyCase(){
     const channel=document.getElementById("dailyChannelButton");
     modal.classList.add("show"); channel.style.display="none";
     body.innerHTML="<div style='padding:20px'>🎰 Открываем...</div>";
-    const data=await apiRequest({action:"daily_claim"});
+    let data;
+
+    try{
+        data=await apiRequest({action:"daily_claim"});
+    }catch(error){
+        body.innerHTML="<div style='font-size:14px;font-weight:900'>❌ Не удалось проверить подписку</div><div style='margin-top:7px;font-size:10px;color:#94a3b8'>Открой канал, проверь подписку и нажми открыть ещё раз.</div>";
+        channel.style.display="block";
+        return;
+    }
+
     if(!data.ok){
         if(data.need_subscription){
             body.innerHTML="<div style='font-size:14px;font-weight:900'>📣 Подпишись на @brainroterX_help</div><div style='margin-top:7px;font-size:10px;color:#94a3b8'>После подписки вернись и нажми открыть ещё раз.</div>";
