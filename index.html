@@ -4024,6 +4024,75 @@ img{
     display:block;
 }
 
+
+/* =====================================================
+   DROP HISTORY — BUTTON + POPUP
+===================================================== */
+
+.history-open-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    margin-top:12px;
+    padding:12px 13px;
+    border-radius:13px;
+    color:#fff;
+    background:rgba(15,23,42,.82);
+    border:1px solid rgba(255,255,255,.06);
+    font-size:11px;
+    font-weight:900;
+    text-align:left;
+}
+
+.history-open-btn:active{
+    transform:scale(.985);
+}
+
+.history-modal{
+    max-height:80vh;
+    overflow:hidden;
+}
+
+.history-popup-list{
+    display:grid;
+    gap:7px;
+    max-height:60vh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding-right:2px;
+}
+
+.history-popup-item{
+    display:grid;
+    grid-template-columns:44px 1fr;
+    align-items:center;
+    gap:9px;
+    padding:8px 9px;
+    border-radius:11px;
+    background:rgba(15,23,42,.72);
+    border:1px solid rgba(255,255,255,.05);
+}
+
+.history-popup-item img{
+    width:44px;
+    height:44px;
+    object-fit:contain;
+}
+
+.history-popup-name{
+    font-size:10px;
+    font-weight:900;
+    color:#fff;
+}
+
+.history-popup-time{
+    margin-top:3px;
+    font-size:8px;
+    color:#94a3b8;
+}
+
 </style>
 
 </head>
@@ -4535,10 +4604,12 @@ img{
             💬 Поддержка
         </button>
 
-        <div class="history-card">
-            <div class="history-title">🕘 Последние 10 выпадений</div>
-            <div id="dropHistoryList" class="history-list"></div>
-        </div>
+        <button
+            class="history-open-btn"
+            onclick="openDropHistory()"
+        >
+            🕘 Последние 10 дропов
+        </button>
 
         <div class="profile-extra-card">
 
@@ -4878,6 +4949,36 @@ img{
 
 </div>
 
+
+
+<div
+    id="dropHistoryModal"
+    class="overlay"
+>
+    <div class="modal history-modal">
+
+        <div class="modal-header">
+
+            <div class="modal-title">
+                🕘 Последние 10 дропов
+            </div>
+
+            <button
+                class="close"
+                onclick="closeDropHistory()"
+            >
+                ✕
+            </button>
+
+        </div>
+
+        <div
+            id="dropHistoryList"
+            class="history-popup-list"
+        ></div>
+
+    </div>
+</div>
 
 
 <div
@@ -5279,15 +5380,172 @@ async function claimDailyCase(){
     updateBalance(); renderInventory(); renderSourceGrid(); renderTargetGrid(); renderDailyCard(); renderDropHistory();
 }
 
-function renderDropHistory(){
-    const root=document.getElementById("dropHistoryList"); if(!root)return; root.innerHTML="";
-    if(!Array.isArray(dropHistory)||!dropHistory.length){ root.innerHTML="<div style='color:#94a3b8;font-size:9px'>Пока нет выпадений</div>"; return; }
-    dropHistory.slice(0,10).forEach(item=>{
-        const div=document.createElement("div"); div.className="history-item";
-        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div><div class="history-name">${item.brainrot_name}</div><div class="history-source">${item.source_label||item.source||"Кейс"}</div></div><div class="history-value">${item.value} X</div>`;
-        root.appendChild(div);
-    });
+function formatDropTime(
+    value
+){
+
+    if(
+        !value
+    ){
+        return "";
+    }
+
+    const date =
+        new Date(
+            value
+        );
+
+    if(
+        Number.isNaN(
+            date.getTime()
+        )
+    ){
+        return "";
+    }
+
+    return date.toLocaleString(
+        "ru-RU",
+        {
+            day:
+                "2-digit",
+
+            month:
+                "2-digit",
+
+            year:
+                "numeric",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit",
+
+            hour12:
+                false
+        }
+    );
+
 }
+
+
+function openDropHistory(){
+
+    renderDropHistory();
+
+    document
+        .getElementById(
+            "dropHistoryModal"
+        )
+        .classList
+        .add(
+            "show"
+        );
+
+}
+
+
+function closeDropHistory(){
+
+    document
+        .getElementById(
+            "dropHistoryModal"
+        )
+        .classList
+        .remove(
+            "show"
+        );
+
+}
+
+
+function renderDropHistory(){
+
+    const root =
+        document.getElementById(
+            "dropHistoryList"
+        );
+
+    if(
+        !root
+    ){
+        return;
+    }
+
+    root.innerHTML =
+        "";
+
+    if(
+        !Array.isArray(
+            dropHistory
+        )
+        ||
+        !dropHistory.length
+    ){
+        return;
+    }
+
+    dropHistory
+        .slice(
+            0,
+            10
+        )
+        .forEach(
+            item => {
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+                div.className =
+                    "history-popup-item";
+
+                const time =
+                    formatDropTime(
+                        item.created_at
+                        ||
+                        item.dropped_at
+                        ||
+                        item.createdAt
+                    );
+
+                div.innerHTML =
+                    `
+                    <img
+                        src="${getImage(item.brainrot_name)}"
+                    >
+
+                    <div>
+
+                        <div class="history-popup-name">
+                            ${item.brainrot_name}
+                        </div>
+
+                        ${
+                            time
+                            ?
+                            `
+                            <div class="history-popup-time">
+                                ${time}
+                            </div>
+                            `
+                            :
+                            ""
+                        }
+
+                    </div>
+                    `;
+
+                root.appendChild(
+                    div
+                );
+
+            }
+        );
+
+}
+
 
 function setLadderStakeMode(mode){
     ladderStakeMode=mode;
@@ -5997,48 +6255,6 @@ function toggleInventorySort(){
     }
 
     renderInventory();
-
-}
-
-
-function toggleDropHistory(){
-
-    const wrap =
-        document.getElementById(
-            "dropHistoryWrap"
-        );
-
-    const arrow =
-        document.getElementById(
-            "historyToggleArrow"
-        );
-
-    if(
-        !wrap
-    ){
-        return;
-    }
-
-    const open =
-        !wrap.classList.contains(
-            "show"
-        );
-
-    wrap.classList.toggle(
-        "show",
-        open
-    );
-
-    if(
-        arrow
-    ){
-        arrow.innerText =
-            open
-            ?
-            "⌄"
-            :
-            "›";
-    }
 
 }
 
