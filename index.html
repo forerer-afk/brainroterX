@@ -7995,7 +7995,7 @@ function openDailyCase(){
 
     selectedCase =
         {
-            id: "daily",
+            id: "__daily_case__",
             name: "Ежедневный кейс",
             price: 0
         };
@@ -8003,7 +8003,7 @@ function openDailyCase(){
     currentCase =
         {
             id:
-                "daily",
+                "__daily_case__",
 
             name:
                 "Ежедневный кейс",
@@ -8061,7 +8061,7 @@ function openDailyCase(){
     const spinButton =
         document
             .getElementById(
-                "openCaseButton"
+                "spinButton"
             );
 
     if(
@@ -8253,7 +8253,7 @@ async function openDailyWithRoulette(){
         const data =
             await apiRequest({
                 action:
-                    "claim_daily_case"
+                    "daily_claim"
             });
 
         if(
@@ -8274,7 +8274,7 @@ async function openDailyWithRoulette(){
             ===
             "coins"
             ?
-            `${Number(data.coins_reward || 0)} X`
+            `${Number(data.reward_amount || 0)} X`
             :
             String(
                 data.item?.brainrot_name
@@ -8398,10 +8398,10 @@ async function openDailyWithRoulette(){
             updateBalance();
 
             result.innerText =
-                `✅ Выпало ${Number(data.coins_reward || 0)} X`;
+                `✅ Выпало ${Number(data.reward_amount || 0)} X`;
 
             showToast(
-                `🎁 Выпало ${Number(data.coins_reward || 0)} X`,
+                `🎁 Выпало ${Number(data.reward_amount || 0)} X`,
                 "success"
             );
         }
@@ -8466,8 +8466,29 @@ async function openDailyWithRoulette(){
                 raw
             );
 
-        result.innerText =
+        result.innerHTML =
             `❌ ${text}`;
+
+        if(
+            raw.includes("Подпишись")
+            ||
+            raw.includes("подпис")
+            ||
+            raw.includes("DAILY_SUBSCRIBE")
+        ){
+            result.innerHTML +=
+                `
+                <div style="margin-top:10px">
+                    <button
+                        class="spin-btn"
+                        type="button"
+                        onclick="openDailyChannel()"
+                    >
+                        📣 ПОДПИСАТЬСЯ НА КАНАЛ
+                    </button>
+                </div>
+                `;
+        }
 
     }
     finally{
