@@ -5201,18 +5201,36 @@ function closeActionConfirm(
 
 function openSupport(){
 
-    const supportUrl =
-        "tg://user?id=1273118871";
+    const supportUsername =
+        "Fortik2219";
+
+    const tgUrl =
+        `https://t.me/${supportUsername}`;
 
     try{
-        window.location.href =
-            supportUrl;
+
+        if(
+            tg
+            &&
+            typeof tg.openTelegramLink === "function"
+        ){
+            tg.openTelegramLink(
+                tgUrl
+            );
+        }
+        else{
+            window.open(
+                tgUrl,
+                "_blank"
+            );
+        }
+
     }
     catch(error){
-        showToast(
-            "Не удалось открыть поддержку",
-            "error"
-        );
+
+        window.location.href =
+            tgUrl;
+
     }
 
 }
