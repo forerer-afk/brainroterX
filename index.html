@@ -7091,61 +7091,26 @@ function renderCases(){
     list.className =
         "case-list";
 
-    /* Ежедневный кейс всегда самый первый */
-    const dailyCard =
-        document.createElement(
-            "button"
-        );
-
-    dailyCard.type =
-        "button";
-
-    dailyCard.className =
-        "case-card case-theme-lucky daily-case-card";
-
-    dailyCard.innerHTML =
-        `
-        <div class="code-case-art" aria-hidden="true">
-            <div class="code-case-glow"></div>
-            <div class="code-case-lid"></div>
-            <div class="code-case-shell">
-                <span class="code-case-symbol">🎁</span>
-            </div>
-            <div class="code-case-feet"></div>
-        </div>
-
-        <div class="case-name">
-            Ежедневный кейс
-        </div>
-
-        <div class="case-price">
-            <span class="daily-free-label">
-                FREE
-            </span>
-        </div>
-
-        <div
-            id="dailyCaseNote"
-            class="daily-card-note"
-        ></div>
-        `;
-
-    dailyCard.onclick =
-        () =>
-            openDailyCase();
-
-    list.appendChild(
-        dailyCard
-    );
-
-    renderDailyCard();
-
     const sortedCases =
         [...cases].sort(
-            (a,b) =>
-                Number(a.price)
-                -
-                Number(b.price)
+            (a,b) => {
+
+                const ad =
+                    Boolean(a.is_daily);
+
+                const bd =
+                    Boolean(b.is_daily);
+
+                if(ad !== bd){
+                    return ad ? -1 : 1;
+                }
+
+                return (
+                    Number(a.price)
+                    -
+                    Number(b.price)
+                );
+            }
         );
 
     sortedCases.forEach(
@@ -7161,9 +7126,19 @@ function renderCases(){
                     "button"
                 );
 
-            card.type = "button";
+            card.type =
+                "button";
+
             card.className =
-                `case-card case-theme-${visual.theme}`;
+                `case-card case-theme-${visual.theme}`
+                +
+                (
+                    gameCase.is_daily
+                    ?
+                    " daily-case-card"
+                    :
+                    ""
+                );
 
             card.innerHTML =
                 `
@@ -7172,7 +7147,7 @@ function renderCases(){
                     <div class="code-case-lid"></div>
                     <div class="code-case-shell">
                         <span class="code-case-symbol">
-                            ${visual.symbol}
+                            ${gameCase.is_daily ? "🎁" : visual.symbol}
                         </span>
                     </div>
                     <div class="code-case-feet"></div>
@@ -7183,9 +7158,30 @@ function renderCases(){
                 </div>
 
                 <div class="case-price">
-                    <span class="xcoin xcoin-small">X</span>
-                    ${gameCase.price}
+                    ${
+                        gameCase.is_daily
+                        ?
+                        `<span class="daily-free-label">FREE</span>`
+                        :
+                        `<span class="xcoin xcoin-small">X</span> ${gameCase.price}`
+                    }
                 </div>
+
+                ${
+                    gameCase.is_daily
+                    ?
+                    `<div class="daily-card-note">
+                        ${
+                            Number(dailyState?.remaining_seconds || 0) > 0
+                            ?
+                            `Через ${formatRemaining(Number(dailyState.remaining_seconds))}`
+                            :
+                            "Можно открыть"
+                        }
+                    </div>`
+                    :
+                    ""
+                }
                 `;
 
             card.onclick =
@@ -7206,7 +7202,6 @@ function renderCases(){
     );
 
 }
-
 
 function resetCaseSession(){
 
@@ -7279,15 +7274,22 @@ function selectCase(
         return;
     }
 
+    activeCaseIsDaily =
+        Boolean(
+            selectedCase.is_daily
+        );
+
     resetCaseSession();
 
     document.getElementById(
         "caseList"
-    ).style.display = "none";
+    ).style.display =
+        "none";
 
     document.getElementById(
         "activeCase"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
     document.getElementById(
         "activeCaseName"
@@ -7297,7 +7299,73 @@ function selectCase(
     document.getElementById(
         "activeCasePrice"
     ).innerHTML =
+        activeCaseIsDaily
+        ?
+        `<span class="daily-free-label">FREE</span>`
+        :
         `Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price}`;
+
+    const c3 =
+        document.getElementById(
+            "count3"
+        );
+
+    const c5 =
+        document.getElementById(
+            "count5"
+        );
+
+    if(c3){
+        c3.style.display =
+            activeCaseIsDaily
+            ?
+            "none"
+            :
+            "";
+    }
+
+    if(c5){
+        c5.style.display =
+            activeCaseIsDaily
+            ?
+            "none"
+            :
+            "";
+    }
+
+    const spinButton =
+        document.getElementById(
+            "spinButton"
+        );
+
+    if(spinButton){
+        spinButton.innerText =
+            activeCaseIsDaily
+            ?
+            "🎰 КРУТИТЬ БЕСПЛАТНО"
+            :
+            "🎰 КРУТИТЬ";
+    }
+
+    const result =
+        document.getElementById(
+            "caseResult"
+        );
+
+    if(
+        activeCaseIsDaily
+        &&
+        Number(
+            dailyState?.remaining_seconds
+            ||
+            0
+        )
+        >
+        0
+    ){
+        result.innerText =
+            `⏳ Следующий бесплатный кейс через ${formatRemaining(Number(dailyState.remaining_seconds))}`;
+    }
 
     createIdleRoulette();
     renderCaseContent();
@@ -7309,7 +7377,6 @@ function selectCase(
     });
 
 }
-
 
 function closeCase(){
     activeCaseIsDaily =
@@ -7428,9 +7495,18 @@ function updateCaseCost(){
             );
 
     if(
-        activeCaseIsDaily
+        !element
+        ||
+        !selectedCase
     ){
+        return;
+    }
 
+    if(
+        Boolean(
+            selectedCase.is_daily
+        )
+    ){
         element.innerHTML =
             `Будет потрачено: <span class="xcoin xcoin-tiny">X</span> 0`;
 
@@ -7438,15 +7514,6 @@ function updateCaseCost(){
             "#22c55e";
 
         return;
-
-    }
-
-    if(
-        !selectedCase
-    ){
-
-        return;
-
     }
 
     const total =
@@ -7460,63 +7527,13 @@ function updateCaseCost(){
         `Будет потрачено: <span class="xcoin xcoin-tiny">X</span> ${total}`;
 
     element.style.color =
-        coins
-        >=
-        total
+        coins >= total
         ?
-        "#facc15"
+        ""
         :
-        "#f87171";
-
-    document
-        .getElementById(
-            "spinButton"
-        )
-        .innerText =
-            caseOpenCount
-            ===
-            1
-            ?
-            "🎰 КРУТИТЬ"
-            :
-            `🎰 ОТКРЫТЬ ×${caseOpenCount}`;
+        "#ef4444";
 
 }
-
-
-function toggleCaseSpeed(){
-
-    if(
-        caseSpinning
-    ){
-
-        return;
-
-    }
-
-    caseSpeed =
-        caseSpeed
-        ===
-        1
-        ?
-        5
-        :
-        1;
-
-    document
-        .getElementById(
-            "caseSpeedButton"
-        )
-        .classList
-        .toggle(
-            "active",
-            caseSpeed
-            ===
-            5
-        );
-
-}
-
 
 function getCaseItems(){
 
@@ -7555,7 +7572,44 @@ function rouletteCard(
     div.className =
         "roulette-item";
 
+    const isCoins =
+        String(
+            item.reward_type
+            ||
+            ""
+        )
+        ===
+        "coins"
+        ||
+        String(
+            item.brainrot_name
+            ||
+            ""
+        )
+        .endsWith(
+            " X"
+        );
+
     div.innerHTML =
+        isCoins
+        ?
+        `
+        <div
+            class="xcoin"
+            style="font-size:38px;margin:7px auto 12px"
+        >
+            X
+        </div>
+
+        <div class="roulette-name">
+            ${
+                item.brainrot_name
+                ||
+                `${item.reward_amount || item.value || 0} X`
+            }
+        </div>
+        `
+        :
         `
         <img
             src="${getImage(item.brainrot_name)}"
@@ -7569,7 +7623,6 @@ function rouletteCard(
     return div;
 
 }
-
 
 function createIdleRoulette(){
 
@@ -7665,7 +7718,16 @@ async function animateCase(
         ){
             item = {
                 brainrot_name:
-                    winner.brainrot_name
+                    winner.brainrot_name,
+
+                reward_type:
+                    winner.reward_type,
+
+                reward_amount:
+                    winner.reward_amount,
+
+                value:
+                    winner.value
             };
         }
         else{
@@ -8680,13 +8742,6 @@ async function openDailyWithRoulette(){
 }
 
 async function openSelectedCase(){
-    if(
-        activeCaseIsDaily
-    ){
-        await openDailyWithRoulette();
-        return;
-    }
-
 
     if(
         !selectedCase
@@ -8696,10 +8751,28 @@ async function openSelectedCase(){
         return;
     }
 
-    const total =
-        Number(selectedCase.price)
-        *
+    const isDaily =
+        Boolean(
+            selectedCase.is_daily
+        );
+
+    const openCount =
+        isDaily
+        ?
+        1
+        :
         caseOpenCount;
+
+    const total =
+        isDaily
+        ?
+        0
+        :
+        Number(
+            selectedCase.price
+        )
+        *
+        openCount;
 
     const result =
         document.getElementById(
@@ -8712,44 +8785,127 @@ async function openSelectedCase(){
         );
 
     if(
+        !isDaily
+        &&
         coins < total
     ){
         result.innerHTML =
             `<span class="error">❌ Не хватает ${total - coins} X Coin</span>`;
+
         return;
     }
 
-    caseSpinning = true;
-    lastCaseWinners = [];
+    if(
+        isDaily
+        &&
+        Number(
+            dailyState?.remaining_seconds
+            ||
+            0
+        )
+        >
+        0
+    ){
+        result.innerText =
+            `❌ Кейс ещё недоступен. Осталось: ${formatRemaining(Number(dailyState.remaining_seconds))}`;
 
-    document.getElementById(
-        "spinButton"
-    ).disabled = true;
+        return;
+    }
+
+    caseSpinning =
+        true;
+
+    lastCaseWinners =
+        [];
+
+    const spinButton =
+        document.getElementById(
+            "spinButton"
+        );
+
+    spinButton.disabled =
+        true;
 
     result.innerText =
-        `🎰 Открываем ×${caseOpenCount}...`;
+        isDaily
+        ?
+        "⏳ Проверяем подписку..."
+        :
+        `🎰 Открываем ×${openCount}...`;
 
-    quick.innerHTML = "";
+    quick.innerHTML =
+        "";
 
-    const winners = [];
+    const winners =
+        [];
 
     try{
 
         for(
             let i = 0;
-            i < caseOpenCount;
+            i < openCount;
             i++
         ){
 
             const data =
                 await apiRequest({
-                    action:"open_case",
-                    case_id:selectedCase.id
+                    action:
+                        "open_case",
+
+                    case_id:
+                        selectedCase.id
                 });
 
             if(
                 !data.ok
             ){
+
+                if(
+                    data.need_subscription
+                ){
+
+                    result.innerHTML =
+                        `
+                        ❌ Для открытия нужна подписка на @brainroterX_help.
+
+                        <div style="margin-top:10px">
+                            <button
+                                class="spin-btn"
+                                type="button"
+                                onclick="openDailyChannel()"
+                            >
+                                📣 ПОДПИСАТЬСЯ НА КАНАЛ
+                            </button>
+                        </div>
+
+                        <div style="margin-top:8px;font-size:10px;color:#94a3b8">
+                            После подписки вернись и нажми «КРУТИТЬ» ещё раз.
+                        </div>
+                        `;
+
+                    return;
+                }
+
+                if(
+                    data.remaining_seconds
+                ){
+
+                    dailyState =
+                        {
+                            ...dailyState,
+                            available:false,
+                            remaining_seconds:
+                                Number(
+                                    data.remaining_seconds
+                                )
+                        };
+
+                    result.innerText =
+                        `❌ Кейс уже был открыт. Осталось: ${formatRemaining(Number(data.remaining_seconds))}`;
+
+                    return;
+                }
+
                 throw new Error(
                     data.error
                     ||
@@ -8758,7 +8914,11 @@ async function openSelectedCase(){
             }
 
             coins =
-                Number(data.coins);
+                Number(
+                    data.coins
+                    ??
+                    coins
+                );
 
             playerProfile.cases_opened =
                 Number(
@@ -8785,30 +8945,71 @@ async function openSelectedCase(){
                     0
                 );
 
-            playerProfile.can_withdraw =
-                Boolean(
-                    playerProfile.has_deposited
+            if(
+                data.reward_type
+                ===
+                "coins"
+            ){
+
+                winners.push({
+                    id:null,
+
+                    reward_type:
+                        "coins",
+
+                    reward_amount:
+                        Number(
+                            data.reward_amount
+                            ||
+                            0
+                        ),
+
+                    brainrot_name:
+                        `${Number(data.reward_amount || 0)} X`,
+
+                    value:
+                        Number(
+                            data.reward_amount
+                            ||
+                            0
+                        )
+                });
+
+            }
+            else{
+
+                winners.push(
+                    data.item
+                );
+
+                if(
+                    data.item
+                ){
+                    inventory.unshift(
+                        data.item
+                    );
+                }
+
+            }
+
+            if(
+                data.daily
+            ){
+                dailyState =
+                    data.daily;
+            }
+
+            if(
+                Array.isArray(
+                    data.drop_history
                 )
-                &&
-                playerProfile.wager_progress
-                >=
-                playerProfile.wager_required;
-
-            winners.push(
-                data.item
-            );
-
-            inventory.unshift(
-                data.item
-            );
+            ){
+                dropHistory =
+                    data.drop_history;
+            }
 
         }
 
-        /*
-        x1 — длинная рулетка.
-        x3/x5 — каждый выигрыш тоже проходит через рулетку,
-        но быстрее, чтобы открытие не длилось слишком долго.
-        */
         if(
             winners.length === 1
         ){
@@ -8838,9 +9039,18 @@ async function openSelectedCase(){
         renderInventory();
         renderSourceGrid();
         updateCaseCost();
+        renderDropHistory();
+        renderCases();
 
         lastCaseWinners =
-            [...winners];
+            winners.filter(
+                item =>
+                    item.reward_type
+                    !==
+                    "coins"
+                    &&
+                    item.id
+            );
 
         if(
             winners.length === 1
@@ -8849,31 +9059,56 @@ async function openSelectedCase(){
             const item =
                 winners[0];
 
-            quick.innerHTML =
-                `
-                <button
-                    class="quick-sell-btn"
-                    onclick="sellRecentCaseWinner(${item.id})"
-                >
-                    ПРОДАТЬ ЗА <span class="xcoin xcoin-tiny">X</span> ${item.value}
-                </button>
-                `;
+            if(
+                item.reward_type
+                ===
+                "coins"
+            ){
 
-            result.innerHTML =
-                `
-                <div class="single-win-result">
-                    <b>${item.brainrot_name}</b>
-                    <span><span class="xcoin xcoin-tiny">X</span> ${item.value}</span>
-                </div>
-                `;
+                quick.innerHTML =
+                    "";
+
+                result.innerHTML =
+                    `
+                    <div class="single-win-result">
+                        <b>Выпало ${item.reward_amount} X</b>
+                    </div>
+                    `;
+
+            }
+            else{
+
+                quick.innerHTML =
+                    `
+                    <button
+                        class="quick-sell-btn"
+                        onclick="sellRecentCaseWinner(${item.id})"
+                    >
+                        ПРОДАТЬ ЗА <span class="xcoin xcoin-tiny">X</span> ${item.value}
+                    </button>
+                    `;
+
+                result.innerHTML =
+                    `
+                    <div class="single-win-result">
+                        <b>${item.brainrot_name}</b>
+                        <span><span class="xcoin xcoin-tiny">X</span> ${item.value}</span>
+                    </div>
+                    `;
+
+            }
 
         }
         else{
+
             renderRecentCaseWinners();
+
         }
 
     }
-    catch(error){
+    catch(
+        error
+    ){
 
         result.innerText =
             "❌ "
@@ -8884,17 +9119,18 @@ async function openSelectedCase(){
                 "Ошибка"
             );
 
-        await loadPlayer();
+    }
+    finally{
+
+        caseSpinning =
+            false;
+
+        spinButton.disabled =
+            false;
+
     }
 
-    caseSpinning = false;
-
-    document.getElementById(
-        "spinButton"
-    ).disabled = false;
-
 }
-
 
 function renderCaseContent(){
 
@@ -8910,9 +9146,7 @@ function renderCaseContent(){
     if(
         !selectedCase
     ){
-
         return;
-
     }
 
     const items =
@@ -8920,38 +9154,60 @@ function renderCaseContent(){
         .map(
             item => {
 
+                const isCoins =
+                    String(
+                        item.reward_type
+                        ||
+                        ""
+                    )
+                    ===
+                    "coins";
+
                 const brainrot =
+                    isCoins
+                    ?
+                    null
+                    :
                     getBrainrotByName(
                         item.brainrot_name
                     );
 
                 return {
+                    ...item,
 
                     name:
                         item.brainrot_name,
 
                     value:
-                        brainrot
+                        isCoins
                         ?
                         Number(
-                            brainrot.value
-                        )
-                        :
-                        Number(
+                            item.reward_amount
+                            ||
                             item.value
                             ||
                             0
                         )
-
+                        :
+                        (
+                            brainrot
+                            ?
+                            Number(
+                                brainrot.value
+                            )
+                            :
+                            Number(
+                                item.value
+                                ||
+                                0
+                            )
+                        )
                 };
 
             }
         )
         .sort(
-            (
-                a,
-                b
-            ) =>
+            (a,b) =>
                 b.value
                 -
                 a.value
@@ -8969,14 +9225,29 @@ function renderCaseContent(){
             div.className =
                 "case-content-item";
 
+            const isCoins =
+                String(
+                    item.reward_type
+                    ||
+                    ""
+                )
+                ===
+                "coins";
+
             div.innerHTML =
                 `
                 <div class="case-content-left">
 
-                    <img
-                        class="case-content-img"
-                        src="${getImage(item.name)}"
-                    >
+                    ${
+                        isCoins
+                        ?
+                        `<div class="xcoin" style="margin-right:9px">X</div>`
+                        :
+                        `<img
+                            class="case-content-img"
+                            src="${getImage(item.name)}"
+                        >`
+                    }
 
                     <div class="case-content-name">
                         ${item.name}
@@ -8989,10 +9260,9 @@ function renderCaseContent(){
                 </div>
                 `;
 
-            root
-                .appendChild(
-                    div
-                );
+            root.appendChild(
+                div
+            );
 
         }
     );
