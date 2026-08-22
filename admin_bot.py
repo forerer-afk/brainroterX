@@ -377,10 +377,9 @@ async def button_handler(
 
     data = query.data or ""
 
-    await query.answer(
-        "⏳ Обрабатываю..."
-    )
-
+    # Не вызываем query.answer() заранее:
+    # при ошибке серверного запроса ниже будет показан alert,
+    # а при успехе сообщение просто изменится.
 
     # =================================================
     # ПОПОЛНЕНИЕ — ПОДТВЕРДИТЬ
@@ -395,9 +394,18 @@ async def button_handler(
             ""
         )
 
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
         result = call_server(
             "admin_approve_balance_request",
-            request_id=int(request_id),
+            request_id=request_id,
         )
 
         if not result.get("ok"):
@@ -412,6 +420,8 @@ async def button_handler(
             )
 
             return
+
+        await query.answer("✅ Готово")
 
         old_text = query.message.text or ""
 
@@ -441,9 +451,18 @@ async def button_handler(
             ""
         )
 
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
         result = call_server(
             "admin_reject_balance_request",
-            request_id=int(request_id),
+            request_id=request_id,
         )
 
         if not result.get("ok"):
@@ -458,6 +477,8 @@ async def button_handler(
             )
 
             return
+
+        await query.answer("✅ Готово")
 
         old_text = query.message.text or ""
 
@@ -483,9 +504,18 @@ async def button_handler(
             ""
         )
 
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
         result = call_server(
             "admin_approve_withdraw_request",
-            request_id=int(request_id),
+            request_id=request_id,
         )
 
         if not result.get("ok"):
@@ -500,6 +530,8 @@ async def button_handler(
             )
 
             return
+
+        await query.answer("✅ Готово")
 
         old_text = query.message.text or ""
 
@@ -527,9 +559,18 @@ async def button_handler(
             ""
         )
 
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
         result = call_server(
             "admin_reject_withdraw_request",
-            request_id=int(request_id),
+            request_id=request_id,
         )
 
         if not result.get("ok"):
@@ -544,6 +585,8 @@ async def button_handler(
             )
 
             return
+
+        await query.answer("✅ Готово")
 
         old_text = query.message.text or ""
 
@@ -571,9 +614,18 @@ async def button_handler(
             ""
         )
 
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
         result = call_server(
             "admin_out_of_stock_withdraw_request",
-            request_id=int(request_id),
+            request_id=request_id,
         )
 
         if not result.get("ok"):
@@ -588,6 +640,8 @@ async def button_handler(
             )
 
             return
+
+        await query.answer("✅ Готово")
 
         old_text = query.message.text or ""
 
