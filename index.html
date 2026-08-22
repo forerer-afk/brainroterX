@@ -7412,6 +7412,26 @@ function setCaseCount(
 
 function updateCaseCost(){
 
+    const element =
+        document
+            .getElementById(
+                "totalCasePrice"
+            );
+
+    if(
+        activeCaseIsDaily
+    ){
+
+        element.innerHTML =
+            `Будет потрачено: <span class="xcoin xcoin-tiny">X</span> 0`;
+
+        element.style.color =
+            "#22c55e";
+
+        return;
+
+    }
+
     if(
         !selectedCase
     ){
@@ -7426,12 +7446,6 @@ function updateCaseCost(){
         )
         *
         caseOpenCount;
-
-    const element =
-        document
-            .getElementById(
-                "totalCasePrice"
-            );
 
     element.innerHTML =
         `Будет потрачено: <span class="xcoin xcoin-tiny">X</span> ${total}`;
@@ -7969,6 +7983,13 @@ function openDailyCase(){
 
     activeCaseIsDaily =
         true;
+
+    selectedCase =
+        {
+            id: "daily",
+            name: "Ежедневный кейс",
+            price: 0
+        };
 
     currentCase =
         {
