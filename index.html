@@ -3955,7 +3955,7 @@ img{
 .ladder-step.current{border-color:#facc15;box-shadow:0 0 16px rgba(250,204,21,.22);transform:scale(1.015)}
 .ladder-step.passed{background:linear-gradient(90deg,rgba(22,101,52,.82),rgba(20,83,45,.72));border-color:rgba(74,222,128,.3)}
 .ladder-step.lost{animation:ladderFail .45s ease;background:linear-gradient(90deg,#7f1d1d,#450a0a)}
-.ladder-num{font-size:9px;color:#94a3b8}.ladder-x{font-size:17px;font-weight:1000;color:#facc15}.ladder-chance{font-size:8px;color:#cbd5e1}
+.ladder-num{font-size:9px;color:#94a3b8}.ladder-x{font-size:17px;font-weight:1000;color:#facc15}.ladder-chance{display:none!important}
 @keyframes ladderFail{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
 .ladder-stake-visual{min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:10px 0;padding:10px;border-radius:16px;background:rgba(15,23,42,.65);border:1px solid rgba(255,255,255,.06)}
 .ladder-stake-visual img{width:76px;height:76px;object-fit:contain;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
@@ -3973,6 +3973,32 @@ img{
 .ladder-status{margin-top:8px;min-height:17px;font-size:10px;text-align:center;color:#cbd5e1}
 
 .bottom-menu .nav-btn{width:25% !important;font-size:10px}
+
+
+.daily-case-card{
+    position:relative;
+}
+.daily-free-label{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:54px;
+    padding:5px 9px;
+    border-radius:999px;
+    color:#052e16;
+    background:linear-gradient(135deg,#86efac,#22c55e);
+    box-shadow:0 5px 15px rgba(34,197,94,.22);
+    font-size:10px;
+    font-weight:1000;
+    letter-spacing:.5px;
+}
+.daily-card-note{
+    min-height:14px;
+    margin-top:5px;
+    color:#94a3b8;
+    font-size:8px;
+    font-weight:800;
+}
 
 </style>
 
@@ -4026,22 +4052,6 @@ img{
     class="page active"
 >
 
-
-<div id="dailyCard" class="daily-card">
-    <div class="daily-head">
-        <div class="daily-title">🎁 Ежедневный кейс</div>
-        <div id="dailyTimer" class="daily-timer">Загрузка...</div>
-    </div>
-    <div class="daily-prizes">
-        <div class="daily-prize"><div class="daily-coin-icon">X</div><div class="daily-prize-name">3 X</div><div class="daily-prize-chance">79%</div></div>
-        <div class="daily-prize"><div class="daily-coin-icon">X</div><div class="daily-prize-name">5 X</div><div class="daily-prize-chance">10%</div></div>
-        <div class="daily-prize"><div class="daily-coin-icon">X</div><div class="daily-prize-name">7 X</div><div class="daily-prize-chance">5%</div></div>
-        <div class="daily-prize"><img src="./lagrande.webp" onerror="this.style.opacity='.2'"><div class="daily-prize-name">La Grande</div><div class="daily-prize-chance">3%</div></div>
-        <div class="daily-prize"><img src="./nuclearo.png" onerror="this.style.opacity='.2'"><div class="daily-prize-name">Nuclearo</div><div class="daily-prize-chance">2%</div></div>
-        <div class="daily-prize"><img src="./moneymoneypuggy.png" onerror="this.style.opacity='.2'"><div class="daily-prize-name">Money Money Puggy</div><div class="daily-prize-chance">1%</div></div>
-    </div>
-    <button id="dailyOpenButton" class="daily-open-btn" onclick="claimDailyCase()">ОТКРЫТЬ БЕСПЛАТНО</button>
-</div>
 
     <div id="caseList">
         Загрузка...
@@ -4379,7 +4389,7 @@ img{
                 <button id="ladderCoinTab" class="ladder-tab active" onclick="setLadderStakeMode('coins')">🪙 X Coin</button>
                 <button id="ladderBrainrotTab" class="ladder-tab" onclick="setLadderStakeMode('brainrot')">🧠 Brainrot</button>
             </div>
-            <div id="ladderCoinsSetup"><input id="ladderCoinAmount" class="ladder-input" inputmode="numeric" type="number" min="30" placeholder="Ставка, минимум 30 X"></div>
+            <div id="ladderCoinsSetup"><input id="ladderCoinAmount" class="ladder-input" inputmode="numeric" type="number" min="30" placeholder="Ставка, минимум 30 X" oninput="renderLadderStakeVisual()"></div>
             <div id="ladderBrainrotSetup" style="display:none"><div id="ladderInventory" class="ladder-inventory"></div></div>
             <button class="ladder-start" onclick="startLadder()">🔥 НАЧАТЬ</button>
         </div>
@@ -5176,12 +5186,39 @@ function formatRemaining(seconds){
 }
 
 function renderDailyCard(){
-    const timer=document.getElementById("dailyTimer");
-    const button=document.getElementById("dailyOpenButton");
-    if(!timer||!button)return;
-    const available = dailyState?.available !== false || Number(dailyState?.remaining_seconds||0)<=0;
-    if(available){ timer.innerText="ДОСТУПЕН"; button.disabled=false; button.innerText="ОТКРЫТЬ БЕСПЛАТНО"; }
-    else{ timer.innerText=`Через ${formatRemaining(dailyState.remaining_seconds)}`; button.disabled=true; button.innerText="УЖЕ ЗАБРАН"; }
+    const note =
+        document.getElementById(
+            "dailyCaseNote"
+        );
+
+    if(
+        !note
+    ){
+        return;
+    }
+
+    const remaining =
+        Number(
+            dailyState?.remaining_seconds
+            ||
+            0
+        );
+
+    const available =
+        dailyState?.available !== false
+        ||
+        remaining <= 0;
+
+    if(
+        available
+    ){
+        note.innerText =
+            "Доступен сейчас";
+    }
+    else{
+        note.innerText =
+            `Следующий через ${formatRemaining(remaining)}`;
+    }
 }
 
 setInterval(()=>{
@@ -5259,17 +5296,224 @@ function renderLadderInventory(){
 }
 
 function renderLadderStakeVisual(){
-    const root=document.getElementById("ladderStakeVisual"); if(!root)return;
-    if(ladderSession){
-        if(ladderSession.stake_type==="brainrot") root.innerHTML=`<img src="${getImage(ladderSession.brainrot_name)}"><div class="ladder-stake-name">${ladderSession.brainrot_name} · ${ladderSession.stake_value} X</div>`;
-        else root.innerHTML=`<div class="ladder-big-coin">X</div><div class="ladder-stake-name">Ставка: ${ladderSession.stake_value} X</div>`;
+    const root =
+        document.getElementById(
+            "ladderStakeVisual"
+        );
+
+    if(
+        !root
+    ){
         return;
     }
-    if(ladderStakeMode==="brainrot" && selectedLadderInventoryId){
-        const item=inventory.find(x=>Number(x.id)===Number(selectedLadderInventoryId));
-        if(item){ root.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-stake-name">${item.brainrot_name} · ${item.value} X</div>`; return; }
+
+    if(
+        ladderSession
+    ){
+        const currentStep =
+            Number(
+                ladderSession.current_step
+                ||
+                0
+            );
+
+        const multiplier =
+            currentStep > 0
+            ?
+            Number(
+                LADDER_MULTIPLIERS[
+                    currentStep - 1
+                ]
+            )
+            :
+            1;
+
+        if(
+            ladderSession.stake_type
+            ===
+            "coins"
+        ){
+            const payout =
+                currentStep > 0
+                ?
+                Math.floor(
+                    Number(
+                        ladderSession.stake_value
+                    )
+                    *
+                    multiplier
+                )
+                :
+                Number(
+                    ladderSession.stake_value
+                );
+
+            root.innerHTML =
+                `
+                <div class="ladder-big-coin">X</div>
+                <div class="ladder-stake-name">
+                    ${
+                        currentStep > 0
+                        ?
+                        `Можно забрать: ${payout} X`
+                        :
+                        `На кону: ${payout} X`
+                    }
+                </div>
+                `;
+
+            return;
+        }
+
+        const base =
+            Number(
+                ladderSession.stake_value
+                ||
+                0
+            );
+
+        if(
+            currentStep <= 0
+        ){
+            root.innerHTML =
+                `
+                <img src="${getImage(ladderSession.brainrot_name)}">
+                <div class="ladder-stake-name">
+                    На кону: ${ladderSession.brainrot_name}
+                </div>
+                `;
+
+            return;
+        }
+
+        if(
+            currentStep <= 4
+        ){
+            const targetValue =
+                Math.floor(
+                    base
+                    *
+                    multiplier
+                );
+
+            const exact =
+                brainrots.find(
+                    item =>
+                        Number(
+                            item.value
+                        )
+                        ===
+                        targetValue
+                );
+
+            if(
+                exact
+            ){
+                root.innerHTML =
+                    `
+                    <img src="${getImage(exact.name)}">
+                    <div class="ladder-stake-name">
+                        Можно забрать: ${exact.name} · ${targetValue} X
+                    </div>
+                    `;
+            }
+            else{
+                const difference =
+                    Math.max(
+                        0,
+                        targetValue
+                        -
+                        base
+                    );
+
+                root.innerHTML =
+                    `
+                    <img src="${getImage(ladderSession.brainrot_name)}">
+                    <div class="ladder-stake-name">
+                        Можно забрать: ${ladderSession.brainrot_name} + ${difference} X
+                    </div>
+                    `;
+            }
+
+            return;
+        }
+
+        const quantity =
+            Math.floor(
+                multiplier
+            );
+
+        root.innerHTML =
+            `
+            <img src="${getImage(ladderSession.brainrot_name)}">
+            <div class="ladder-stake-name">
+                Можно забрать: ${quantity}× ${ladderSession.brainrot_name}
+            </div>
+            `;
+
+        return;
     }
-    root.innerHTML=`<div class="ladder-big-coin">X</div><div class="ladder-stake-name">${ladderStakeMode==="coins"?"Ставка X Coin":"Выбери Brainrot"}</div>`;
+
+    if(
+        ladderStakeMode
+        ===
+        "brainrot"
+        &&
+        selectedLadderInventoryId
+    ){
+        const item =
+            inventory.find(
+                x =>
+                    Number(x.id)
+                    ===
+                    Number(
+                        selectedLadderInventoryId
+                    )
+            );
+
+        if(
+            item
+        ){
+            root.innerHTML =
+                `
+                <img src="${getImage(item.brainrot_name)}">
+                <div class="ladder-stake-name">
+                    На кону: ${item.brainrot_name} · ${item.value} X
+                </div>
+                `;
+
+            return;
+        }
+    }
+
+    const enteredCoins =
+        Number(
+            document.getElementById(
+                "ladderCoinAmount"
+            )?.value
+            ||
+            0
+        );
+
+    root.innerHTML =
+        `
+        <div class="ladder-big-coin">X</div>
+        <div class="ladder-stake-name">
+            ${
+                ladderStakeMode === "coins"
+                ?
+                (
+                    enteredCoins > 0
+                    ?
+                    `На кону: ${enteredCoins} X`
+                    :
+                    "Введи количество X Coin"
+                )
+                :
+                "Выбери Brainrot"
+            }
+        </div>
+        `;
 }
 
 function renderLadder(){
@@ -5278,7 +5522,7 @@ function renderLadder(){
     LADDER_MULTIPLIERS.forEach((m,i)=>{
         const step=i+1; const div=document.createElement("div");
         div.className="ladder-step"+(step<=current?" passed":"")+(step===current+1 && ladderSession?" current":"");
-        div.innerHTML=`<span class="ladder-num">${step} ступень</span><span class="ladder-x">×${m}</span><span class="ladder-chance">${LADDER_CHANCES[i]}%</span>`;
+        div.innerHTML=`<span class="ladder-num">${step} ступень</span><span class="ladder-x">×${m}</span>`;
         board.appendChild(div);
     });
     const setup=document.getElementById("ladderSetup"), actions=document.getElementById("ladderActions"), status=document.getElementById("ladderStatus");
@@ -5310,7 +5554,37 @@ async function stepLadder(){
 async function cashoutLadder(){
     const data=await apiRequest({action:"ladder_cashout"}); if(!data.ok){showToast(data.error||"Ошибка","error");return;}
     coins=Number(data.coins??coins); if(Array.isArray(data.added_items)) inventory.unshift(...data.added_items); ladderSession=null; updateBalance(); renderInventory(); renderSourceGrid(); renderTargetGrid(); renderLadderInventory(); renderLadder();
-    showToast(data.message||"💰 Награда получена","success");
+    if(
+        data.reward_type === "coins"
+        ||
+        (
+            !Array.isArray(data.added_items)
+            ||
+            data.added_items.length === 0
+        )
+    ){
+        showToast(
+            `💰 Получено ${Number(data.payout_coins || 0)} X`,
+            "success"
+        );
+    }
+    else if(
+        data.added_items.length === 1
+    ){
+        const prize =
+            data.added_items[0];
+
+        showToast(
+            `🧠 Получен ${prize.brainrot_name}`,
+            "success"
+        );
+    }
+    else{
+        showToast(
+            `🧠 Получено ${data.added_items.length}× ${data.added_items[0].brainrot_name}`,
+            "success"
+        );
+    }
 }
 
 
@@ -6498,6 +6772,55 @@ function renderCases(){
 
     list.className =
         "case-list";
+
+    /* Ежедневный кейс всегда самый первый */
+    const dailyCard =
+        document.createElement(
+            "button"
+        );
+
+    dailyCard.type =
+        "button";
+
+    dailyCard.className =
+        "case-card case-theme-lucky daily-case-card";
+
+    dailyCard.innerHTML =
+        `
+        <div class="code-case-art" aria-hidden="true">
+            <div class="code-case-glow"></div>
+            <div class="code-case-lid"></div>
+            <div class="code-case-shell">
+                <span class="code-case-symbol">🎁</span>
+            </div>
+            <div class="code-case-feet"></div>
+        </div>
+
+        <div class="case-name">
+            Ежедневный кейс
+        </div>
+
+        <div class="case-price">
+            <span class="daily-free-label">
+                FREE
+            </span>
+        </div>
+
+        <div
+            id="dailyCaseNote"
+            class="daily-card-note"
+        ></div>
+        `;
+
+    dailyCard.onclick =
+        () =>
+            claimDailyCase();
+
+    list.appendChild(
+        dailyCard
+    );
+
+    renderDailyCard();
 
     const sortedCases =
         [...cases].sort(
