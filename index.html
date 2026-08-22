@@ -3778,6 +3778,129 @@ img{
     accent-color:#8b5cf6;
 }
 
+
+/* =====================================================
+   STAGE 2B — MULTI WITHDRAW 1..5
+===================================================== */
+
+.withdraw-step{
+    display:none;
+}
+
+.withdraw-step.active{
+    display:block;
+}
+
+.withdraw-select-list{
+    display:grid;
+    gap:8px;
+    margin-top:12px;
+    max-height:44vh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding-right:3px;
+}
+
+.withdraw-select-card{
+    display:grid;
+    grid-template-columns:56px 1fr auto;
+    align-items:center;
+    gap:9px;
+    padding:8px;
+    border-radius:13px;
+    background:rgba(15,23,42,.72);
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.withdraw-select-card img{
+    width:56px;
+    height:56px;
+    object-fit:contain;
+}
+
+.withdraw-select-name{
+    min-width:0;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    font-size:10px;
+    font-weight:900;
+}
+
+.withdraw-select-value{
+    margin-top:3px;
+    color:#facc15;
+    font-size:9px;
+}
+
+.withdraw-qty{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.withdraw-qty button{
+    width:28px;
+    height:28px;
+    padding:0;
+    border-radius:8px;
+    color:#fff;
+    background:#334155;
+}
+
+.withdraw-qty-number{
+    min-width:18px;
+    text-align:center;
+    font-size:12px;
+    font-weight:1000;
+}
+
+.withdraw-selection-summary{
+    margin-top:10px;
+    padding:10px;
+    border-radius:12px;
+    background:rgba(15,23,42,.7);
+    border:1px solid rgba(255,255,255,.06);
+    font-size:10px;
+    line-height:1.45;
+}
+
+.withdraw-selected-preview{
+    display:grid;
+    gap:6px;
+    margin:9px 0 12px;
+}
+
+.withdraw-selected-line{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:7px 8px;
+    border-radius:10px;
+    background:rgba(15,23,42,.65);
+    font-size:10px;
+}
+
+.withdraw-next-btn{
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    border-radius:12px;
+    color:#fff;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+}
+
+.withdraw-back-btn{
+    width:100%;
+    margin-top:7px;
+    padding:11px;
+    border-radius:11px;
+    color:#fff;
+    background:#334155;
+}
+
 </style>
 
 </head>
@@ -4677,7 +4800,6 @@ img{
     id="withdrawModal"
     class="overlay"
 >
-
     <div class="modal">
 
         <div class="modal-header">
@@ -4695,55 +4817,105 @@ img{
 
         </div>
 
-        <div id="withdrawItemInfo"></div>
+        <div
+            id="withdrawStep1"
+            class="withdraw-step active"
+        >
 
-        <div class="input-label">
-            Roblox ник
+            <div class="input-label">
+                Выбери кого и сколько хочешь вывести
+            </div>
+
+            <div
+                id="withdrawSelectList"
+                class="withdraw-select-list"
+            ></div>
+
+            <div
+                id="withdrawSelectionSummary"
+                class="withdraw-selection-summary"
+            >
+                Выбрано: 0/5
+            </div>
+
+            <button
+                class="withdraw-next-btn"
+                onclick="goWithdrawStep2()"
+            >
+                ДАЛЬШЕ
+            </button>
+
         </div>
-
-        <input
-            id="withdrawRoblox"
-            class="text-input"
-            placeholder="Например: Topor123"
-        >
-
-        <div class="input-label">
-            День
-        </div>
-
-        <input
-            id="withdrawDay"
-            type="number"
-            class="text-input"
-            min="1"
-            max="31"
-            placeholder="День"
-        >
-
-        <div class="input-label">
-            Время
-        </div>
-
-        <input
-            id="withdrawClock"
-            type="time"
-            class="text-input"
-        >
-
-        <button
-            class="submit-btn"
-            onclick="submitWithdraw()"
-        >
-            ОТПРАВИТЬ ЗАЯВКУ
-        </button>
 
         <div
-            id="withdrawResult"
-            class="result"
-        ></div>
+            id="withdrawStep2"
+            class="withdraw-step"
+        >
+
+            <div class="input-label">
+                Выбранные Brainrot
+            </div>
+
+            <div
+                id="withdrawSelectedPreview"
+                class="withdraw-selected-preview"
+            ></div>
+
+            <div class="input-label">
+                Roblox ник
+            </div>
+
+            <input
+                id="withdrawRoblox"
+                class="text-input"
+                placeholder="Например: Topor123"
+            >
+
+            <div class="input-label">
+                День
+            </div>
+
+            <input
+                id="withdrawDay"
+                type="number"
+                class="text-input"
+                min="1"
+                max="31"
+                placeholder="День"
+            >
+
+            <div class="input-label">
+                Время
+            </div>
+
+            <input
+                id="withdrawClock"
+                type="time"
+                class="text-input"
+            >
+
+            <button
+                class="submit-btn"
+                onclick="submitWithdraw()"
+            >
+                ОТПРАВИТЬ ЗАЯВКУ
+            </button>
+
+            <button
+                class="withdraw-back-btn"
+                onclick="goWithdrawStep1()"
+            >
+                ← НАЗАД
+            </button>
+
+            <div
+                id="withdrawResult"
+                class="result"
+            ></div>
+
+        </div>
 
     </div>
-
 </div>
 
 
@@ -4925,6 +5097,10 @@ let selectedSourceId = null;
 let selectedTargetId = null;
 
 let selectedWithdrawItem = null;
+
+let withdrawSelection = {};
+let withdrawGroups = [];
+
 
 let selectedExchangeItem = null;
 
@@ -10516,67 +10692,408 @@ window.addEventListener(
 
 
 /* =====================================================
-   WITHDRAW
+   WITHDRAW — MULTI 1..5
 ===================================================== */
+
+function getEligibleWithdrawItems(){
+
+    return inventory.filter(
+        item =>
+            !item.locked
+            &&
+            Number(
+                item.value
+                ||
+                0
+            )
+            >=
+            30
+    );
+
+}
+
+
+function buildWithdrawGroups(){
+
+    const map =
+        new Map();
+
+    getEligibleWithdrawItems()
+        .forEach(
+            item => {
+
+                const key =
+                    `${item.brainrot_id}::${item.brainrot_name}`;
+
+                if(
+                    !map.has(
+                        key
+                    )
+                ){
+                    map.set(
+                        key,
+                        {
+                            key:
+                                key,
+
+                            brainrot_id:
+                                item.brainrot_id,
+
+                            brainrot_name:
+                                item.brainrot_name,
+
+                            value:
+                                Number(
+                                    item.value
+                                    ||
+                                    0
+                                ),
+
+                            items:
+                                []
+                        }
+                    );
+                }
+
+                map.get(
+                    key
+                )
+                .items
+                .push(
+                    item
+                );
+
+            }
+        );
+
+    withdrawGroups =
+        Array.from(
+            map.values()
+        )
+        .sort(
+            (
+                a,
+                b
+            ) =>
+                Number(
+                    b.value
+                )
+                -
+                Number(
+                    a.value
+                )
+        );
+
+}
+
+
+function selectedWithdrawCount(){
+
+    return Object.values(
+        withdrawSelection
+    )
+    .reduce(
+        (
+            sum,
+            quantity
+        ) =>
+            sum
+            +
+            Number(
+                quantity
+                ||
+                0
+            ),
+        0
+    );
+
+}
+
+
+function getSelectedWithdrawItems(){
+
+    const result =
+        [];
+
+    withdrawGroups
+        .forEach(
+            group => {
+
+                const quantity =
+                    Number(
+                        withdrawSelection[
+                            group.key
+                        ]
+                        ||
+                        0
+                    );
+
+                if(
+                    quantity
+                    <=
+                    0
+                ){
+                    return;
+                }
+
+                result.push(
+                    ...group.items.slice(
+                        0,
+                        quantity
+                    )
+                );
+
+            }
+        );
+
+    return result;
+
+}
+
+
+function renderWithdrawSelection(){
+
+    const root =
+        document.getElementById(
+            "withdrawSelectList"
+        );
+
+    const summary =
+        document.getElementById(
+            "withdrawSelectionSummary"
+        );
+
+    if(
+        !root
+        ||
+        !summary
+    ){
+        return;
+    }
+
+    root.innerHTML =
+        "";
+
+    if(
+        !withdrawGroups.length
+    ){
+        root.innerText =
+            "Нет Brainrot, доступных для вывода.";
+
+        summary.innerText =
+            "Выбрано: 0/5";
+
+        return;
+    }
+
+    withdrawGroups
+        .forEach(
+            group => {
+
+                const quantity =
+                    Number(
+                        withdrawSelection[
+                            group.key
+                        ]
+                        ||
+                        0
+                    );
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "withdraw-select-card";
+
+                card.innerHTML =
+                    `
+                    <img src="${getImage(group.brainrot_name)}">
+
+                    <div>
+
+                        <div class="withdraw-select-name">
+                            ${group.brainrot_name}
+                        </div>
+
+                        <div class="withdraw-select-value">
+                            ${group.value} X · доступно ${group.items.length}
+                        </div>
+
+                    </div>
+
+                    <div class="withdraw-qty">
+
+                        <button
+                            type="button"
+                            data-action="minus"
+                        >
+                            −
+                        </button>
+
+                        <div class="withdraw-qty-number">
+                            ${quantity}
+                        </div>
+
+                        <button
+                            type="button"
+                            data-action="plus"
+                        >
+                            +
+                        </button>
+
+                    </div>
+                    `;
+
+                card
+                    .querySelector(
+                        '[data-action="minus"]'
+                    )
+                    .onclick =
+                        () =>
+                            changeWithdrawQuantity(
+                                group.key,
+                                -1
+                            );
+
+                card
+                    .querySelector(
+                        '[data-action="plus"]'
+                    )
+                    .onclick =
+                        () =>
+                            changeWithdrawQuantity(
+                                group.key,
+                                1
+                            );
+
+                root.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    const selected =
+        selectedWithdrawCount();
+
+    const totalValue =
+        getSelectedWithdrawItems()
+            .reduce(
+                (
+                    sum,
+                    item
+                ) =>
+                    sum
+                    +
+                    Number(
+                        item.value
+                        ||
+                        0
+                    ),
+                0
+            );
+
+    summary.innerText =
+        `Выбрано: ${selected}/5 · Общая стоимость: ${totalValue} X`;
+
+}
+
+
+function changeWithdrawQuantity(
+    key,
+    delta
+){
+
+    const group =
+        withdrawGroups.find(
+            item =>
+                item.key
+                ===
+                key
+        );
+
+    if(
+        !group
+    ){
+        return;
+    }
+
+    const current =
+        Number(
+            withdrawSelection[
+                key
+            ]
+            ||
+            0
+        );
+
+    let next =
+        current
+        +
+        delta;
+
+    next =
+        Math.max(
+            0,
+            next
+        );
+
+    next =
+        Math.min(
+            next,
+            group.items.length
+        );
+
+    if(
+        delta > 0
+        &&
+        next > current
+        &&
+        selectedWithdrawCount()
+        >=
+        5
+    ){
+        showToast(
+            "Можно вывести максимум 5 Brainrot за одну заявку",
+            "error"
+        );
+
+        return;
+    }
+
+    withdrawSelection[
+        key
+    ] =
+        next;
+
+    renderWithdrawSelection();
+
+}
+
 
 function openWithdraw(
     id
 ){
 
-    selectedWithdrawItem =
-        inventory.find(
-            item =>
-                Number(
-                    item.id
-                )
-                ===
-                Number(
-                    id
-                )
-        );
-
-    if(
-        !selectedWithdrawItem
-    ){
-
-        return;
-
-    }
-
     if(
         !playerProfile.has_deposited
-    ){
-
-        alert(
-            "Для вывода нужно сначала хотя бы один раз пополнить баланс Brainrot."
-        );
-
-        selectedWithdrawItem =
-            null;
-
-        return;
-
-    }
-
-    if(
+        &&
         Number(
-            selectedWithdrawItem.value
+            playerProfile.wager_required
             ||
             0
         )
-        <
-        30
+        <=
+        0
     ){
-
-        alert(
-            "Вывод доступен только для Brainrot стоимостью от 30 монет."
+        showToast(
+            "Для вывода нужно сначала хотя бы один раз пополнить баланс Brainrot",
+            "error"
         );
 
-        selectedWithdrawItem =
-            null;
-
         return;
-
     }
 
     if(
@@ -10592,110 +11109,228 @@ function openWithdraw(
             0
         )
     ){
-
-        alert(
-            `Сначала выполни отыгрыш: ${playerProfile.wager_progress} из ${playerProfile.wager_required} ⓧ`
+        showToast(
+            `Сначала выполни отыгрыш: ${playerProfile.wager_progress} из ${playerProfile.wager_required} X`,
+            "error"
         );
 
-        selectedWithdrawItem =
-            null;
-
         return;
-
     }
 
-    askActionConfirm({
-        type:
-            "withdraw",
+    withdrawSelection =
+        {};
 
-        header:
-            "📤 Вывод",
+    buildWithdrawGroups();
 
-        title:
-            `Вывести ${selectedWithdrawItem.brainrot_name}?`,
+    const clickedItem =
+        inventory.find(
+            item =>
+                Number(
+                    item.id
+                )
+                ===
+                Number(
+                    id
+                )
+        );
 
-        text:
-            `Brainrot стоимостью ${selectedWithdrawItem.value} X будет заблокирован после создания заявки.`,
+    if(
+        clickedItem
+        &&
+        !clickedItem.locked
+        &&
+        Number(
+            clickedItem.value
+            ||
+            0
+        )
+        >=
+        30
+    ){
+        const group =
+            withdrawGroups.find(
+                current =>
+                    Number(
+                        current.brainrot_id
+                    )
+                    ===
+                    Number(
+                        clickedItem.brainrot_id
+                    )
+                    &&
+                    current.brainrot_name
+                    ===
+                    clickedItem.brainrot_name
+            );
 
-        image:
-            getImage(
-                selectedWithdrawItem.brainrot_name
-            ),
-
-        confirmText:
-            "Продолжить"
-    })
-    .then(
-        confirmed => {
-
-            if(
-                !confirmed
-            ){
-                selectedWithdrawItem =
-                    null;
-
-                return;
-            }
-
-            openWithdrawForm();
-
+        if(
+            group
+        ){
+            withdrawSelection[
+                group.key
+            ] =
+                1;
         }
-    );
+    }
 
-    return;
+    goWithdrawStep1();
+
+    renderWithdrawSelection();
+
+    document
+        .getElementById(
+            "withdrawResult"
+        )
+        .innerText =
+            "";
+
+    document
+        .getElementById(
+            "withdrawModal"
+        )
+        .classList
+        .add(
+            "show"
+        );
 
 }
 
 
-function openWithdrawForm(){
+function goWithdrawStep1(){
+
+    document
+        .getElementById(
+            "withdrawStep1"
+        )
+        .classList
+        .add(
+            "active"
+        );
+
+    document
+        .getElementById(
+            "withdrawStep2"
+        )
+        .classList
+        .remove(
+            "active"
+        );
+
+}
+
+
+function goWithdrawStep2(){
+
+    const selected =
+        getSelectedWithdrawItems();
 
     if(
-        !selectedWithdrawItem
+        selected.length
+        <
+        1
     ){
+        showToast(
+            "Выбери хотя бы 1 Brainrot",
+            "error"
+        );
+
         return;
     }
 
-    document
-        .getElementById(
-            "withdrawItemInfo"
-        )
-        .innerHTML =
-            `
-            <div style="
-                text-align:center;
-                margin-top:10px;
-            ">
+    if(
+        selected.length
+        >
+        5
+    ){
+        showToast(
+            "Можно вывести максимум 5 Brainrot",
+            "error"
+        );
 
-                <img
-                    src="${getImage(selectedWithdrawItem.brainrot_name)}"
-                    style="
-                        width:90px;
-                        height:90px;
-                        object-fit:contain;
-                    "
-                >
+        return;
+    }
 
-                <div style="
-                    font-weight:900;
-                ">
-                    ${selectedWithdrawItem.brainrot_name}
-                </div>
+    const preview =
+        document.getElementById(
+            "withdrawSelectedPreview"
+        );
 
-                <div style="
-                    color:#facc15;
-                ">
-                    ${selectedWithdrawItem.value} ⓧ
-                </div>
+    preview.innerHTML =
+        "";
 
-            </div>
-            `;
+    const grouped =
+        new Map();
 
-    document
-        .getElementById(
-            "withdrawRoblox"
-        )
-        .value =
-            "";
+    selected.forEach(
+        item => {
+
+            const key =
+                item.brainrot_name;
+
+            if(
+                !grouped.has(
+                    key
+                )
+            ){
+                grouped.set(
+                    key,
+                    {
+                        name:
+                            item.brainrot_name,
+
+                        value:
+                            Number(
+                                item.value
+                                ||
+                                0
+                            ),
+
+                        quantity:
+                            0
+                    }
+                );
+            }
+
+            grouped.get(
+                key
+            )
+            .quantity +=
+                1;
+
+        }
+    );
+
+    Array.from(
+        grouped.values()
+    )
+    .forEach(
+        item => {
+
+            const line =
+                document.createElement(
+                    "div"
+                );
+
+            line.className =
+                "withdraw-selected-line";
+
+            line.innerHTML =
+                `
+                <span>
+                    ${item.name} ×${item.quantity}
+                </span>
+
+                <span style="color:#facc15">
+                    ${item.value * item.quantity} X
+                </span>
+                `;
+
+            preview.appendChild(
+                line
+            );
+
+        }
+    );
 
     document
         .getElementById(
@@ -10721,11 +11356,20 @@ function openWithdrawForm(){
 
     document
         .getElementById(
-            "withdrawModal"
+            "withdrawStep1"
+        )
+        .classList
+        .remove(
+            "active"
+        );
+
+    document
+        .getElementById(
+            "withdrawStep2"
         )
         .classList
         .add(
-            "show"
+            "active"
         );
 
 }
@@ -10735,6 +11379,12 @@ function closeWithdraw(){
 
     selectedWithdrawItem =
         null;
+
+    withdrawSelection =
+        {};
+
+    withdrawGroups =
+        [];
 
     document
         .getElementById(
@@ -10756,9 +11406,7 @@ function buildWithdrawDate(
     if(
         !time
     ){
-
         return null;
-
     }
 
     const [
@@ -10766,12 +11414,12 @@ function buildWithdrawDate(
         minute
     ] =
         time
-        .split(
-            ":"
-        )
-        .map(
-            Number
-        );
+            .split(
+                ":"
+            )
+            .map(
+                Number
+            );
 
     const now =
         new Date();
@@ -10792,7 +11440,6 @@ function buildWithdrawDate(
         <=
         now.getTime()
     ){
-
         date =
             new Date(
                 now.getFullYear(),
@@ -10805,7 +11452,6 @@ function buildWithdrawDate(
                 0,
                 0
             );
-
     }
 
     return date;
@@ -10815,12 +11461,24 @@ function buildWithdrawDate(
 
 async function submitWithdraw(){
 
+    const selected =
+        getSelectedWithdrawItems();
+
     if(
-        !selectedWithdrawItem
+        selected.length
+        <
+        1
+        ||
+        selected.length
+        >
+        5
     ){
+        showToast(
+            "Выбери от 1 до 5 Brainrot",
+            "error"
+        );
 
         return;
-
     }
 
     const username =
@@ -10848,41 +11506,32 @@ async function submitWithdraw(){
             .value;
 
     const result =
-        document
-            .getElementById(
-                "withdrawResult"
-            );
+        document.getElementById(
+            "withdrawResult"
+        );
 
     if(
         username.length
         <
         3
     ){
-
         result.innerText =
             "❌ Введи Roblox ник";
 
         return;
-
     }
 
     if(
         !day
         ||
-        day
-        <
-        1
+        day < 1
         ||
-        day
-        >
-        31
+        day > 31
     ){
-
         result.innerText =
             "❌ Неверный день";
 
         return;
-
     }
 
     const date =
@@ -10894,12 +11543,44 @@ async function submitWithdraw(){
     if(
         !date
     ){
-
         result.innerText =
             "❌ Выбери время";
 
         return;
+    }
 
+    const names =
+        selected
+            .map(
+                item =>
+                    item.brainrot_name
+            )
+            .join(
+                ", "
+            );
+
+    const confirmed =
+        await askActionConfirm({
+            type:
+                "withdraw",
+
+            header:
+                "📤 Вывод",
+
+            title:
+                `Вывести ${selected.length} Brainrot?`,
+
+            text:
+                names,
+
+            confirmText:
+                "Вывести"
+        });
+
+    if(
+        !confirmed
+    ){
+        return;
     }
 
     result.innerText =
@@ -10911,8 +11592,13 @@ async function submitWithdraw(){
             action:
                 "create_withdraw_request",
 
-            inventory_id:
-                selectedWithdrawItem.id,
+            inventory_ids:
+                selected.map(
+                    item =>
+                        Number(
+                            item.id
+                        )
+                ),
 
             roblox_username:
                 username,
@@ -10925,46 +11611,50 @@ async function submitWithdraw(){
     if(
         !data.ok
     ){
-
         result.innerText =
             "❌ "
             +
             data.error;
 
         return;
-
     }
 
-    const item =
-        inventory.find(
-            current =>
-                Number(
-                    current.id
-                )
-                ===
-                Number(
-                    selectedWithdrawItem.id
-                )
+    const selectedIds =
+        new Set(
+            selected.map(
+                item =>
+                    Number(
+                        item.id
+                    )
+            )
         );
 
-    if(
-        item
-    ){
+    inventory.forEach(
+        item => {
 
-        item.locked =
-            true;
+            if(
+                selectedIds.has(
+                    Number(
+                        item.id
+                    )
+                )
+            ){
+                item.locked =
+                    true;
+            }
 
-    }
+        }
+    );
 
     renderInventory();
-
     renderSourceGrid();
+    renderTargetGrid();
 
     result.innerText =
         `✅ Заявка #${data.request_id} создана.`;
 
     showToast(
-        `📤 Заявка на вывод #${data.request_id} создана`,
+        `📤 Заявка #${data.request_id}: ${selected.length} Brainrot`,
         "success"
     );
 
