@@ -7722,7 +7722,7 @@ function createIdleRoulette(){
 
     for(
         let i = 0;
-        i < 8;
+        i < 12;
         i++
     ){
 
@@ -8213,7 +8213,13 @@ function openDailyCase(){
         "";
 
     renderDailyCaseContent();
-    resetCaseRoulette();
+
+    /*
+      Сразу заполняем ленту содержимым FREE-кейса.
+      Здесь нельзя вызывать resetCaseRoulette():
+      такой функции в проекте нет, из-за этого JS останавливался
+      и рулетка оставалась пустой.
+    */
     createIdleRoulette();
 
 }
