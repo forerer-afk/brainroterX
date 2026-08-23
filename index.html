@@ -7140,8 +7140,36 @@ function renderCases(){
 
     renderDailyCard();
 
+    /*
+      Отдельная FREE-карточка выше уже является ежедневным кейсом.
+      Поэтому не показываем второй Daily Case, который может приходить
+      из таблицы cases в Supabase.
+    */
     const sortedCases =
-        [...cases].sort(
+        cases
+        .filter(
+            gameCase => {
+                const name =
+                    String(
+                        gameCase.name ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+                return !(
+                    gameCase.is_daily === true
+                    ||
+                    Number(gameCase.price) === 0
+                    && [
+                        "ежедневный кейс",
+                        "ежедневний кейс",
+                        "daily case"
+                    ].includes(name)
+                );
+            }
+        )
+        .sort(
             (a,b) =>
                 Number(a.price)
                 -
