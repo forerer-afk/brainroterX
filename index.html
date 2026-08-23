@@ -530,6 +530,10 @@ img{
 }
 
 .spin-btn{
+    position:relative;
+    z-index:50;
+    pointer-events:auto !important;
+    touch-action:manipulation;
     width:100%;
 
     padding:13px;
@@ -7380,10 +7384,12 @@ function closeCase(){
         spinButton.innerText =
             "🎰 КРУТИТЬ";
 
-        spinButton.setAttribute(
-            "onclick",
-            "openSelectedCase()"
-        );
+        spinButton.onclick =
+            () =>
+                openSelectedCase();
+
+        spinButton.onpointerup =
+            null;
     }
 
 
@@ -8213,16 +8219,82 @@ function openDailyCase(){
         spinButton.disabled =
             false;
 
+        spinButton.removeAttribute(
+            "disabled"
+        );
+
         spinButton.style.pointerEvents =
             "auto";
+
+        spinButton.style.position =
+            "relative";
+
+        spinButton.style.zIndex =
+            "50";
 
         spinButton.innerText =
             "🎰 ОТКРЫТЬ БЕСПЛАТНО";
 
-        spinButton.setAttribute(
-            "onclick",
-            "openDailyWithRoulette()"
-        );
+        /*
+          Назначаем реальный JS-обработчик напрямую.
+          Не полагаемся на inline onclick в Telegram WebView.
+        */
+        spinButton.onclick =
+            async event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const result =
+                    document.getElementById(
+                        "caseResult"
+                    );
+
+                if(result){
+                    result.innerText =
+                        "⏳ Нажатие получено...";
+                }
+
+                await openDailyWithRoulette();
+            };
+
+        spinButton.onpointerup =
+            event => {
+                /*
+                  Некоторые Android WebView теряют click,
+                  поэтому pointerup служит запасным вариантом.
+                  click после него игнорируется коротким флагом.
+                */
+                if(
+                    spinButton.dataset.pointerHandled
+                    ===
+                    "1"
+                ){
+                    return;
+                }
+
+                spinButton.dataset.pointerHandled =
+                    "1";
+
+                setTimeout(
+                    () => {
+                        spinButton.dataset.pointerHandled =
+                            "0";
+                    },
+                    700
+                );
+
+                const result =
+                    document.getElementById(
+                        "caseResult"
+                    );
+
+                if(result){
+                    result.innerText =
+                        "⏳ Нажатие получено...";
+                }
+
+                openDailyWithRoulette();
+            };
     }
 
     const result =
@@ -8374,6 +8446,20 @@ function buildDailyRoulettePool(){
 
 
 async function openDailyWithRoulette(){
+
+    const now =
+        Date.now();
+
+    if(
+        window.__dailyLastStart
+        &&
+        now - window.__dailyLastStart < 500
+    ){
+        return;
+    }
+
+    window.__dailyLastStart =
+        now;
 
     const result =
         document
