@@ -7365,14 +7365,25 @@ function closeCase(){
 
     const spinButton =
         document.getElementById(
-            "openCaseButton"
+            "spinButton"
         );
 
     if(
         spinButton
     ){
+        spinButton.disabled =
+            false;
+
+        spinButton.style.pointerEvents =
+            "auto";
+
         spinButton.innerText =
             "🎰 КРУТИТЬ";
+
+        spinButton.setAttribute(
+            "onclick",
+            "openSelectedCase()"
+        );
     }
 
 
@@ -8185,11 +8196,33 @@ function openDailyCase(){
                 "spinButton"
             );
 
+    /*
+      Daily Case получает отдельный обработчик кнопки.
+      Это исключает ситуацию, когда кнопка остаётся disabled
+      после обычного кейса или старый onclick не срабатывает.
+    */
+    dailyOpening =
+        false;
+
+    caseSpinning =
+        false;
+
     if(
         spinButton
     ){
+        spinButton.disabled =
+            false;
+
+        spinButton.style.pointerEvents =
+            "auto";
+
         spinButton.innerText =
             "🎰 ОТКРЫТЬ БЕСПЛАТНО";
+
+        spinButton.setAttribute(
+            "onclick",
+            "openDailyWithRoulette()"
+        );
     }
 
     const result =
@@ -8342,17 +8375,34 @@ function buildDailyRoulettePool(){
 
 async function openDailyWithRoulette(){
 
-    if(
-        dailyOpening
-    ){
-        return;
-    }
-
     const result =
         document
             .getElementById(
                 "caseResult"
             );
+
+    if(
+        result
+    ){
+        result.innerText =
+            "⏳ Кнопка нажата. Проверяем Daily Case...";
+    }
+
+    if(
+        dailyOpening
+    ){
+        if(result){
+            result.innerText =
+                "⏳ Daily Case уже обрабатывается...";
+        }
+        return;
+    }
+
+    /*
+      result уже получен выше — дальше используем его же.
+    */
+    const dailyResult =
+        result;
 
     const remaining =
         Number(
