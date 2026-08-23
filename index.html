@@ -4095,37 +4095,102 @@ img{
 
 
 /* =====================================================
-   BIG WINS — LAST 15
+   BIG WINS — LIVE LAST 15
 ===================================================== */
 
 .big-wins-section{
-    margin-bottom:12px;
-    padding:10px 10px 9px;
-    border-radius:16px;
-    background:linear-gradient(
-        145deg,
-        rgba(30,41,59,.92),
-        rgba(15,23,42,.96)
-    );
-    border:1px solid rgba(255,255,255,.06);
-    box-shadow:0 10px 28px rgba(0,0,0,.20);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:13px;
+    padding:11px 10px 10px;
+    border-radius:18px;
+    background:
+        radial-gradient(
+            circle at 15% 0%,
+            rgba(245,158,11,.14),
+            transparent 38%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(30,41,59,.97),
+            rgba(9,15,28,.98)
+        );
+    border:1px solid rgba(250,204,21,.12);
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.24),
+        inset 0 0 28px rgba(250,204,21,.025);
+}
+
+.big-wins-section::before{
+    content:"";
+    position:absolute;
+    width:120px;
+    height:120px;
+    top:-76px;
+    right:-36px;
+    border-radius:50%;
+    background:rgba(245,158,11,.12);
+    filter:blur(16px);
+    pointer-events:none;
+}
+
+.big-wins-title-row{
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:9px;
 }
 
 .big-wins-title{
-    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
     font-size:11px;
     font-weight:1000;
     color:#fff;
 }
 
+.big-wins-live{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:4px 7px;
+    border-radius:999px;
+    color:#86efac;
+    background:rgba(34,197,94,.10);
+    border:1px solid rgba(34,197,94,.18);
+    font-size:8px;
+    font-weight:1000;
+    letter-spacing:.35px;
+}
+
+.big-wins-live-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#22c55e;
+    box-shadow:0 0 9px rgba(34,197,94,.9);
+    animation:bigWinsPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes bigWinsPulse{
+    0%,100%{opacity:.45;transform:scale(.85)}
+    50%{opacity:1;transform:scale(1.15)}
+}
+
 .big-wins-track{
+    position:relative;
+    z-index:2;
     display:flex;
-    gap:7px;
+    gap:8px;
     overflow-x:auto;
     overscroll-behavior-x:contain;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
-    padding-bottom:2px;
+    padding:1px 1px 3px;
 }
 
 .big-wins-track::-webkit-scrollbar{
@@ -4133,21 +4198,39 @@ img{
 }
 
 .big-win-item{
-    flex:0 0 54px;
-    width:54px;
-    height:54px;
+    position:relative;
+    flex:0 0 60px;
+    width:60px;
+    height:64px;
     display:flex;
     align-items:center;
     justify-content:center;
-    padding:4px;
-    border-radius:11px;
+    padding:5px;
+    border-radius:14px;
     background:
         radial-gradient(
-            circle at 50% 35%,
-            rgba(139,92,246,.18),
-            rgba(15,23,42,.94) 70%
+            circle at 50% 30%,
+            rgba(168,85,247,.18),
+            rgba(15,23,42,.96) 72%
         );
-    border:1px solid rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.075);
+    box-shadow:
+        inset 0 0 18px rgba(255,255,255,.018),
+        0 6px 16px rgba(0,0,0,.18);
+    transform:translateZ(0);
+}
+
+.big-win-item.big-win-gold{
+    border-color:rgba(250,204,21,.32);
+    background:
+        radial-gradient(
+            circle at 50% 28%,
+            rgba(250,204,21,.20),
+            rgba(30,24,10,.94) 75%
+        );
+    box-shadow:
+        inset 0 0 18px rgba(250,204,21,.05),
+        0 0 14px rgba(250,204,21,.08);
 }
 
 .big-win-item img{
@@ -4155,12 +4238,51 @@ img{
     height:100%;
     object-fit:contain;
     pointer-events:none;
+    filter:drop-shadow(0 4px 7px rgba(0,0,0,.38));
+}
+
+.big-win-item.big-win-new{
+    animation:bigWinEnter .62s cubic-bezier(.2,.85,.25,1.15);
+}
+
+.big-win-item.big-win-new::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:16px;
+    border:1px solid rgba(250,204,21,.62);
+    box-shadow:0 0 18px rgba(250,204,21,.25);
+    animation:bigWinFlash .9s ease-out forwards;
+    pointer-events:none;
+}
+
+@keyframes bigWinEnter{
+    0%{
+        opacity:0;
+        transform:translateX(-18px) scale(.68) rotate(-4deg);
+        filter:blur(5px);
+    }
+    65%{
+        opacity:1;
+        transform:translateX(3px) scale(1.08) rotate(1deg);
+        filter:blur(0);
+    }
+    100%{
+        opacity:1;
+        transform:translateX(0) scale(1) rotate(0);
+    }
+}
+
+@keyframes bigWinFlash{
+    0%{opacity:0;transform:scale(.84)}
+    25%{opacity:1}
+    100%{opacity:0;transform:scale(1.12)}
 }
 
 .big-wins-empty{
     color:#64748b;
     font-size:9px;
-    padding:6px 2px;
+    padding:7px 2px;
 }
 
 </style>
@@ -4219,8 +4341,17 @@ img{
         id="bigWinsSection"
         class="big-wins-section"
     >
-        <div class="big-wins-title">
-            🔥 Последние крупные выигрыши
+        <div class="big-wins-title-row">
+
+            <div class="big-wins-title">
+                🔥 Последние крупные выигрыши
+            </div>
+
+            <div class="big-wins-live">
+                <span class="big-wins-live-dot"></span>
+                LIVE
+            </div>
+
         </div>
 
         <div
@@ -6057,6 +6188,11 @@ let dropHistory = [];
 
 let bigWins = [];
 
+let bigWinsLoadedOnce = false;
+let bigWinsKnownIds = new Set();
+let bigWinsPolling = false;
+let bigWinsTimer = null;
+
 
 let ladderSession = null;
 let ladderStakeMode = "coins";
@@ -7155,7 +7291,9 @@ function caseVisualFor(
 
 
 
-function renderBigWins(){
+function renderBigWins(
+    animateIds = new Set()
+){
 
     const root =
         document.getElementById(
@@ -7212,8 +7350,39 @@ function renderBigWins(){
                     "div"
                 );
 
+            const itemId =
+                Number(
+                    item.id
+                    ||
+                    0
+                );
+
             card.className =
                 "big-win-item";
+
+            if(
+                Number(
+                    item.value
+                    ||
+                    0
+                )
+                >=
+                100
+            ){
+                card.classList.add(
+                    "big-win-gold"
+                );
+            }
+
+            if(
+                animateIds.has(
+                    itemId
+                )
+            ){
+                card.classList.add(
+                    "big-win-new"
+                );
+            }
 
             card.title =
                 String(
@@ -7247,6 +7416,165 @@ function renderBigWins(){
     );
 
 }
+
+
+async function refreshBigWins(){
+
+    if(
+        bigWinsPolling
+    ){
+        return;
+    }
+
+    bigWinsPolling =
+        true;
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "get_big_wins"
+            });
+
+        if(
+            !data.ok
+            ||
+            !Array.isArray(
+                data.big_wins
+            )
+        ){
+            return;
+        }
+
+        const nextWins =
+            data.big_wins.slice(
+                0,
+                15
+            );
+
+        const newIds =
+            new Set();
+
+        if(
+            bigWinsLoadedOnce
+        ){
+            nextWins.forEach(
+                item => {
+
+                    const id =
+                        Number(
+                            item.id
+                            ||
+                            0
+                        );
+
+                    if(
+                        id > 0
+                        &&
+                        !bigWinsKnownIds.has(
+                            id
+                        )
+                    ){
+                        newIds.add(
+                            id
+                        );
+                    }
+
+                }
+            );
+        }
+
+        bigWins =
+            nextWins;
+
+        bigWinsKnownIds =
+            new Set(
+                nextWins
+                    .map(
+                        item =>
+                            Number(
+                                item.id
+                                ||
+                                0
+                            )
+                    )
+                    .filter(
+                        id =>
+                            id > 0
+                    )
+            );
+
+        renderBigWins(
+            newIds
+        );
+
+        if(
+            newIds.size > 0
+        ){
+            const track =
+                document.getElementById(
+                    "bigWinsTrack"
+                );
+
+            if(
+                track
+            ){
+                track.scrollTo({
+                    left:0,
+                    behavior:"smooth"
+                });
+            }
+        }
+
+        bigWinsLoadedOnce =
+            true;
+
+    }
+    catch(
+        error
+    ){
+
+        console.log(
+            "Big wins refresh:",
+            error
+        );
+
+    }
+    finally{
+
+        bigWinsPolling =
+            false;
+
+    }
+
+}
+
+
+function startBigWinsLive(){
+
+    if(
+        bigWinsTimer
+    ){
+        clearInterval(
+            bigWinsTimer
+        );
+    }
+
+    refreshBigWins();
+
+    /*
+      Почти real-time:
+      каждые 2 секунды берём последние 15 дропов.
+    */
+    bigWinsTimer =
+        setInterval(
+            refreshBigWins,
+            2000
+        );
+
+}
+
 
 
 function renderCases(){
@@ -12726,6 +13054,13 @@ async function silentSync(){
 }
 
 
+/*
+  Лента крупных выигрышей обновляется постоянно,
+  даже если пользователь остаётся на странице кейсов.
+*/
+startBigWinsLive();
+
+
 /* Обновляем данные, когда пользователь вернулся в Mini App */
 document.addEventListener(
     "visibilitychange",
@@ -12737,6 +13072,7 @@ document.addEventListener(
             "visible"
         ){
             silentSync();
+            refreshBigWins();
         }
 
     }
