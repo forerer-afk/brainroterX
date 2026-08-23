@@ -7549,6 +7549,44 @@ function toggleCaseSpeed(){
 function getCaseItems(){
 
     if(
+        activeCaseIsDaily
+    ){
+        return getDailyCaseItems()
+            .map(
+                item => ({
+                    case_id:
+                        "daily",
+
+                    brainrot_id:
+                        null,
+
+                    brainrot_name:
+                        item.name,
+
+                    reward_type:
+                        item.kind === "coins"
+                        ?
+                        "coins"
+                        :
+                        "brainrot",
+
+                    reward_amount:
+                        item.kind === "coins"
+                        ?
+                        Number(item.value || 0)
+                        :
+                        null,
+
+                    value:
+                        Number(item.value || 0),
+
+                    chance:
+                        Number(item.chance || 0)
+                })
+            );
+    }
+
+    if(
         !selectedCase
     ){
 
@@ -7583,16 +7621,71 @@ function rouletteCard(
     div.className =
         "roulette-item";
 
-    div.innerHTML =
-        `
-        <img
-            src="${getImage(item.brainrot_name)}"
-        >
+    const isCoins =
+        String(
+            item.reward_type
+            ||
+            ""
+        )
+        ===
+        "coins"
+        ||
+        /^\d+\s*X$/i.test(
+            String(
+                item.brainrot_name
+                ||
+                ""
+            )
+        );
 
-        <div class="roulette-name">
-            ${item.brainrot_name}
-        </div>
-        `;
+    if(
+        isCoins
+    ){
+        const amount =
+            Number(
+                item.reward_amount
+                ||
+                item.value
+                ||
+                String(
+                    item.brainrot_name
+                    ||
+                    ""
+                )
+                .replace(
+                    /[^0-9]/g,
+                    ""
+                )
+                ||
+                0
+            );
+
+        div.innerHTML =
+            `
+            <div
+                class="xcoin"
+                style="font-size:42px;margin:12px auto 10px"
+            >
+                X
+            </div>
+
+            <div class="roulette-name">
+                ${amount} X
+            </div>
+            `;
+    }
+    else{
+        div.innerHTML =
+            `
+            <img
+                src="${getImage(item.brainrot_name)}"
+            >
+
+            <div class="roulette-name">
+                ${item.brainrot_name}
+            </div>
+            `;
+    }
 
     return div;
 
@@ -8089,7 +8182,7 @@ function openDailyCase(){
     const spinButton =
         document
             .getElementById(
-                "openCaseButton"
+                "spinButton"
             );
 
     if(
@@ -8121,6 +8214,7 @@ function openDailyCase(){
 
     renderDailyCaseContent();
     resetCaseRoulette();
+    createIdleRoulette();
 
 }
 
