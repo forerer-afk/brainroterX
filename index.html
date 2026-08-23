@@ -4285,6 +4285,135 @@ img{
     padding:7px 2px;
 }
 
+
+/* =====================================================
+   DEPOSIT MODAL — COMPACT HEADER/FORM + 3x2 VISIBLE GRID
+===================================================== */
+
+#depositModal .modal{
+    padding:12px !important;
+    max-height:86vh !important;
+}
+
+#depositModal .modal-header{
+    margin-bottom:4px !important;
+}
+
+#depositModal .modal-title{
+    font-size:13px !important;
+}
+
+#depositModal .close{
+    width:30px !important;
+    height:30px !important;
+    padding:0 !important;
+}
+
+#depositModal .deposit-grid{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:6px !important;
+
+    /*
+      Высоты хватает минимум на 2 ряда по 3 Brainrot.
+      Дальше список прокручивается внутри.
+    */
+    height:236px !important;
+    min-height:236px !important;
+    max-height:236px !important;
+
+    margin-top:7px !important;
+    padding:2px 3px 8px 0 !important;
+    overflow-y:auto !important;
+}
+
+#depositModal .deposit-item{
+    min-width:0 !important;
+    padding:5px 4px !important;
+    border-radius:11px !important;
+}
+
+#depositModal .deposit-item img{
+    width:58px !important;
+    height:58px !important;
+}
+
+#depositModal .deposit-item-name{
+    margin-top:1px !important;
+    font-size:8px !important;
+}
+
+#depositModal .deposit-value{
+    margin-top:1px !important;
+    font-size:9px !important;
+}
+
+#depositModal .quantity-row{
+    gap:4px !important;
+    margin-top:3px !important;
+}
+
+#depositModal .quantity-btn{
+    width:22px !important;
+    height:22px !important;
+    border-radius:6px !important;
+    font-size:10px !important;
+}
+
+#depositModal .deposit-summary{
+    margin:7px 0 5px !important;
+    padding:7px 9px !important;
+    border-radius:10px !important;
+    font-size:10px !important;
+    line-height:1.25 !important;
+}
+
+#depositModal .deposit-summary br{
+    display:none !important;
+}
+
+#depositModal .input-label{
+    margin-top:6px !important;
+    font-size:9px !important;
+}
+
+#depositModal .text-input{
+    margin-top:3px !important;
+    min-height:34px !important;
+    padding:8px 9px !important;
+    border-radius:9px !important;
+    font-size:11px !important;
+}
+
+#depositModal .submit-btn{
+    margin-top:7px !important;
+    padding:10px !important;
+    border-radius:10px !important;
+    font-size:10px !important;
+}
+
+#depositModal #depositResult{
+    margin-top:5px !important;
+    font-size:10px !important;
+}
+
+@media (max-height:700px){
+    #depositModal .modal{
+        max-height:91vh !important;
+    }
+
+    #depositModal .deposit-grid{
+        height:218px !important;
+        min-height:218px !important;
+        max-height:218px !important;
+    }
+
+    #depositModal .deposit-item img{
+        width:52px !important;
+        height:52px !important;
+    }
+}
+
 </style>
 
 </head>
