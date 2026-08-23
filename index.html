@@ -8374,19 +8374,59 @@ async function openDailyWithRoulette(){
         true;
 
     result.innerText =
-        "🎁 Открываем...";
+        "⏳ Проверяем доступ к бесплатному кейсу...";
 
     try{
 
         const data =
             await apiRequest({
                 action:
-                    "claim_daily_case"
+                    "daily_claim"
             });
 
         if(
             !data.ok
         ){
+            if(
+                data.need_subscription
+            ){
+                result.innerHTML =
+                    `
+                    ❌ Для открытия нужна подписка на @brainroterX_help.
+
+                    <div style="margin-top:10px">
+                        <button
+                            class="spin-btn"
+                            type="button"
+                            onclick="openDailyChannel()"
+                        >
+                            📣 ПОДПИСАТЬСЯ НА КАНАЛ
+                        </button>
+                    </div>
+                    `;
+
+                return;
+            }
+
+            if(
+                data.remaining_seconds
+            ){
+                dailyState =
+                    {
+                        ...dailyState,
+                        available:false,
+                        remaining_seconds:
+                            Number(
+                                data.remaining_seconds
+                            )
+                    };
+
+                result.innerText =
+                    `❌ Кейс ещё недоступен. Осталось: ${formatRemaining(Number(data.remaining_seconds))}`;
+
+                return;
+            }
+
             throw new Error(
                 data.error
                 ||
@@ -8402,7 +8442,7 @@ async function openDailyWithRoulette(){
             ===
             "coins"
             ?
-            `${Number(data.coins_reward || 0)} X`
+            `${Number(data.reward_amount || 0)} X`
             :
             String(
                 data.item?.brainrot_name
@@ -8507,8 +8547,16 @@ async function openDailyWithRoulette(){
             }
         );
 
-        await animateCaseRoulette(
-            38
+        /*
+          Используем ту же рабочую анимацию, что и у обычных кейсов.
+          Старый вызов animateCaseRoulette() был несуществующей функцией.
+        */
+        await animateCase(
+            {
+                brainrot_name:
+                    reward.name
+            },
+            4200
         );
 
         if(
@@ -8526,10 +8574,10 @@ async function openDailyWithRoulette(){
             updateBalance();
 
             result.innerText =
-                `✅ Выпало ${Number(data.coins_reward || 0)} X`;
+                `✅ Выпало ${Number(data.reward_amount || 0)} X`;
 
             showToast(
-                `🎁 Выпало ${Number(data.coins_reward || 0)} X`,
+                `🎁 Выпало ${Number(data.reward_amount || 0)} X`,
                 "success"
             );
         }
