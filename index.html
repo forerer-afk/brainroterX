@@ -7800,7 +7800,7 @@ function resetCaseSession(){
 }
 
 
-function selectCase(
+async function selectCase(
     id
 ){
 
@@ -7815,7 +7815,6 @@ function selectCase(
         bigWinsSection.style.display =
             "none";
     }
-
 
     selectedCase =
         cases.find(
@@ -7835,11 +7834,13 @@ function selectCase(
 
     document.getElementById(
         "caseList"
-    ).style.display = "none";
+    ).style.display =
+        "none";
 
     document.getElementById(
         "activeCase"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
     document.getElementById(
         "activeCaseName"
@@ -7851,8 +7852,148 @@ function selectCase(
     ).innerHTML =
         `Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price}`;
 
-    createIdleRoulette();
-    renderCaseContent();
+    const rouletteTrack =
+        document.getElementById(
+            "rouletteTrack"
+        );
+
+    const contentRoot =
+        document.getElementById(
+            "caseContentList"
+        );
+
+    /*
+      Иногда сразу после первого запуска Mini App список кейсов уже
+      успевает отрисоваться, а case_items ещё обновляется параллельной
+      синхронизацией. Раньше из-за этого первый вход в кейс был пустым.
+    */
+    let items =
+        getCaseItems();
+
+    if(
+        !items.length
+    ){
+        if(
+            rouletteTrack
+        ){
+            rouletteTrack.innerHTML =
+                `
+                <div style="
+                    width:100%;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    color:#94a3b8;
+                    font-size:11px;
+                ">
+                    ⏳ Загружаем содержимое...
+                </div>
+                `;
+        }
+
+        if(
+            contentRoot
+        ){
+            contentRoot.innerHTML =
+                `<div style="color:#94a3b8;font-size:10px;padding:8px">Загрузка...</div>`;
+        }
+
+        try{
+
+            const fresh =
+                await apiRequest({
+                    action:
+                        "get_player"
+                });
+
+            if(
+                fresh.ok
+            ){
+                if(
+                    Array.isArray(
+                        fresh.case_items
+                    )
+                ){
+                    caseItems =
+                        fresh.case_items;
+                }
+
+                if(
+                    Array.isArray(
+                        fresh.brainrots
+                    )
+                ){
+                    brainrots =
+                        fresh.brainrots;
+                }
+
+                if(
+                    Array.isArray(
+                        fresh.cases
+                    )
+                ){
+                    cases =
+                        fresh.cases;
+
+                    selectedCase =
+                        cases.find(
+                            item =>
+                                Number(item.id)
+                                ===
+                                Number(id)
+                        )
+                        ||
+                        selectedCase;
+                }
+            }
+
+        }
+        catch(
+            error
+        ){
+            console.log(
+                "Case content reload:",
+                error
+            );
+        }
+
+        items =
+            getCaseItems();
+    }
+
+    if(
+        !items.length
+    ){
+        if(
+            rouletteTrack
+        ){
+            rouletteTrack.innerHTML =
+                `
+                <div style="
+                    width:100%;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    color:#f87171;
+                    font-size:11px;
+                ">
+                    ❌ Не удалось загрузить содержимое кейса
+                </div>
+                `;
+        }
+
+        if(
+            contentRoot
+        ){
+            contentRoot.innerHTML =
+                `<div style="color:#f87171;font-size:10px;padding:8px">Попробуй выйти из кейса и открыть его ещё раз.</div>`;
+        }
+    }
+    else{
+        createIdleRoulette();
+        renderCaseContent();
+    }
+
     updateCaseCost();
 
     window.scrollTo({
@@ -7861,7 +8002,6 @@ function selectCase(
     });
 
 }
-
 
 function closeCase(){
 
