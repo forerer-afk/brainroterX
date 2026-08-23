@@ -7804,6 +7804,19 @@ function selectCase(
     id
 ){
 
+    const bigWinsSection =
+        document.getElementById(
+            "bigWinsSection"
+        );
+
+    if(
+        bigWinsSection
+    ){
+        bigWinsSection.style.display =
+            "none";
+    }
+
+
     selectedCase =
         cases.find(
             item =>
@@ -7851,6 +7864,19 @@ function selectCase(
 
 
 function closeCase(){
+
+    const bigWinsSection =
+        document.getElementById(
+            "bigWinsSection"
+        );
+
+    if(
+        bigWinsSection
+    ){
+        bigWinsSection.style.display =
+            "";
+    }
+
     activeCaseIsDaily =
         false;
 
@@ -8632,6 +8658,19 @@ function getDailyCaseItems(){
 
 
 function openDailyCase(){
+
+    const bigWinsSection =
+        document.getElementById(
+            "bigWinsSection"
+        );
+
+    if(
+        bigWinsSection
+    ){
+        bigWinsSection.style.display =
+            "none";
+    }
+
 
     activeCaseIsDaily =
         true;
