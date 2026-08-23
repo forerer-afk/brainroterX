@@ -8414,8 +8414,16 @@ async function openDailyWithRoulette(){
     if(
         remaining > 0
     ){
+        const text =
+            `⏳ Ежедневный кейс уже открыт. Следующий через ${formatRemaining(remaining)}`;
+
         result.innerText =
-            `⏳ Следующий бесплатный кейс через ${formatRemaining(remaining)}`;
+            text;
+
+        showToast(
+            text,
+            "info"
+        );
 
         return;
     }
@@ -8442,7 +8450,7 @@ async function openDailyWithRoulette(){
             ){
                 result.innerHTML =
                     `
-                    ❌ Для открытия нужна подписка на @brainroterX_help.
+                    📣 Подпишись на @brainroterX_help, чтобы открыть ежедневный кейс.
 
                     <div style="margin-top:10px">
                         <button
@@ -8471,8 +8479,16 @@ async function openDailyWithRoulette(){
                             )
                     };
 
+                const text =
+                    `⏳ Ежедневный кейс уже открыт. Следующий через ${formatRemaining(Number(data.remaining_seconds))}`;
+
                 result.innerText =
-                    `❌ Кейс ещё недоступен. Осталось: ${formatRemaining(Number(data.remaining_seconds))}`;
+                    text;
+
+                showToast(
+                    text,
+                    "info"
+                );
 
                 return;
             }
