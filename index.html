@@ -6184,6 +6184,16 @@ let dailyState = {
     last_claimed_at:null
 };
 
+/*
+  ВАЖНО:
+  Флаг должен существовать сразу после загрузки страницы.
+  Раньше он создавался только после входа/выхода из Daily Case.
+  Поэтому при первом открытии обычного кейса getCaseItems()
+  получал ReferenceError и рулетка оставалась пустой.
+*/
+let activeCaseIsDaily = false;
+
+
 let dropHistory = [];
 
 let bigWins = [];
@@ -7815,6 +7825,12 @@ async function selectCase(
         bigWinsSection.style.display =
             "none";
     }
+
+
+    /*
+      Обычный кейс всегда сбрасывает режим Daily.
+    */
+    activeCaseIsDaily = false;
 
     selectedCase =
         cases.find(
