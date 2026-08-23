@@ -6168,6 +6168,12 @@ let upgradeSpeed = 1;
 
 let caseSpinning = false;
 
+/*
+  Если игрок во время прокрутки нажимает другую вкладку,
+  анимацию можно мгновенно пропустить. Награда уже определена сервером.
+*/
+let caseAnimationSkipRequested = false;
+
 let lastCaseWinners = [];
 
 let upgrading = false;
@@ -7161,10 +7167,33 @@ function showPage(
     page
 ){
 
+    /*
+      Если пользователь нажал Апгрейдер / Лестницу / Профиль
+      во время прокрутки кейса — не показываем сообщение.
+      Просто скипаем анимацию. Выигрыш уже выдан сервером.
+    */
     if(
         selectedCase
+        &&
+        (
+            caseSpinning
+            ||
+            dailyOpening
+        )
     ){
-        closeCase();
+        caseAnimationSkipRequested =
+            true;
+
+        closeCase(
+            true
+        );
+    }
+    else if(
+        selectedCase
+    ){
+        closeCase(
+            false
+        );
     }
 
     [
@@ -7212,8 +7241,6 @@ function showPage(
         behavior:"instant"
     });
 
-    // Тихая синхронизация данных при каждом переходе.
-    // Страница не перезагружается и не мигает.
     silentSync();
 
     if(
@@ -7240,6 +7267,7 @@ function showPage(
     }
 
 }
+
 
 
 /* =====================================================
@@ -8078,17 +8106,25 @@ async function selectCase(
 
 }
 
-function closeCase(){
+function closeCase(
+    forceSkip = false
+){
 
     /*
-      Пока обычный кейс крутится или Daily Case открывается,
-      выйти назад нельзя. Так игрок не увидит свой результат
-      в ленте до завершения анимации.
+      Нажатие именно кнопки "Назад" во время прокрутки:
+      остаёмся в кейсе и показываем сообщение.
+
+      Переход через нижнее меню:
+      forceSkip=true, анимация скипается без сообщения.
     */
     if(
-        caseSpinning
-        ||
-        dailyOpening
+        !forceSkip
+        &&
+        (
+            caseSpinning
+            ||
+            dailyOpening
+        )
     ){
         const result =
             document.getElementById(
@@ -8100,12 +8136,14 @@ function closeCase(){
                 "⏳ Дождись окончания прокрутки кейса";
         }
 
-        showToast(
-            "⏳ Сначала дождись окончания прокрутки",
-            "info"
-        );
-
         return;
+    }
+
+    if(
+        forceSkip
+    ){
+        caseAnimationSkipRequested =
+            true;
     }
 
     const bigWinsSection =
@@ -8159,13 +8197,12 @@ function closeCase(){
 
         spinButton.innerText =
             "🎰 КРУТИТЬ";
-
-        spinButton.setAttribute(
-            "onclick",
-            "handleCaseSpin()"
-        );
     }
 
+    /*
+      При обычном выходе очищаем UI.
+      При скипе тоже можно закрыть экран — выигрыш уже сохранён.
+    */
     resetCaseSession();
 
     selectedCase =
@@ -8182,6 +8219,8 @@ function closeCase(){
         "none";
 
 }
+
+
 
 function setCaseCount(
     count
@@ -8528,6 +8567,42 @@ function createIdleRoulette(){
 }
 
 
+async function waitCaseAnimation(
+    ms
+){
+
+    const started =
+        Date.now();
+
+    while(
+        Date.now() - started
+        <
+        ms
+    ){
+        if(
+            caseAnimationSkipRequested
+        ){
+            return false;
+        }
+
+        await sleep(
+            Math.min(
+                50,
+                Math.max(
+                    1,
+                    ms - (
+                        Date.now() - started
+                    )
+                )
+            )
+        );
+    }
+
+    return true;
+
+}
+
+
 async function animateCase(
     winner,
     baseTime = 4200
@@ -8647,9 +8722,26 @@ async function animateCase(
     track.style.transform =
         `translateX(${x}px)`;
 
-    await sleep(
-        time + 80
-    );
+    const completed =
+        await waitCaseAnimation(
+            time + 80
+        );
+
+    if(
+        !completed
+    ){
+        /*
+          Анимация была скипнута переходом в другую вкладку.
+          Награду не меняем — она уже определена сервером.
+        */
+        track.style.transition =
+            "none";
+
+        track.style.transform =
+            `translateX(${x}px)`;
+
+        return;
+    }
 
     if(
         winnerElement
@@ -8659,7 +8751,9 @@ async function animateCase(
         );
     }
 
-    await sleep(220);
+    await waitCaseAnimation(
+        220
+    );
 
 }
 
@@ -9216,6 +9310,9 @@ async function openDailyWithRoulette(){
         return;
     }
 
+    caseAnimationSkipRequested =
+        false;
+
     dailyOpening =
         true;
 
@@ -9505,6 +9602,9 @@ async function openDailyWithRoulette(){
         dailyOpening =
             false;
 
+        caseAnimationSkipRequested =
+            false;
+
     }
 
 }
@@ -9580,6 +9680,9 @@ async function openSelectedCase(){
             `<span class="error">❌ Не хватает ${total - coins} X Coin</span>`;
         return;
     }
+
+    caseAnimationSkipRequested =
+        false;
 
     caseSpinning = true;
     lastCaseWinners = [];
@@ -9772,6 +9875,7 @@ async function openSelectedCase(){
     }
 
     caseSpinning = false;
+    caseAnimationSkipRequested = false;
 
     document.getElementById(
         "spinButton"
