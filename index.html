@@ -7319,15 +7319,42 @@ function renderBigWins(
     root.innerHTML =
         "";
 
+    const now =
+        Date.now();
+
     const items =
         Array.isArray(
             bigWins
         )
         ?
-        bigWins.slice(
-            0,
-            15
-        )
+        bigWins
+            .filter(
+                item => {
+
+                    const created =
+                        new Date(
+                            item.created_at
+                        ).getTime();
+
+                    if(
+                        !Number.isFinite(
+                            created
+                        )
+                    ){
+                        return true;
+                    }
+
+                    return (
+                        now - created
+                        >=
+                        5000
+                    );
+                }
+            )
+            .slice(
+                0,
+                15
+            )
         :
         [];
 
@@ -7457,8 +7484,40 @@ async function refreshBigWins(){
             return;
         }
 
+        /*
+          Не показываем совсем свежий дроп сразу.
+          Лента получает его только спустя 5 секунд после created_at.
+          Это убирает спойлер результата кейса.
+        */
+        const now =
+            Date.now();
+
         const nextWins =
-            data.big_wins.slice(
+            data.big_wins
+            .filter(
+                item => {
+
+                    const created =
+                        new Date(
+                            item.created_at
+                        ).getTime();
+
+                    if(
+                        !Number.isFinite(
+                            created
+                        )
+                    ){
+                        return true;
+                    }
+
+                    return (
+                        now - created
+                        >=
+                        5000
+                    );
+                }
+            )
+            .slice(
                 0,
                 15
             );
@@ -8021,6 +8080,34 @@ async function selectCase(
 
 function closeCase(){
 
+    /*
+      Пока обычный кейс крутится или Daily Case открывается,
+      выйти назад нельзя. Так игрок не увидит свой результат
+      в ленте до завершения анимации.
+    */
+    if(
+        caseSpinning
+        ||
+        dailyOpening
+    ){
+        const result =
+            document.getElementById(
+                "caseResult"
+            );
+
+        if(result){
+            result.innerText =
+                "⏳ Дождись окончания прокрутки кейса";
+        }
+
+        showToast(
+            "⏳ Сначала дождись окончания прокрутки",
+            "info"
+        );
+
+        return;
+    }
+
     const bigWinsSection =
         document.getElementById(
             "bigWinsSection"
@@ -8075,31 +8162,26 @@ function closeCase(){
 
         spinButton.setAttribute(
             "onclick",
-            "openSelectedCase()"
+            "handleCaseSpin()"
         );
-    }
-
-
-    if(
-        caseSpinning
-    ){
-        return;
     }
 
     resetCaseSession();
 
-    selectedCase = null;
+    selectedCase =
+        null;
 
     document.getElementById(
         "caseList"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
     document.getElementById(
         "activeCase"
-    ).style.display = "none";
+    ).style.display =
+        "none";
 
 }
-
 
 function setCaseCount(
     count
