@@ -4093,6 +4093,76 @@ img{
     color:#94a3b8;
 }
 
+
+/* =====================================================
+   BIG WINS — LAST 15
+===================================================== */
+
+.big-wins-section{
+    margin-bottom:12px;
+    padding:10px 10px 9px;
+    border-radius:16px;
+    background:linear-gradient(
+        145deg,
+        rgba(30,41,59,.92),
+        rgba(15,23,42,.96)
+    );
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:0 10px 28px rgba(0,0,0,.20);
+}
+
+.big-wins-title{
+    margin-bottom:8px;
+    font-size:11px;
+    font-weight:1000;
+    color:#fff;
+}
+
+.big-wins-track{
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding-bottom:2px;
+}
+
+.big-wins-track::-webkit-scrollbar{
+    display:none;
+}
+
+.big-win-item{
+    flex:0 0 54px;
+    width:54px;
+    height:54px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:4px;
+    border-radius:11px;
+    background:
+        radial-gradient(
+            circle at 50% 35%,
+            rgba(139,92,246,.18),
+            rgba(15,23,42,.94) 70%
+        );
+    border:1px solid rgba(255,255,255,.07);
+}
+
+.big-win-item img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    pointer-events:none;
+}
+
+.big-wins-empty{
+    color:#64748b;
+    font-size:9px;
+    padding:6px 2px;
+}
+
 </style>
 
 </head>
@@ -4145,6 +4215,19 @@ img{
     class="page active"
 >
 
+    <div
+        id="bigWinsSection"
+        class="big-wins-section"
+    >
+        <div class="big-wins-title">
+            🔥 Последние крупные выигрыши
+        </div>
+
+        <div
+            id="bigWinsTrack"
+            class="big-wins-track"
+        ></div>
+    </div>
 
     <div id="caseList">
         Загрузка...
@@ -5972,6 +6055,9 @@ let dailyState = {
 
 let dropHistory = [];
 
+let bigWins = [];
+
+
 let ladderSession = null;
 let ladderStakeMode = "coins";
 let selectedLadderInventoryId = null;
@@ -6595,12 +6681,14 @@ async function loadPlayer(){
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
+        bigWins = Array.isArray(data.big_wins) ? data.big_wins : [];
         ladderSession = data.ladder_session || null;
 
         updateBalance();
 
         renderDailyCard();
         renderDropHistory();
+        renderBigWins();
         renderLadder();
         renderLadderInventory();
 
@@ -7062,6 +7150,101 @@ function caseVisualFor(
     }
 
     return {theme:"neon",symbol:"X"};
+
+}
+
+
+
+function renderBigWins(){
+
+    const root =
+        document.getElementById(
+            "bigWinsTrack"
+        );
+
+    if(
+        !root
+    ){
+        return;
+    }
+
+    root.innerHTML =
+        "";
+
+    const items =
+        Array.isArray(
+            bigWins
+        )
+        ?
+        bigWins.slice(
+            0,
+            15
+        )
+        :
+        [];
+
+    if(
+        !items.length
+    ){
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "big-wins-empty";
+
+        empty.innerText =
+            "Пока нет крупных выигрышей";
+
+        root.appendChild(
+            empty
+        );
+
+        return;
+    }
+
+    items.forEach(
+        item => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+            card.className =
+                "big-win-item";
+
+            card.title =
+                String(
+                    item.brainrot_name
+                    ||
+                    ""
+                );
+
+            const img =
+                document.createElement(
+                    "img"
+                );
+
+            img.src =
+                getImage(
+                    item.brainrot_name
+                );
+
+            img.alt =
+                "";
+
+            card.appendChild(
+                img
+            );
+
+            root.appendChild(
+                card
+            );
+
+        }
+    );
 
 }
 
@@ -12504,11 +12687,13 @@ async function silentSync(){
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
+        bigWins = Array.isArray(data.big_wins) ? data.big_wins : bigWins;
         ladderSession = data.ladder_session || ladderSession;
 
         updateBalance();
         renderDailyCard();
         renderDropHistory();
+        renderBigWins();
         renderLadder();
         renderLadderInventory();
         renderProfile();
