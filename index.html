@@ -530,10 +530,6 @@ img{
 }
 
 .spin-btn{
-    position:relative;
-    z-index:50;
-    pointer-events:auto !important;
-    touch-action:manipulation;
     width:100%;
 
     padding:13px;
@@ -4245,7 +4241,7 @@ img{
             <button
                 id="spinButton"
                 class="spin-btn"
-                onclick="openSelectedCase()"
+                onclick="handleCaseSpin()"
             >
                 🎰 КРУТИТЬ
             </button>
@@ -7384,12 +7380,10 @@ function closeCase(){
         spinButton.innerText =
             "🎰 КРУТИТЬ";
 
-        spinButton.onclick =
-            () =>
-                openSelectedCase();
-
-        spinButton.onpointerup =
-            null;
+        spinButton.setAttribute(
+            "onclick",
+            "openSelectedCase()"
+        );
     }
 
 
@@ -8219,82 +8213,16 @@ function openDailyCase(){
         spinButton.disabled =
             false;
 
-        spinButton.removeAttribute(
-            "disabled"
-        );
-
         spinButton.style.pointerEvents =
             "auto";
-
-        spinButton.style.position =
-            "relative";
-
-        spinButton.style.zIndex =
-            "50";
 
         spinButton.innerText =
             "🎰 ОТКРЫТЬ БЕСПЛАТНО";
 
-        /*
-          Назначаем реальный JS-обработчик напрямую.
-          Не полагаемся на inline onclick в Telegram WebView.
-        */
-        spinButton.onclick =
-            async event => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const result =
-                    document.getElementById(
-                        "caseResult"
-                    );
-
-                if(result){
-                    result.innerText =
-                        "⏳ Нажатие получено...";
-                }
-
-                await openDailyWithRoulette();
-            };
-
-        spinButton.onpointerup =
-            event => {
-                /*
-                  Некоторые Android WebView теряют click,
-                  поэтому pointerup служит запасным вариантом.
-                  click после него игнорируется коротким флагом.
-                */
-                if(
-                    spinButton.dataset.pointerHandled
-                    ===
-                    "1"
-                ){
-                    return;
-                }
-
-                spinButton.dataset.pointerHandled =
-                    "1";
-
-                setTimeout(
-                    () => {
-                        spinButton.dataset.pointerHandled =
-                            "0";
-                    },
-                    700
-                );
-
-                const result =
-                    document.getElementById(
-                        "caseResult"
-                    );
-
-                if(result){
-                    result.innerText =
-                        "⏳ Нажатие получено...";
-                }
-
-                openDailyWithRoulette();
-            };
+        spinButton.setAttribute(
+            "onclick",
+            "openDailyWithRoulette()"
+        );
     }
 
     const result =
@@ -8446,20 +8374,6 @@ function buildDailyRoulettePool(){
 
 
 async function openDailyWithRoulette(){
-
-    const now =
-        Date.now();
-
-    if(
-        window.__dailyLastStart
-        &&
-        now - window.__dailyLastStart < 500
-    ){
-        return;
-    }
-
-    window.__dailyLastStart =
-        now;
 
     const result =
         document
@@ -8791,6 +8705,31 @@ async function openDailyWithRoulette(){
 
 }
 
+
+
+
+async function handleCaseSpin(){
+
+    const result =
+        document.getElementById(
+            "caseResult"
+        );
+
+    if(
+        activeCaseIsDaily
+    ){
+        if(result){
+            result.innerText =
+                "⏳ Проверяем бесплатный кейс...";
+        }
+
+        await openDailyWithRoulette();
+        return;
+    }
+
+    await openSelectedCase();
+
+}
 
 
 async function openSelectedCase(){
