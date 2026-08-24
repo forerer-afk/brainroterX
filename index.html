@@ -4414,6 +4414,31 @@ img{
     }
 }
 
+
+/* Case / upgrader speed + sound controls stay together on the right */
+.case-control-buttons{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-left:auto;
+    flex:0 0 auto;
+}
+
+.case-title-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.case-title-row h2{
+    min-width:0;
+    flex:1 1 auto;
+}
+
+.case-control-buttons .speed-btn{
+    margin:0 !important;
+}
+
 </style>
 
 </head>
@@ -4511,15 +4536,25 @@ img{
 
                 <h2 id="activeCaseName"></h2>
 
-                <button
-                    id="caseSpeedButton"
-                    class="speed-btn"
-                    onclick="toggleCaseSpeed()"
-                >
-                    ⚡
-                </button>
+                <div class="case-control-buttons">
 
-                <button id="caseSoundButton" class="speed-btn active" onclick="toggleSound()">🔊</button>
+                    <button
+                        id="caseSpeedButton"
+                        class="speed-btn"
+                        onclick="toggleCaseSpeed()"
+                    >
+                        ⚡
+                    </button>
+
+                    <button
+                        id="caseSoundButton"
+                        class="speed-btn active"
+                        onclick="toggleSound()"
+                    >
+                        🔊
+                    </button>
+
+                </div>
 
             </div>
 
@@ -4631,15 +4666,25 @@ img{
                 ⚡ Апгрейдер
             </h2>
 
-            <button
-                id="upgradeSpeedButton"
-                class="speed-btn"
-                onclick="toggleUpgradeSpeed()"
-            >
-                ⚡
-            </button>
+            <div class="case-control-buttons">
 
-            <button id="upgradeSoundButton" class="speed-btn active" onclick="toggleSound()">🔊</button>
+                <button
+                    id="upgradeSpeedButton"
+                    class="speed-btn"
+                    onclick="toggleUpgradeSpeed()"
+                >
+                    ⚡
+                </button>
+
+                <button
+                    id="upgradeSoundButton"
+                    class="speed-btn active"
+                    onclick="toggleSound()"
+                >
+                    🔊
+                </button>
+
+            </div>
 
         </div>
 
@@ -8527,9 +8572,9 @@ const upgradeWinSound = new Audio("sounds/upgrade-win.mp3");
 const upgradeLoseSound = new Audio("sounds/upgrade-lose.mp3");
 
 caseSpinSound.volume = .45;
-caseDropSound.volume = .65;
-upgradeWinSound.volume = .70;
-upgradeLoseSound.volume = .65;
+caseDropSound.volume = .45;
+upgradeWinSound.volume = .35;
+upgradeLoseSound.volume = .325;
 
 function updateSoundButtons(){
     ["caseSoundButton","upgradeSoundButton"].forEach(id=>{
