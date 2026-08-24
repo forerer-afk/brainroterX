@@ -8566,12 +8566,10 @@ function updateCaseCost(){
 /* SOUND */
 let soundEnabled = localStorage.getItem("brainroterx_sound") !== "off";
 
-const caseSpinSound = new Audio("sounds/case-spin.mp3");
 const caseDropSound = new Audio("sounds/case-drop.wav");
 const upgradeWinSound = new Audio("sounds/upgrade-win.mp3");
 const upgradeLoseSound = new Audio("sounds/upgrade-lose.mp3");
 
-caseSpinSound.volume = .45;
 caseDropSound.volume = .45;
 upgradeWinSound.volume = .35;
 upgradeLoseSound.volume = .325;
@@ -8588,7 +8586,7 @@ function toggleSound(){
     soundEnabled=!soundEnabled;
     localStorage.setItem("brainroterx_sound",soundEnabled?"on":"off");
     if(!soundEnabled){
-        [caseSpinSound,caseDropSound,upgradeWinSound,upgradeLoseSound].forEach(a=>{
+        [caseDropSound,upgradeWinSound,upgradeLoseSound].forEach(a=>{
             a.pause(); a.currentTime=0;
         });
     }
@@ -8878,8 +8876,6 @@ async function animateCase(
     baseTime = 4200
 ){
 
-    playSound(caseSpinSound);
-
     const track =
         document.getElementById(
             "rouletteTrack"
@@ -9012,11 +9008,8 @@ async function animateCase(
         track.style.transform =
             `translateX(${x}px)`;
 
-        stopSound(caseSpinSound);
         return;
     }
-
-    stopSound(caseSpinSound);
 
     if(
         winnerElement
