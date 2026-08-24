@@ -4519,6 +4519,8 @@ img{
                     ⚡
                 </button>
 
+                <button id="caseSoundButton" class="speed-btn active" onclick="toggleSound()">🔊</button>
+
             </div>
 
             <div
@@ -4636,6 +4638,8 @@ img{
             >
                 ⚡
             </button>
+
+            <button id="upgradeSoundButton" class="speed-btn active" onclick="toggleSound()">🔊</button>
 
         </div>
 
@@ -8513,6 +8517,51 @@ function updateCaseCost(){
 }
 
 
+
+/* SOUND */
+let soundEnabled = localStorage.getItem("brainroterx_sound") !== "off";
+
+const caseSpinSound = new Audio("sounds/case-spin.mp3");
+const caseDropSound = new Audio("sounds/case-drop.wav");
+const upgradeWinSound = new Audio("sounds/upgrade-win.mp3");
+const upgradeLoseSound = new Audio("sounds/upgrade-lose.mp3");
+
+caseSpinSound.volume = .45;
+caseDropSound.volume = .65;
+upgradeWinSound.volume = .70;
+upgradeLoseSound.volume = .65;
+
+function updateSoundButtons(){
+    ["caseSoundButton","upgradeSoundButton"].forEach(id=>{
+        const b=document.getElementById(id);
+        if(!b)return;
+        b.innerText=soundEnabled?"🔊":"🔇";
+        b.classList.toggle("active",soundEnabled);
+    });
+}
+function toggleSound(){
+    soundEnabled=!soundEnabled;
+    localStorage.setItem("brainroterx_sound",soundEnabled?"on":"off");
+    if(!soundEnabled){
+        [caseSpinSound,caseDropSound,upgradeWinSound,upgradeLoseSound].forEach(a=>{
+            a.pause(); a.currentTime=0;
+        });
+    }
+    updateSoundButtons();
+}
+function playSound(a){
+    if(!soundEnabled||!a)return;
+    try{
+        a.currentTime=0;
+        const p=a.play();
+        if(p&&p.catch)p.catch(()=>{});
+    }catch(e){}
+}
+function stopSound(a){
+    if(!a)return;
+    a.pause(); a.currentTime=0;
+}
+
 function toggleCaseSpeed(){
 
     if(
@@ -8784,6 +8833,8 @@ async function animateCase(
     baseTime = 4200
 ){
 
+    playSound(caseSpinSound);
+
     const track =
         document.getElementById(
             "rouletteTrack"
@@ -8916,8 +8967,11 @@ async function animateCase(
         track.style.transform =
             `translateX(${x}px)`;
 
+        stopSound(caseSpinSound);
         return;
     }
+
+    stopSound(caseSpinSound);
 
     if(
         winnerElement
@@ -8926,6 +8980,8 @@ async function animateCase(
             "winner-pop"
         );
     }
+
+    playSound(caseDropSound);
 
     await waitCaseAnimation(
         220
@@ -12468,6 +12524,8 @@ async function upgradeItem(){
                 "success"
             );
 
+            playSound(upgradeWinSound);
+
         }
         else{
 
@@ -12486,6 +12544,8 @@ async function upgradeItem(){
                 `❌ Апгрейд не удался: ${source.brainrot_name} сгорел`,
                 "error"
             );
+
+            playSound(upgradeLoseSound);
 
         }
 
@@ -13628,6 +13688,8 @@ async function silentSync(){
 
 }
 
+
+updateSoundButtons();
 
 /*
   Лента крупных выигрышей обновляется постоянно,
