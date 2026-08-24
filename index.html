@@ -11156,6 +11156,12 @@ function calculateChance(
             0.9
         );
 
+    if(
+        chance > 70
+    ){
+        chance = 70;
+    }
+
     chance =
         Math.max(
             chance,
