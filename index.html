@@ -11156,12 +11156,6 @@ function calculateChance(
             0.9
         );
 
-    if(
-        chance > 70
-    ){
-        chance = 70;
-    }
-
     chance =
         Math.max(
             chance,
@@ -11833,14 +11827,33 @@ function selectByChance(
 
     const targets =
         brainrots.filter(
-            item =>
-                Number(
-                    item.value
-                )
-                >
-                Number(
-                    source.value
-                )
+            item => {
+
+                if(
+                    Number(
+                        item.value
+                    )
+                    <=
+                    Number(
+                        source.value
+                    )
+                ){
+                    return false;
+                }
+
+                const realChance =
+                    calculateChance(
+                        source,
+                        item
+                    );
+
+                return (
+                    realChance > 0
+                    &&
+                    realChance <= 70
+                );
+
+            }
         );
 
     let best =
@@ -11888,6 +11901,26 @@ function selectByChance(
 
         selectedTargetId =
             best.brainrot_id;
+
+        document
+            .getElementById(
+                "upgradeResult"
+            )
+            .innerText =
+                "";
+
+    }
+    else{
+
+        selectedTargetId =
+            null;
+
+        document
+            .getElementById(
+                "upgradeResult"
+            )
+            .innerText =
+                "❌ Нет подходящего Brainrot для этого процента";
 
     }
 
