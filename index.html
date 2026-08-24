@@ -8056,6 +8056,14 @@ async function selectCase(
     */
     activeCaseIsDaily = false;
 
+    /*
+      Любой обычный кейс принудительно выключает режим Daily.
+      Иначе после FREE-кейса кнопка следующего обычного кейса
+      могла снова запускать daily_claim.
+    */
+    activeCaseIsDaily = false;
+    dailyOpening = false;
+
     selectedCase =
         cases.find(
             item =>
@@ -8296,6 +8304,9 @@ function closeCase(
     }
 
     activeCaseIsDaily =
+        false;
+
+    dailyOpening =
         false;
 
     const c3 =
@@ -9756,6 +9767,20 @@ async function handleCaseSpin(){
             "caseResult"
         );
 
+    /*
+      Обычный выбранный кейс имеет приоритет.
+      Это полностью исключает ситуацию, когда после FREE-кейса
+      следующий обычный кейс случайно отправляет daily_claim.
+    */
+    if(
+        selectedCase
+        &&
+        !activeCaseIsDaily
+    ){
+        await openSelectedCase();
+        return;
+    }
+
     if(
         activeCaseIsDaily
     ){
@@ -9768,9 +9793,13 @@ async function handleCaseSpin(){
         return;
     }
 
-    await openSelectedCase();
+    if(result){
+        result.innerText =
+            "❌ Сначала выбери кейс";
+    }
 
 }
+
 
 
 async function openSelectedCase(){
