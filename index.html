@@ -11157,12 +11157,6 @@ function calculateChance(
         );
 
     chance =
-        Math.min(
-            chance,
-            70
-        );
-
-    chance =
         Math.max(
             chance,
             0
@@ -11418,16 +11412,41 @@ function renderTargetGrid(){
     const targets =
         brainrots
         .filter(
-            item =>
-                Number(
-                    item.value
-                )
-                >
-                Number(
-                    source.value
-                )
-                &&
-                (
+            item => {
+
+                const sourceValue =
+                    Number(
+                        source.value
+                    );
+
+                const targetValue =
+                    Number(
+                        item.value
+                    );
+
+                const realChance =
+                    Math.floor(
+                        (
+                            sourceValue
+                            /
+                            targetValue
+                        )
+                        *
+                        100
+                        *
+                        0.9
+                    );
+
+                return (
+                    targetValue
+                    >
+                    sourceValue
+                    &&
+                    realChance
+                    <=
+                    70
+                    &&
+                    (
                     !targetSearch
                     ||
                     String(
@@ -11439,7 +11458,9 @@ function renderTargetGrid(){
                     .includes(
                         targetSearch
                     )
-                )
+                    )
+                );
+            }
         )
         .sort(
             (
