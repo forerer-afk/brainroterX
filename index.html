@@ -8064,6 +8064,34 @@ async function selectCase(
     activeCaseIsDaily = false;
     dailyOpening = false;
 
+    /*
+      После FREE-кейса кнопка могла остаться привязанной к
+      openDailyWithRoulette(). Для обычного кейса обязательно
+      возвращаем нормальный обработчик.
+    */
+    const spinButton =
+        document.getElementById(
+            "spinButton"
+        );
+
+    if(
+        spinButton
+    ){
+        spinButton.disabled =
+            false;
+
+        spinButton.style.pointerEvents =
+            "auto";
+
+        spinButton.innerText =
+            "🎰 КРУТИТЬ";
+
+        spinButton.setAttribute(
+            "onclick",
+            "handleCaseSpin()"
+        );
+    }
+
     selectedCase =
         cases.find(
             item =>
@@ -9251,7 +9279,7 @@ function openDailyCase(){
 
         spinButton.setAttribute(
             "onclick",
-            "openDailyWithRoulette()"
+            "handleCaseSpin()"
         );
     }
 
