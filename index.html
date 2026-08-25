@@ -4627,6 +4627,359 @@ button.button-press:not(:disabled),
     }
 }
 
+
+/* =====================================================
+   BRAINROTER X — AURORA GLASS BACKGROUND 2026-08-26
+   Visual-only layer. Keeps the existing layout intact.
+===================================================== */
+
+:root{
+    --brx-bg-0:#05030b;
+    --brx-bg-1:#090611;
+    --brx-bg-2:#10091d;
+    --brx-surface:rgba(17,12,31,.78);
+    --brx-surface-strong:rgba(16,11,29,.90);
+    --brx-surface-soft:rgba(31,20,52,.64);
+    --brx-line:rgba(196,156,255,.12);
+    --brx-line-strong:rgba(168,85,247,.28);
+    --brx-purple:#a855f7;
+    --brx-purple-2:#7c3aed;
+    --brx-violet:#6d28d9;
+    --brx-gold:#ffd400;
+}
+
+html{
+    background:var(--brx-bg-0) !important;
+}
+
+body{
+    position:relative;
+    min-height:100vh;
+    isolation:isolate;
+    background:
+        radial-gradient(circle at 50% -16%, rgba(139,92,246,.25) 0%, rgba(81,39,145,.12) 25%, transparent 53%),
+        radial-gradient(circle at -10% 30%, rgba(91,33,182,.19) 0%, transparent 37%),
+        radial-gradient(circle at 108% 58%, rgba(147,51,234,.16) 0%, transparent 34%),
+        radial-gradient(circle at 47% 112%, rgba(76,29,149,.18) 0%, transparent 42%),
+        linear-gradient(180deg,#0b0713 0%,#07040d 48%,#05030a 100%) !important;
+    background-attachment:fixed !important;
+}
+
+/* Slow aurora blobs. Transform-only animation keeps WebView load low. */
+body::before,
+body::after{
+    content:"";
+    position:fixed;
+    z-index:0;
+    pointer-events:none;
+    border-radius:50%;
+    filter:blur(58px);
+    opacity:.72;
+    will-change:transform;
+}
+
+body::before{
+    width:290px;
+    height:290px;
+    left:-130px;
+    top:13vh;
+    background:radial-gradient(circle,rgba(124,58,237,.30) 0%,rgba(124,58,237,.10) 48%,transparent 72%);
+    animation:brxAuroraLeft 18s ease-in-out infinite alternate;
+}
+
+body::after{
+    width:330px;
+    height:330px;
+    right:-170px;
+    top:48vh;
+    background:radial-gradient(circle,rgba(168,85,247,.25) 0%,rgba(88,28,135,.11) 48%,transparent 72%);
+    animation:brxAuroraRight 22s ease-in-out infinite alternate;
+}
+
+@keyframes brxAuroraLeft{
+    from{transform:translate3d(0,0,0) scale(1)}
+    to{transform:translate3d(52px,70px,0) scale(1.14)}
+}
+
+@keyframes brxAuroraRight{
+    from{transform:translate3d(0,0,0) scale(1)}
+    to{transform:translate3d(-58px,-54px,0) scale(1.12)}
+}
+
+/* Keep the whole app above the aurora layer. */
+.game{
+    position:relative;
+    z-index:1;
+}
+
+/* Tiny star/dust texture behind the UI */
+.game::before{
+    content:"";
+    position:fixed;
+    z-index:-1;
+    inset:0;
+    pointer-events:none;
+    opacity:.24;
+    background-image:
+        radial-gradient(circle,rgba(255,255,255,.62) 0 1px,transparent 1.2px),
+        radial-gradient(circle,rgba(196,156,255,.48) 0 1px,transparent 1.25px),
+        radial-gradient(circle,rgba(255,255,255,.34) 0 .8px,transparent 1px);
+    background-size:73px 73px,109px 109px,151px 151px;
+    background-position:11px 17px,49px 3px,77px 61px;
+    mask-image:linear-gradient(to bottom,rgba(0,0,0,.85),rgba(0,0,0,.45) 54%,transparent 96%);
+    -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.85),rgba(0,0,0,.45) 54%,transparent 96%);
+}
+
+/* Main glass language */
+.topbar{
+    background:linear-gradient(180deg,rgba(10,6,19,.91),rgba(9,6,17,.82)) !important;
+    border-bottom:1px solid rgba(196,156,255,.10) !important;
+    box-shadow:0 10px 30px rgba(0,0,0,.28),0 1px 0 rgba(168,85,247,.06) inset !important;
+    backdrop-filter:blur(22px) saturate(1.14) !important;
+    -webkit-backdrop-filter:blur(22px) saturate(1.14) !important;
+}
+
+.panel,
+.profile-card,
+.profile-extra-card,
+.daily-card,
+.history-card,
+.ladder-panel,
+.referral-card,
+.big-wins-section,
+.inventory-card,
+.confirm-action-box,
+.withdraw-select-card{
+    background:
+        linear-gradient(145deg,rgba(29,19,48,.82),rgba(11,8,21,.88)) !important;
+    border:1px solid var(--brx-line) !important;
+    box-shadow:
+        0 16px 38px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 0 0 1px rgba(91,33,182,.025) !important;
+    backdrop-filter:blur(14px) saturate(1.10);
+    -webkit-backdrop-filter:blur(14px) saturate(1.10);
+}
+
+/* Cards keep their individual themes, but now live on the same material. */
+.case-card,
+.deposit-item,
+.exchange-option,
+.upgrade-item,
+.upgrade-choice,
+.inventory-action,
+.history-item,
+.ladder-item,
+.daily-case-card,
+.daily-prize,
+.big-win-item,
+.withdraw-one,
+.multi-win-card{
+    border-color:rgba(196,156,255,.11) !important;
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.24),
+        inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+.case-card{
+    background:
+        radial-gradient(circle at 85% 0%,rgba(168,85,247,.13),transparent 34%),
+        linear-gradient(145deg,rgba(35,23,57,.84),rgba(12,9,23,.92)) !important;
+}
+
+.case-card::before{
+    background:rgba(168,85,247,.14) !important;
+    filter:blur(18px) !important;
+}
+
+.preview-img,
+.case-content-img,
+.inventory-img,
+.ladder-stake-visual{
+    background:
+        radial-gradient(circle at 50% 35%,rgba(93,58,138,.42),rgba(12,8,22,.90) 70%) !important;
+    border:1px solid rgba(196,156,255,.07);
+}
+
+/* Inputs and selects */
+.text-input,
+.promo-input,
+.ladder-input,
+.upgrade-search,
+.ui-select{
+    color:#fff !important;
+    background:rgba(8,5,16,.68) !important;
+    border:1px solid rgba(196,156,255,.12) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+
+.text-input:focus,
+.promo-input:focus,
+.ladder-input:focus,
+.upgrade-search:focus,
+.ui-select:focus{
+    border-color:rgba(168,85,247,.46) !important;
+    box-shadow:0 0 0 3px rgba(168,85,247,.08) !important;
+}
+
+/* Neutral controls now use violet-tinted glass instead of blue-grey. */
+.back-btn,
+.speed-btn,
+.fast-btn,
+.quantity-btn,
+.case-count-btn,
+.cancel-btn,
+.withdraw-back-btn,
+.nav-btn{
+    color:#f4edff !important;
+    background:linear-gradient(145deg,rgba(45,29,70,.90),rgba(20,14,35,.94)) !important;
+    border:1px solid rgba(196,156,255,.11) !important;
+    box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+.speed-btn.active,
+.fast-btn.active,
+.nav-btn.active{
+    border-color:rgba(168,85,247,.42) !important;
+    box-shadow:0 0 18px rgba(124,58,237,.16),inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+.balance-box{
+    background:linear-gradient(145deg,rgba(37,24,58,.91),rgba(16,11,29,.93)) !important;
+    border:1px solid rgba(250,204,21,.13) !important;
+    box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+/* Modal layer: darker veil + true glass dialog */
+.overlay{
+    background:rgba(3,2,7,.69) !important;
+    backdrop-filter:blur(5px) !important;
+    -webkit-backdrop-filter:blur(5px) !important;
+}
+
+.modal{
+    background:
+        radial-gradient(circle at 50% -12%,rgba(124,58,237,.17),transparent 36%),
+        linear-gradient(160deg,rgba(27,17,45,.96),rgba(9,6,17,.98)) !important;
+    border:1px solid rgba(196,156,255,.16) !important;
+    box-shadow:
+        0 28px 70px rgba(0,0,0,.48),
+        0 0 46px rgba(76,29,149,.08),
+        inset 0 1px 0 rgba(255,255,255,.05) !important;
+    backdrop-filter:blur(22px) saturate(1.12) !important;
+    -webkit-backdrop-filter:blur(22px) saturate(1.12) !important;
+}
+
+.modal-header{
+    border-bottom-color:rgba(196,156,255,.08) !important;
+}
+
+/* Bottom navigation blends into the new background. */
+.bottom-menu{
+    background:linear-gradient(180deg,rgba(12,8,22,.86),rgba(7,4,13,.96)) !important;
+    border-top:1px solid rgba(196,156,255,.11) !important;
+    box-shadow:0 -14px 34px rgba(0,0,0,.30),0 -1px 0 rgba(124,58,237,.035) inset !important;
+    backdrop-filter:blur(22px) saturate(1.12) !important;
+    -webkit-backdrop-filter:blur(22px) saturate(1.12) !important;
+}
+
+.bottom-menu .nav-btn{
+    background:transparent !important;
+    border-color:transparent !important;
+    box-shadow:none !important;
+}
+
+.bottom-menu .nav-btn.active{
+    color:#fff !important;
+    background:linear-gradient(180deg,rgba(124,58,237,.18),rgba(124,58,237,.055)) !important;
+    border-color:rgba(168,85,247,.10) !important;
+    box-shadow:0 0 20px rgba(124,58,237,.08) !important;
+}
+
+/* Live / history / ladder surfaces */
+.big-wins-section{
+    background:
+        radial-gradient(circle at 12% 0%,rgba(245,158,11,.10),transparent 33%),
+        radial-gradient(circle at 92% 8%,rgba(124,58,237,.12),transparent 34%),
+        linear-gradient(145deg,rgba(28,18,45,.84),rgba(10,7,18,.92)) !important;
+    border-color:rgba(250,204,21,.10) !important;
+}
+
+.history-card,
+.ladder-panel,
+.daily-card{
+    position:relative;
+    overflow:hidden;
+}
+
+.history-card::before,
+.ladder-panel::before,
+.daily-card::before{
+    content:"";
+    position:absolute;
+    width:120px;
+    height:120px;
+    right:-70px;
+    top:-75px;
+    border-radius:50%;
+    pointer-events:none;
+    background:rgba(124,58,237,.10);
+    filter:blur(16px);
+}
+
+/* Slightly cleaner text hierarchy on the deeper background. */
+.case-hint,
+.input-label,
+.profile-id,
+.daily-card-note,
+.ladder-sub,
+.referral-note,
+.history-popup-time{
+    color:#a99fba !important;
+    opacity:1 !important;
+}
+
+.section-title,
+.modal-title,
+.daily-title,
+.ladder-title,
+.upgrader-title{
+    text-shadow:0 1px 16px rgba(124,58,237,.12);
+}
+
+/* Loader belongs to the same visual world. */
+.loader-box{
+    background:linear-gradient(145deg,rgba(27,17,45,.93),rgba(9,6,17,.96)) !important;
+    border:1px solid rgba(196,156,255,.13) !important;
+    box-shadow:0 24px 60px rgba(0,0,0,.42),0 0 36px rgba(124,58,237,.08) !important;
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+}
+
+/* Respect reduced-motion users and weaker WebViews. */
+@media (prefers-reduced-motion:reduce){
+    body::before,
+    body::after{
+        animation:none !important;
+    }
+}
+
+@media (max-width:380px){
+    body::before{opacity:.58}
+    body::after{opacity:.54}
+    .panel,
+    .profile-card,
+    .profile-extra-card,
+    .daily-card,
+    .history-card,
+    .ladder-panel,
+    .referral-card,
+    .big-wins-section{
+        backdrop-filter:blur(11px) saturate(1.06);
+        -webkit-backdrop-filter:blur(11px) saturate(1.06);
+    }
+}
+
 </style>
 
 </head>
