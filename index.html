@@ -4439,11 +4439,200 @@ img{
     margin:0 !important;
 }
 
+
+/* =====================================================
+   BUTTON PRESS FEEL
+===================================================== */
+button,
+.fast-btn,
+.speed-btn,
+.deposit-top,
+.upgrade-main-btn,
+.back-btn,
+.nav-btn,
+.case-card,
+.deposit-item,
+.upgrade-item{
+    -webkit-tap-highlight-color:transparent;
+}
+
+button:not(:disabled),
+.fast-btn,
+.speed-btn,
+.deposit-top,
+.upgrade-main-btn,
+.back-btn,
+.nav-btn{
+    transition:
+        transform .11s ease,
+        filter .11s ease,
+        opacity .11s ease,
+        box-shadow .14s ease;
+    transform:translateZ(0);
+}
+
+button:not(:disabled):active,
+.fast-btn:active,
+.speed-btn:active,
+.deposit-top:active,
+.upgrade-main-btn:active,
+.back-btn:active,
+.nav-btn:active{
+    transform:scale(.94);
+    filter:brightness(1.12);
+}
+
+.case-card:active,
+.deposit-item:active,
+.upgrade-item:active{
+    transform:scale(.97);
+}
+
+/* =====================================================
+   START LOADER
+===================================================== */
+#appLoader{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:
+        radial-gradient(circle at 50% 38%, rgba(139,92,246,.18), transparent 34%),
+        #080d18;
+    transition:opacity .35s ease, visibility .35s ease;
+}
+
+#appLoader.hide{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+.loader-box{
+    width:min(280px,86vw);
+    text-align:center;
+}
+
+.loader-logo{
+    font-size:25px;
+    font-weight:1000;
+    letter-spacing:.5px;
+    color:#fff;
+    margin-bottom:18px;
+}
+
+.loader-logo b{
+    color:#a78bfa;
+}
+
+.loader-orbit{
+    position:relative;
+    width:74px;
+    height:74px;
+    margin:0 auto 18px;
+}
+
+.loader-orbit::before,
+.loader-orbit::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    inset:0;
+    border:3px solid transparent;
+    border-top-color:#a78bfa;
+    border-right-color:rgba(167,139,250,.25);
+    animation:loaderSpin .9s linear infinite;
+}
+
+.loader-orbit::after{
+    inset:11px;
+    border-top-color:#facc15;
+    border-right-color:rgba(250,204,21,.18);
+    animation-duration:.65s;
+    animation-direction:reverse;
+}
+
+.loader-x{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:19px;
+    font-weight:1000;
+    color:#fff;
+}
+
+.loader-text{
+    color:#e2e8f0;
+    font-size:12px;
+    font-weight:900;
+    margin-bottom:10px;
+}
+
+.loader-line{
+    height:5px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.07);
+}
+
+.loader-line > span{
+    display:block;
+    width:42%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#8b5cf6,#facc15);
+    animation:loaderMove 1.05s ease-in-out infinite;
+}
+
+@keyframes loaderSpin{
+    to{transform:rotate(360deg)}
+}
+
+@keyframes loaderMove{
+    0%{transform:translateX(-110%)}
+    100%{transform:translateX(240%)}
+}
+
+@media (prefers-reduced-motion:reduce){
+    button,
+    .fast-btn,
+    .speed-btn,
+    .deposit-top,
+    .upgrade-main-btn,
+    .back-btn,
+    .nav-btn{
+        transition:none !important;
+    }
+
+    .loader-orbit::before,
+    .loader-orbit::after,
+    .loader-line > span{
+        animation:none !important;
+    }
+}
+
 </style>
 
 </head>
 
 <body>
+
+<div id="appLoader">
+    <div class="loader-box">
+        <div class="loader-logo">BRAINROTER <b>X</b></div>
+        <div class="loader-orbit">
+            <div class="loader-x">X</div>
+        </div>
+        <div id="loaderText" class="loader-text">Загружаем Brainrot...</div>
+        <div class="loader-line"><span></span></div>
+    </div>
+</div>
+
 
 
 <div class="topbar">
@@ -4515,7 +4704,11 @@ img{
     </div>
 
     <div id="caseList">
-        Загрузка...
+        <div class="case-grid" aria-label="Загрузка кейсов">
+            <div class="case-card" style="min-height:150px;opacity:.35"></div>
+            <div class="case-card" style="min-height:150px;opacity:.25"></div>
+            <div class="case-card" style="min-height:150px;opacity:.18"></div>
+        </div>
     </div>
 
     <div
@@ -14835,7 +15028,24 @@ function sleep(
    START
 ===================================================== */
 
-loadPlayer();
+loadPlayer()
+    .finally(
+        () => {
+            const loader =
+                document.getElementById(
+                    "appLoader"
+                );
+
+            if(loader){
+                loader.classList.add("hide");
+
+                setTimeout(
+                    () => loader.remove(),
+                    420
+                );
+            }
+        }
+    );
 
 
 </script>
