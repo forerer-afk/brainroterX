@@ -5147,6 +5147,49 @@ button:not(:disabled),
 
 </style>
 
+
+<style id="brainroterx-no-case-flashlight-glow">
+/* =====================================================
+   BRAINROTER X — REMOVE CASE "FLASHLIGHT" GLOW
+   Keep the new background, but make case cards clean.
+===================================================== */
+.case-card,
+.case-card:hover,
+.case-card:active,
+.case-card.button-press,
+.case-card.selected,
+.case-card.active{
+    filter:none !important;
+    text-shadow:none !important;
+}
+
+/* Remove decorative radial/spotlight layers around cases. */
+.case-card::before,
+.case-card::after{
+    box-shadow:none !important;
+    filter:none !important;
+    opacity:0 !important;
+    background:transparent !important;
+}
+
+/* Images should not cast a large colored halo. */
+.case-card img,
+.case-image,
+.case-card .case-image,
+.case-card .case-img,
+.case-card .case-picture{
+    filter:none !important;
+    box-shadow:none !important;
+}
+
+/* Keep only a subtle card shadow for separation from the background. */
+.case-card{
+    box-shadow:
+        0 5px 14px rgba(0,0,0,.22),
+        inset 0 0 0 1px rgba(255,255,255,.025) !important;
+}
+</style>
+
 </head>
 
 <body>
