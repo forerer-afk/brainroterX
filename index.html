@@ -4462,30 +4462,41 @@ button:not(:disabled),
 .deposit-top,
 .upgrade-main-btn,
 .back-btn,
-.nav-btn{
+.nav-btn,
+.case-card,
+.deposit-item,
+.upgrade-item{
+    transform:translateZ(0) scale(1);
     transition:
-        transform .11s ease,
-        filter .11s ease,
-        opacity .11s ease,
-        box-shadow .14s ease;
-    transform:translateZ(0);
+        transform .18s cubic-bezier(.22,.72,.24,1),
+        filter .18s ease,
+        opacity .18s ease,
+        box-shadow .18s ease;
+    will-change:transform;
 }
 
-button:not(:disabled):active,
-.fast-btn:active,
-.speed-btn:active,
-.deposit-top:active,
-.upgrade-main-btn:active,
-.back-btn:active,
-.nav-btn:active{
-    transform:scale(.94);
-    filter:brightness(1.12);
+/*
+  Не используем :active как основную анимацию:
+  Telegram/Android WebView иногда "залипает" на первом нажатии.
+  Класс .button-press ставится JS при КАЖДОМ тапе.
+*/
+button.button-press:not(:disabled),
+.fast-btn.button-press,
+.speed-btn.button-press,
+.deposit-top.button-press,
+.upgrade-main-btn.button-press,
+.back-btn.button-press,
+.nav-btn.button-press{
+    transform:translateZ(0) scale(.94);
+    filter:brightness(1.10);
+    transition-duration:.065s;
 }
 
-.case-card:active,
-.deposit-item:active,
-.upgrade-item:active{
-    transform:scale(.97);
+.case-card.button-press,
+.deposit-item.button-press,
+.upgrade-item.button-press{
+    transform:translateZ(0) scale(.97);
+    transition-duration:.065s;
 }
 
 /* =====================================================
@@ -15022,6 +15033,179 @@ function sleep(
     );
 
 }
+
+
+
+/* =====================================================
+   REPEATING BUTTON PRESS ANIMATION
+===================================================== */
+
+(function initButtonPressAnimation(){
+
+    const selector =
+        [
+            "button",
+            ".fast-btn",
+            ".speed-btn",
+            ".deposit-top",
+            ".upgrade-main-btn",
+            ".back-btn",
+            ".nav-btn",
+            ".case-card",
+            ".deposit-item",
+            ".upgrade-item"
+        ]
+        .join(",");
+
+    let pressedElement =
+        null;
+
+    let releaseTimer =
+        null;
+
+    function getPressTarget(
+        event
+    ){
+
+        const target =
+            event.target
+            &&
+            event.target.closest
+            ?
+            event.target.closest(
+                selector
+            )
+            :
+            null;
+
+        if(
+            !target
+            ||
+            target.disabled
+        ){
+            return null;
+        }
+
+        return target;
+
+    }
+
+
+    function releasePressed(){
+
+        if(
+            releaseTimer
+        ){
+            clearTimeout(
+                releaseTimer
+            );
+
+            releaseTimer =
+                null;
+        }
+
+        if(
+            pressedElement
+        ){
+            pressedElement.classList.remove(
+                "button-press"
+            );
+
+            pressedElement =
+                null;
+        }
+
+    }
+
+
+    document.addEventListener(
+        "pointerdown",
+        event => {
+
+            const target =
+                getPressTarget(
+                    event
+                );
+
+            if(
+                !target
+            ){
+                return;
+            }
+
+            releasePressed();
+
+            pressedElement =
+                target;
+
+            /*
+              Сбрасываем класс перед каждым новым тапом,
+              чтобы браузер гарантированно проигрывал анимацию
+              снова, даже если по кнопке нажимают много раз подряд.
+            */
+            target.classList.remove(
+                "button-press"
+            );
+
+            void target.offsetWidth;
+
+            target.classList.add(
+                "button-press"
+            );
+
+        },
+        {
+            passive:true
+        }
+    );
+
+
+    document.addEventListener(
+        "pointerup",
+        () => {
+
+            /*
+              Небольшая минимальная длительность нажатия делает
+              отпускание заметным и плавным даже при очень быстром тапе.
+            */
+            releaseTimer =
+                setTimeout(
+                    releasePressed,
+                    55
+                );
+
+        },
+        {
+            passive:true
+        }
+    );
+
+
+    document.addEventListener(
+        "pointercancel",
+        releasePressed,
+        {
+            passive:true
+        }
+    );
+
+
+    document.addEventListener(
+        "scroll",
+        releasePressed,
+        {
+            passive:true,
+            capture:true
+        }
+    );
+
+
+    window.addEventListener(
+        "blur",
+        releasePressed
+    );
+
+})();
 
 
 /* =====================================================
