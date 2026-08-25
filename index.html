@@ -5331,6 +5331,119 @@ button:not(:disabled),
 }
 </style>
 
+
+<style id="brainroterx-cases-dark-premium">
+/* =====================================================
+   BRAINROTER X — DARK PREMIUM CASE CARDS
+   Darker, cleaner, lightweight for Telegram WebView.
+===================================================== */
+
+.case-card{
+    background:
+        linear-gradient(
+            180deg,
+            rgba(18,14,28,.985) 0%,
+            rgba(11,9,19,.995) 58%,
+            rgba(14,10,24,.995) 100%
+        ) !important;
+
+    border:1px solid rgba(139,92,246,.16) !important;
+
+    box-shadow:
+        0 7px 17px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.018),
+        inset 0 -1px 0 rgba(124,58,237,.035) !important;
+
+    filter:none !important;
+}
+
+/* Very restrained purple line instead of a bright highlight */
+.case-card::before{
+    left:16% !important;
+    right:16% !important;
+    height:1px !important;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(139,92,246,.28),
+            transparent
+        ) !important;
+    opacity:.65 !important;
+    filter:none !important;
+    box-shadow:none !important;
+}
+
+/* Dark violet depth only inside lower part of card */
+.case-card::after{
+    height:42% !important;
+    background:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(76,29,149,.035) 58%,
+            rgba(88,28,135,.065) 100%
+        ) !important;
+    opacity:1 !important;
+    filter:none !important;
+    box-shadow:none !important;
+}
+
+/* Image gets only a natural dark shadow */
+.case-card img,
+.case-image,
+.case-card .case-image,
+.case-card .case-img,
+.case-card .case-picture{
+    filter:drop-shadow(0 6px 7px rgba(0,0,0,.38)) !important;
+    box-shadow:none !important;
+}
+
+/* Price area stays dark so the yellow X coin pops */
+.case-card .price,
+.case-card .case-price,
+.case-card .case-cost{
+    background:rgba(6,5,11,.76) !important;
+    border:1px solid rgba(255,255,255,.045) !important;
+    box-shadow:none !important;
+}
+
+/* Selected case: visible but still dark */
+.case-card.selected,
+.case-card.active{
+    background:
+        linear-gradient(
+            180deg,
+            rgba(22,16,35,.99),
+            rgba(12,9,21,.995)
+        ) !important;
+
+    border-color:rgba(168,85,247,.40) !important;
+
+    box-shadow:
+        0 7px 18px rgba(0,0,0,.31),
+        inset 0 0 0 1px rgba(139,92,246,.055) !important;
+}
+
+.case-card.button-press,
+.case-card:active{
+    border-color:rgba(168,85,247,.32) !important;
+}
+
+/* Don't brighten cards on desktop hover */
+@media (hover:hover){
+    .case-card:hover{
+        background:
+            linear-gradient(
+                180deg,
+                rgba(20,15,31,.99),
+                rgba(12,9,20,.995)
+            ) !important;
+        border-color:rgba(139,92,246,.25) !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
