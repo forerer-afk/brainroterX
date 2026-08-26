@@ -805,6 +805,49 @@ async def mem_minus_command(
     )
 
 
+
+# =====================================================
+# MEM TEXT ROUTER
+# Telegram command entities do not reliably support +/-
+# so /mem+ and /mem- are parsed as plain text here.
+# =====================================================
+
+async def mem_text_router(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    message = update.message
+
+    if not message:
+        return
+
+    text = (
+        message.text
+        or ""
+    ).strip()
+
+    lower = text.lower()
+
+    if lower.startswith("/mem+"):
+
+        await mem_plus_command(
+            update,
+            context
+        )
+
+        return
+
+    if lower.startswith("/mem-"):
+
+        await mem_minus_command(
+            update,
+            context
+        )
+
+        return
+
+
 # =====================================================
 # ЗАПУСК
 # =====================================================
@@ -858,15 +901,8 @@ def main():
 
     app.add_handler(
         MessageHandler(
-            filters.Regex(r"^/mem\+\s+\d+\s*$"),
-            mem_plus_command
-        )
-    )
-
-    app.add_handler(
-        MessageHandler(
-            filters.Regex(r"^/mem-\s+\d+\s*$"),
-            mem_minus_command
+            filters.TEXT,
+            mem_text_router
         )
     )
 
