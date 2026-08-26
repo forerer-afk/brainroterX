@@ -12158,30 +12158,127 @@ function calculateChance(
 
     }
 
-    let chance =
-        Math.floor(
-            (
-                Number(
-                    source.value
+    const sourceValue =
+        Number(
+            source.value
+        );
+
+    const targetValue =
+        Number(
+            target.value
+        );
+
+    if(
+        !sourceValue
+        ||
+        !targetValue
+        ||
+        targetValue <= sourceValue
+    ){
+
+        return 0;
+
+    }
+
+    const curve = [
+        {
+            multiplier:1.18,
+            chance:70
+        },
+        {
+            multiplier:1.25,
+            chance:60
+        },
+        {
+            multiplier:1.80,
+            chance:50
+        },
+        {
+            multiplier:2.00,
+            chance:40
+        },
+        {
+            multiplier:2.60,
+            chance:30
+        },
+        {
+            multiplier:3.50,
+            chance:20
+        },
+        {
+            multiplier:8.00,
+            chance:10
+        },
+        {
+            multiplier:20.00,
+            chance:0
+        }
+    ];
+
+    const multiplier =
+        targetValue /
+        sourceValue;
+
+    if(
+        multiplier <
+        curve[0].multiplier
+    ){
+
+        return 71;
+
+    }
+
+    for(
+        let i = 0;
+        i < curve.length - 1;
+        i++
+    ){
+
+        const left =
+            curve[i];
+
+        const right =
+            curve[i + 1];
+
+        if(
+            multiplier >= left.multiplier
+            &&
+            multiplier <= right.multiplier
+        ){
+
+            const progress =
+                (
+                    multiplier -
+                    left.multiplier
                 )
                 /
-                Number(
-                    target.value
+                (
+                    right.multiplier -
+                    left.multiplier
+                );
+
+            return Math.max(
+                0,
+                Math.min(
+                    70,
+                    Math.floor(
+                        left.chance
+                        +
+                        (
+                            right.chance -
+                            left.chance
+                        )
+                        *
+                        progress
+                    )
                 )
-            )
-            *
-            100
-            *
-            0.9
-        );
+            );
 
-    chance =
-        Math.max(
-            chance,
-            0
-        );
+        }
 
-    return chance;
+    }
+
+    return 0;
 
 }
 
@@ -12444,16 +12541,9 @@ function renderTargetGrid(){
                     );
 
                 const realChance =
-                    Math.floor(
-                        (
-                            sourceValue
-                            /
-                            targetValue
-                        )
-                        *
-                        100
-                        *
-                        0.865
+                    calculateChance(
+                        source,
+                        item
                     );
 
                 return (
@@ -12844,6 +12934,34 @@ function selectByChance(
 
     }
 
+    const multiplierByChance = {
+        70:1.18,
+        60:1.25,
+        50:1.80,
+        40:2.00,
+        30:2.60,
+        20:3.50,
+        10:8.00
+    };
+
+    const wantedMultiplier =
+        multiplierByChance[
+            Number(
+                wantedChance
+            )
+        ];
+
+    const wantedValue =
+        Number(
+            source.value
+        )
+        *
+        (
+            wantedMultiplier
+            ||
+            1
+        );
+
     const targets =
         brainrots.filter(
             item => {
@@ -12884,27 +13002,46 @@ function selectByChance(
     targets.forEach(
         item => {
 
+            const valueDifference =
+                Math.abs(
+                    Number(
+                        item.value
+                    )
+                    -
+                    wantedValue
+                );
+
             const chance =
                 calculateChance(
                     source,
                     item
                 );
 
-            const diff =
+            const chanceDifference =
                 Math.abs(
                     chance
                     -
                     wantedChance
                 );
 
+            /*
+              First priority: keep the requested chance close.
+              Second priority: choose the Brainrot closest to
+              the requested payout value.
+            */
+            const score =
+                chanceDifference * 100000
+                +
+                valueDifference;
+
             if(
-                diff
+                score
                 <
                 difference
             ){
 
                 difference =
-                    diff;
+                    score;
 
                 best =
                     item;
