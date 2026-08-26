@@ -389,6 +389,131 @@ async def button_handler(
     # при ошибке серверного запроса ниже будет показан alert,
     # а при успехе сообщение просто изменится.
 
+
+    # =================================================
+    # ГРН TEST — ПОДТВЕРДИТЬ
+    # =================================================
+
+    if data.startswith(
+        "uah_approve_"
+    ):
+
+        request_id = data.replace(
+            "uah_approve_",
+            ""
+        )
+
+        try:
+            request_id = int(
+                request_id
+            )
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
+        result = call_server(
+            "admin_approve_uah_test_deposit",
+            request_id=request_id,
+        )
+
+        if not result.get("ok"):
+
+            await query.answer(
+                "❌ "
+                + result.get(
+                    "error",
+                    "Ошибка"
+                ),
+                show_alert=True
+            )
+
+            return
+
+        await query.answer(
+            "✅ Готово"
+        )
+
+        old_text = (
+            query.message.text
+            or ""
+        )
+
+        await query.edit_message_text(
+            old_text
+            + "\n\n"
+            + "✅ ГРН ЗАЯВКА ПОДТВЕРЖДЕНА"
+            + "\n"
+            + f"💰 Начислено: {result.get('added_coins', 0)} монет"
+            + "\n"
+            + f"🎯 Добавлен отыгрыш: {result.get('wager_added', 0)}"
+        )
+
+        return
+
+
+    # =================================================
+    # ГРН TEST — ОТКЛОНИТЬ
+    # =================================================
+
+    if data.startswith(
+        "uah_reject_"
+    ):
+
+        request_id = data.replace(
+            "uah_reject_",
+            ""
+        )
+
+        try:
+            request_id = int(
+                request_id
+            )
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
+        result = call_server(
+            "admin_reject_uah_test_deposit",
+            request_id=request_id,
+        )
+
+        if not result.get("ok"):
+
+            await query.answer(
+                "❌ "
+                + result.get(
+                    "error",
+                    "Ошибка"
+                ),
+                show_alert=True
+            )
+
+            return
+
+        await query.answer(
+            "✅ Готово"
+        )
+
+        old_text = (
+            query.message.text
+            or ""
+        )
+
+        await query.edit_message_text(
+            old_text
+            + "\n\n"
+            + "❌ ГРН ЗАЯВКА ОТКЛОНЕНА"
+        )
+
+        return
+
+
     # =================================================
     # ПОПОЛНЕНИЕ — ПОДТВЕРДИТЬ
     # =================================================

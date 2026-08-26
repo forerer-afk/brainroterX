@@ -1674,6 +1674,75 @@ img{
 }
 
 
+
+/* =====================================================
+   UAH TEST DEPOSIT TABS
+===================================================== */
+.deposit-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    margin-top:10px;
+    padding:4px;
+    border-radius:12px;
+    background:rgba(8,7,14,.72);
+    border:1px solid rgba(168,85,247,.12);
+}
+.deposit-tab-btn{
+    padding:9px 8px;
+    border-radius:9px;
+    color:#94a3b8;
+    background:transparent;
+    font-size:11px;
+    font-weight:900;
+}
+.deposit-tab-btn.active{
+    color:#fff;
+    background:linear-gradient(135deg,rgba(124,58,237,.9),rgba(88,28,135,.9));
+}
+.deposit-tab-panel{
+    display:none;
+}
+.deposit-tab-panel.active{
+    display:block;
+}
+.uah-deposit-box{
+    margin-top:12px;
+    padding:12px;
+    border-radius:14px;
+    background:linear-gradient(180deg,rgba(18,14,28,.98),rgba(10,8,18,.99));
+    border:1px solid rgba(168,85,247,.16);
+}
+.uah-rate{
+    margin-bottom:9px;
+    padding:8px 10px;
+    border-radius:10px;
+    text-align:center;
+    color:#e9d5ff;
+    background:rgba(124,58,237,.10);
+    border:1px solid rgba(168,85,247,.12);
+    font-size:11px;
+    font-weight:900;
+}
+.uah-preview{
+    margin-top:7px;
+    padding:9px 10px;
+    border-radius:10px;
+    color:#facc15;
+    background:rgba(250,204,21,.055);
+    border:1px solid rgba(250,204,21,.10);
+    text-align:center;
+    font-size:11px;
+    font-weight:900;
+}
+.uah-card-hint{
+    margin-top:8px;
+    color:#94a3b8;
+    font-size:9px;
+    line-height:1.45;
+    text-align:center;
+}
+
 /* =====================================================
    DEPOSIT
 ===================================================== */
@@ -6173,6 +6242,28 @@ button:not(:disabled),
 
         </div>
 
+        <div class="deposit-tabs">
+            <button
+                id="depositTabBrainrotBtn"
+                class="deposit-tab-btn active"
+                onclick="setDepositTab('brainrot')"
+            >
+                🧠 BRAINROT
+            </button>
+
+            <button
+                id="depositTabUahBtn"
+                class="deposit-tab-btn"
+                onclick="setDepositTab('uah')"
+            >
+                ₴ ГРН
+            </button>
+        </div>
+
+        <div
+            id="depositBrainrotTab"
+            class="deposit-tab-panel active"
+        >
         <div
             id="depositGrid"
             class="deposit-grid"
@@ -6233,11 +6324,63 @@ button:not(:disabled),
             id="depositResult"
             class="result"
         ></div>
+        </div>
+
+        <div
+            id="depositUahTab"
+            class="deposit-tab-panel"
+        >
+            <div class="uah-deposit-box">
+
+                <div class="uah-rate">
+                    💱 100 грн = 150 ⓧ
+                </div>
+
+                <div class="input-label">
+                    Сумма в грн
+                </div>
+
+                <input
+                    id="uahAmount"
+                    class="text-input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    inputmode="numeric"
+                    placeholder="Например: 100"
+                    oninput="updateUahPreview()"
+                >
+
+                <div
+                    id="uahPreview"
+                    class="uah-preview"
+                >
+                    Вы получите: 0 ⓧ
+                </div>
+
+                <div class="uah-card-hint">
+                    После создания заявки бот пришлёт тестовые реквизиты и сумму заявки.
+                </div>
+
+                <button
+                    id="uahSubmitButton"
+                    class="submit-btn"
+                    onclick="submitUahDeposit()"
+                >
+                    ОТПРАВИТЬ ЗАЯВКУ
+                </button>
+
+                <div
+                    id="uahDepositResult"
+                    class="result"
+                ></div>
+
+            </div>
+        </div>
 
     </div>
 
 </div>
-
 
 <div
     id="referralModal"
@@ -13978,6 +14121,213 @@ function getDepositItems(){
 }
 
 
+
+let currentDepositTab =
+    "brainrot";
+
+function setDepositTab(
+    tab
+){
+
+    currentDepositTab =
+        tab === "uah"
+            ? "uah"
+            : "brainrot";
+
+    const brainrotPanel =
+        document.getElementById(
+            "depositBrainrotTab"
+        );
+
+    const uahPanel =
+        document.getElementById(
+            "depositUahTab"
+        );
+
+    const brainrotButton =
+        document.getElementById(
+            "depositTabBrainrotBtn"
+        );
+
+    const uahButton =
+        document.getElementById(
+            "depositTabUahBtn"
+        );
+
+    if(brainrotPanel){
+        brainrotPanel.classList.toggle(
+            "active",
+            currentDepositTab === "brainrot"
+        );
+    }
+
+    if(uahPanel){
+        uahPanel.classList.toggle(
+            "active",
+            currentDepositTab === "uah"
+        );
+    }
+
+    if(brainrotButton){
+        brainrotButton.classList.toggle(
+            "active",
+            currentDepositTab === "brainrot"
+        );
+    }
+
+    if(uahButton){
+        uahButton.classList.toggle(
+            "active",
+            currentDepositTab === "uah"
+        );
+    }
+
+}
+
+function updateUahPreview(){
+
+    const input =
+        document.getElementById(
+            "uahAmount"
+        );
+
+    const preview =
+        document.getElementById(
+            "uahPreview"
+        );
+
+    if(!input || !preview){
+        return;
+    }
+
+    const amount =
+        Math.max(
+            0,
+            Math.floor(
+                Number(
+                    input.value || 0
+                )
+            )
+        );
+
+    const coins =
+        Math.floor(
+            amount * 1.5
+        );
+
+    preview.innerText =
+        `Вы получите: ${coins} ⓧ`;
+
+}
+
+async function submitUahDeposit(){
+
+    const input =
+        document.getElementById(
+            "uahAmount"
+        );
+
+    const result =
+        document.getElementById(
+            "uahDepositResult"
+        );
+
+    const button =
+        document.getElementById(
+            "uahSubmitButton"
+        );
+
+    if(!input || !result){
+        return;
+    }
+
+    const amount =
+        Math.floor(
+            Number(
+                input.value || 0
+            )
+        );
+
+    if(
+        !Number.isFinite(amount)
+        ||
+        amount < 1
+    ){
+        result.innerText =
+            "❌ Введи сумму в грн";
+        return;
+    }
+
+    if(amount > 100000){
+        result.innerText =
+            "❌ Слишком большая сумма";
+        return;
+    }
+
+    if(button){
+        button.disabled = true;
+    }
+
+    result.innerText =
+        "⏳ Создаём заявку...";
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "create_uah_test_deposit_request",
+                amount_uah:
+                    amount
+            });
+
+        if(!data.ok){
+            throw new Error(
+                data.error ||
+                "Ошибка создания заявки"
+            );
+        }
+
+        result.innerText =
+            `✅ Заявка #${data.request_id} создана.\n`
+            +
+            `₴ Сумма: ${data.amount_uah} грн\n`
+            +
+            `ⓧ После подтверждения: ${data.coins} ⓧ\n\n`
+            +
+            `📩 Инструкция отправлена тебе в Telegram-бота.`;
+
+        showToast(
+            `₴ Заявка #${data.request_id} создана`,
+            "info"
+        );
+
+        input.value = "";
+        updateUahPreview();
+
+    }
+    catch(error){
+
+        result.innerText =
+            "❌ "
+            +
+            (
+                error.message ||
+                "Ошибка"
+            );
+
+    }
+    finally{
+
+        if(button){
+            button.disabled = false;
+        }
+
+    }
+
+}
+
+
 function openDeposit(){
 
     if(
@@ -14002,6 +14352,30 @@ function openDeposit(){
 
     depositSelection =
         {};
+
+    setDepositTab(
+        "brainrot"
+    );
+
+    const uahInput =
+        document.getElementById(
+            "uahAmount"
+        );
+
+    const uahResult =
+        document.getElementById(
+            "uahDepositResult"
+        );
+
+    if(uahInput){
+        uahInput.value = "";
+    }
+
+    if(uahResult){
+        uahResult.innerText = "";
+    }
+
+    updateUahPreview();
 
     document
         .getElementById(
