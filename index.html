@@ -5513,6 +5513,70 @@ button:not(:disabled),
 }
 </style>
 
+
+<style id="brainroterx-premium-case-visuals">
+#casesGrid,.cases-grid,.case-grid{gap:12px!important}
+
+.case-card{
+ position:relative!important;isolation:isolate;overflow:hidden!important;
+ border-radius:18px!important;border:1px solid rgba(255,255,255,.075)!important;
+ background:linear-gradient(180deg,rgba(28,22,42,.96),rgba(16,12,27,.985) 58%,rgba(11,9,19,.995))!important;
+ box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045)!important;
+ transform:translateZ(0);
+ transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease!important
+}
+.case-card::before{
+ content:"";position:absolute;z-index:-1;left:10%;right:10%;top:0;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(192,132,252,.44),rgba(129,140,248,.28),transparent);
+ pointer-events:none
+}
+.case-card::after{
+ content:"";position:absolute;z-index:-1;inset:0;
+ background:radial-gradient(circle at 50% 18%,rgba(139,92,246,.08),transparent 43%),linear-gradient(115deg,rgba(255,255,255,.025),transparent 35%);
+ pointer-events:none
+}
+.case-card:active{transform:scale(.985)!important}
+@media(hover:hover){
+ .case-card:hover{transform:translateY(-2px)!important;border-color:rgba(192,132,252,.20)!important;box-shadow:0 11px 26px rgba(0,0,0,.27),inset 0 1px 0 rgba(255,255,255,.055)!important}
+}
+.case-card img,.case-card .case-image,.case-card .case-img{
+ position:relative;z-index:1;display:block;object-fit:contain!important;
+ filter:drop-shadow(0 9px 9px rgba(0,0,0,.30)) saturate(1.05) contrast(1.025)!important;
+ transition:transform .18s ease!important
+}
+@media(hover:hover){
+ .case-card:hover img,.case-card:hover .case-image,.case-card:hover .case-img{transform:translateY(-2px) scale(1.025)}
+}
+.case-card h3,.case-card h4,.case-card .case-name,.case-card .case-title{
+ position:relative;z-index:2;color:#f8fafc!important;font-weight:900!important;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.28)
+}
+.case-card p,.case-card .case-description,.case-card .case-subtitle{position:relative;z-index:2;color:#9ca3af!important}
+.case-card .case-price,.case-card .price{
+ position:relative;z-index:2;display:inline-flex!important;align-items:center;justify-content:center;
+ min-height:27px;padding:5px 10px!important;border-radius:9px!important;color:#fef3c7!important;font-weight:950!important;
+ background:linear-gradient(180deg,rgba(245,158,11,.115),rgba(245,158,11,.055))!important;
+ border:1px solid rgba(251,191,36,.15)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+.case-card button,.case-card .case-button,.case-card .open-case-btn{
+ position:relative;z-index:2;overflow:hidden;border:1px solid rgba(196,181,253,.15)!important;
+ border-radius:11px!important;color:#fff!important;font-weight:950!important;letter-spacing:.015em;
+ background:linear-gradient(135deg,rgba(109,40,217,.98),rgba(76,29,149,.98))!important;
+ box-shadow:0 5px 13px rgba(0,0,0,.17),inset 0 1px 0 rgba(255,255,255,.10)!important;
+ transition:transform .14s ease,filter .14s ease!important
+}
+.case-card button:active,.case-card .case-button:active,.case-card .open-case-btn:active{transform:scale(.975)}
+.case-card .case-glow,.case-card .glow,.case-card .case-light,.case-card .case-aura{opacity:.10!important;filter:none!important;box-shadow:none!important}
+.case-card .case-content,.case-card .case-info{position:relative;z-index:2}
+@media(max-width:600px){
+ .case-card{border-radius:16px!important;box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.035)!important}
+ .case-card::after{background:radial-gradient(circle at 50% 18%,rgba(139,92,246,.055),transparent 42%)}
+ .case-card img,.case-card .case-image,.case-card .case-img{filter:drop-shadow(0 7px 7px rgba(0,0,0,.26)) saturate(1.04)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .case-card,.case-card img,.case-card .case-image,.case-card .case-img,.case-card button{transition:none!important}
+}
+</style>
+
 </head>
 
 <body>
