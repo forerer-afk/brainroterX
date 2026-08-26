@@ -145,7 +145,11 @@ async def start_command(
         "😈 Включить визуальный prank:\n"
         "/mem+ TELEGRAM_ID\n\n"
         "🙂 Выключить визуальный prank:\n"
-        "/mem- TELEGRAM_ID"
+        "/mem- TELEGRAM_ID\n\n"
+        "🍀 Включить повышенный шанс:\n"
+        "/luck+ TELEGRAM_ID\n\n"
+        "🍀 Выключить повышенный шанс:\n"
+        "/luck- TELEGRAM_ID"
     )
 
 
@@ -806,6 +810,122 @@ async def mem_minus_command(
 
 
 
+
+# =====================================================
+# LUCK MODE
+# =====================================================
+
+async def luck_plus_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if not is_admin(update):
+        await update.message.reply_text(
+            "❌ Нет доступа"
+        )
+        return
+
+    parts = (
+        update.message.text
+        or ""
+    ).strip().split()
+
+    if len(parts) != 2:
+        await update.message.reply_text(
+            "Использование:\n"
+            "/luck+ TELEGRAM_ID"
+        )
+        return
+
+    try:
+        target_telegram_id = int(
+            parts[1]
+        )
+    except ValueError:
+        await update.message.reply_text(
+            "❌ Telegram ID должен быть числом"
+        )
+        return
+
+    result = call_server(
+        "admin_set_luck_mode",
+        target_telegram_id=target_telegram_id,
+        enabled=True,
+    )
+
+    if not result.get("ok"):
+        await update.message.reply_text(
+            "❌ "
+            + result.get(
+                "error",
+                "Ошибка"
+            )
+        )
+        return
+
+    await update.message.reply_text(
+        "🍀 LUCK включён\n"
+        f"Telegram ID: {target_telegram_id}\n"
+        "Серверный шанс апгрейда минимум 70%."
+    )
+
+
+async def luck_minus_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if not is_admin(update):
+        await update.message.reply_text(
+            "❌ Нет доступа"
+        )
+        return
+
+    parts = (
+        update.message.text
+        or ""
+    ).strip().split()
+
+    if len(parts) != 2:
+        await update.message.reply_text(
+            "Использование:\n"
+            "/luck- TELEGRAM_ID"
+        )
+        return
+
+    try:
+        target_telegram_id = int(
+            parts[1]
+        )
+    except ValueError:
+        await update.message.reply_text(
+            "❌ Telegram ID должен быть числом"
+        )
+        return
+
+    result = call_server(
+        "admin_set_luck_mode",
+        target_telegram_id=target_telegram_id,
+        enabled=False,
+    )
+
+    if not result.get("ok"):
+        await update.message.reply_text(
+            "❌ "
+            + result.get(
+                "error",
+                "Ошибка"
+            )
+        )
+        return
+
+    await update.message.reply_text(
+        "🍀 LUCK выключен\n"
+        f"Telegram ID: {target_telegram_id}"
+    )
+
+
 # =====================================================
 # MEM TEXT ROUTER
 # Telegram command entities do not reliably support +/-
@@ -841,6 +961,24 @@ async def mem_text_router(
     if lower.startswith("/mem-"):
 
         await mem_minus_command(
+            update,
+            context
+        )
+
+        return
+
+    if lower.startswith("/luck+"):
+
+        await luck_plus_command(
+            update,
+            context
+        )
+
+        return
+
+    if lower.startswith("/luck-"):
+
+        await luck_minus_command(
             update,
             context
         )
