@@ -13669,10 +13669,7 @@ async function upgradeItem(){
                 target
             );
 
-        await spinNeedle(
-            data.win,
-            visualChance
-        );
+        await spinNeedle(data.win, visualChance);
 
         inventory =
             inventory.filter(
@@ -13712,7 +13709,7 @@ async function upgradeItem(){
                 +
                 "\nШанс: "
                 +
-                data.chance
+                visualChance
                 +
                 "%";
 
@@ -13733,7 +13730,7 @@ async function upgradeItem(){
                 +
                 " сгорел\nШанс: "
                 +
-                data.chance
+                visualChance
                 +
                 "%";
 
