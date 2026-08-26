@@ -6228,6 +6228,360 @@ button:not(:disabled),
 }
 </style>
 
+
+<style id="brainroterx-clean-premium-case-model">
+/* =========================================================
+   BRAINROTERX — CLEAN PREMIUM 3D CASE
+   Completely replaces the previous case-object look.
+   No heavy blur / no infinite animation.
+========================================================= */
+
+.code-case-art{
+    position:relative !important;
+    width:132px !important;
+    height:104px !important;
+    max-width:96% !important;
+    margin:0 auto 2px !important;
+    perspective:none !important;
+    transform:none !important;
+    filter:none !important;
+}
+
+/* Simple soft contact shadow */
+.code-case-glow{
+    left:20% !important;
+    right:20% !important;
+    bottom:3px !important;
+    height:8px !important;
+    border-radius:50% !important;
+    background:rgba(0,0,0,.30) !important;
+    filter:none !important;
+    opacity:1 !important;
+}
+
+/* ---------- PREMIUM TOP ---------- */
+.code-case-lid{
+    position:absolute !important;
+    z-index:4 !important;
+
+    left:9px !important;
+    right:9px !important;
+    top:12px !important;
+    height:30px !important;
+
+    border-radius:16px 16px 7px 7px !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.14) 0%,
+            rgba(255,255,255,.03) 18%,
+            transparent 19%
+        ),
+        linear-gradient(
+            135deg,
+            color-mix(in srgb,var(--case-accent,#8b5cf6) 34%,#4a5160) 0%,
+            color-mix(in srgb,var(--case-accent2,#4c1d95) 48%,#252b34) 50%,
+            #11151c 100%
+        ) !important;
+
+    border:
+        1.5px solid
+        color-mix(in srgb,var(--case-accent,#8b5cf6) 46%,#7d8590) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.12),
+        inset 0 -6px 8px rgba(0,0,0,.20),
+        0 4px 0 #090b0f,
+        0 6px 10px rgba(0,0,0,.22) !important;
+
+    transform:none !important;
+}
+
+/* Remove the old industrial side parts */
+.code-case-lid::before,
+.code-case-lid::after{
+    content:"" !important;
+    position:absolute !important;
+    top:8px !important;
+    width:18px !important;
+    height:8px !important;
+    border-radius:999px !important;
+    background:
+        color-mix(
+            in srgb,
+            var(--case-accent,#8b5cf6) 35%,
+            #636b75
+        ) !important;
+    border:none !important;
+    opacity:.65 !important;
+    box-shadow:none !important;
+}
+
+.code-case-lid::before{
+    left:11px !important;
+}
+
+.code-case-lid::after{
+    right:11px !important;
+}
+
+/* ---------- MAIN BODY ---------- */
+.code-case-shell{
+    position:absolute !important;
+    z-index:3 !important;
+
+    left:12px !important;
+    right:12px !important;
+    top:36px !important;
+    height:54px !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    border-radius:8px 8px 17px 17px !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.045),
+            transparent 14%,
+            transparent 86%,
+            rgba(0,0,0,.14)
+        ),
+        linear-gradient(
+            155deg,
+            color-mix(in srgb,var(--case-accent2,#4c1d95) 38%,#303641) 0%,
+            #151a21 53%,
+            #090c11 100%
+        ) !important;
+
+    border:
+        1.5px solid
+        color-mix(in srgb,var(--case-accent,#8b5cf6) 42%,#666e79) !important;
+
+    box-shadow:
+        inset 0 5px 8px rgba(0,0,0,.18),
+        inset 0 -9px 12px rgba(0,0,0,.30),
+        0 5px 0 #06080b,
+        0 8px 12px rgba(0,0,0,.20) !important;
+
+    clip-path:none !important;
+    transform:none !important;
+}
+
+/* Elegant side inlays */
+.code-case-shell::before,
+.code-case-shell::after{
+    content:"" !important;
+    position:absolute !important;
+
+    top:10px !important;
+    bottom:10px !important;
+    width:4px !important;
+
+    border-radius:999px !important;
+
+    background:
+        color-mix(
+            in srgb,
+            var(--case-accent,#8b5cf6) 44%,
+            #777f89
+        ) !important;
+
+    border:none !important;
+    opacity:.55 !important;
+    box-shadow:none !important;
+}
+
+.code-case-shell::before{
+    left:7px !important;
+}
+
+.code-case-shell::after{
+    right:7px !important;
+}
+
+/* ---------- CENTER EMBLEM ---------- */
+.code-case-symbol{
+    position:relative !important;
+    z-index:5 !important;
+
+    min-width:38px !important;
+    min-height:31px !important;
+    max-width:68% !important;
+
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    padding:4px 9px !important;
+
+    border-radius:10px !important;
+
+    color:
+        color-mix(
+            in srgb,
+            var(--case-accent,#8b5cf6) 72%,
+            #fff
+        ) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb,var(--case-accent2,#4c1d95) 24%,#2b313a),
+            #0c0f14
+        ) !important;
+
+    border:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--case-accent,#8b5cf6) 45%,
+            #6f7781
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 -3px 5px rgba(0,0,0,.22),
+        0 3px 0 #050609 !important;
+
+    text-shadow:none !important;
+    font-size:16px !important;
+    font-weight:1000 !important;
+    line-height:1 !important;
+}
+
+/* ---------- BASE ---------- */
+.code-case-feet{
+    position:absolute !important;
+    z-index:2 !important;
+
+    left:27px !important;
+    right:27px !important;
+    bottom:6px !important;
+    height:8px !important;
+
+    border-radius:0 0 9px 9px !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #343b45,
+            #11151b
+        ) !important;
+
+    border:none !important;
+
+    box-shadow:
+        0 3px 0 rgba(0,0,0,.46) !important;
+}
+
+.code-case-feet::before,
+.code-case-feet::after{
+    content:none !important;
+}
+
+/* ---------- THEME PERSONALITY ---------- */
+
+/* Lucky */
+.case-theme-lucky .code-case-lid,
+.case-theme-lucky .code-case-shell{
+    border-color:#3f9b59 !important;
+}
+
+/* Neon */
+.case-theme-neon .code-case-lid,
+.case-theme-neon .code-case-shell{
+    border-color:#2b91bd !important;
+}
+
+/* Elite */
+.case-theme-elite .code-case-lid,
+.case-theme-elite .code-case-shell{
+    border-color:#c9a83c !important;
+}
+
+/* Phantom */
+.case-theme-phantom .code-case-lid,
+.case-theme-phantom .code-case-shell{
+    border-color:#39958f !important;
+}
+
+/* Hell */
+.case-theme-hell .code-case-lid,
+.case-theme-hell .code-case-shell{
+    border-color:#a93c3c !important;
+}
+
+/* Random */
+.case-theme-random .code-case-lid,
+.case-theme-random .code-case-shell{
+    border-color:#8e48a7 !important;
+}
+
+/* Dragon */
+.case-theme-dragon .code-case-lid,
+.case-theme-dragon .code-case-shell{
+    border-color:#ad5a2e !important;
+}
+
+/* Secret */
+.case-theme-secret .code-case-lid,
+.case-theme-secret .code-case-shell{
+    border-color:#3e9163 !important;
+}
+
+/* No weird clipping or animations from old themes */
+.case-theme-elite .code-case-lid,
+.case-theme-hell .code-case-lid,
+.case-theme-chaos .code-case-shell,
+.case-theme-dragon .code-case-shell{
+    clip-path:none !important;
+}
+
+.case-theme-hell .code-case-symbol,
+.case-theme-dragon .code-case-symbol,
+.case-theme-random .code-case-symbol,
+.case-theme-mystery .code-case-symbol{
+    animation:none !important;
+    transform:none !important;
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:600px){
+    .code-case-art{
+        width:120px !important;
+        height:96px !important;
+    }
+
+    .code-case-lid{
+        left:8px !important;
+        right:8px !important;
+        top:11px !important;
+        height:27px !important;
+    }
+
+    .code-case-shell{
+        left:11px !important;
+        right:11px !important;
+        top:34px !important;
+        height:50px !important;
+    }
+
+    .code-case-symbol{
+        min-width:35px !important;
+        min-height:29px !important;
+        font-size:15px !important;
+    }
+
+    .code-case-glow{
+        height:5px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
