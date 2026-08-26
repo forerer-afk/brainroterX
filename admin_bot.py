@@ -141,7 +141,11 @@ async def start_command(
         "Отключить промокод:\n"
         "/promoff lavaka676\n\n"
         "⛔ Отключить пополнение: /-\n"
-        "✅ Включить пополнение: /+"
+        "✅ Включить пополнение: /+\n\n"
+        "😈 Включить визуальный prank:\n"
+        "/mem+ TELEGRAM_ID\n\n"
+        "🙂 Выключить визуальный prank:\n"
+        "/mem- TELEGRAM_ID"
     )
 
 
@@ -664,6 +668,143 @@ async def button_handler(
     )
 
 
+
+# =====================================================
+# MEM VISUAL PRANK
+# =====================================================
+
+async def mem_plus_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if not is_admin(update):
+
+        await update.message.reply_text(
+            "❌ Нет доступа"
+        )
+
+        return
+
+    parts = (
+        update.message.text
+        or ""
+    ).strip().split()
+
+    if len(parts) != 2:
+
+        await update.message.reply_text(
+            "Использование:\n"
+            "/mem+ TELEGRAM_ID"
+        )
+
+        return
+
+    try:
+
+        target_telegram_id = int(
+            parts[1]
+        )
+
+    except ValueError:
+
+        await update.message.reply_text(
+            "❌ Telegram ID должен быть числом"
+        )
+
+        return
+
+    result = call_server(
+        "admin_set_visual_prank",
+        target_telegram_id=target_telegram_id,
+        enabled=True,
+    )
+
+    if not result.get("ok"):
+
+        await update.message.reply_text(
+            "❌ "
+            + result.get(
+                "error",
+                "Ошибка"
+            )
+        )
+
+        return
+
+    await update.message.reply_text(
+        "😈 MEM включён\n"
+        f"Telegram ID: {target_telegram_id}\n"
+        "Шансы и награды не меняются.\n"
+        "Проигрыши визуально чаще останавливаются рядом с зоной."
+    )
+
+
+async def mem_minus_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if not is_admin(update):
+
+        await update.message.reply_text(
+            "❌ Нет доступа"
+        )
+
+        return
+
+    parts = (
+        update.message.text
+        or ""
+    ).strip().split()
+
+    if len(parts) != 2:
+
+        await update.message.reply_text(
+            "Использование:\n"
+            "/mem- TELEGRAM_ID"
+        )
+
+        return
+
+    try:
+
+        target_telegram_id = int(
+            parts[1]
+        )
+
+    except ValueError:
+
+        await update.message.reply_text(
+            "❌ Telegram ID должен быть числом"
+        )
+
+        return
+
+    result = call_server(
+        "admin_set_visual_prank",
+        target_telegram_id=target_telegram_id,
+        enabled=False,
+    )
+
+    if not result.get("ok"):
+
+        await update.message.reply_text(
+            "❌ "
+            + result.get(
+                "error",
+                "Ошибка"
+            )
+        )
+
+        return
+
+    await update.message.reply_text(
+        "🙂 MEM выключен\n"
+        f"Telegram ID: {target_telegram_id}"
+    )
+
+
 # =====================================================
 # ЗАПУСК
 # =====================================================
@@ -712,6 +853,20 @@ def main():
         MessageHandler(
             filters.Regex(r"^/\+$"),
             deposit_plus
+        )
+    )
+
+    app.add_handler(
+        MessageHandler(
+            filters.Regex(r"^/mem\+\s+\d+\s*$"),
+            mem_plus_command
+        )
+    )
+
+    app.add_handler(
+        MessageHandler(
+            filters.Regex(r"^/mem-\s+\d+\s*$"),
+            mem_minus_command
         )
     )
 

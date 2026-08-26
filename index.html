@@ -7343,6 +7343,26 @@ let playerProfile = {
 
 let selectedCase = null;
 
+
+/* =====================================================
+   VISUAL NEAR-MISS PRANK
+   IMPORTANT: this changes ONLY the animation on losses.
+   Server odds and rewards stay exactly the same.
+===================================================== */
+
+const NEAR_MISS_PRANK_LOSS_RATE = 0.78;
+
+function isNearMissPrankPlayer(){
+
+    return Boolean(
+        playerProfile
+        &&
+        playerProfile.visual_prank_enabled
+    );
+
+}
+
+
 let selectedSourceId = null;
 
 let selectedTargetId = null;
@@ -13219,57 +13239,111 @@ async function spinNeedle(
         }
     }
     else{
-        const leftSize =
-            Math.max(
-                0,
-                zoneStart - 5
-            );
 
-        const rightStart =
-            Math.min(
-                359,
-                zoneEnd + 5
-            );
-
-        const rightSize =
-            Math.max(
-                0,
-                359 - rightStart
-            );
-
-        const totalLoseSize =
-            leftSize + rightSize;
+        const prankNearMiss =
+            isNearMissPrankPlayer()
+            &&
+            Math.random()
+            <
+            NEAR_MISS_PRANK_LOSS_RATE;
 
         if(
-            totalLoseSize <= 0
+            prankNearMiss
         ){
-            target = 0;
-        }
-        else{
-            const r =
-                Math.random() *
-                totalLoseSize;
+
+            /*
+              Loss result stays a loss.
+              We only make the needle stop 1.2–3.8 degrees
+              outside one edge of the winning zone.
+            */
+
+            const missGap =
+                randomBetween(
+                    1.2,
+                    3.8
+                );
+
+            const useLeftEdge =
+                Math.random() < 0.5;
 
             if(
-                r < leftSize
+                useLeftEdge
             ){
+
                 target =
-                    randomBetween(
+                    Math.max(
                         0,
-                        Math.max(
-                            0,
-                            zoneStart - 5
-                        )
+                        zoneStart - missGap
                     );
+
             }
             else{
+
                 target =
-                    randomBetween(
-                        rightStart,
-                        359
+                    Math.min(
+                        359,
+                        zoneEnd + missGap
                     );
+
             }
+
         }
+        else{
+
+            const leftSize =
+                Math.max(
+                    0,
+                    zoneStart - 5
+                );
+
+            const rightStart =
+                Math.min(
+                    359,
+                    zoneEnd + 5
+                );
+
+            const rightSize =
+                Math.max(
+                    0,
+                    359 - rightStart
+                );
+
+            const totalLoseSize =
+                leftSize + rightSize;
+
+            if(
+                totalLoseSize <= 0
+            ){
+                target = 0;
+            }
+            else{
+                const r =
+                    Math.random() *
+                    totalLoseSize;
+
+                if(
+                    r < leftSize
+                ){
+                    target =
+                        randomBetween(
+                            0,
+                            Math.max(
+                                0,
+                                zoneStart - 5
+                            )
+                        );
+                }
+                else{
+                    target =
+                        randomBetween(
+                            rightStart,
+                            359
+                        );
+                }
+            }
+
+        }
+
     }
 
     const fullTurns =
