@@ -13663,9 +13663,15 @@ async function upgradeItem(){
 
         }
 
+        const visualChance =
+            calculateChance(
+                source,
+                target
+            );
+
         await spinNeedle(
             data.win,
-            chance
+            visualChance
         );
 
         inventory =
