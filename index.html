@@ -6229,355 +6229,533 @@ button:not(:disabled),
 </style>
 
 
-<style id="brainroterx-clean-premium-case-model">
+<style id="brainroterx-steal-brainrot-crates">
 /* =========================================================
-   BRAINROTERX — CLEAN PREMIUM 3D CASE
-   Completely replaces the previous case-object look.
-   No heavy blur / no infinite animation.
+   BRAINROTERX — RUGGED 3D CRATES / STEAL BRAINROT STYLE
+   Inspired by heavy game loot containers, but original design.
+   Performance-friendly: no blur, no infinite animations.
 ========================================================= */
 
-.code-case-art{
+.code-case-art.brainrot-crate{
+    --crate-accent:var(--case-accent,#8b5cf6);
+    --crate-accent2:var(--case-accent2,#4c1d95);
+
     position:relative !important;
     width:132px !important;
     height:104px !important;
     max-width:96% !important;
     margin:0 auto 2px !important;
+
     perspective:none !important;
     transform:none !important;
     filter:none !important;
 }
 
-/* Simple soft contact shadow */
-.code-case-glow{
-    left:20% !important;
-    right:20% !important;
-    bottom:3px !important;
-    height:8px !important;
-    border-radius:50% !important;
-    background:rgba(0,0,0,.30) !important;
-    filter:none !important;
-    opacity:1 !important;
+/* Hide old case pieces if any are still affected by legacy CSS */
+.brainrot-crate .code-case-glow,
+.brainrot-crate .code-case-lid,
+.brainrot-crate .code-case-shell,
+.brainrot-crate .code-case-feet,
+.brainrot-crate .code-case-symbol{
+    display:none !important;
 }
 
-/* ---------- PREMIUM TOP ---------- */
-.code-case-lid{
-    position:absolute !important;
-    z-index:4 !important;
+/* Ground contact */
+.crate-shadow{
+    position:absolute;
+    z-index:0;
+    left:17%;
+    right:17%;
+    bottom:3px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(0,0,0,.34);
+}
 
-    left:9px !important;
-    right:9px !important;
-    top:12px !important;
-    height:30px !important;
+/* ===================== LID ===================== */
 
-    border-radius:16px 16px 7px 7px !important;
+.crate-lid{
+    position:absolute;
+    z-index:6;
+
+    left:7px;
+    right:7px;
+    top:8px;
+    height:31px;
+
+    border-radius:12px 12px 5px 5px;
 
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,.14) 0%,
-            rgba(255,255,255,.03) 18%,
-            transparent 19%
+            rgba(255,255,255,.17) 0%,
+            rgba(255,255,255,.035) 15%,
+            transparent 16%
         ),
         linear-gradient(
             135deg,
-            color-mix(in srgb,var(--case-accent,#8b5cf6) 34%,#4a5160) 0%,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 48%,#252b34) 50%,
-            #11151c 100%
-        ) !important;
+            color-mix(in srgb,var(--crate-accent) 34%,#46505d) 0%,
+            color-mix(in srgb,var(--crate-accent2) 46%,#252c35) 54%,
+            #12171d 100%
+        );
 
     border:
-        1.5px solid
-        color-mix(in srgb,var(--case-accent,#8b5cf6) 46%,#7d8590) !important;
+        2px solid
+        color-mix(in srgb,var(--crate-accent) 46%,#707987);
 
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.12),
-        inset 0 -6px 8px rgba(0,0,0,.20),
-        0 4px 0 #090b0f,
-        0 6px 10px rgba(0,0,0,.22) !important;
+        inset 0 -7px 8px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 4px 0 #090c10,
+        0 7px 8px rgba(0,0,0,.24);
 
-    transform:none !important;
+    transform:skewX(-1.5deg);
 }
 
-/* Remove the old industrial side parts */
-.code-case-lid::before,
-.code-case-lid::after{
-    content:"" !important;
-    position:absolute !important;
-    top:8px !important;
-    width:18px !important;
-    height:8px !important;
-    border-radius:999px !important;
-    background:
-        color-mix(
-            in srgb,
-            var(--case-accent,#8b5cf6) 35%,
-            #636b75
-        ) !important;
-    border:none !important;
-    opacity:.65 !important;
-    box-shadow:none !important;
-}
+/* raised top ridge */
+.crate-top-line{
+    position:absolute;
+    left:11px;
+    right:11px;
+    top:5px;
+    height:4px;
 
-.code-case-lid::before{
-    left:11px !important;
-}
-
-.code-case-lid::after{
-    right:11px !important;
-}
-
-/* ---------- MAIN BODY ---------- */
-.code-case-shell{
-    position:absolute !important;
-    z-index:3 !important;
-
-    left:12px !important;
-    right:12px !important;
-    top:36px !important;
-    height:54px !important;
-
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-
-    border-radius:8px 8px 17px 17px !important;
+    border-radius:999px;
 
     background:
         linear-gradient(
             90deg,
-            rgba(255,255,255,.045),
-            transparent 14%,
-            transparent 86%,
-            rgba(0,0,0,.14)
+            rgba(255,255,255,.04),
+            color-mix(in srgb,var(--crate-accent) 48%,#9299a4),
+            rgba(255,255,255,.04)
+        );
+
+    opacity:.75;
+}
+
+/* lid clamps */
+.crate-latch{
+    position:absolute;
+    top:9px;
+    width:15px;
+    height:19px;
+
+    border-radius:4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #1e242c 0%,
+            #6f7783 45%,
+            #242a32 100%
+        );
+
+    border:1px solid rgba(255,255,255,.11);
+
+    box-shadow:
+        inset 1px 0 0 rgba(255,255,255,.12),
+        inset -2px 0 2px rgba(0,0,0,.34);
+}
+.crate-latch-left{left:14px}
+.crate-latch-right{right:14px}
+
+/* ===================== BODY ===================== */
+
+.crate-body{
+    position:absolute;
+    z-index:4;
+
+    left:8px;
+    right:8px;
+    top:34px;
+    height:57px;
+
+    border-radius:6px 6px 14px 14px;
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(255,255,255,.045) 0%,
+            transparent 13%,
+            transparent 82%,
+            rgba(0,0,0,.17) 100%
         ),
         linear-gradient(
             155deg,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 38%,#303641) 0%,
-            #151a21 53%,
+            color-mix(in srgb,var(--crate-accent2) 42%,#343c47) 0%,
+            color-mix(in srgb,var(--crate-accent2) 30%,#171c23) 52%,
             #090c11 100%
-        ) !important;
+        );
 
     border:
-        1.5px solid
-        color-mix(in srgb,var(--case-accent,#8b5cf6) 42%,#666e79) !important;
+        2px solid
+        color-mix(in srgb,var(--crate-accent) 42%,#636d79);
 
     box-shadow:
-        inset 0 5px 8px rgba(0,0,0,.18),
-        inset 0 -9px 12px rgba(0,0,0,.30),
-        0 5px 0 #06080b,
-        0 8px 12px rgba(0,0,0,.20) !important;
-
-    clip-path:none !important;
-    transform:none !important;
+        inset 0 5px 8px rgba(0,0,0,.19),
+        inset 0 -9px 12px rgba(0,0,0,.35),
+        0 5px 0 #05070a,
+        0 8px 10px rgba(0,0,0,.23);
 }
 
-/* Elegant side inlays */
-.code-case-shell::before,
-.code-case-shell::after{
-    content:"" !important;
-    position:absolute !important;
+/* heavy vertical protective rails */
+.crate-rail{
+    position:absolute;
+    z-index:7;
+    top:4px;
+    bottom:5px;
+    width:10px;
 
-    top:10px !important;
-    bottom:10px !important;
-    width:4px !important;
-
-    border-radius:999px !important;
+    border-radius:3px;
 
     background:
-        color-mix(
-            in srgb,
-            var(--case-accent,#8b5cf6) 44%,
-            #777f89
-        ) !important;
+        linear-gradient(
+            90deg,
+            #171c22 0%,
+            #68717c 45%,
+            #20262d 100%
+        );
 
-    border:none !important;
-    opacity:.55 !important;
-    box-shadow:none !important;
+    border:1px solid rgba(255,255,255,.09);
+
+    box-shadow:
+        inset 1px 0 0 rgba(255,255,255,.10),
+        inset -2px 0 2px rgba(0,0,0,.38);
+}
+.crate-rail-left{left:6px}
+.crate-rail-right{right:6px}
+
+/* metal corners */
+.crate-corner{
+    position:absolute;
+    z-index:8;
+    width:16px;
+    height:14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #727b87,
+            #2c333c 55%,
+            #171b21
+        );
+
+    border:1px solid rgba(255,255,255,.10);
+
+    box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.12);
+}
+.crate-corner-tl{
+    left:-2px; top:-2px;
+    border-radius:6px 2px 5px 2px;
+}
+.crate-corner-tr{
+    right:-2px; top:-2px;
+    border-radius:2px 6px 2px 5px;
+}
+.crate-corner-bl{
+    left:-2px; bottom:-2px;
+    border-radius:2px 5px 2px 7px;
+}
+.crate-corner-br{
+    right:-2px; bottom:-2px;
+    border-radius:5px 2px 7px 2px;
 }
 
-.code-case-shell::before{
-    left:7px !important;
+/* ===================== FRONT PANEL ===================== */
+
+.crate-panel{
+    position:absolute;
+    z-index:6;
+
+    left:24px;
+    right:24px;
+    top:9px;
+    bottom:9px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:7px;
+
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in srgb,var(--crate-accent2) 24%,#272e37),
+            #0b0f14
+        );
+
+    border:
+        1px solid
+        color-mix(in srgb,var(--crate-accent) 48%,#626b76);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 -4px 6px rgba(0,0,0,.32),
+        0 3px 0 #040609;
 }
 
-.code-case-shell::after{
-    right:7px !important;
-}
+/* brainrot emblem */
+.crate-symbol{
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-/* ---------- CENTER EMBLEM ---------- */
-.code-case-symbol{
-    position:relative !important;
-    z-index:5 !important;
-
-    min-width:38px !important;
-    min-height:31px !important;
-    max-width:68% !important;
-
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-
-    padding:4px 9px !important;
-
-    border-radius:10px !important;
+    max-width:88%;
 
     color:
         color-mix(
             in srgb,
-            var(--case-accent,#8b5cf6) 72%,
+            var(--crate-accent) 72%,
             #fff
-        ) !important;
+        );
 
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 24%,#2b313a),
-            #0c0f14
-        ) !important;
+    font-size:20px;
+    font-weight:1000;
+    line-height:1;
+
+    text-shadow:
+        0 1px 0 #000,
+        0 0 5px color-mix(in srgb,var(--crate-accent) 38%,transparent);
+}
+
+/* little BRX plate */
+.crate-brand{
+    margin-top:2px;
+
+    padding:1px 5px;
+
+    border-radius:3px;
+
+    color:#d9dde4;
+    background:#11161d;
+
+    border:1px solid rgba(255,255,255,.07);
+
+    font-size:7px;
+    font-weight:1000;
+    letter-spacing:1px;
+}
+
+/* graffiti / sticker gives Steal Brainrot flavor */
+.crate-sticker{
+    position:absolute;
+    z-index:9;
+
+    right:16px;
+    bottom:5px;
+
+    max-width:46px;
+    overflow:hidden;
+    white-space:nowrap;
+
+    padding:2px 4px;
+
+    border-radius:3px;
+
+    color:
+        color-mix(in srgb,var(--crate-accent) 70%,#fff);
+
+    background:rgba(6,8,12,.74);
 
     border:
         1px solid
-        color-mix(
-            in srgb,
-            var(--case-accent,#8b5cf6) 45%,
-            #6f7781
-        ) !important;
+        color-mix(in srgb,var(--crate-accent) 32%,transparent);
 
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        inset 0 -3px 5px rgba(0,0,0,.22),
-        0 3px 0 #050609 !important;
+    font-size:5.5px;
+    font-weight:1000;
+    letter-spacing:.35px;
 
-    text-shadow:none !important;
-    font-size:16px !important;
-    font-weight:1000 !important;
-    line-height:1 !important;
+    transform:rotate(-4deg);
 }
 
-/* ---------- BASE ---------- */
-.code-case-feet{
-    position:absolute !important;
-    z-index:2 !important;
+/* ===================== BOTTOM ===================== */
 
-    left:27px !important;
-    right:27px !important;
-    bottom:6px !important;
-    height:8px !important;
+.crate-base{
+    position:absolute;
+    z-index:2;
 
-    border-radius:0 0 9px 9px !important;
+    left:21px;
+    right:21px;
+    bottom:5px;
+    height:10px;
+
+    border-radius:2px 2px 8px 8px;
 
     background:
         linear-gradient(
             180deg,
-            #343b45,
-            #11151b
-        ) !important;
+            #3f4752,
+            #151a20 55%,
+            #080a0e
+        );
 
-    border:none !important;
+    border:1px solid rgba(255,255,255,.055);
 
     box-shadow:
-        0 3px 0 rgba(0,0,0,.46) !important;
+        0 3px 0 rgba(0,0,0,.5);
 }
 
-.code-case-feet::before,
-.code-case-feet::after{
-    content:none !important;
+/* =========================================================
+   DISTINCT CASE PERSONALITIES
+========================================================= */
+
+/* noob — taped cardboard / cheap crate vibe */
+.case-theme-noob .crate-body{
+    background:
+        linear-gradient(155deg,#644a32,#352617 55%,#17110c) !important;
+}
+.case-theme-noob .crate-panel{
+    background:linear-gradient(#4c3725,#1c140e) !important;
+}
+.case-theme-noob .crate-rail{
+    background:linear-gradient(90deg,#463525,#8d724e,#3d2c20) !important;
 }
 
-/* ---------- THEME PERSONALITY ---------- */
-
-/* Lucky */
-.case-theme-lucky .code-case-lid,
-.case-theme-lucky .code-case-shell{
-    border-color:#3f9b59 !important;
+/* lucky */
+.case-theme-lucky .crate-body{
+    background:
+        linear-gradient(155deg,#1b7137,#103a20 54%,#07130b) !important;
+}
+.case-theme-lucky .crate-panel{
+    background:linear-gradient(#145b2c,#07170d) !important;
 }
 
-/* Neon */
-.case-theme-neon .code-case-lid,
-.case-theme-neon .code-case-shell{
-    border-color:#2b91bd !important;
+/* chaos */
+.case-theme-chaos .crate-body{
+    background:
+        linear-gradient(155deg,#8a370e,#4d1e09 52%,#1a0904) !important;
+}
+.case-theme-chaos .crate-sticker{
+    transform:rotate(5deg);
 }
 
-/* Elite */
-.case-theme-elite .code-case-lid,
-.case-theme-elite .code-case-shell{
-    border-color:#c9a83c !important;
+/* neon */
+.case-theme-neon .crate-body{
+    background:
+        linear-gradient(155deg,#114c71,#102b3d 52%,#071019) !important;
 }
 
-/* Phantom */
-.case-theme-phantom .code-case-lid,
-.case-theme-phantom .code-case-shell{
-    border-color:#39958f !important;
+/* mystery */
+.case-theme-mystery .crate-body{
+    background:
+        linear-gradient(155deg,#56217f,#29113f 54%,#110718) !important;
 }
 
-/* Hell */
-.case-theme-hell .code-case-lid,
-.case-theme-hell .code-case-shell{
-    border-color:#a93c3c !important;
+/* elite — gold/black premium */
+.case-theme-elite .crate-body{
+    background:
+        linear-gradient(155deg,#5f5010,#28230a 55%,#0e0c05) !important;
+}
+.case-theme-elite .crate-lid{
+    border-color:#c8a82f !important;
+}
+.case-theme-elite .crate-panel{
+    border-color:#c4a62e !important;
 }
 
-/* Random */
-.case-theme-random .code-case-lid,
-.case-theme-random .code-case-shell{
-    border-color:#8e48a7 !important;
+/* pro — industrial black/yellow */
+.case-theme-pro .crate-body{
+    background:
+        linear-gradient(155deg,#3b392d,#1d1c16 55%,#0a0a08) !important;
+}
+.case-theme-pro .crate-sticker{
+    color:#ffd66b;
 }
 
-/* Dragon */
-.case-theme-dragon .code-case-lid,
-.case-theme-dragon .code-case-shell{
-    border-color:#ad5a2e !important;
+/* phantom */
+.case-theme-phantom .crate-body{
+    background:
+        linear-gradient(155deg,#164f4b,#102f2c 55%,#071312) !important;
 }
 
-/* Secret */
-.case-theme-secret .code-case-lid,
-.case-theme-secret .code-case-shell{
-    border-color:#3e9163 !important;
+/* hell — red scratched crate */
+.case-theme-hell .crate-body{
+    background:
+        linear-gradient(155deg,#761f22,#3a1012 55%,#160607) !important;
+}
+.case-theme-hell .crate-panel{
+    background:linear-gradient(#481215,#170708) !important;
 }
 
-/* No weird clipping or animations from old themes */
-.case-theme-elite .code-case-lid,
-.case-theme-hell .code-case-lid,
-.case-theme-chaos .code-case-shell,
-.case-theme-dragon .code-case-shell{
-    clip-path:none !important;
+/* random — graffiti */
+.case-theme-random .crate-body{
+    background:
+        linear-gradient(155deg,#67257d,#351441 55%,#140719) !important;
 }
 
-.case-theme-hell .code-case-symbol,
-.case-theme-dragon .code-case-symbol,
-.case-theme-random .code-case-symbol,
-.case-theme-mystery .code-case-symbol{
+/* dragon */
+.case-theme-dragon .crate-body{
+    background:
+        linear-gradient(155deg,#7b3315,#3d190b 55%,#170904) !important;
+}
+
+/* secret */
+.case-theme-secret .crate-body{
+    background:
+        linear-gradient(155deg,#1f6441,#113421 55%,#07140d) !important;
+}
+
+/* lavaka */
+.case-theme-lavaka .crate-body{
+    background:
+        linear-gradient(155deg,#7f4022,#3d1f12 55%,#160b06) !important;
+}
+
+/* =========================================================
+   PERFORMANCE / MOBILE STABILITY
+========================================================= */
+
+.code-case-art.brainrot-crate,
+.code-case-art.brainrot-crate *{
     animation:none !important;
-    transform:none !important;
+    transition:none !important;
+    filter:none !important;
+    will-change:auto !important;
+    backface-visibility:hidden !important;
+    -webkit-backface-visibility:hidden !important;
 }
 
-/* ---------- MOBILE ---------- */
 @media(max-width:600px){
-    .code-case-art{
-        width:120px !important;
-        height:96px !important;
+    .code-case-art.brainrot-crate{
+        width:119px !important;
+        height:95px !important;
     }
 
-    .code-case-lid{
-        left:8px !important;
-        right:8px !important;
-        top:11px !important;
-        height:27px !important;
+    .crate-lid{
+        left:7px;
+        right:7px;
+        top:7px;
+        height:28px;
     }
 
-    .code-case-shell{
-        left:11px !important;
-        right:11px !important;
-        top:34px !important;
-        height:50px !important;
+    .crate-body{
+        left:8px;
+        right:8px;
+        top:31px;
+        height:53px;
     }
 
-    .code-case-symbol{
-        min-width:35px !important;
-        min-height:29px !important;
-        font-size:15px !important;
+    .crate-panel{
+        left:23px;
+        right:23px;
+        top:8px;
+        bottom:8px;
     }
 
-    .code-case-glow{
-        height:5px !important;
+    .crate-symbol{
+        font-size:18px;
+    }
+
+    .crate-sticker{
+        font-size:5px;
+        right:15px;
+    }
+
+    .crate-base{
+        bottom:3px;
     }
 }
 </style>
@@ -10153,13 +10331,27 @@ function renderCases(){
 
     dailyCard.innerHTML =
         `
-        <div class="code-case-art" aria-hidden="true">
-            <div class="code-case-glow"></div>
-            <div class="code-case-lid"></div>
-            <div class="code-case-shell">
-                <span class="code-case-symbol">🎁</span>
+        <div class="code-case-art brainrot-crate" aria-hidden="true">
+            <div class="crate-shadow"></div>
+            <div class="crate-lid">
+                <span class="crate-top-line"></span>
+                <span class="crate-latch crate-latch-left"></span>
+                <span class="crate-latch crate-latch-right"></span>
             </div>
-            <div class="code-case-feet"></div>
+            <div class="crate-body">
+                <span class="crate-rail crate-rail-left"></span>
+                <span class="crate-rail crate-rail-right"></span>
+                <span class="crate-corner crate-corner-tl"></span>
+                <span class="crate-corner crate-corner-tr"></span>
+                <span class="crate-corner crate-corner-bl"></span>
+                <span class="crate-corner crate-corner-br"></span>
+                <span class="crate-panel">
+                    <span class="crate-symbol">🎁</span>
+                    <span class="crate-brand">BRX</span>
+                </span>
+                <span class="crate-sticker">DAILY</span>
+            </div>
+            <div class="crate-base"></div>
         </div>
 
         <div class="case-name">
@@ -10243,15 +10435,31 @@ function renderCases(){
 
             card.innerHTML =
                 `
-                <div class="code-case-art" aria-hidden="true">
-                    <div class="code-case-glow"></div>
-                    <div class="code-case-lid"></div>
-                    <div class="code-case-shell">
-                        <span class="code-case-symbol">
-                            ${visual.symbol}
+                <div class="code-case-art brainrot-crate" aria-hidden="true">
+                    <div class="crate-shadow"></div>
+                    <div class="crate-lid">
+                        <span class="crate-top-line"></span>
+                        <span class="crate-latch crate-latch-left"></span>
+                        <span class="crate-latch crate-latch-right"></span>
+                    </div>
+                    <div class="crate-body">
+                        <span class="crate-rail crate-rail-left"></span>
+                        <span class="crate-rail crate-rail-right"></span>
+                        <span class="crate-corner crate-corner-tl"></span>
+                        <span class="crate-corner crate-corner-tr"></span>
+                        <span class="crate-corner crate-corner-bl"></span>
+                        <span class="crate-corner crate-corner-br"></span>
+                        <span class="crate-panel">
+                            <span class="crate-symbol">
+                                ${visual.symbol}
+                            </span>
+                            <span class="crate-brand">BRX</span>
+                        </span>
+                        <span class="crate-sticker">
+                            ${String(gameCase.name || "").split(" ")[0].slice(0,8).toUpperCase()}
                         </span>
                     </div>
-                    <div class="code-case-feet"></div>
+                    <div class="crate-base"></div>
                 </div>
 
                 <div class="case-name">
