@@ -5577,6 +5577,269 @@ button:not(:disabled),
 }
 </style>
 
+
+<style id="brainroterx-case-3d-icon-fix">
+/* =========================================================
+   BRAINROTERX — CASE ICON VISIBILITY FIX + 3D CASE CARDS
+   Lightweight: no backdrop blur / no infinite animations.
+========================================================= */
+
+/* Fix disappearing case icons during fast mobile scrolling.
+   Force their own composited layer and prevent clipping issues. */
+.case-card img,
+.case-card .case-image,
+.case-card .case-img,
+.case-card picture,
+.case-card picture img{
+    opacity:1 !important;
+    visibility:visible !important;
+    backface-visibility:hidden !important;
+    -webkit-backface-visibility:hidden !important;
+    transform:translateZ(0) !important;
+    -webkit-transform:translateZ(0) !important;
+    will-change:auto !important;
+    contain:paint;
+}
+
+/* Do not scale case image on hover; scaling + mobile WebView can cause
+   transient raster disappear while scrolling. */
+@media(hover:hover){
+    .case-card:hover img,
+    .case-card:hover .case-image,
+    .case-card:hover .case-img{
+        transform:translateZ(0) translateY(-1px) !important;
+    }
+}
+
+/* 3D body */
+.case-card{
+    position:relative !important;
+    overflow:visible !important;
+    border-radius:18px !important;
+    border:1px solid rgba(196,181,253,.12) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(30,22,48,.99) 0%,
+            rgba(17,12,29,.995) 60%,
+            rgba(10,8,18,1) 100%
+        ) !important;
+
+    box-shadow:
+        0 12px 0 rgba(7,5,13,.78),
+        0 16px 24px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.055),
+        inset 0 -1px 0 rgba(139,92,246,.06) !important;
+
+    transform:translateZ(0) perspective(700px) rotateX(0deg) !important;
+}
+
+/* Top face / bevel */
+.case-card::before{
+    content:"" !important;
+    position:absolute !important;
+    z-index:0 !important;
+    left:5px !important;
+    right:5px !important;
+    top:5px !important;
+    height:22px !important;
+    border-radius:13px 13px 8px 8px !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.055),
+            rgba(139,92,246,.035)
+        ) !important;
+
+    border-top:1px solid rgba(255,255,255,.06) !important;
+    border-left:1px solid rgba(255,255,255,.025) !important;
+    border-right:1px solid rgba(255,255,255,.025) !important;
+
+    opacity:1 !important;
+    pointer-events:none !important;
+}
+
+/* Inner chamber: visual depth behind image */
+.case-card::after{
+    content:"" !important;
+    position:absolute !important;
+    z-index:0 !important;
+    left:10px !important;
+    right:10px !important;
+    top:34px !important;
+    height:46% !important;
+    border-radius:14px !important;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 72%,
+            rgba(124,58,237,.13) 0%,
+            rgba(124,58,237,.05) 40%,
+            rgba(5,4,10,.10) 70%,
+            transparent 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(7,5,14,.12),
+            rgba(0,0,0,.22)
+        ) !important;
+
+    border:1px solid rgba(255,255,255,.025) !important;
+
+    box-shadow:
+        inset 0 9px 18px rgba(0,0,0,.20),
+        inset 0 -2px 8px rgba(139,92,246,.035) !important;
+
+    pointer-events:none !important;
+}
+
+/* Ensure real contents sit above pseudo 3D layers */
+.case-card > *{
+    position:relative;
+    z-index:2;
+}
+
+/* Case artwork sits like an object inside the chamber */
+.case-card img,
+.case-card .case-image,
+.case-card .case-img{
+    filter:
+        drop-shadow(0 11px 8px rgba(0,0,0,.38))
+        drop-shadow(0 2px 0 rgba(255,255,255,.035))
+        saturate(1.07)
+        contrast(1.035) !important;
+}
+
+/* Add a little floor beneath artwork if wrappers exist */
+.case-card .case-image-wrap,
+.case-card .case-img-wrap,
+.case-card .image-wrap{
+    position:relative;
+    z-index:2;
+}
+.case-card .case-image-wrap::after,
+.case-card .case-img-wrap::after,
+.case-card .image-wrap::after{
+    content:"";
+    position:absolute;
+    left:18%;
+    right:18%;
+    bottom:2px;
+    height:10px;
+    border-radius:50%;
+    background:rgba(0,0,0,.28);
+    filter:blur(4px);
+    pointer-events:none;
+    z-index:-1;
+}
+
+/* Text compartment */
+.case-card .case-name,
+.case-card .case-title,
+.case-card h3,
+.case-card h4{
+    margin-top:3px !important;
+    color:#fbfbff !important;
+    font-weight:950 !important;
+    letter-spacing:-.025em !important;
+    text-shadow:0 2px 6px rgba(0,0,0,.38) !important;
+}
+
+/* Stronger 3D price badge */
+.case-card .case-price,
+.case-card .price{
+    border-radius:10px !important;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(251,191,36,.14),
+            rgba(180,83,9,.075)
+        ) !important;
+    border:1px solid rgba(251,191,36,.18) !important;
+    box-shadow:
+        0 3px 0 rgba(92,48,7,.34),
+        inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+
+/* 3D action button */
+.case-card button,
+.case-card .case-button,
+.case-card .open-case-btn{
+    border-radius:11px !important;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(126,34,206,.99),
+            rgba(76,29,149,.99)
+        ) !important;
+
+    border:1px solid rgba(216,180,254,.16) !important;
+
+    box-shadow:
+        0 4px 0 rgba(46,16,101,.72),
+        0 7px 12px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.11) !important;
+}
+
+.case-card button:active,
+.case-card .case-button:active,
+.case-card .open-case-btn:active{
+    transform:translateY(3px) !important;
+    box-shadow:
+        0 1px 0 rgba(46,16,101,.72),
+        0 3px 7px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+/* Desktop depth hover, still lightweight */
+@media(hover:hover){
+    .case-card:hover{
+        transform:translateZ(0) perspective(700px) rotateX(1.4deg) translateY(-2px) !important;
+
+        box-shadow:
+            0 13px 0 rgba(7,5,13,.78),
+            0 19px 28px rgba(0,0,0,.31),
+            inset 0 1px 0 rgba(255,255,255,.06),
+            inset 0 -1px 0 rgba(139,92,246,.07) !important;
+    }
+}
+
+/* Mobile performance/scroll stability */
+@media(max-width:600px){
+    .case-card{
+        overflow:hidden !important;
+        box-shadow:
+            0 8px 0 rgba(7,5,13,.72),
+            0 11px 18px rgba(0,0,0,.24),
+            inset 0 1px 0 rgba(255,255,255,.04) !important;
+    }
+
+    .case-card::after{
+        top:30px !important;
+        height:44% !important;
+        background:
+            radial-gradient(
+                ellipse at 50% 72%,
+                rgba(124,58,237,.09),
+                rgba(124,58,237,.035) 42%,
+                transparent 76%
+            ) !important;
+        box-shadow:
+            inset 0 7px 14px rgba(0,0,0,.16) !important;
+    }
+
+    .case-card img,
+    .case-card .case-image,
+    .case-card .case-img{
+        filter:
+            drop-shadow(0 8px 6px rgba(0,0,0,.32))
+            saturate(1.05) !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
