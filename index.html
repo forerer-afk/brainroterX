@@ -5840,6 +5840,132 @@ button:not(:disabled),
 }
 </style>
 
+
+<style id="brainroterx-scroll-performance-v2">
+/* =========================================================
+   BRAINROTERX — SCROLL PERFORMANCE V2
+   Makes fast Android/Telegram scrolling cheaper to paint.
+========================================================= */
+
+html, body{
+    scroll-behavior:auto !important;
+}
+
+/* While the user is actively scrolling, temporarily disable
+   expensive decorative painting. Visuals return immediately after. */
+body.brx-scrolling .case-card,
+body.brx-scrolling .panel,
+body.brx-scrolling .profile-card,
+body.brx-scrolling .profile-extra-card,
+body.brx-scrolling .daily-card,
+body.brx-scrolling .history-card,
+body.brx-scrolling .ladder-panel,
+body.brx-scrolling .referral-card,
+body.brx-scrolling .big-wins-section,
+body.brx-scrolling .inventory-card,
+body.brx-scrolling .deposit-item,
+body.brx-scrolling .exchange-option,
+body.brx-scrolling .upgrade-item,
+body.brx-scrolling .upgrade-choice{
+    box-shadow:none !important;
+    filter:none !important;
+    transition:none !important;
+}
+
+body.brx-scrolling .case-card::before,
+body.brx-scrolling .case-card::after,
+body.brx-scrolling .history-card::before,
+body.brx-scrolling .ladder-panel::before,
+body.brx-scrolling .daily-card::before,
+body.brx-scrolling .profile-glow,
+body.brx-scrolling body::before,
+body.brx-scrolling body::after{
+    display:none !important;
+}
+
+/* Case artwork must remain simple while scrolling.
+   This prevents temporary disappearing/raster delays. */
+body.brx-scrolling .code-case-art,
+body.brx-scrolling .code-case-art *,
+body.brx-scrolling .case-card img,
+body.brx-scrolling .preview-img{
+    filter:none !important;
+    animation:none !important;
+    transition:none !important;
+    transform:none !important;
+    will-change:auto !important;
+}
+
+/* Stop permanent GPU layers on repeated cards. */
+.case-card,
+.code-case-art,
+.preview-img,
+.inventory-card,
+.deposit-item,
+.exchange-option,
+.upgrade-choice,
+.history-item,
+.big-win-item{
+    will-change:auto !important;
+}
+
+/* On mobile, avoid transforming every case/card into a compositor layer. */
+@media(max-width:600px){
+    .case-card{
+        transform:none !important;
+        perspective:none !important;
+    }
+
+    .case-card:active,
+    .case-card.button-press{
+        transform:none !important;
+    }
+
+    .code-case-art{
+        transform:none !important;
+        perspective:none !important;
+        filter:none !important;
+    }
+
+    .case-card img,
+    .case-card .case-image,
+    .case-card .case-img,
+    .case-card picture,
+    .case-card picture img{
+        transform:none !important;
+        -webkit-transform:none !important;
+        filter:none !important;
+        contain:none !important;
+    }
+
+    /* Real-time shadows on dozens of items are expensive in WebView. */
+    .case-card{
+        box-shadow:
+            0 5px 12px rgba(0,0,0,.18),
+            inset 0 1px 0 rgba(255,255,255,.035) !important;
+    }
+
+    /* Large fixed decorations can trigger full-screen repaints. */
+    body::before,
+    body::after{
+        display:none !important;
+    }
+}
+
+/* Keep normal result animations; kill only decorative infinite ones. */
+@media(max-width:600px){
+    .case-theme-hell .code-case-symbol,
+    .case-theme-dragon .code-case-symbol,
+    .case-theme-random .code-case-symbol,
+    .case-theme-mystery .code-case-symbol,
+    .big-wins-live-dot,
+    .mystery-crystal,
+    .mystery-question{
+        animation:none !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -16839,6 +16965,84 @@ loadPlayer()
     );
 
 
+</script>
+
+
+<script id="brainroterx-scroll-performance-js">
+(() => {
+    let scrollTimer = 0;
+    let rafPending = false;
+
+    const markScrolling = () => {
+        if (!rafPending) {
+            rafPending = true;
+            requestAnimationFrame(() => {
+                document.body.classList.add("brx-scrolling");
+                rafPending = false;
+            });
+        }
+
+        clearTimeout(scrollTimer);
+
+        scrollTimer = setTimeout(() => {
+            requestAnimationFrame(() => {
+                document.body.classList.remove("brx-scrolling");
+            });
+        }, 110);
+    };
+
+    window.addEventListener("scroll", markScrolling, {
+        passive: true
+    });
+
+    document.addEventListener("touchmove", markScrolling, {
+        passive: true
+    });
+
+    /* Decode images early so fast scrolling does not reveal blank slots. */
+    const prepareImages = root => {
+        const images = root.querySelectorAll ? root.querySelectorAll("img") : [];
+
+        images.forEach(img => {
+            img.decoding = "async";
+            img.loading = "eager";
+
+            if (img.decode) {
+                img.decode().catch(() => {});
+            }
+        });
+    };
+
+    const runPrepare = () => prepareImages(document);
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", runPrepare, {once:true});
+    } else {
+        runPrepare();
+    }
+
+    /* New inventory/feed/case images are created dynamically. */
+    const observer = new MutationObserver(records => {
+        records.forEach(record => {
+            record.addedNodes.forEach(node => {
+                if (node.nodeType === 1) {
+                    if (node.tagName === "IMG") {
+                        node.decoding = "async";
+                        node.loading = "eager";
+                        if (node.decode) node.decode().catch(() => {});
+                    } else {
+                        prepareImages(node);
+                    }
+                }
+            });
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        childList:true,
+        subtree:true
+    });
+})();
 </script>
 
 </body>
