@@ -5844,65 +5844,143 @@ button:not(:disabled),
 
 
 
-<style id="brainroterx-scroll-performance-v3">
+
+
+
+<style id="brainroterx-mobile-black-screen-fix">
 /* =========================================================
-   BRAINROTERX — SCROLL PERFORMANCE V3
-   Static lightweight rendering: no class toggling on scroll.
+   BRAINROTERX — TELEGRAM ANDROID BLACK-SCREEN SCROLL FIX
+   Avoid compositor/layer bugs during rapid scrolling.
 ========================================================= */
 
-html,
+html{
+    background:#080d18 !important;
+}
+
 body{
-    scroll-behavior:auto !important;
+    min-height:100%;
+    background:
+        linear-gradient(
+            180deg,
+            #111a32 0%,
+            #0b1120 34%,
+            #080d18 100%
+        ) !important;
+
+    background-attachment:scroll !important;
+    transform:none !important;
+    filter:none !important;
+    perspective:none !important;
+    contain:none !important;
+    will-change:auto !important;
 }
 
-/* Repeated elements repaint independently instead of invalidating
-   a large part of the page. */
+/* Disable page-wide decorative fixed/pseudo layers. */
+body::before,
+body::after{
+    display:none !important;
+    content:none !important;
+}
+
+/* Never let these become independent GPU compositor layers. */
+.game,
+.page,
+.panel,
+.case-list,
 .case-card,
+.code-case-art,
+.inventory-grid,
 .inventory-card,
+.deposit-grid,
 .deposit-item,
+.exchange-grid,
 .exchange-option,
+.upgrade-grid,
 .upgrade-choice,
+.history-list,
 .history-item,
-.big-win-item,
-.ladder-row{
-    contain:layout paint style;
+.big-wins-list,
+.big-win-item{
+    contain:none !important;
+    content-visibility:visible !important;
     will-change:auto !important;
+    perspective:none !important;
 }
 
-/* Keep images stable and cheap to composite. */
-img,
-.preview-img,
-.inventory-img,
-.case-content-img,
-.deposit-item img,
-.exchange-option img,
-.upgrade-choice img{
-    -webkit-backface-visibility:hidden;
-    backface-visibility:hidden;
-    will-change:auto !important;
-}
+/* Critical Telegram/Android WebView workaround */
+@media(max-width:700px){
 
-/* Telegram Android WebView: backdrop blur + dozens of dynamic shadows
-   are among the most expensive things during medium/fast scrolling. */
-@media(max-width:600px){
+    *,
+    *::before,
+    *::after{
+        -webkit-backface-visibility:visible !important;
+        backface-visibility:visible !important;
+    }
 
+    /* Backdrop-filter is a frequent cause of black frames in WebView. */
     .topbar,
     .bottom-menu,
-    .overlay{
+    .overlay,
+    .modal,
+    .panel,
+    .profile-card,
+    .profile-extra-card{
         backdrop-filter:none !important;
         -webkit-backdrop-filter:none !important;
     }
 
     .topbar{
-        background:rgba(8,14,27,.985) !important;
-        box-shadow:0 3px 10px rgba(0,0,0,.18) !important;
+        background:#0b1220 !important;
+        box-shadow:0 3px 10px rgba(0,0,0,.20) !important;
     }
 
     .bottom-menu{
-        background:rgba(15,23,42,.99) !important;
+        background:#0f172a !important;
+        box-shadow:0 -3px 10px rgba(0,0,0,.18) !important;
     }
 
+    .overlay{
+        background:rgba(0,0,0,.84) !important;
+    }
+
+    /* Kill GPU-heavy transforms on repeated elements */
     .case-card,
+    .case-card:active,
+    .case-card.button-press,
+    .deposit-item,
+    .deposit-item:active,
+    .upgrade-item,
+    .upgrade-choice,
+    .inventory-card,
+    .exchange-option,
+    .history-item,
+    .big-win-item,
+    button,
+    button:active,
+    button.button-press{
+        transform:none !important;
+        -webkit-transform:none !important;
+        will-change:auto !important;
+    }
+
+    /* Case art stays static while scrolling */
+    .code-case-art,
+    .code-case-lid,
+    .code-case-shell,
+    .code-case-feet,
+    .code-case-symbol{
+        transform:none !important;
+        -webkit-transform:none !important;
+        perspective:none !important;
+        will-change:auto !important;
+    }
+
+    /* No blur/filter on long repeating lists */
+    .case-card,
+    .case-card::before,
+    .case-card::after,
+    .code-case-art,
+    .code-case-art *,
     .inventory-card,
     .deposit-item,
     .exchange-option,
@@ -5910,44 +5988,51 @@ img,
     .history-item,
     .big-win-item{
         filter:none !important;
-        will-change:auto !important;
+        -webkit-filter:none !important;
     }
 
-    .case-card{
-        transform:none !important;
-        perspective:none !important;
-        box-shadow:
-            0 4px 10px rgba(0,0,0,.16),
-            inset 0 1px 0 rgba(255,255,255,.03) !important;
-    }
-
-    /* Decorative glow layers cost a full repaint while scrolling. */
-    .case-card::before,
-    .case-card::after{
+    /* Replace blurred glows with cheap flat accents */
+    .case-card::before{
         filter:none !important;
-        opacity:.18 !important;
+        opacity:.12 !important;
     }
 
-    .code-case-art{
-        transform:none !important;
-        perspective:none !important;
+    .profile-glow,
+    .code-case-glow{
         filter:none !important;
-        will-change:auto !important;
+        opacity:.10 !important;
     }
 
-    /* Infinite decorative animations are paused on phones.
-       Gameplay/result animations are untouched. */
+    /* Infinite decorative animations are disabled on mobile.
+       Roulette / upgrade result animations are not targeted here. */
     .case-theme-hell .code-case-symbol,
     .case-theme-dragon .code-case-symbol,
     .case-theme-random .code-case-symbol,
     .case-theme-mystery .code-case-symbol,
-    .big-wins-live-dot{
+    .big-wins-live-dot,
+    .mystery-crystal,
+    .mystery-question{
         animation:none !important;
     }
 
-    body::before,
-    body::after{
-        display:none !important;
+    /* Images: no lazy-load blanking during fast scrolling. */
+    img{
+        transform:none !important;
+        -webkit-transform:none !important;
+        filter:none !important;
+        -webkit-filter:none !important;
+        will-change:auto !important;
+    }
+
+    /* Keep shadows cheap */
+    .case-card,
+    .inventory-card,
+    .deposit-item,
+    .exchange-option,
+    .upgrade-choice{
+        box-shadow:
+            0 4px 10px rgba(0,0,0,.18),
+            inset 0 1px 0 rgba(255,255,255,.025) !important;
     }
 }
 </style>
@@ -17011,38 +17096,24 @@ loadPlayer()
 
 
 
-<script id="brainroterx-scroll-performance-v3-js">
+
+
+
+<script id="brainroterx-image-preload-safe">
 (() => {
-    const prepared = new WeakSet();
-
     const prepareImage = img => {
-        if (!img || prepared.has(img)) return;
-        prepared.add(img);
+        if (!img) return;
 
-        /* Do not force every image to load at once.
-           Browser loads what it needs, while decoding stays off the main thread. */
+        /* Fast scrolling should never reveal unloaded slots. */
+        img.loading = "eager";
         img.decoding = "async";
-
-        if (!img.hasAttribute("loading")) {
-            img.loading = "lazy";
-        }
-
-        /* Images already close to the viewport are requested immediately. */
-        const rect = img.getBoundingClientRect();
-        if (
-            rect.top < window.innerHeight * 2 &&
-            rect.bottom > -window.innerHeight
-        ) {
-            img.loading = "eager";
-        }
     };
 
-    const prepareRoot = root => {
+    const prepareTree = root => {
         if (!root) return;
 
         if (root.tagName === "IMG") {
             prepareImage(root);
-            return;
         }
 
         if (root.querySelectorAll) {
@@ -17051,13 +17122,13 @@ loadPlayer()
     };
 
     const start = () => {
-        prepareRoot(document);
+        prepareTree(document);
 
         const observer = new MutationObserver(records => {
             for (const record of records) {
                 for (const node of record.addedNodes) {
                     if (node.nodeType === 1) {
-                        prepareRoot(node);
+                        prepareTree(node);
                     }
                 }
             }
