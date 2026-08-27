@@ -2135,7 +2135,7 @@ img{
 .profile-extra-title{
     margin-bottom:8px;
 
-    font-size:12px;
+    font-size:11px;
     font-weight:1000;
 }
 
@@ -2185,6 +2185,70 @@ img{
 
     font-size:9px;
     line-height:1.4;
+}
+
+.profile-best-drop{
+    position:relative;
+    z-index:2;
+    margin-top:9px;
+    padding:8px 10px;
+    border-radius:13px;
+    background:linear-gradient(135deg,rgba(249,115,22,.10),rgba(250,204,21,.05));
+    border:1px solid rgba(250,204,21,.14);
+}
+
+.profile-best-drop-label{
+    margin-bottom:5px;
+    color:#facc15;
+    font-size:9px;
+    font-weight:1000;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+}
+
+.profile-best-drop-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-height:46px;
+}
+
+.profile-best-drop-image{
+    width:46px;
+    height:46px;
+    flex:0 0 46px;
+    object-fit:contain;
+    border-radius:10px;
+    background:rgba(2,6,23,.55);
+    border:1px solid rgba(255,255,255,.07);
+}
+
+.profile-best-drop-info{
+    min-width:0;
+    flex:1;
+}
+
+.profile-best-drop-name{
+    overflow:hidden;
+    color:#fff;
+    font-size:12px;
+    font-weight:1000;
+    line-height:1.25;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.profile-best-drop-price{
+    margin-top:3px;
+    color:#facc15;
+    font-size:11px;
+    font-weight:1000;
+}
+
+.profile-best-drop-empty{
+    color:#64748b;
+    font-size:10px;
+    font-weight:800;
 }
 
 .promo-row{
@@ -6602,11 +6666,24 @@ body::after{
                 ></div>
             </div>
 
-            <div
-                id="withdrawRules"
-                class="wager-note"
-            ></div>
+        </div>
 
+        <div
+            id="profileBestDrop"
+            class="profile-best-drop"
+        >
+            <div class="profile-best-drop-label">
+                🏆 Лучший дроп
+            </div>
+
+            <div
+                id="profileBestDropContent"
+                class="profile-best-drop-row"
+            >
+                <div class="profile-best-drop-empty">
+                    Пока нет дропов
+                </div>
+            </div>
         </div>
 
         <button
@@ -8710,7 +8787,12 @@ async function loadPlayer(){
             can_withdraw:
                 Boolean(
                     data.can_withdraw
-                )
+                ),
+
+            best_drop:
+                data.best_drop
+                ||
+                null
 
         };
 
@@ -8949,10 +9031,10 @@ function renderProfile(){
                 "wagerFill"
             );
 
-    const withdrawRules =
+    const profileBestDropContent =
         document
             .getElementById(
-                "withdrawRules"
+                "profileBestDropContent"
             );
 
     if(
@@ -8977,34 +9059,49 @@ function renderProfile(){
     }
 
     if(
-        withdrawRules
+        profileBestDropContent
     ){
-        const depositOk =
-            Boolean(
-                playerProfile.has_deposited
-            );
+        const bestDrop =
+            playerProfile.best_drop
+            ||
+            null;
 
-        const wagerOk =
-            wagerProgress
-            >=
-            wagerRequired;
+        if(
+            bestDrop &&
+            bestDrop.brainrot_name
+        ){
+            const bestDropImage =
+                getImage(
+                    bestDrop.brainrot_name
+                );
 
-        withdrawRules.innerHTML =
-            `
-            <div class="${depositOk ? "withdraw-rule-ok" : "withdraw-rule-bad"}">
-                ${depositOk ? "✅" : "❌"}
-                Сначала пополнить баланс Brainrot
-            </div>
+            profileBestDropContent.innerHTML =
+                `
+                <img
+                    class="profile-best-drop-image"
+                    src="${bestDropImage}"
+                    alt=""
+                >
 
-            <div class="${wagerOk ? "withdraw-rule-ok" : "withdraw-rule-bad"}">
-                ${wagerOk ? "✅" : "❌"}
-                Выполнить отыгрыш ×1.5
-            </div>
+                <div class="profile-best-drop-info">
+                    <div class="profile-best-drop-name">
+                        ${escapeHtml(bestDrop.brainrot_name)}
+                    </div>
 
-            <div>
-                ℹ️ Выводить можно Brainrot стоимостью от 30 ⓧ.
-            </div>
-            `;
+                    <div class="profile-best-drop-price">
+                        ${Number(bestDrop.value || 0)} ⓧ
+                    </div>
+                </div>
+                `;
+        }
+        else{
+            profileBestDropContent.innerHTML =
+                `
+                <div class="profile-best-drop-empty">
+                    Пока нет дропов
+                </div>
+                `;
+        }
     }
 
     const avatar =
