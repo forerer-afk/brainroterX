@@ -1,5 +1,5 @@
 import os
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
     CallbackQueryHandler,
@@ -360,6 +360,70 @@ async def deposit_plus(
     await set_deposit_state(update, context, True)
 
 
+
+# =====================================================
+# ADMIN MENU + CHANNEL CONTROLS
+# =====================================================
+
+def admin_menu_markup():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("😈 MEM включён", callback_data="menu_mem"),
+         InlineKeyboardButton("🍀 LUCK включён", callback_data="menu_luck")],
+        [InlineKeyboardButton("📋 Все команды", callback_data="menu_commands")],
+        [InlineKeyboardButton("⚙️ Статус пополнений", callback_data="menu_deposits")]
+    ])
+
+def commands_text():
+    return (
+        "📋 ВСЕ КОМАНДЫ\n\n"
+        "/promo КОД АКТИВАЦИИ МОНЕТЫ — создать промо\n"
+        "/promoff КОД — отключить промо\n\n"
+        "/- — отключить все пополнения\n"
+        "/+ — включить все пополнения\n"
+        "/g- — отключить только ГРН\n"
+        "/g+ — включить только ГРН\n"
+        "/b- — отключить только Brainrot\n"
+        "/b+ — включить только Brainrot\n\n"
+        "/mem+ TELEGRAM_ID — включить MEM\n"
+        "/mem- TELEGRAM_ID — выключить MEM\n"
+        "/luck+ TELEGRAM_ID — включить LUCK\n"
+        "/luck- TELEGRAM_ID — выключить LUCK\n"
+        "/menu — открыть это меню"
+    )
+
+async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    await update.message.reply_text(
+        "🛠 ADMIN MENU\n\nВыбери раздел:",
+        reply_markup=admin_menu_markup()
+    )
+
+async def set_channel(update, channel, enabled):
+    if not is_admin(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    result=call_server(
+        "admin_set_deposit_channel_enabled",
+        channel=channel,
+        enabled=enabled
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ "+result.get("error","Ошибка"))
+        return
+    name="ГРН" if channel=="uah" else "Brainrot"
+    await update.message.reply_text(
+        ("✅ " if enabled else "⛔ ")+name+
+        (" включено" if enabled else " отключено")
+    )
+
+async def g_minus_command(update, context): await set_channel(update,"uah",False)
+async def g_plus_command(update, context): await set_channel(update,"uah",True)
+async def b_minus_command(update, context): await set_channel(update,"brainrot",False)
+async def b_plus_command(update, context): await set_channel(update,"brainrot",True)
+
+
 # =====================================================
 # КНОПКИ ЗАЯВОК
 # =====================================================
@@ -384,6 +448,42 @@ async def button_handler(
         return
 
     data = query.data or ""
+
+    if data in ("menu_mem","menu_luck"):
+        result=call_server("admin_get_mode_lists")
+        if not result.get("ok"):
+            await query.answer("❌ "+result.get("error","Ошибка"),show_alert=True)
+            return
+        key="mem_ids" if data=="menu_mem" else "luck_ids"
+        title="😈 MEM ВКЛЮЧЁН" if data=="menu_mem" else "🍀 LUCK ВКЛЮЧЁН"
+        ids=result.get(key,[])
+        text=title+"\n\n"+("\n".join("• "+str(x) for x in ids) if ids else "Список пуст.")
+        await query.answer()
+        await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
+        return
+
+    if data=="menu_commands":
+        await query.answer()
+        await query.edit_message_text(commands_text(),reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
+        return
+
+    if data=="menu_deposits":
+        result=call_server("admin_get_deposit_channels")
+        if not result.get("ok"):
+            await query.answer("❌ "+result.get("error","Ошибка"),show_alert=True)
+            return
+        text=("⚙️ СТАТУС ПОПОЛНЕНИЙ\n\n"
+              f"Общее: {'✅ ВКЛ' if result.get('deposit_enabled',True) else '⛔ ВЫКЛ'}\n"
+              f"ГРН: {'✅ ВКЛ' if result.get('uah_enabled',True) else '⛔ ВЫКЛ'}\n"
+              f"Brainrot: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
+        await query.answer()
+        await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
+        return
+
+    if data=="menu_back":
+        await query.answer()
+        await query.edit_message_text("🛠 ADMIN MENU\n\nВыбери раздел:",reply_markup=admin_menu_markup())
+        return
 
     # Не вызываем query.answer() заранее:
     # при ошибке серверного запроса ниже будет показан alert,
@@ -1136,6 +1236,13 @@ def main():
 
     app.add_handler(
         CommandHandler(
+            "menu",
+            menu_command
+        )
+    )
+
+    app.add_handler(
+        CommandHandler(
             "promo",
             promo_command
         )
@@ -1161,6 +1268,11 @@ def main():
             deposit_plus
         )
     )
+
+    app.add_handler(MessageHandler(filters.Regex(r"^/g-$"), g_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/g\+$"), g_plus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/b-$"), b_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/b\+$"), b_plus_command))
 
     app.add_handler(
         MessageHandler(
