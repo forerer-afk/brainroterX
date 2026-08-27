@@ -1700,6 +1700,14 @@ img{
     color:#fff;
     background:linear-gradient(135deg,rgba(124,58,237,.9),rgba(88,28,135,.9));
 }
+
+.deposit-tab-btn.deposit-tab-disabled{
+    opacity:.38 !important;
+    cursor:not-allowed !important;
+    background:rgba(30,41,59,.45) !important;
+    color:#64748b !important;
+    box-shadow:none !important;
+}
 .deposit-tab-panel{
     display:none;
 }
@@ -8131,6 +8139,8 @@ let referralProfile = {
 let silentSyncRunning = false;
 
 let depositEnabled = true;
+let uahDepositEnabled = true;
+let brainrotDepositEnabled = true;
 
 
 /* =====================================================
@@ -8706,6 +8716,12 @@ async function loadPlayer(){
 
         depositEnabled =
             data.deposit_enabled !== false;
+
+        uahDepositEnabled =
+            data.uah_deposit_enabled !== false;
+
+        brainrotDepositEnabled =
+            data.brainrot_deposit_enabled !== false;
 
         referralProfile = {
             code:
@@ -14665,10 +14681,37 @@ function setDepositTab(
     tab
 ){
 
-    currentDepositTab =
+    const requestedTab =
         tab === "uah"
             ? "uah"
             : "brainrot";
+
+    if(
+        requestedTab === "uah"
+        &&
+        !uahDepositEnabled
+    ){
+        showToast(
+            "₴ Пополнение через ГРН временно отключено",
+            "error"
+        );
+        return;
+    }
+
+    if(
+        requestedTab === "brainrot"
+        &&
+        !brainrotDepositEnabled
+    ){
+        showToast(
+            "🧠 Пополнение Brainrot временно отключено",
+            "error"
+        );
+        return;
+    }
+
+    currentDepositTab =
+        requestedTab;
 
     const brainrotPanel =
         document.getElementById(
@@ -14897,7 +14940,80 @@ async function submitUahDeposit(){
 }
 
 
-function openDeposit(){
+function applyDepositTabLocks(){
+
+    const brainrotButton =
+        document.getElementById(
+            "depositTabBrainrotBtn"
+        );
+
+    const uahButton =
+        document.getElementById(
+            "depositTabUahBtn"
+        );
+
+    if(brainrotButton){
+        brainrotButton.disabled =
+            !brainrotDepositEnabled;
+
+        brainrotButton.classList.toggle(
+            "deposit-tab-disabled",
+            !brainrotDepositEnabled
+        );
+    }
+
+    if(uahButton){
+        uahButton.disabled =
+            !uahDepositEnabled;
+
+        uahButton.classList.toggle(
+            "deposit-tab-disabled",
+            !uahDepositEnabled
+        );
+    }
+
+}
+
+
+async function refreshDepositChannels(){
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "get_deposit_channels"
+            });
+
+        if(data && data.ok){
+
+            depositEnabled =
+                data.deposit_enabled !== false;
+
+            uahDepositEnabled =
+                data.uah_enabled !== false;
+
+            brainrotDepositEnabled =
+                data.brainrot_enabled !== false;
+
+        }
+
+    }
+    catch(error){
+        console.warn(
+            "deposit channels refresh failed",
+            error
+        );
+    }
+
+    applyDepositTabLocks();
+
+}
+
+
+async function openDeposit(){
+
+    await refreshDepositChannels();
 
     if(
         !depositEnabled
@@ -14922,9 +15038,40 @@ function openDeposit(){
     depositSelection =
         {};
 
-    setDepositTab(
-        "brainrot"
-    );
+    if(
+        !brainrotDepositEnabled
+        &&
+        !uahDepositEnabled
+    ){
+        if(
+            tg &&
+            typeof tg.showAlert === "function"
+        ){
+            tg.showAlert(
+                "Все способы пополнения временно отключены"
+            );
+        }
+        else{
+            alert(
+                "Все способы пополнения временно отключены"
+            );
+        }
+
+        return;
+    }
+
+    if(brainrotDepositEnabled){
+        setDepositTab(
+            "brainrot"
+        );
+    }
+    else{
+        setDepositTab(
+            "uah"
+        );
+    }
+
+    applyDepositTabLocks();
 
     const uahInput =
         document.getElementById(
@@ -15780,6 +15927,12 @@ async function silentSync(){
 
         depositEnabled =
             data.deposit_enabled !== false;
+
+        uahDepositEnabled =
+            data.uah_deposit_enabled !== false;
+
+        brainrotDepositEnabled =
+            data.brainrot_deposit_enabled !== false;
 
         referralProfile = {
             code:
