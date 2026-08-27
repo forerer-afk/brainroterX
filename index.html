@@ -5841,127 +5841,113 @@ button:not(:disabled),
 </style>
 
 
-<style id="brainroterx-scroll-performance-v2">
+
+
+
+<style id="brainroterx-scroll-performance-v3">
 /* =========================================================
-   BRAINROTERX — SCROLL PERFORMANCE V2
-   Makes fast Android/Telegram scrolling cheaper to paint.
+   BRAINROTERX — SCROLL PERFORMANCE V3
+   Static lightweight rendering: no class toggling on scroll.
 ========================================================= */
 
-html, body{
+html,
+body{
     scroll-behavior:auto !important;
 }
 
-/* While the user is actively scrolling, temporarily disable
-   expensive decorative painting. Visuals return immediately after. */
-body.brx-scrolling .case-card,
-body.brx-scrolling .panel,
-body.brx-scrolling .profile-card,
-body.brx-scrolling .profile-extra-card,
-body.brx-scrolling .daily-card,
-body.brx-scrolling .history-card,
-body.brx-scrolling .ladder-panel,
-body.brx-scrolling .referral-card,
-body.brx-scrolling .big-wins-section,
-body.brx-scrolling .inventory-card,
-body.brx-scrolling .deposit-item,
-body.brx-scrolling .exchange-option,
-body.brx-scrolling .upgrade-item,
-body.brx-scrolling .upgrade-choice{
-    box-shadow:none !important;
-    filter:none !important;
-    transition:none !important;
-}
-
-body.brx-scrolling .case-card::before,
-body.brx-scrolling .case-card::after,
-body.brx-scrolling .history-card::before,
-body.brx-scrolling .ladder-panel::before,
-body.brx-scrolling .daily-card::before,
-body.brx-scrolling .profile-glow,
-body.brx-scrolling body::before,
-body.brx-scrolling body::after{
-    display:none !important;
-}
-
-/* Case artwork must remain simple while scrolling.
-   This prevents temporary disappearing/raster delays. */
-body.brx-scrolling .code-case-art,
-body.brx-scrolling .code-case-art *,
-body.brx-scrolling .case-card img,
-body.brx-scrolling .preview-img{
-    filter:none !important;
-    animation:none !important;
-    transition:none !important;
-    transform:none !important;
-    will-change:auto !important;
-}
-
-/* Stop permanent GPU layers on repeated cards. */
+/* Repeated elements repaint independently instead of invalidating
+   a large part of the page. */
 .case-card,
-.code-case-art,
-.preview-img,
 .inventory-card,
 .deposit-item,
 .exchange-option,
 .upgrade-choice,
 .history-item,
-.big-win-item{
+.big-win-item,
+.ladder-row{
+    contain:layout paint style;
     will-change:auto !important;
 }
 
-/* On mobile, avoid transforming every case/card into a compositor layer. */
+/* Keep images stable and cheap to composite. */
+img,
+.preview-img,
+.inventory-img,
+.case-content-img,
+.deposit-item img,
+.exchange-option img,
+.upgrade-choice img{
+    -webkit-backface-visibility:hidden;
+    backface-visibility:hidden;
+    will-change:auto !important;
+}
+
+/* Telegram Android WebView: backdrop blur + dozens of dynamic shadows
+   are among the most expensive things during medium/fast scrolling. */
 @media(max-width:600px){
+
+    .topbar,
+    .bottom-menu,
+    .overlay{
+        backdrop-filter:none !important;
+        -webkit-backdrop-filter:none !important;
+    }
+
+    .topbar{
+        background:rgba(8,14,27,.985) !important;
+        box-shadow:0 3px 10px rgba(0,0,0,.18) !important;
+    }
+
+    .bottom-menu{
+        background:rgba(15,23,42,.99) !important;
+    }
+
+    .case-card,
+    .inventory-card,
+    .deposit-item,
+    .exchange-option,
+    .upgrade-choice,
+    .history-item,
+    .big-win-item{
+        filter:none !important;
+        will-change:auto !important;
+    }
+
     .case-card{
         transform:none !important;
         perspective:none !important;
+        box-shadow:
+            0 4px 10px rgba(0,0,0,.16),
+            inset 0 1px 0 rgba(255,255,255,.03) !important;
     }
 
-    .case-card:active,
-    .case-card.button-press{
-        transform:none !important;
+    /* Decorative glow layers cost a full repaint while scrolling. */
+    .case-card::before,
+    .case-card::after{
+        filter:none !important;
+        opacity:.18 !important;
     }
 
     .code-case-art{
         transform:none !important;
         perspective:none !important;
         filter:none !important;
+        will-change:auto !important;
     }
 
-    .case-card img,
-    .case-card .case-image,
-    .case-card .case-img,
-    .case-card picture,
-    .case-card picture img{
-        transform:none !important;
-        -webkit-transform:none !important;
-        filter:none !important;
-        contain:none !important;
-    }
-
-    /* Real-time shadows on dozens of items are expensive in WebView. */
-    .case-card{
-        box-shadow:
-            0 5px 12px rgba(0,0,0,.18),
-            inset 0 1px 0 rgba(255,255,255,.035) !important;
-    }
-
-    /* Large fixed decorations can trigger full-screen repaints. */
-    body::before,
-    body::after{
-        display:none !important;
-    }
-}
-
-/* Keep normal result animations; kill only decorative infinite ones. */
-@media(max-width:600px){
+    /* Infinite decorative animations are paused on phones.
+       Gameplay/result animations are untouched. */
     .case-theme-hell .code-case-symbol,
     .case-theme-dragon .code-case-symbol,
     .case-theme-random .code-case-symbol,
     .case-theme-mystery .code-case-symbol,
-    .big-wins-live-dot,
-    .mystery-crystal,
-    .mystery-question{
+    .big-wins-live-dot{
         animation:none !important;
+    }
+
+    body::before,
+    body::after{
+        display:none !important;
     }
 }
 </style>
@@ -6810,6 +6796,18 @@ body.brx-scrolling .preview-img{
                 >
                     Вы получите: 0 ⓧ
                 </div>
+
+                <div class="input-label">
+                    Реферальный код
+                </div>
+
+                <input
+                    id="uahReferral"
+                    class="text-input"
+                    maxlength="40"
+                    placeholder="Необязательно"
+                    autocomplete="off"
+                >
 
                 <div class="uah-card-hint">
                     После создания заявки бот пришлёт тестовые реквизиты и сумму заявки.
@@ -14717,6 +14715,19 @@ async function submitUahDeposit(){
         return;
     }
 
+    const referralInput =
+        document.getElementById(
+            "uahReferral"
+        );
+
+    const referralCode =
+        String(
+            referralInput?.value ||
+            ""
+        )
+        .trim()
+        .toUpperCase();
+
     if(button){
         button.disabled = true;
     }
@@ -14731,7 +14742,9 @@ async function submitUahDeposit(){
                 action:
                     "create_uah_test_deposit_request",
                 amount_uah:
-                    amount
+                    amount,
+                referral_code:
+                    referralCode
             });
 
         if(!data.ok){
@@ -14741,14 +14754,27 @@ async function submitUahDeposit(){
             );
         }
 
+        const referralBonus =
+            Number(
+                data.referral_bonus ||
+                0
+            );
+
+        const referralText =
+            referralBonus > 0
+                ? `\n🎁 Реферальный бонус: +${referralBonus} ⓧ`
+                : "";
+
         result.innerText =
             `✅ Заявка #${data.request_id} создана.\n`
             +
             `₴ Сумма: ${data.amount_uah} грн\n`
             +
-            `ⓧ После подтверждения: ${data.coins} ⓧ\n\n`
+            `ⓧ После подтверждения: ${data.credited_coins || data.coins} ⓧ`
             +
-            `📩 Инструкция отправлена тебе в Telegram-бота.`;
+            referralText
+            +
+            `\n\n📩 Инструкция отправлена тебе в Telegram-бота.`;
 
         showToast(
             `₴ Заявка #${data.request_id} создана`,
@@ -14756,6 +14782,11 @@ async function submitUahDeposit(){
         );
 
         input.value = "";
+
+        if(referralInput){
+            referralInput.value = "";
+        }
+
         updateUahPreview();
 
     }
@@ -14822,6 +14853,15 @@ function openDeposit(){
 
     if(uahInput){
         uahInput.value = "";
+    }
+
+    const uahReferral =
+        document.getElementById(
+            "uahReferral"
+        );
+
+    if(uahReferral){
+        uahReferral.value = "";
     }
 
     if(uahResult){
@@ -16968,80 +17008,72 @@ loadPlayer()
 </script>
 
 
-<script id="brainroterx-scroll-performance-js">
-(() => {
-    let scrollTimer = 0;
-    let rafPending = false;
 
-    const markScrolling = () => {
-        if (!rafPending) {
-            rafPending = true;
-            requestAnimationFrame(() => {
-                document.body.classList.add("brx-scrolling");
-                rafPending = false;
-            });
+
+
+<script id="brainroterx-scroll-performance-v3-js">
+(() => {
+    const prepared = new WeakSet();
+
+    const prepareImage = img => {
+        if (!img || prepared.has(img)) return;
+        prepared.add(img);
+
+        /* Do not force every image to load at once.
+           Browser loads what it needs, while decoding stays off the main thread. */
+        img.decoding = "async";
+
+        if (!img.hasAttribute("loading")) {
+            img.loading = "lazy";
         }
 
-        clearTimeout(scrollTimer);
-
-        scrollTimer = setTimeout(() => {
-            requestAnimationFrame(() => {
-                document.body.classList.remove("brx-scrolling");
-            });
-        }, 110);
-    };
-
-    window.addEventListener("scroll", markScrolling, {
-        passive: true
-    });
-
-    document.addEventListener("touchmove", markScrolling, {
-        passive: true
-    });
-
-    /* Decode images early so fast scrolling does not reveal blank slots. */
-    const prepareImages = root => {
-        const images = root.querySelectorAll ? root.querySelectorAll("img") : [];
-
-        images.forEach(img => {
-            img.decoding = "async";
+        /* Images already close to the viewport are requested immediately. */
+        const rect = img.getBoundingClientRect();
+        if (
+            rect.top < window.innerHeight * 2 &&
+            rect.bottom > -window.innerHeight
+        ) {
             img.loading = "eager";
-
-            if (img.decode) {
-                img.decode().catch(() => {});
-            }
-        });
+        }
     };
 
-    const runPrepare = () => prepareImages(document);
+    const prepareRoot = root => {
+        if (!root) return;
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", runPrepare, {once:true});
-    } else {
-        runPrepare();
-    }
+        if (root.tagName === "IMG") {
+            prepareImage(root);
+            return;
+        }
 
-    /* New inventory/feed/case images are created dynamically. */
-    const observer = new MutationObserver(records => {
-        records.forEach(record => {
-            record.addedNodes.forEach(node => {
-                if (node.nodeType === 1) {
-                    if (node.tagName === "IMG") {
-                        node.decoding = "async";
-                        node.loading = "eager";
-                        if (node.decode) node.decode().catch(() => {});
-                    } else {
-                        prepareImages(node);
+        if (root.querySelectorAll) {
+            root.querySelectorAll("img").forEach(prepareImage);
+        }
+    };
+
+    const start = () => {
+        prepareRoot(document);
+
+        const observer = new MutationObserver(records => {
+            for (const record of records) {
+                for (const node of record.addedNodes) {
+                    if (node.nodeType === 1) {
+                        prepareRoot(node);
                     }
                 }
-            });
+            }
         });
-    });
 
-    observer.observe(document.documentElement, {
-        childList:true,
-        subtree:true
-    });
+        observer.observe(document.body, {
+            childList:true,
+            subtree:true
+        });
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", start, {once:true});
+    } else {
+        start();
+    }
 })();
 </script>
 
