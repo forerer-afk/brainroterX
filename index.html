@@ -5514,1248 +5514,328 @@ button:not(:disabled),
 </style>
 
 
-<style id="brainroterx-case-object-3d">
+<style id="brainroterx-premium-case-visuals">
+#casesGrid,.cases-grid,.case-grid{gap:12px!important}
+
+.case-card{
+ position:relative!important;isolation:isolate;overflow:hidden!important;
+ border-radius:18px!important;border:1px solid rgba(255,255,255,.075)!important;
+ background:linear-gradient(180deg,rgba(28,22,42,.96),rgba(16,12,27,.985) 58%,rgba(11,9,19,.995))!important;
+ box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045)!important;
+ transform:translateZ(0);
+ transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease!important
+}
+.case-card::before{
+ content:"";position:absolute;z-index:-1;left:10%;right:10%;top:0;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(192,132,252,.44),rgba(129,140,248,.28),transparent);
+ pointer-events:none
+}
+.case-card::after{
+ content:"";position:absolute;z-index:-1;inset:0;
+ background:radial-gradient(circle at 50% 18%,rgba(139,92,246,.08),transparent 43%),linear-gradient(115deg,rgba(255,255,255,.025),transparent 35%);
+ pointer-events:none
+}
+.case-card:active{transform:scale(.985)!important}
+@media(hover:hover){
+ .case-card:hover{transform:translateY(-2px)!important;border-color:rgba(192,132,252,.20)!important;box-shadow:0 11px 26px rgba(0,0,0,.27),inset 0 1px 0 rgba(255,255,255,.055)!important}
+}
+.case-card img,.case-card .case-image,.case-card .case-img{
+ position:relative;z-index:1;display:block;object-fit:contain!important;
+ filter:drop-shadow(0 9px 9px rgba(0,0,0,.30)) saturate(1.05) contrast(1.025)!important;
+ transition:transform .18s ease!important
+}
+@media(hover:hover){
+ .case-card:hover img,.case-card:hover .case-image,.case-card:hover .case-img{transform:translateY(-2px) scale(1.025)}
+}
+.case-card h3,.case-card h4,.case-card .case-name,.case-card .case-title{
+ position:relative;z-index:2;color:#f8fafc!important;font-weight:900!important;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.28)
+}
+.case-card p,.case-card .case-description,.case-card .case-subtitle{position:relative;z-index:2;color:#9ca3af!important}
+.case-card .case-price,.case-card .price{
+ position:relative;z-index:2;display:inline-flex!important;align-items:center;justify-content:center;
+ min-height:27px;padding:5px 10px!important;border-radius:9px!important;color:#fef3c7!important;font-weight:950!important;
+ background:linear-gradient(180deg,rgba(245,158,11,.115),rgba(245,158,11,.055))!important;
+ border:1px solid rgba(251,191,36,.15)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+.case-card button,.case-card .case-button,.case-card .open-case-btn{
+ position:relative;z-index:2;overflow:hidden;border:1px solid rgba(196,181,253,.15)!important;
+ border-radius:11px!important;color:#fff!important;font-weight:950!important;letter-spacing:.015em;
+ background:linear-gradient(135deg,rgba(109,40,217,.98),rgba(76,29,149,.98))!important;
+ box-shadow:0 5px 13px rgba(0,0,0,.17),inset 0 1px 0 rgba(255,255,255,.10)!important;
+ transition:transform .14s ease,filter .14s ease!important
+}
+.case-card button:active,.case-card .case-button:active,.case-card .open-case-btn:active{transform:scale(.975)}
+.case-card .case-glow,.case-card .glow,.case-card .case-light,.case-card .case-aura{opacity:.10!important;filter:none!important;box-shadow:none!important}
+.case-card .case-content,.case-card .case-info{position:relative;z-index:2}
+@media(max-width:600px){
+ .case-card{border-radius:16px!important;box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.035)!important}
+ .case-card::after{background:radial-gradient(circle at 50% 18%,rgba(139,92,246,.055),transparent 42%)}
+ .case-card img,.case-card .case-image,.case-card .case-img{filter:drop-shadow(0 7px 7px rgba(0,0,0,.26)) saturate(1.04)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .case-card,.case-card img,.case-card .case-image,.case-card .case-img,.case-card button{transition:none!important}
+}
+</style>
+
+
+<style id="brainroterx-case-3d-icon-fix">
 /* =========================================================
-   BRAINROTERX — ACTUAL CASE OBJECT 3D REDESIGN
-   Only the case itself is changed. Card layout stays intact.
+   BRAINROTERX — CASE ICON VISIBILITY FIX + 3D CASE CARDS
+   Lightweight: no backdrop blur / no infinite animations.
 ========================================================= */
 
-/* Stable layer fixes for fast Telegram/Android scrolling */
-.code-case-art,
-.code-case-lid,
-.code-case-shell,
-.code-case-feet,
-.code-case-symbol{
-    -webkit-backface-visibility:hidden !important;
+/* Fix disappearing case icons during fast mobile scrolling.
+   Force their own composited layer and prevent clipping issues. */
+.case-card img,
+.case-card .case-image,
+.case-card .case-img,
+.case-card picture,
+.case-card picture img{
+    opacity:1 !important;
+    visibility:visible !important;
     backface-visibility:hidden !important;
-}
-
-.code-case-art{
-    width:128px !important;
-    height:104px !important;
-    max-width:96% !important;
-    margin:0 auto !important;
-    perspective:420px !important;
+    -webkit-backface-visibility:hidden !important;
     transform:translateZ(0) !important;
-    filter:none !important;
+    -webkit-transform:translateZ(0) !important;
+    will-change:auto !important;
+    contain:paint;
 }
 
-/* Remove old flashlight-like ground glow */
-.code-case-glow{
-    left:17% !important;
-    right:17% !important;
-    bottom:4px !important;
-    height:10px !important;
-    border-radius:50% !important;
-    background:rgba(0,0,0,.32) !important;
-    filter:blur(4px) !important;
-    opacity:.65 !important;
+/* Do not scale case image on hover; scaling + mobile WebView can cause
+   transient raster disappear while scrolling. */
+@media(hover:hover){
+    .case-card:hover img,
+    .case-card:hover .case-image,
+    .case-card:hover .case-img{
+        transform:translateZ(0) translateY(-1px) !important;
+    }
 }
 
-/* 3D LID */
-.code-case-lid{
-    z-index:5 !important;
-    left:7px !important;
-    right:7px !important;
-    top:10px !important;
-    height:29px !important;
-    border-radius:12px 12px 5px 5px !important;
+/* 3D body */
+.case-card{
+    position:relative !important;
+    overflow:visible !important;
+    border-radius:18px !important;
+    border:1px solid rgba(196,181,253,.12) !important;
 
     background:
         linear-gradient(
             180deg,
-            color-mix(in srgb,var(--case-accent) 38%,#f1f5f9) 0%,
-            color-mix(in srgb,var(--case-accent2) 72%,#414855) 28%,
-            color-mix(in srgb,var(--case-accent2) 48%,#151922) 74%,
-            #0b0e14 100%
+            rgba(30,22,48,.99) 0%,
+            rgba(17,12,29,.995) 60%,
+            rgba(10,8,18,1) 100%
         ) !important;
 
-    border:
-        2px solid
-        color-mix(in srgb,var(--case-accent) 65%,#9ca3af) !important;
-
     box-shadow:
-        inset 0 4px 3px rgba(255,255,255,.13),
-        inset 0 -5px 7px rgba(0,0,0,.34),
-        0 5px 0 #080a0f,
-        0 7px 7px rgba(0,0,0,.30) !important;
+        0 12px 0 rgba(7,5,13,.78),
+        0 16px 24px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.055),
+        inset 0 -1px 0 rgba(139,92,246,.06) !important;
 
-    transform:
-        perspective(250px)
-        rotateX(-18deg)
-        translateZ(6px) !important;
-
-    transform-origin:center bottom !important;
+    transform:translateZ(0) perspective(700px) rotateX(0deg) !important;
 }
 
-/* Metallic reinforced lid corners */
-.code-case-lid::before,
-.code-case-lid::after{
-    top:4px !important;
-    width:14px !important;
-    height:21px !important;
-    border-radius:4px !important;
+/* Top face / bevel */
+.case-card::before{
+    content:"" !important;
+    position:absolute !important;
+    z-index:0 !important;
+    left:5px !important;
+    right:5px !important;
+    top:5px !important;
+    height:22px !important;
+    border-radius:13px 13px 8px 8px !important;
 
     background:
         linear-gradient(
-            90deg,
-            #20252e,
-            #737b89 46%,
-            #2b313b
+            180deg,
+            rgba(255,255,255,.055),
+            rgba(139,92,246,.035)
         ) !important;
 
-    border:1px solid rgba(255,255,255,.13) !important;
+    border-top:1px solid rgba(255,255,255,.06) !important;
+    border-left:1px solid rgba(255,255,255,.025) !important;
+    border-right:1px solid rgba(255,255,255,.025) !important;
 
-    box-shadow:
-        inset 1px 0 1px rgba(255,255,255,.14),
-        inset -2px 0 2px rgba(0,0,0,.30) !important;
+    opacity:1 !important;
+    pointer-events:none !important;
 }
 
-.code-case-lid::before{
-    left:11px !important;
-}
-
-.code-case-lid::after{
-    right:11px !important;
-}
-
-/* MAIN 3D BODY */
-.code-case-shell{
-    z-index:3 !important;
-
+/* Inner chamber: visual depth behind image */
+.case-card::after{
+    content:"" !important;
+    position:absolute !important;
+    z-index:0 !important;
     left:10px !important;
     right:10px !important;
     top:34px !important;
-    height:57px !important;
-
-    border-radius:6px 6px 14px 14px !important;
+    height:46% !important;
+    border-radius:14px !important;
 
     background:
-        linear-gradient(
-            100deg,
-            rgba(255,255,255,.055) 0%,
-            transparent 13%,
-            transparent 76%,
-            rgba(0,0,0,.25) 100%
+        radial-gradient(
+            ellipse at 50% 72%,
+            rgba(124,58,237,.13) 0%,
+            rgba(124,58,237,.05) 40%,
+            rgba(5,4,10,.10) 70%,
+            transparent 100%
         ),
         linear-gradient(
-            165deg,
-            color-mix(in srgb,var(--case-accent2) 52%,#303743) 0%,
-            color-mix(in srgb,var(--case-accent2) 35%,#151922) 34%,
-            #090c12 72%,
-            #05070b 100%
+            180deg,
+            rgba(7,5,14,.12),
+            rgba(0,0,0,.22)
         ) !important;
 
-    border:
-        2px solid
-        color-mix(in srgb,var(--case-accent) 54%,#666f7c) !important;
+    border:1px solid rgba(255,255,255,.025) !important;
 
     box-shadow:
-        inset 8px 0 9px rgba(255,255,255,.025),
-        inset -9px 0 12px rgba(0,0,0,.30),
-        inset 0 5px 9px rgba(0,0,0,.35),
-        inset 0 -7px 10px rgba(0,0,0,.48),
-        0 4px 0 #05070b,
-        0 8px 8px rgba(0,0,0,.24) !important;
+        inset 0 9px 18px rgba(0,0,0,.20),
+        inset 0 -2px 8px rgba(139,92,246,.035) !important;
 
-    transform:
-        perspective(300px)
-        rotateX(3deg)
-        translateZ(0) !important;
+    pointer-events:none !important;
 }
 
-/* Vertical metal rails */
-.code-case-shell::before,
-.code-case-shell::after{
-    top:5px !important;
-    bottom:6px !important;
-    width:9px !important;
-    border-radius:3px !important;
-
-    background:
-        linear-gradient(
-            90deg,
-            #1b2028,
-            #6b7380 46%,
-            #222831
-        ) !important;
-
-    border:1px solid rgba(255,255,255,.11) !important;
-
-    box-shadow:
-        inset 1px 0 1px rgba(255,255,255,.13),
-        inset -2px 0 2px rgba(0,0,0,.38) !important;
+/* Ensure real contents sit above pseudo 3D layers */
+.case-card > *{
+    position:relative;
+    z-index:2;
 }
 
-.code-case-shell::before{
-    left:5px !important;
+/* Case artwork sits like an object inside the chamber */
+.case-card img,
+.case-card .case-image,
+.case-card .case-img{
+    filter:
+        drop-shadow(0 11px 8px rgba(0,0,0,.38))
+        drop-shadow(0 2px 0 rgba(255,255,255,.035))
+        saturate(1.07)
+        contrast(1.035) !important;
 }
 
-.code-case-shell::after{
-    right:5px !important;
+/* Add a little floor beneath artwork if wrappers exist */
+.case-card .case-image-wrap,
+.case-card .case-img-wrap,
+.case-card .image-wrap{
+    position:relative;
+    z-index:2;
+}
+.case-card .case-image-wrap::after,
+.case-card .case-img-wrap::after,
+.case-card .image-wrap::after{
+    content:"";
+    position:absolute;
+    left:18%;
+    right:18%;
+    bottom:2px;
+    height:10px;
+    border-radius:50%;
+    background:rgba(0,0,0,.28);
+    filter:blur(4px);
+    pointer-events:none;
+    z-index:-1;
 }
 
-/* The symbol becomes a real center badge/lock */
-.code-case-symbol{
-    z-index:6 !important;
-    min-width:34px !important;
-    max-width:64% !important;
-    min-height:30px !important;
+/* Text compartment */
+.case-card .case-name,
+.case-card .case-title,
+.case-card h3,
+.case-card h4{
+    margin-top:3px !important;
+    color:#fbfbff !important;
+    font-weight:950 !important;
+    letter-spacing:-.025em !important;
+    text-shadow:0 2px 6px rgba(0,0,0,.38) !important;
+}
 
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-
-    padding:4px 8px !important;
-
-    border-radius:8px !important;
-
-    color:
-        color-mix(in srgb,var(--case-accent) 78%,#fff) !important;
-
+/* Stronger 3D price badge */
+.case-card .case-price,
+.case-card .price{
+    border-radius:10px !important;
     background:
         linear-gradient(
             180deg,
-            color-mix(in srgb,var(--case-accent2) 30%,#202631),
-            #080b10
+            rgba(251,191,36,.14),
+            rgba(180,83,9,.075)
         ) !important;
-
-    border:
-        1px solid
-        color-mix(in srgb,var(--case-accent) 52%,#636b76) !important;
-
+    border:1px solid rgba(251,191,36,.18) !important;
     box-shadow:
-        0 3px 0 #030508,
-        inset 0 1px 0 rgba(255,255,255,.08),
-        inset 0 -3px 5px rgba(0,0,0,.36) !important;
-
-    text-shadow:
-        0 0 7px
-        color-mix(in srgb,var(--case-accent) 48%,transparent) !important;
-
-    font-weight:1000 !important;
+        0 3px 0 rgba(92,48,7,.34),
+        inset 0 1px 0 rgba(255,255,255,.055) !important;
 }
 
-/* Thick lower base / feet */
-.code-case-feet{
-    z-index:2 !important;
-
-    left:19px !important;
-    right:19px !important;
-    bottom:6px !important;
-    height:12px !important;
-
-    border-radius:3px 3px 9px 9px !important;
-
+/* 3D action button */
+.case-card button,
+.case-card .case-button,
+.case-card .open-case-btn{
+    border-radius:11px !important;
     background:
         linear-gradient(
             180deg,
-            #363d48,
-            #11151c 54%,
-            #06080c
+            rgba(126,34,206,.99),
+            rgba(76,29,149,.99)
         ) !important;
 
-    border:1px solid rgba(255,255,255,.07) !important;
+    border:1px solid rgba(216,180,254,.16) !important;
 
     box-shadow:
-        0 3px 0 rgba(0,0,0,.60),
+        0 4px 0 rgba(46,16,101,.72),
+        0 7px 12px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.11) !important;
+}
+
+.case-card button:active,
+.case-card .case-button:active,
+.case-card .open-case-btn:active{
+    transform:translateY(3px) !important;
+    box-shadow:
+        0 1px 0 rgba(46,16,101,.72),
+        0 3px 7px rgba(0,0,0,.18),
         inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
 
-/* Small physical handles/bolts using feet pseudo-elements */
-.code-case-feet::before,
-.code-case-feet::after{
-    content:"";
-    position:absolute;
-    top:2px;
-    width:18px;
-    height:7px;
-    border-radius:2px 2px 5px 5px;
-    background:linear-gradient(#505864,#171b22);
-    border:1px solid rgba(255,255,255,.07);
-}
+/* Desktop depth hover, still lightweight */
+@media(hover:hover){
+    .case-card:hover{
+        transform:translateZ(0) perspective(700px) rotateX(1.4deg) translateY(-2px) !important;
 
-.code-case-feet::before{
-    left:4px;
-}
-
-.code-case-feet::after{
-    right:4px;
-}
-
-/* Make themes still feel different without changing the card itself */
-.case-theme-lucky .code-case-shell{
-    border-radius:8px 8px 15px 15px !important;
-}
-
-.case-theme-elite .code-case-lid{
-    clip-path:polygon(
-        0 18%,10% 0,24% 14%,38% 0,50% 14%,62% 0,76% 14%,90% 0,
-        100% 18%,100% 100%,0 100%
-    ) !important;
-}
-
-.case-theme-hell .code-case-lid{
-    clip-path:polygon(
-        0 20%,9% 0,19% 18%,29% 0,39% 18%,49% 0,59% 18%,69% 0,
-        79% 18%,89% 0,100% 20%,100% 100%,0 100%
-    ) !important;
-}
-
-.case-theme-chaos .code-case-shell{
-    clip-path:polygon(
-        3% 5%,95% 1%,100% 17%,96% 98%,5% 95%,0 77%
-    ) !important;
-}
-
-.case-theme-dragon .code-case-shell{
-    clip-path:polygon(
-        5% 0,95% 0,100% 17%,95% 100%,73% 93%,50% 100%,27% 93%,5% 100%,0 17%
-    ) !important;
-}
-
-.case-theme-phantom .code-case-shell{
-    opacity:.93 !important;
-}
-
-/* No infinite case animations = smoother + more physical */
-.case-theme-hell .code-case-symbol,
-.case-theme-dragon .code-case-symbol,
-.case-theme-random .code-case-symbol,
-.case-theme-mystery .code-case-symbol{
-    animation:none !important;
-}
-
-/* Fast-scroll stability on Android WebView */
-@media(max-width:600px){
-    .code-case-art{
-        transform:none !important;
-        perspective:none !important;
-    }
-
-    .code-case-lid{
-        transform:skewX(-1deg) !important;
-    }
-
-    .code-case-shell{
-        transform:none !important;
-    }
-
-    .code-case-glow{
-        filter:none !important;
-        height:5px !important;
-        opacity:.32 !important;
+        box-shadow:
+            0 13px 0 rgba(7,5,13,.78),
+            0 19px 28px rgba(0,0,0,.31),
+            inset 0 1px 0 rgba(255,255,255,.06),
+            inset 0 -1px 0 rgba(139,92,246,.07) !important;
     }
 }
-</style>
 
-
-<style id="brainroterx-fast-scroll-new-case-model">
-/* =========================================================
-   BRAINROTERX — FAST SCROLL + CLEAN NEW CASE MODEL
-   Goal: stable Android/Telegram WebView rendering.
-========================================================= */
-
-/* ---------- PERFORMANCE FIXES ---------- */
-
-/* Avoid expensive effects on the whole case list while scrolling */
-.case-list,
-.case-card,
-.code-case-art,
-.code-case-lid,
-.code-case-shell,
-.code-case-feet,
-.code-case-symbol{
-    filter:none !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-    will-change:auto !important;
-}
-
-/* isolate each card so scrolling doesn't repaint the whole list */
-.case-card{
-    contain:layout paint style !important;
-    content-visibility:auto;
-    contain-intrinsic-size:180px 150px;
-    transform:none !important;
-    transition:none !important;
-}
-
-/* Disable expensive decorative card pseudo layers */
-.case-card::before,
-.case-card::after{
-    filter:none !important;
-    animation:none !important;
-}
-
-/* Keep every case visible/stable during scroll */
-.code-case-art,
-.code-case-art *{
-    opacity:1 !important;
-    visibility:visible !important;
-    -webkit-backface-visibility:hidden !important;
-    backface-visibility:hidden !important;
-    animation:none !important;
-    transition:none !important;
-}
-
-/* ---------- NEW CASE MODEL ---------- */
-
-.code-case-art{
-    --case-edge:
-        color-mix(
-            in srgb,
-            var(--case-accent,#8b5cf6) 52%,
-            #7a8492
-        );
-
-    position:relative !important;
-    width:126px !important;
-    height:102px !important;
-    max-width:96% !important;
-    margin:1px auto 2px !important;
-
-    perspective:none !important;
-    transform:none !important;
-}
-
-/* Realistic ground shadow, cheap to render */
-.code-case-glow{
-    position:absolute !important;
-    left:21% !important;
-    right:21% !important;
-    bottom:5px !important;
-    height:7px !important;
-
-    border-radius:50% !important;
-    background:rgba(0,0,0,.36) !important;
-
-    filter:none !important;
-    opacity:1 !important;
-}
-
-/* ---------- TOP LID ---------- */
-.code-case-lid{
-    position:absolute !important;
-    z-index:4 !important;
-
-    left:13px !important;
-    right:13px !important;
-    top:12px !important;
-    height:25px !important;
-
-    border-radius:10px 10px 5px 5px !important;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,.12) 0%,
-            transparent 16%
-        ),
-        linear-gradient(
-            180deg,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 48%,#59616d) 0%,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 56%,#252b35) 50%,
-            #11151b 100%
-        ) !important;
-
-    border:2px solid var(--case-edge) !important;
-
-    box-shadow:
-        inset 0 -5px 7px rgba(0,0,0,.30),
-        inset 0 2px 0 rgba(255,255,255,.07),
-        0 4px 0 #090b10 !important;
-
-    transform:none !important;
-}
-
-/* hinges */
-.code-case-lid::before,
-.code-case-lid::after{
-    content:"" !important;
-    position:absolute !important;
-
-    top:5px !important;
-    width:15px !important;
-    height:13px !important;
-
-    border-radius:3px !important;
-
-    background:
-        linear-gradient(
-            90deg,
-            #262c34,
-            #6b7480 48%,
-            #272d36
-        ) !important;
-
-    border:1px solid rgba(255,255,255,.10) !important;
-
-    box-shadow:
-        inset 1px 0 0 rgba(255,255,255,.10),
-        inset -1px 0 0 rgba(0,0,0,.30) !important;
-}
-
-.code-case-lid::before{
-    left:10px !important;
-}
-
-.code-case-lid::after{
-    right:10px !important;
-}
-
-/* ---------- MAIN BOX ---------- */
-.code-case-shell{
-    position:absolute !important;
-    z-index:3 !important;
-
-    left:10px !important;
-    right:10px !important;
-    top:35px !important;
-    height:52px !important;
-
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-
-    border-radius:6px 6px 13px 13px !important;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,.035),
-            transparent 14%,
-            transparent 84%,
-            rgba(0,0,0,.18)
-        ),
-        linear-gradient(
-            160deg,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 40%,#303741) 0%,
-            #151a22 48%,
-            #090c11 100%
-        ) !important;
-
-    border:2px solid var(--case-edge) !important;
-
-    box-shadow:
-        inset 0 4px 6px rgba(0,0,0,.22),
-        inset 0 -7px 9px rgba(0,0,0,.36),
-        0 5px 0 #06080c !important;
-
-    transform:none !important;
-    clip-path:none !important;
-}
-
-/* side bumpers */
-.code-case-shell::before,
-.code-case-shell::after{
-    content:"" !important;
-    position:absolute !important;
-
-    top:7px !important;
-    bottom:7px !important;
-    width:8px !important;
-
-    border-radius:3px !important;
-
-    background:
-        linear-gradient(
-            90deg,
-            #222832,
-            #59616d 48%,
-            #222832
-        ) !important;
-
-    border:1px solid rgba(255,255,255,.08) !important;
-}
-
-.code-case-shell::before{
-    left:5px !important;
-}
-
-.code-case-shell::after{
-    right:5px !important;
-}
-
-/* ---------- CENTER BADGE / LOCK ---------- */
-.code-case-symbol{
-    position:relative !important;
-    z-index:5 !important;
-
-    min-width:34px !important;
-    min-height:28px !important;
-    max-width:70% !important;
-
-    padding:3px 7px !important;
-
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-
-    border-radius:7px !important;
-
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb,var(--case-accent2,#4c1d95) 25%,#262d37),
-            #0a0d12
-        ) !important;
-
-    border:
-        1px solid
-        color-mix(
-            in srgb,
-            var(--case-accent,#8b5cf6) 50%,
-            #666f79
-        ) !important;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.07),
-        0 3px 0 #030406 !important;
-
-    color:
-        color-mix(
-            in srgb,
-            var(--case-accent,#8b5cf6) 76%,
-            #ffffff
-        ) !important;
-
-    text-shadow:none !important;
-
-    font-size:15px !important;
-    font-weight:1000 !important;
-    line-height:1 !important;
-}
-
-/* ---------- BOTTOM BASE ---------- */
-.code-case-feet{
-    position:absolute !important;
-    z-index:2 !important;
-
-    left:22px !important;
-    right:22px !important;
-    bottom:7px !important;
-    height:9px !important;
-
-    border-radius:2px 2px 7px 7px !important;
-
-    background:
-        linear-gradient(
-            180deg,
-            #3a424d,
-            #14181f 54%,
-            #080a0e
-        ) !important;
-
-    border:1px solid rgba(255,255,255,.06) !important;
-
-    box-shadow:
-        0 3px 0 rgba(0,0,0,.48) !important;
-}
-
-.code-case-feet::before,
-.code-case-feet::after{
-    content:none !important;
-}
-
-/* ---------- THEMES: only clean shape tweaks ---------- */
-
-.case-theme-elite .code-case-lid{
-    border-color:#d6b43d !important;
-}
-
-.case-theme-hell .code-case-lid,
-.case-theme-hell .code-case-shell{
-    border-color:#b53a3a !important;
-}
-
-.case-theme-neon .code-case-lid,
-.case-theme-neon .code-case-shell{
-    border-color:#258ebd !important;
-}
-
-.case-theme-lucky .code-case-lid,
-.case-theme-lucky .code-case-shell{
-    border-color:#3b9f55 !important;
-}
-
-.case-theme-phantom .code-case-lid,
-.case-theme-phantom .code-case-shell{
-    border-color:#369e98 !important;
-}
-
-.case-theme-random .code-case-lid,
-.case-theme-random .code-case-shell{
-    border-color:#8c45a6 !important;
-}
-
-.case-theme-dragon .code-case-lid,
-.case-theme-dragon .code-case-shell{
-    border-color:#b45c2e !important;
-}
-
-/* ---------- MOBILE: extra stability ---------- */
+/* Mobile performance/scroll stability */
 @media(max-width:600px){
     .case-card{
-        content-visibility:auto;
-        contain-intrinsic-size:170px 145px;
+        overflow:hidden !important;
+        box-shadow:
+            0 8px 0 rgba(7,5,13,.72),
+            0 11px 18px rgba(0,0,0,.24),
+            inset 0 1px 0 rgba(255,255,255,.04) !important;
     }
 
-    .code-case-art{
-        width:116px !important;
-        height:95px !important;
+    .case-card::after{
+        top:30px !important;
+        height:44% !important;
+        background:
+            radial-gradient(
+                ellipse at 50% 72%,
+                rgba(124,58,237,.09),
+                rgba(124,58,237,.035) 42%,
+                transparent 76%
+            ) !important;
+        box-shadow:
+            inset 0 7px 14px rgba(0,0,0,.16) !important;
     }
 
-    .code-case-lid{
-        left:12px !important;
-        right:12px !important;
-        top:11px !important;
-        height:23px !important;
-    }
-
-    .code-case-shell{
-        left:9px !important;
-        right:9px !important;
-        top:32px !important;
-        height:49px !important;
-    }
-
-    .code-case-feet{
-        left:21px !important;
-        right:21px !important;
-        bottom:6px !important;
-    }
-}
-</style>
-
-
-<style id="brainroterx-steal-brainrot-crates">
-/* =========================================================
-   BRAINROTERX — RUGGED 3D CRATES / STEAL BRAINROT STYLE
-   Inspired by heavy game loot containers, but original design.
-   Performance-friendly: no blur, no infinite animations.
-========================================================= */
-
-.code-case-art.brainrot-crate{
-    --crate-accent:var(--case-accent,#8b5cf6);
-    --crate-accent2:var(--case-accent2,#4c1d95);
-
-    position:relative !important;
-    width:132px !important;
-    height:104px !important;
-    max-width:96% !important;
-    margin:0 auto 2px !important;
-
-    perspective:none !important;
-    transform:none !important;
-    filter:none !important;
-}
-
-/* Hide old case pieces if any are still affected by legacy CSS */
-.brainrot-crate .code-case-glow,
-.brainrot-crate .code-case-lid,
-.brainrot-crate .code-case-shell,
-.brainrot-crate .code-case-feet,
-.brainrot-crate .code-case-symbol{
-    display:none !important;
-}
-
-/* Ground contact */
-.crate-shadow{
-    position:absolute;
-    z-index:0;
-    left:17%;
-    right:17%;
-    bottom:3px;
-    height:8px;
-    border-radius:50%;
-    background:rgba(0,0,0,.34);
-}
-
-/* ===================== LID ===================== */
-
-.crate-lid{
-    position:absolute;
-    z-index:6;
-
-    left:7px;
-    right:7px;
-    top:8px;
-    height:31px;
-
-    border-radius:12px 12px 5px 5px;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,.17) 0%,
-            rgba(255,255,255,.035) 15%,
-            transparent 16%
-        ),
-        linear-gradient(
-            135deg,
-            color-mix(in srgb,var(--crate-accent) 34%,#46505d) 0%,
-            color-mix(in srgb,var(--crate-accent2) 46%,#252c35) 54%,
-            #12171d 100%
-        );
-
-    border:
-        2px solid
-        color-mix(in srgb,var(--crate-accent) 46%,#707987);
-
-    box-shadow:
-        inset 0 -7px 8px rgba(0,0,0,.28),
-        inset 0 1px 0 rgba(255,255,255,.10),
-        0 4px 0 #090c10,
-        0 7px 8px rgba(0,0,0,.24);
-
-    transform:skewX(-1.5deg);
-}
-
-/* raised top ridge */
-.crate-top-line{
-    position:absolute;
-    left:11px;
-    right:11px;
-    top:5px;
-    height:4px;
-
-    border-radius:999px;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,.04),
-            color-mix(in srgb,var(--crate-accent) 48%,#9299a4),
-            rgba(255,255,255,.04)
-        );
-
-    opacity:.75;
-}
-
-/* lid clamps */
-.crate-latch{
-    position:absolute;
-    top:9px;
-    width:15px;
-    height:19px;
-
-    border-radius:4px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #1e242c 0%,
-            #6f7783 45%,
-            #242a32 100%
-        );
-
-    border:1px solid rgba(255,255,255,.11);
-
-    box-shadow:
-        inset 1px 0 0 rgba(255,255,255,.12),
-        inset -2px 0 2px rgba(0,0,0,.34);
-}
-.crate-latch-left{left:14px}
-.crate-latch-right{right:14px}
-
-/* ===================== BODY ===================== */
-
-.crate-body{
-    position:absolute;
-    z-index:4;
-
-    left:8px;
-    right:8px;
-    top:34px;
-    height:57px;
-
-    border-radius:6px 6px 14px 14px;
-
-    background:
-        linear-gradient(
-            100deg,
-            rgba(255,255,255,.045) 0%,
-            transparent 13%,
-            transparent 82%,
-            rgba(0,0,0,.17) 100%
-        ),
-        linear-gradient(
-            155deg,
-            color-mix(in srgb,var(--crate-accent2) 42%,#343c47) 0%,
-            color-mix(in srgb,var(--crate-accent2) 30%,#171c23) 52%,
-            #090c11 100%
-        );
-
-    border:
-        2px solid
-        color-mix(in srgb,var(--crate-accent) 42%,#636d79);
-
-    box-shadow:
-        inset 0 5px 8px rgba(0,0,0,.19),
-        inset 0 -9px 12px rgba(0,0,0,.35),
-        0 5px 0 #05070a,
-        0 8px 10px rgba(0,0,0,.23);
-}
-
-/* heavy vertical protective rails */
-.crate-rail{
-    position:absolute;
-    z-index:7;
-    top:4px;
-    bottom:5px;
-    width:10px;
-
-    border-radius:3px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #171c22 0%,
-            #68717c 45%,
-            #20262d 100%
-        );
-
-    border:1px solid rgba(255,255,255,.09);
-
-    box-shadow:
-        inset 1px 0 0 rgba(255,255,255,.10),
-        inset -2px 0 2px rgba(0,0,0,.38);
-}
-.crate-rail-left{left:6px}
-.crate-rail-right{right:6px}
-
-/* metal corners */
-.crate-corner{
-    position:absolute;
-    z-index:8;
-    width:16px;
-    height:14px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #727b87,
-            #2c333c 55%,
-            #171b21
-        );
-
-    border:1px solid rgba(255,255,255,.10);
-
-    box-shadow:
-        inset 1px 1px 0 rgba(255,255,255,.12);
-}
-.crate-corner-tl{
-    left:-2px; top:-2px;
-    border-radius:6px 2px 5px 2px;
-}
-.crate-corner-tr{
-    right:-2px; top:-2px;
-    border-radius:2px 6px 2px 5px;
-}
-.crate-corner-bl{
-    left:-2px; bottom:-2px;
-    border-radius:2px 5px 2px 7px;
-}
-.crate-corner-br{
-    right:-2px; bottom:-2px;
-    border-radius:5px 2px 7px 2px;
-}
-
-/* ===================== FRONT PANEL ===================== */
-
-.crate-panel{
-    position:absolute;
-    z-index:6;
-
-    left:24px;
-    right:24px;
-    top:9px;
-    bottom:9px;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:7px;
-
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb,var(--crate-accent2) 24%,#272e37),
-            #0b0f14
-        );
-
-    border:
-        1px solid
-        color-mix(in srgb,var(--crate-accent) 48%,#626b76);
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        inset 0 -4px 6px rgba(0,0,0,.32),
-        0 3px 0 #040609;
-}
-
-/* brainrot emblem */
-.crate-symbol{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    max-width:88%;
-
-    color:
-        color-mix(
-            in srgb,
-            var(--crate-accent) 72%,
-            #fff
-        );
-
-    font-size:20px;
-    font-weight:1000;
-    line-height:1;
-
-    text-shadow:
-        0 1px 0 #000,
-        0 0 5px color-mix(in srgb,var(--crate-accent) 38%,transparent);
-}
-
-/* little BRX plate */
-.crate-brand{
-    margin-top:2px;
-
-    padding:1px 5px;
-
-    border-radius:3px;
-
-    color:#d9dde4;
-    background:#11161d;
-
-    border:1px solid rgba(255,255,255,.07);
-
-    font-size:7px;
-    font-weight:1000;
-    letter-spacing:1px;
-}
-
-/* graffiti / sticker gives Steal Brainrot flavor */
-.crate-sticker{
-    position:absolute;
-    z-index:9;
-
-    right:16px;
-    bottom:5px;
-
-    max-width:46px;
-    overflow:hidden;
-    white-space:nowrap;
-
-    padding:2px 4px;
-
-    border-radius:3px;
-
-    color:
-        color-mix(in srgb,var(--crate-accent) 70%,#fff);
-
-    background:rgba(6,8,12,.74);
-
-    border:
-        1px solid
-        color-mix(in srgb,var(--crate-accent) 32%,transparent);
-
-    font-size:5.5px;
-    font-weight:1000;
-    letter-spacing:.35px;
-
-    transform:rotate(-4deg);
-}
-
-/* ===================== BOTTOM ===================== */
-
-.crate-base{
-    position:absolute;
-    z-index:2;
-
-    left:21px;
-    right:21px;
-    bottom:5px;
-    height:10px;
-
-    border-radius:2px 2px 8px 8px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #3f4752,
-            #151a20 55%,
-            #080a0e
-        );
-
-    border:1px solid rgba(255,255,255,.055);
-
-    box-shadow:
-        0 3px 0 rgba(0,0,0,.5);
-}
-
-/* =========================================================
-   DISTINCT CASE PERSONALITIES
-========================================================= */
-
-/* noob — taped cardboard / cheap crate vibe */
-.case-theme-noob .crate-body{
-    background:
-        linear-gradient(155deg,#644a32,#352617 55%,#17110c) !important;
-}
-.case-theme-noob .crate-panel{
-    background:linear-gradient(#4c3725,#1c140e) !important;
-}
-.case-theme-noob .crate-rail{
-    background:linear-gradient(90deg,#463525,#8d724e,#3d2c20) !important;
-}
-
-/* lucky */
-.case-theme-lucky .crate-body{
-    background:
-        linear-gradient(155deg,#1b7137,#103a20 54%,#07130b) !important;
-}
-.case-theme-lucky .crate-panel{
-    background:linear-gradient(#145b2c,#07170d) !important;
-}
-
-/* chaos */
-.case-theme-chaos .crate-body{
-    background:
-        linear-gradient(155deg,#8a370e,#4d1e09 52%,#1a0904) !important;
-}
-.case-theme-chaos .crate-sticker{
-    transform:rotate(5deg);
-}
-
-/* neon */
-.case-theme-neon .crate-body{
-    background:
-        linear-gradient(155deg,#114c71,#102b3d 52%,#071019) !important;
-}
-
-/* mystery */
-.case-theme-mystery .crate-body{
-    background:
-        linear-gradient(155deg,#56217f,#29113f 54%,#110718) !important;
-}
-
-/* elite — gold/black premium */
-.case-theme-elite .crate-body{
-    background:
-        linear-gradient(155deg,#5f5010,#28230a 55%,#0e0c05) !important;
-}
-.case-theme-elite .crate-lid{
-    border-color:#c8a82f !important;
-}
-.case-theme-elite .crate-panel{
-    border-color:#c4a62e !important;
-}
-
-/* pro — industrial black/yellow */
-.case-theme-pro .crate-body{
-    background:
-        linear-gradient(155deg,#3b392d,#1d1c16 55%,#0a0a08) !important;
-}
-.case-theme-pro .crate-sticker{
-    color:#ffd66b;
-}
-
-/* phantom */
-.case-theme-phantom .crate-body{
-    background:
-        linear-gradient(155deg,#164f4b,#102f2c 55%,#071312) !important;
-}
-
-/* hell — red scratched crate */
-.case-theme-hell .crate-body{
-    background:
-        linear-gradient(155deg,#761f22,#3a1012 55%,#160607) !important;
-}
-.case-theme-hell .crate-panel{
-    background:linear-gradient(#481215,#170708) !important;
-}
-
-/* random — graffiti */
-.case-theme-random .crate-body{
-    background:
-        linear-gradient(155deg,#67257d,#351441 55%,#140719) !important;
-}
-
-/* dragon */
-.case-theme-dragon .crate-body{
-    background:
-        linear-gradient(155deg,#7b3315,#3d190b 55%,#170904) !important;
-}
-
-/* secret */
-.case-theme-secret .crate-body{
-    background:
-        linear-gradient(155deg,#1f6441,#113421 55%,#07140d) !important;
-}
-
-/* lavaka */
-.case-theme-lavaka .crate-body{
-    background:
-        linear-gradient(155deg,#7f4022,#3d1f12 55%,#160b06) !important;
-}
-
-/* =========================================================
-   PERFORMANCE / MOBILE STABILITY
-========================================================= */
-
-.code-case-art.brainrot-crate,
-.code-case-art.brainrot-crate *{
-    animation:none !important;
-    transition:none !important;
-    filter:none !important;
-    will-change:auto !important;
-    backface-visibility:hidden !important;
-    -webkit-backface-visibility:hidden !important;
-}
-
-@media(max-width:600px){
-    .code-case-art.brainrot-crate{
-        width:119px !important;
-        height:95px !important;
-    }
-
-    .crate-lid{
-        left:7px;
-        right:7px;
-        top:7px;
-        height:28px;
-    }
-
-    .crate-body{
-        left:8px;
-        right:8px;
-        top:31px;
-        height:53px;
-    }
-
-    .crate-panel{
-        left:23px;
-        right:23px;
-        top:8px;
-        bottom:8px;
-    }
-
-    .crate-symbol{
-        font-size:18px;
-    }
-
-    .crate-sticker{
-        font-size:5px;
-        right:15px;
-    }
-
-    .crate-base{
-        bottom:3px;
+    .case-card img,
+    .case-card .case-image,
+    .case-card .case-img{
+        filter:
+            drop-shadow(0 8px 6px rgba(0,0,0,.32))
+            saturate(1.05) !important;
     }
 }
 </style>
@@ -10314,9 +9394,6 @@ function renderCases(){
     list.className =
         "case-list";
 
-    list.style.contain =
-        "layout style paint";
-
     /* Ежедневный кейс всегда самый первый */
     const dailyCard =
         document.createElement(
@@ -10331,27 +9408,13 @@ function renderCases(){
 
     dailyCard.innerHTML =
         `
-        <div class="code-case-art brainrot-crate" aria-hidden="true">
-            <div class="crate-shadow"></div>
-            <div class="crate-lid">
-                <span class="crate-top-line"></span>
-                <span class="crate-latch crate-latch-left"></span>
-                <span class="crate-latch crate-latch-right"></span>
+        <div class="code-case-art" aria-hidden="true">
+            <div class="code-case-glow"></div>
+            <div class="code-case-lid"></div>
+            <div class="code-case-shell">
+                <span class="code-case-symbol">🎁</span>
             </div>
-            <div class="crate-body">
-                <span class="crate-rail crate-rail-left"></span>
-                <span class="crate-rail crate-rail-right"></span>
-                <span class="crate-corner crate-corner-tl"></span>
-                <span class="crate-corner crate-corner-tr"></span>
-                <span class="crate-corner crate-corner-bl"></span>
-                <span class="crate-corner crate-corner-br"></span>
-                <span class="crate-panel">
-                    <span class="crate-symbol">🎁</span>
-                    <span class="crate-brand">BRX</span>
-                </span>
-                <span class="crate-sticker">DAILY</span>
-            </div>
-            <div class="crate-base"></div>
+            <div class="code-case-feet"></div>
         </div>
 
         <div class="case-name">
@@ -10435,31 +9498,15 @@ function renderCases(){
 
             card.innerHTML =
                 `
-                <div class="code-case-art brainrot-crate" aria-hidden="true">
-                    <div class="crate-shadow"></div>
-                    <div class="crate-lid">
-                        <span class="crate-top-line"></span>
-                        <span class="crate-latch crate-latch-left"></span>
-                        <span class="crate-latch crate-latch-right"></span>
-                    </div>
-                    <div class="crate-body">
-                        <span class="crate-rail crate-rail-left"></span>
-                        <span class="crate-rail crate-rail-right"></span>
-                        <span class="crate-corner crate-corner-tl"></span>
-                        <span class="crate-corner crate-corner-tr"></span>
-                        <span class="crate-corner crate-corner-bl"></span>
-                        <span class="crate-corner crate-corner-br"></span>
-                        <span class="crate-panel">
-                            <span class="crate-symbol">
-                                ${visual.symbol}
-                            </span>
-                            <span class="crate-brand">BRX</span>
-                        </span>
-                        <span class="crate-sticker">
-                            ${String(gameCase.name || "").split(" ")[0].slice(0,8).toUpperCase()}
+                <div class="code-case-art" aria-hidden="true">
+                    <div class="code-case-glow"></div>
+                    <div class="code-case-lid"></div>
+                    <div class="code-case-shell">
+                        <span class="code-case-symbol">
+                            ${visual.symbol}
                         </span>
                     </div>
-                    <div class="crate-base"></div>
+                    <div class="code-case-feet"></div>
                 </div>
 
                 <div class="case-name">
