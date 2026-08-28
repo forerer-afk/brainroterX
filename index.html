@@ -8287,26 +8287,34 @@ let brainrotDepositEnabled = true;
 const GEARS_DEPOSIT_ITEMS = [
     {
         id: "wave-rider",
+        brainrot_id: 900000001,
         name: "Wave Rider",
         value: 62,
+        rarity: "Gear",
         image: "./wave-rider.png"
     },
     {
         id: "witch-broom",
+        brainrot_id: 900000002,
         name: "Witch Broom",
         value: 68,
+        rarity: "Gear",
         image: "./witch-broom.png"
     },
     {
         id: "cupid-wings",
+        brainrot_id: 900000003,
         name: "Cupid Wings",
         value: 71,
+        rarity: "Gear",
         image: "./cupid-wings.png"
     },
     {
         id: "santas-sleigh",
+        brainrot_id: 900000004,
         name: "Santas Sleigh",
         value: 120,
+        rarity: "Gear",
         image: "./santas-sleigh.png"
     }
 ];
@@ -8385,7 +8393,13 @@ const BRAINROT_IMAGES = {
     "los secret combination":"./lossecretcombination.png",
     "rosey and teddy":"./roseyandteddy.png",
     "ginger gerat":"./gingergerat.png",
-    "antonio":"./antonio.png"
+    "antonio":"./antonio.png",
+
+    /* GEARS */
+    "wave rider":"./wave-rider.png",
+    "witch broom":"./witch-broom.png",
+    "cupid wings":"./cupid-wings.png",
+    "santas sleigh":"./santas-sleigh.png"
 };
 
 
@@ -8727,6 +8741,37 @@ function getBrainrotByName(
         ||
         null
     );
+
+}
+
+
+function getUpgraderTargets(){
+
+    const gears =
+        GEARS_DEPOSIT_ITEMS
+        .map(
+            item => ({
+                brainrot_id:
+                    item.brainrot_id,
+
+                name:
+                    item.name,
+
+                value:
+                    item.value,
+
+                rarity:
+                    item.rarity,
+
+                is_gear:
+                    true
+            })
+        );
+
+    return [
+        ...brainrots,
+        ...gears
+    ];
 
 }
 
@@ -13032,7 +13077,7 @@ function getSource(){
 function getTarget(){
 
     return (
-        brainrots.find(
+        getUpgraderTargets().find(
             item =>
                 Number(
                     item.brainrot_id
@@ -13335,7 +13380,7 @@ function renderTargetGrid(){
         "asc";
 
     const targets =
-        brainrots
+        getUpgraderTargets()
         .filter(
             item => {
 
@@ -13751,7 +13796,7 @@ function selectByChance(
     }
 
     const targets =
-        brainrots.filter(
+        getUpgraderTargets().filter(
             item => {
 
                 if(
@@ -13904,7 +13949,7 @@ function selectMultiplier(
         multiplier;
 
     const targets =
-        brainrots.filter(
+        getUpgraderTargets().filter(
             item =>
                 Number(
                     item.value
