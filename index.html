@@ -16019,7 +16019,14 @@ async function silentSync(){
             can_withdraw:
                 Boolean(
                     data.can_withdraw
-                )
+                ),
+
+            best_drop:
+                data.best_drop
+                ||
+                playerProfile.best_drop
+                ||
+                null
         };
 
         depositEnabled =
