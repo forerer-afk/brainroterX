@@ -5316,6 +5316,19 @@ button:not(:disabled),
 .deposit-receipt-row{display:flex;align-items:center;gap:9px;padding:9px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06)}.deposit-receipt-row img{width:44px;height:44px;object-fit:contain}.deposit-receipt-row-name{font-size:11px;color:#fff;font-weight:900}.deposit-receipt-row-meta{font-size:10px;color:#c7bed7;margin-top:2px}
 .deposit-receipt-total{margin-top:13px;padding:11px;border-radius:14px;background:rgba(75,215,119,.08);border:1px solid rgba(75,215,119,.15);color:#d9f5e2;font-size:11px;line-height:1.7}.deposit-receipt-total b{color:#65e18a}.deposit-receipt-done{width:100%;margin-top:13px;border:0;border-radius:13px;padding:12px;background:linear-gradient(90deg,#782cff,#9c38ff);color:#fff;font-size:11px;font-weight:900}
 
+
+.withdraw-receipt-overlay{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72)}
+.withdraw-receipt-overlay.active{display:flex}
+.withdraw-receipt-card{width:min(92vw,420px);max-height:82vh;overflow:auto;border-radius:22px;padding:17px;background:#0c0915;border:1px solid rgba(135,82,255,.3);box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.withdraw-receipt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;font-size:15px;font-weight:900}
+.withdraw-receipt-sub{margin-top:6px;color:#aaa0bb;font-size:10px}
+.withdraw-receipt-items{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.withdraw-receipt-row{display:flex;align-items:center;gap:9px;padding:9px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06)}
+.withdraw-receipt-row img{width:44px;height:44px;object-fit:contain}
+.withdraw-receipt-row-name{font-size:11px;color:#fff;font-weight:900}
+.withdraw-receipt-row-meta{font-size:10px;color:#c7bed7;margin-top:2px}
+.withdraw-receipt-done{width:100%;margin-top:13px;border:0;border-radius:13px;padding:12px;background:linear-gradient(90deg,#782cff,#9c38ff);color:#fff;font-size:11px;font-weight:900}
+
 </style>
 
 
@@ -15621,6 +15634,69 @@ function getBrainrotDepositValue(
 }
 
 
+
+function sortBrainrotDepositItems(
+    items
+){
+
+    const copy =
+        Array.isArray(items)
+            ? [...items]
+            : [];
+
+    copy.sort(
+        (a,b) =>
+            Number(
+                b?.value
+                ||
+                0
+            )
+            -
+            Number(
+                a?.value
+                ||
+                0
+            )
+    );
+
+    const cashIndex =
+        copy.findIndex(
+            item =>
+                normalizeName(
+                    item?.name
+                )
+                ===
+                "cash or card"
+        );
+
+    if(
+        cashIndex !== -1
+    ){
+
+        const [
+            cashOrCard
+        ] =
+            copy.splice(
+                cashIndex,
+                1
+            );
+
+        copy.splice(
+            Math.min(
+                1,
+                copy.length
+            ),
+            0,
+            cashOrCard
+        );
+
+    }
+
+    return copy;
+
+}
+
+
 function renderDepositGrid(){
 
     const root =
@@ -17555,6 +17631,133 @@ function buildWithdrawDate(
 }
 
 
+function closeWithdrawReceipt(
+    event
+){
+
+    if(event){
+        event.stopPropagation();
+    }
+
+    document
+        .getElementById(
+            "withdrawReceiptOverlay"
+        )
+        ?.classList.remove(
+            "active"
+        );
+
+}
+
+
+function showWithdrawReceipt(
+    requestId,
+    items
+){
+
+    const overlay =
+        document.getElementById(
+            "withdrawReceiptOverlay"
+        );
+
+    const sub =
+        document.getElementById(
+            "withdrawReceiptSub"
+        );
+
+    const root =
+        document.getElementById(
+            "withdrawReceiptItems"
+        );
+
+    if(
+        !overlay
+        ||
+        !root
+    ){
+        return;
+    }
+
+    if(sub){
+        sub.innerText =
+            `Номер заявки: #${requestId}`;
+    }
+
+    root.innerHTML =
+        "";
+
+    (
+        Array.isArray(items)
+            ? items
+            : []
+    )
+    .forEach(
+        item => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "withdraw-receipt-row";
+
+            const name =
+                String(
+                    item?.name
+                    ||
+                    item?.brainrot_name
+                    ||
+                    ""
+                );
+
+            const quantity =
+                Number(
+                    item?.quantity
+                    ||
+                    1
+                );
+
+            const value =
+                Number(
+                    item?.value
+                    ||
+                    0
+                );
+
+            row.innerHTML =
+                `
+                <img
+                    src="${getImage(name)}"
+                    alt=""
+                >
+                <div>
+                    <div class="withdraw-receipt-row-name">
+                        ${name}
+                    </div>
+                    <div class="withdraw-receipt-row-meta">
+                        ${value} ⓧ
+                        × ${quantity}
+                    </div>
+                </div>
+                `;
+
+            root.appendChild(
+                row
+            );
+
+        }
+    );
+
+    overlay.classList.add(
+        "active"
+    );
+
+}
+
+
+
+
 async function submitWithdraw(){
 
     const selected =
@@ -17683,7 +17886,15 @@ async function submitWithdraw(){
         "⏳ Создаём заявку...";
 
     const data =
-        await apiRequest({
+        document
+        .getElementById(
+            "withdrawModal"
+        )
+        ?.classList.remove(
+            "show"
+        );
+
+    await apiRequest({
 
             action:
                 "create_withdraw_request",
@@ -17753,6 +17964,73 @@ async function submitWithdraw(){
         `📤 Заявка #${data.request_id}: ${selected.length} Brainrot`,
         "success"
     );
+
+    const withdrawReceiptItems =
+        (
+            typeof selectedWithdrawItems !== "undefined"
+            &&
+            Array.isArray(
+                selectedWithdrawItems
+            )
+        )
+            ? selectedWithdrawItems
+            : (
+                typeof withdrawSelection !== "undefined"
+                    ? Object.entries(
+                        withdrawSelection
+                    )
+                    .filter(
+                        ([,q]) =>
+                            Number(q) > 0
+                    )
+                    .map(
+                        ([id,q]) => {
+
+                            const item =
+                                (
+                                    Array.isArray(
+                                        inventory
+                                    )
+                                        ? inventory
+                                        : []
+                                )
+                                .find(
+                                    x =>
+                                        Number(
+                                            x.brainrot_id
+                                        )
+                                        ===
+                                        Number(id)
+                                );
+
+                            return item
+                                ? {
+                                    name:
+                                        item.brainrot_name
+                                        ||
+                                        item.name,
+                                    value:
+                                        Number(
+                                            item.value
+                                            ||
+                                            0
+                                        ),
+                                    quantity:
+                                        Number(q)
+                                }
+                                : null;
+
+                        }
+                    )
+                    .filter(Boolean)
+                    : []
+            );
+
+    showWithdrawReceipt(
+        data.request_id,
+        withdrawReceiptItems
+    );
+
 
 }
 
@@ -18060,6 +18338,19 @@ loadPlayer()
     <div id="depositReceiptTotal" class="deposit-receipt-total"></div>
     <button class="deposit-receipt-done" onclick="closeDepositReceipt()">ГОТОВО</button>
   </div>
+</div>
+
+
+<div id="withdrawReceiptOverlay" class="withdraw-receipt-overlay" onclick="closeWithdrawReceipt(event)">
+    <div class="withdraw-receipt-card" onclick="event.stopPropagation()">
+        <div class="withdraw-receipt-head">
+            <span>✅ Заявка на вывод отправлена</span>
+            <span onclick="closeWithdrawReceipt()" style="cursor:pointer">✕</span>
+        </div>
+        <div id="withdrawReceiptSub" class="withdraw-receipt-sub"></div>
+        <div id="withdrawReceiptItems" class="withdraw-receipt-items"></div>
+        <button class="withdraw-receipt-done" onclick="closeWithdrawReceipt()">ГОТОВО</button>
+    </div>
 </div>
 
 </body>
