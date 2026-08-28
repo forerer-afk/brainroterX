@@ -5286,6 +5286,18 @@ button:not(:disabled),
     }
 }
 
+
+.deposit-picked-box{margin-top:12px;padding:10px;border:1px solid rgba(130,80,255,.25);border-radius:16px;background:rgba(21,14,38,.9)}
+.deposit-picked-title{font-size:11px;font-weight:900;color:#d9cff7;margin-bottom:8px}.deposit-picked-list{display:flex;flex-direction:column;gap:7px}
+.deposit-picked-row{display:flex;align-items:center;gap:9px;padding:8px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06)}
+.deposit-picked-row img{width:40px;height:40px;object-fit:contain}.deposit-picked-info{flex:1;min-width:0}.deposit-picked-name{font-size:11px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.deposit-picked-price{font-size:10px;color:#61db86;margin-top:2px}
+.deposit-picked-remove{border:0;border-radius:9px;padding:7px 9px;background:rgba(255,74,105,.14);color:#ff8096;font-size:9px;font-weight:900}
+.deposit-receipt-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72)}.deposit-receipt-overlay.active{display:flex}
+.deposit-receipt-card{width:min(92vw,420px);max-height:82vh;overflow:auto;border-radius:22px;padding:17px;background:#0c0915;border:1px solid rgba(135,82,255,.3);box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.deposit-receipt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;font-size:15px;font-weight:900}.deposit-receipt-sub{margin-top:5px;color:#aaa0bb;font-size:10px}.deposit-receipt-items{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.deposit-receipt-row{display:flex;align-items:center;gap:9px;padding:9px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06)}.deposit-receipt-row img{width:44px;height:44px;object-fit:contain}.deposit-receipt-row-name{font-size:11px;color:#fff;font-weight:900}.deposit-receipt-row-meta{font-size:10px;color:#c7bed7;margin-top:2px}
+.deposit-receipt-total{margin-top:13px;padding:11px;border-radius:14px;background:rgba(75,215,119,.08);border:1px solid rgba(75,215,119,.15);color:#d9f5e2;font-size:11px;line-height:1.7}.deposit-receipt-total b{color:#65e18a}.deposit-receipt-done{width:100%;margin-top:13px;border:0;border-radius:13px;padding:12px;background:linear-gradient(90deg,#782cff,#9c38ff);color:#fff;font-size:11px;font-weight:900}
+
 </style>
 
 
@@ -6929,6 +6941,11 @@ body::after{
             placeholder="Необязательно"
             autocomplete="off"
         >
+
+        <div id="depositPickedBox" class="deposit-picked-box" style="display:none">
+            <div class="deposit-picked-title">🧠 Вы выбрали</div>
+            <div id="depositPickedList" class="deposit-picked-list"></div>
+        </div>
 
         <button
             class="submit-btn"
@@ -12613,6 +12630,19 @@ async function confirmSellAll(){
             +
             data.error;
 
+        document
+            .getElementById(
+                "depositModal"
+            )
+            ?.classList.add(
+                "active"
+            );
+
+        showToast(
+            data.error || "Ошибка отправки заявки",
+            "error"
+        );
+
         return;
 
     }
@@ -15368,6 +15398,7 @@ async function openDeposit(){
     }
 
     renderDepositGrid();
+    renderDepositPicked();
     renderGearsDepositGrid();
 
     const gearsRoblox =
@@ -15506,6 +15537,7 @@ function changeDeposit(
     }
 
     renderDepositGrid();
+    renderDepositPicked();
 
 }
 
@@ -16024,6 +16056,18 @@ async function submitGearsDeposit(){
 }
 
 
+function renderDepositPicked(){
+ const box=document.getElementById("depositPickedBox"), list=document.getElementById("depositPickedList");
+ if(!box||!list)return;
+ const selected=Object.entries(depositSelection).filter(([,q])=>Number(q)>0);
+ if(!selected.length){box.style.display="none";list.innerHTML="";return;}
+ box.style.display="";list.innerHTML="";
+ selected.forEach(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));if(!item)return;const row=document.createElement("div");row.className="deposit-picked-row";row.innerHTML=`<img src="${getImage(item.name)}" alt=""><div class="deposit-picked-info"><div class="deposit-picked-name">${String(item.name||"")}</div><div class="deposit-picked-price">${Number(item.value||0)} ⓧ × ${Number(q)}</div></div><button class="deposit-picked-remove" onclick="removeDepositPicked(${Number(item.brainrot_id)})">УБРАТЬ</button>`;list.appendChild(row);});
+}
+function removeDepositPicked(id){delete depositSelection[id];renderDepositGrid();renderDepositPicked();}
+function closeDepositReceipt(event){if(event)event.stopPropagation();document.getElementById("depositReceiptOverlay")?.classList.remove("active");}
+function showDepositReceipt(data,items){const o=document.getElementById("depositReceiptOverlay"),sub=document.getElementById("depositReceiptSub"),root=document.getElementById("depositReceiptItems"),total=document.getElementById("depositReceiptTotal");if(!o||!root||!total)return;sub.innerText=`Номер заявки: #${data.request_id}`;root.innerHTML="";items.forEach(item=>{const row=document.createElement("div");row.className="deposit-receipt-row";row.innerHTML=`<img src="${getImage(item.name)}" alt=""><div><div class="deposit-receipt-row-name">${String(item.name||"")}</div><div class="deposit-receipt-row-meta">${Number(item.value||0)} ⓧ × ${Number(item.quantity||1)}</div></div>`;root.appendChild(row);});const base=Number(data.total_value||0),bonus=Number(data.referral_bonus||0),credited=Number(data.credited_value||base);total.innerHTML=`💰 Стоимость: <b>${base} ⓧ</b><br>🎁 Реф. бонус: <b>+${bonus} ⓧ</b><br>✅ Будет начислено: <b>${credited} ⓧ</b>`;o.classList.add("active");}
+
 async function submitDeposit(){
 
     const username =
@@ -16115,6 +16159,16 @@ async function submitDeposit(){
     result.innerText =
         "⏳ Отправляем...";
 
+    // После нажатия "ОТПРАВИТЬ ЗАЯВКУ" сразу закрываем
+    // окно пополнения, чтобы оно не висело во время запроса.
+    document
+        .getElementById(
+            "depositModal"
+        )
+        ?.classList.remove(
+            "active"
+        );
+
     const data =
         await apiRequest({
 
@@ -16162,6 +16216,15 @@ async function submitDeposit(){
         `💰 Заявка на пополнение #${data.request_id} создана`,
         "info"
     );
+
+
+    const receiptItems = Object.entries(depositSelection)
+        .filter(([,q])=>Number(q)>0)
+        .map(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));return item?{name:item.name,value:Number(item.value||0),quantity:Number(q)}:null;})
+        .filter(Boolean);
+
+    document.getElementById("depositModal")?.classList.remove("active");
+    showDepositReceipt(data, receiptItems);
 
 }
 
@@ -17924,6 +17987,17 @@ loadPlayer()
     }
 })();
 </script>
+
+
+<div id="depositReceiptOverlay" class="deposit-receipt-overlay" onclick="closeDepositReceipt(event)">
+  <div class="deposit-receipt-card" onclick="event.stopPropagation()">
+    <div class="deposit-receipt-head"><span>✅ Заявка отправлена</span><span onclick="closeDepositReceipt()" style="cursor:pointer">✕</span></div>
+    <div id="depositReceiptSub" class="deposit-receipt-sub"></div>
+    <div id="depositReceiptItems" class="deposit-receipt-items"></div>
+    <div id="depositReceiptTotal" class="deposit-receipt-total"></div>
+    <button class="deposit-receipt-done" onclick="closeDepositReceipt()">ГОТОВО</button>
+  </div>
+</div>
 
 </body>
 
