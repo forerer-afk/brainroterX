@@ -2371,7 +2371,15 @@ img{
     max-height:300px;
 }
 
-#depositModal .modal,
+#depositModal .modal{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    max-height:82dvh;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+}
+
 #exchangeModal .modal{
     overflow:hidden;
 }
@@ -2379,6 +2387,16 @@ img{
 #depositModal .deposit-grid,
 #exchangeModal .exchange-grid{
     min-height:110px;
+}
+
+#depositModal{
+    align-items:flex-start;
+    overflow:hidden;
+}
+
+#depositModal .modal{
+    margin-top:2vh;
+    margin-bottom:2vh;
 }
 
 @media (max-height:700px){
@@ -12635,7 +12653,7 @@ async function confirmSellAll(){
                 "depositModal"
             )
             ?.classList.add(
-                "active"
+                "show"
             );
 
         showToast(
@@ -14915,7 +14933,8 @@ function getDepositItems(){
                     "guest 666",
                     "los tacoritas",
                     "los spaghettis",
-                    "w or l"
+                    "w or l",
+                    "stekini fatini"
                 ].includes(
                     normalizeName(
                         item.name
@@ -15542,6 +15561,66 @@ function changeDeposit(
 }
 
 
+
+function applyGlobalBrainrotPriceOverrides(){
+
+    if(
+        !Array.isArray(
+            brainrots
+        )
+    ){
+        return;
+    }
+
+    brainrots.forEach(
+        item => {
+
+            if(
+                normalizeName(
+                    item?.name
+                )
+                ===
+                "cash or card"
+            ){
+                item.value = 55;
+            }
+
+        }
+    );
+
+}
+
+applyGlobalBrainrotPriceOverrides();
+
+
+function getBrainrotDepositValue(
+    item
+){
+
+    if(
+        normalizeName(
+            item?.name
+        )
+        ===
+        "cash or card"
+    ){
+        return 55;
+    }
+
+    return Math.max(
+        0,
+        Number(
+            item?.value
+            ||
+            0
+        )
+        -
+        8
+    );
+
+}
+
+
 function renderDepositGrid(){
 
     const root =
@@ -15575,13 +15654,8 @@ function renderDepositGrid(){
                 );
 
             const value =
-                Math.max(
-                    0,
-                    Number(
-                        item.value
-                    )
-                    -
-                    8
+                getBrainrotDepositValue(
+                    item
                 );
 
             const div =
@@ -15681,13 +15755,8 @@ function updateDepositSummary(){
             }
 
             total +=
-                Math.max(
-                    0,
-                    Number(
-                        item.value
-                    )
-                    -
-                    8
+                getBrainrotDepositValue(
+                    item
                 )
                 *
                 Number(
@@ -16062,7 +16131,7 @@ function renderDepositPicked(){
  const selected=Object.entries(depositSelection).filter(([,q])=>Number(q)>0);
  if(!selected.length){box.style.display="none";list.innerHTML="";return;}
  box.style.display="";list.innerHTML="";
- selected.forEach(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));if(!item)return;const row=document.createElement("div");row.className="deposit-picked-row";row.innerHTML=`<img src="${getImage(item.name)}" alt=""><div class="deposit-picked-info"><div class="deposit-picked-name">${String(item.name||"")}</div><div class="deposit-picked-price">${Number(item.value||0)} ⓧ × ${Number(q)}</div></div><button class="deposit-picked-remove" onclick="removeDepositPicked(${Number(item.brainrot_id)})">УБРАТЬ</button>`;list.appendChild(row);});
+ selected.forEach(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));if(!item)return;const row=document.createElement("div");row.className="deposit-picked-row";row.innerHTML=`<img src="${getImage(item.name)}" alt=""><div class="deposit-picked-info"><div class="deposit-picked-name">${String(item.name||"")}</div><div class="deposit-picked-price">${getBrainrotDepositValue(item)} ⓧ × ${Number(q)}</div></div><button class="deposit-picked-remove" onclick="removeDepositPicked(${Number(item.brainrot_id)})">УБРАТЬ</button>`;list.appendChild(row);});
 }
 function removeDepositPicked(id){delete depositSelection[id];renderDepositGrid();renderDepositPicked();}
 function closeDepositReceipt(event){if(event)event.stopPropagation();document.getElementById("depositReceiptOverlay")?.classList.remove("active");}
@@ -16161,13 +16230,7 @@ async function submitDeposit(){
 
     // После нажатия "ОТПРАВИТЬ ЗАЯВКУ" сразу закрываем
     // окно пополнения, чтобы оно не висело во время запроса.
-    document
-        .getElementById(
-            "depositModal"
-        )
-        ?.classList.remove(
-            "active"
-        );
+    closeDeposit();
 
     const data =
         await apiRequest({
@@ -16220,10 +16283,10 @@ async function submitDeposit(){
 
     const receiptItems = Object.entries(depositSelection)
         .filter(([,q])=>Number(q)>0)
-        .map(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));return item?{name:item.name,value:Number(item.value||0),quantity:Number(q)}:null;})
+        .map(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));return item?{name:item.name,value:getBrainrotDepositValue(item),quantity:Number(q)}:null;})
         .filter(Boolean);
 
-    document.getElementById("depositModal")?.classList.remove("active");
+    closeDeposit();
     showDepositReceipt(data, receiptItems);
 
 }
