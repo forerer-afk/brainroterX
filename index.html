@@ -17882,11 +17882,39 @@ async function submitWithdraw(){
         return;
     }
 
+    /*
+        Сохраняем выбранные предметы ДО запроса.
+        После ответа они уже могут стать locked.
+    */
+    const receiptItems =
+        selected.map(
+            item => ({
+                name:
+                    item.brainrot_name
+                    ||
+                    item.name
+                    ||
+                    "",
+
+                value:
+                    Number(
+                        item.value
+                        ||
+                        0
+                    ),
+
+                quantity:
+                    1
+            })
+        );
+
     result.innerText =
         "⏳ Создаём заявку...";
 
-    const data =
-        document
+    /*
+        После подтверждения сразу закрываем меню вывода.
+    */
+    document
         .getElementById(
             "withdrawModal"
         )
@@ -17894,7 +17922,14 @@ async function submitWithdraw(){
             "show"
         );
 
-    await apiRequest({
+    /*
+        ВАЖНО:
+        раньше data ошибочно становился результатом
+        classList.remove(), то есть undefined.
+        Теперь data — настоящий ответ backend.
+    */
+    const data =
+        await apiRequest({
 
             action:
                 "create_withdraw_request",
@@ -17916,16 +17951,46 @@ async function submitWithdraw(){
         });
 
     if(
+        !data
+        ||
         !data.ok
     ){
+
         result.innerText =
             "❌ "
             +
-            data.error;
+            (
+                data?.error
+                ||
+                "Не удалось создать заявку"
+            );
+
+        showToast(
+            data?.error
+            ||
+            "Не удалось создать заявку",
+            "error"
+        );
+
+        /*
+            Если сервер вернул ошибку —
+            возвращаем меню, чтобы данные не потерялись.
+        */
+        document
+            .getElementById(
+                "withdrawModal"
+            )
+            ?.classList.add(
+                "show"
+            );
 
         return;
     }
 
+    /*
+        Мгновенно отмечаем выбранные Brainrot как находящиеся
+        в процессе вывода — без перезагрузки страницы.
+    */
     const selectedIds =
         new Set(
             selected.map(
@@ -17948,14 +18013,33 @@ async function submitWithdraw(){
             ){
                 item.locked =
                     true;
+
+                /*
+                    Дополнительный локальный флаг для элементов,
+                    где UI различает именно pending withdrawal.
+                */
+                item.withdraw_pending =
+                    true;
             }
 
         }
     );
 
+    /*
+        Сразу перерисовываем все места,
+        где используется инвентарь.
+    */
     renderInventory();
     renderSourceGrid();
     renderTargetGrid();
+
+    if(
+        typeof renderWithdrawGrid
+        ===
+        "function"
+    ){
+        renderWithdrawGrid();
+    }
 
     result.innerText =
         `✅ Заявка #${data.request_id} создана.`;
@@ -17965,72 +18049,14 @@ async function submitWithdraw(){
         "success"
     );
 
-    const withdrawReceiptItems =
-        (
-            typeof selectedWithdrawItems !== "undefined"
-            &&
-            Array.isArray(
-                selectedWithdrawItems
-            )
-        )
-            ? selectedWithdrawItems
-            : (
-                typeof withdrawSelection !== "undefined"
-                    ? Object.entries(
-                        withdrawSelection
-                    )
-                    .filter(
-                        ([,q]) =>
-                            Number(q) > 0
-                    )
-                    .map(
-                        ([id,q]) => {
-
-                            const item =
-                                (
-                                    Array.isArray(
-                                        inventory
-                                    )
-                                        ? inventory
-                                        : []
-                                )
-                                .find(
-                                    x =>
-                                        Number(
-                                            x.brainrot_id
-                                        )
-                                        ===
-                                        Number(id)
-                                );
-
-                            return item
-                                ? {
-                                    name:
-                                        item.brainrot_name
-                                        ||
-                                        item.name,
-                                    value:
-                                        Number(
-                                            item.value
-                                            ||
-                                            0
-                                        ),
-                                    quantity:
-                                        Number(q)
-                                }
-                                : null;
-
-                        }
-                    )
-                    .filter(Boolean)
-                    : []
-            );
-
+    /*
+        Показываем красивую карточку подтверждения,
+        как после пополнения.
+    */
     showWithdrawReceipt(
         data.request_id,
-        withdrawReceiptItems
+        receiptItems
     );
-
 
 }
 
