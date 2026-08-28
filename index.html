@@ -6861,6 +6861,14 @@ body::after{
             </button>
 
             <button
+                id="depositTabGearsBtn"
+                class="deposit-tab-btn"
+                onclick="setDepositTab('gears')"
+            >
+                ⚙️ ГЕРСЫ
+            </button>
+
+            <button
                 id="depositTabUahBtn"
                 class="deposit-tab-btn"
                 onclick="setDepositTab('uah')"
@@ -6933,6 +6941,63 @@ body::after{
             id="depositResult"
             class="result"
         ></div>
+        </div>
+
+        <div
+            id="depositGearsTab"
+            class="deposit-tab-panel"
+        >
+            <div
+                id="gearsDepositGrid"
+                class="deposit-grid"
+            ></div>
+
+            <div class="deposit-summary">
+                Выбрано:
+                <b id="gearsDepositCount">0</b>
+                / 10
+
+                <br><br>
+
+                Будет начислено:
+                <b id="gearsDepositTotal">0</b>
+                ⓧ
+            </div>
+
+            <div class="input-label">
+                Roblox ник
+            </div>
+
+            <input
+                id="gearsDepositRoblox"
+                class="text-input"
+                placeholder="Например: Topor123"
+            >
+
+            <div class="input-label">
+                Реферальный код
+            </div>
+
+            <input
+                id="gearsDepositReferral"
+                class="text-input"
+                maxlength="40"
+                placeholder="Необязательно"
+                autocomplete="off"
+            >
+
+            <button
+                id="gearsDepositSubmitButton"
+                class="submit-btn"
+                onclick="submitGearsDeposit()"
+            >
+                ОТПРАВИТЬ ЗАЯВКУ
+            </button>
+
+            <div
+                id="gearsDepositResult"
+                class="result"
+            ></div>
         </div>
 
         <div
@@ -8218,6 +8283,35 @@ let silentSyncRunning = false;
 let depositEnabled = true;
 let uahDepositEnabled = true;
 let brainrotDepositEnabled = true;
+
+const GEARS_DEPOSIT_ITEMS = [
+    {
+        id: "wave-rider",
+        name: "Wave Rider",
+        value: 62,
+        image: "./wave-rider.png"
+    },
+    {
+        id: "witch-broom",
+        name: "Witch Broom",
+        value: 68,
+        image: "./witch-broom.png"
+    },
+    {
+        id: "cupid-wings",
+        name: "Cupid Wings",
+        value: 71,
+        image: "./cupid-wings.png"
+    },
+    {
+        id: "santas-sleigh",
+        name: "Santas Sleigh",
+        value: 120,
+        image: "./santas-sleigh.png"
+    }
+];
+
+let gearsDepositSelection = {};
 
 
 /* =====================================================
@@ -14781,7 +14875,11 @@ function setDepositTab(
     const requestedTab =
         tab === "uah"
             ? "uah"
-            : "brainrot";
+            : (
+                tab === "gears"
+                    ? "gears"
+                    : "brainrot"
+            );
 
     if(
         requestedTab === "uah"
@@ -14796,12 +14894,16 @@ function setDepositTab(
     }
 
     if(
-        requestedTab === "brainrot"
+        (
+            requestedTab === "brainrot"
+            ||
+            requestedTab === "gears"
+        )
         &&
         !brainrotDepositEnabled
     ){
         showToast(
-            "🧠 Пополнение Brainrot временно отключено",
+            "🧠 Пополнение Brainrot и Герсами временно отключено",
             "error"
         );
         return;
@@ -14810,53 +14912,43 @@ function setDepositTab(
     currentDepositTab =
         requestedTab;
 
-    const brainrotPanel =
-        document.getElementById(
-            "depositBrainrotTab"
-        );
+    const panels = {
+        brainrot: document.getElementById("depositBrainrotTab"),
+        gears: document.getElementById("depositGearsTab"),
+        uah: document.getElementById("depositUahTab")
+    };
 
-    const uahPanel =
-        document.getElementById(
-            "depositUahTab"
-        );
+    const buttons = {
+        brainrot: document.getElementById("depositTabBrainrotBtn"),
+        gears: document.getElementById("depositTabGearsBtn"),
+        uah: document.getElementById("depositTabUahBtn")
+    };
 
-    const brainrotButton =
-        document.getElementById(
-            "depositTabBrainrotBtn"
-        );
+    Object
+    .entries(panels)
+    .forEach(
+        ([key, panel]) => {
+            if(panel){
+                panel.classList.toggle(
+                    "active",
+                    currentDepositTab === key
+                );
+            }
+        }
+    );
 
-    const uahButton =
-        document.getElementById(
-            "depositTabUahBtn"
-        );
-
-    if(brainrotPanel){
-        brainrotPanel.classList.toggle(
-            "active",
-            currentDepositTab === "brainrot"
-        );
-    }
-
-    if(uahPanel){
-        uahPanel.classList.toggle(
-            "active",
-            currentDepositTab === "uah"
-        );
-    }
-
-    if(brainrotButton){
-        brainrotButton.classList.toggle(
-            "active",
-            currentDepositTab === "brainrot"
-        );
-    }
-
-    if(uahButton){
-        uahButton.classList.toggle(
-            "active",
-            currentDepositTab === "uah"
-        );
-    }
+    Object
+    .entries(buttons)
+    .forEach(
+        ([key, button]) => {
+            if(button){
+                button.classList.toggle(
+                    "active",
+                    currentDepositTab === key
+                );
+            }
+        }
+    );
 
 }
 
@@ -15044,20 +15136,30 @@ function applyDepositTabLocks(){
             "depositTabBrainrotBtn"
         );
 
+    const gearsButton =
+        document.getElementById(
+            "depositTabGearsBtn"
+        );
+
     const uahButton =
         document.getElementById(
             "depositTabUahBtn"
         );
 
-    if(brainrotButton){
-        brainrotButton.disabled =
-            !brainrotDepositEnabled;
+    [brainrotButton, gearsButton]
+    .forEach(
+        button => {
+            if(button){
+                button.disabled =
+                    !brainrotDepositEnabled;
 
-        brainrotButton.classList.toggle(
-            "deposit-tab-disabled",
-            !brainrotDepositEnabled
-        );
-    }
+                button.classList.toggle(
+                    "deposit-tab-disabled",
+                    !brainrotDepositEnabled
+                );
+            }
+        }
+    );
 
     if(uahButton){
         uahButton.disabled =
@@ -15133,6 +15235,9 @@ async function openDeposit(){
     }
 
     depositSelection =
+        {};
+
+    gearsDepositSelection =
         {};
 
     if(
@@ -15218,6 +15323,34 @@ async function openDeposit(){
     }
 
     renderDepositGrid();
+    renderGearsDepositGrid();
+
+    const gearsRoblox =
+        document.getElementById(
+            "gearsDepositRoblox"
+        );
+
+    const gearsReferral =
+        document.getElementById(
+            "gearsDepositReferral"
+        );
+
+    const gearsResult =
+        document.getElementById(
+            "gearsDepositResult"
+        );
+
+    if(gearsRoblox){
+        gearsRoblox.value = "";
+    }
+
+    if(gearsReferral){
+        gearsReferral.value = "";
+    }
+
+    if(gearsResult){
+        gearsResult.innerText = "";
+    }
 
     document
         .getElementById(
@@ -15500,6 +15633,348 @@ function updateDepositSummary(){
         )
         .innerText =
             total;
+
+}
+
+
+function getGearsDepositCount(){
+
+    return Object
+        .values(
+            gearsDepositSelection
+        )
+        .reduce(
+            (
+                sum,
+                value
+            ) =>
+                sum
+                +
+                Number(
+                    value
+                ),
+            0
+        );
+
+}
+
+
+function changeGearsDeposit(
+    id,
+    delta
+){
+
+    const current =
+        Number(
+            gearsDepositSelection[
+                id
+            ]
+            ||
+            0
+        );
+
+    if(
+        delta > 0
+        &&
+        getGearsDepositCount() >= 10
+    ){
+        alert(
+            "Максимум 10 Герсов"
+        );
+        return;
+    }
+
+    const next =
+        Math.max(
+            0,
+            current + delta
+        );
+
+    if(next === 0){
+        delete gearsDepositSelection[id];
+    }
+    else{
+        gearsDepositSelection[id] = next;
+    }
+
+    renderGearsDepositGrid();
+
+}
+
+
+function renderGearsDepositGrid(){
+
+    const root =
+        document.getElementById(
+            "gearsDepositGrid"
+        );
+
+    if(!root){
+        return;
+    }
+
+    root.innerHTML = "";
+
+    GEARS_DEPOSIT_ITEMS
+    .forEach(
+        item => {
+
+            const quantity =
+                Number(
+                    gearsDepositSelection[item.id]
+                    ||
+                    0
+                );
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.className =
+                "deposit-item";
+
+            div.innerHTML =
+                `
+                <img
+                    src="${item.image}"
+                    alt=""
+                >
+
+                <div class="deposit-item-name">
+                    ${item.name}
+                </div>
+
+                <div class="deposit-value">
+                    +${item.value} ⓧ
+                </div>
+
+                <div class="quantity-row">
+
+                    <button
+                        class="quantity-btn"
+                        onclick="changeGearsDeposit('${item.id}',-1)"
+                    >
+                        −
+                    </button>
+
+                    <b>
+                        ${quantity}
+                    </b>
+
+                    <button
+                        class="quantity-btn"
+                        onclick="changeGearsDeposit('${item.id}',1)"
+                    >
+                        +
+                    </button>
+
+                </div>
+                `;
+
+            root.appendChild(
+                div
+            );
+
+        }
+    );
+
+    updateGearsDepositSummary();
+
+}
+
+
+function updateGearsDepositSummary(){
+
+    let total = 0;
+
+    Object
+    .entries(
+        gearsDepositSelection
+    )
+    .forEach(
+        ([id, quantity]) => {
+
+            const item =
+                GEARS_DEPOSIT_ITEMS
+                .find(
+                    gear =>
+                        gear.id === id
+                );
+
+            if(!item){
+                return;
+            }
+
+            total +=
+                Number(item.value)
+                *
+                Number(quantity);
+
+        }
+    );
+
+    const count =
+        document.getElementById(
+            "gearsDepositCount"
+        );
+
+    const totalEl =
+        document.getElementById(
+            "gearsDepositTotal"
+        );
+
+    if(count){
+        count.innerText =
+            getGearsDepositCount();
+    }
+
+    if(totalEl){
+        totalEl.innerText =
+            total;
+    }
+
+}
+
+
+async function submitGearsDeposit(){
+
+    const username =
+        String(
+            document.getElementById(
+                "gearsDepositRoblox"
+            )?.value
+            ||
+            ""
+        ).trim();
+
+    const referralCode =
+        String(
+            document.getElementById(
+                "gearsDepositReferral"
+            )?.value
+            ||
+            ""
+        )
+        .trim()
+        .toUpperCase();
+
+    const result =
+        document.getElementById(
+            "gearsDepositResult"
+        );
+
+    const button =
+        document.getElementById(
+            "gearsDepositSubmitButton"
+        );
+
+    const items =
+        Object
+        .entries(
+            gearsDepositSelection
+        )
+        .filter(
+            ([, quantity]) =>
+                Number(quantity) > 0
+        )
+        .map(
+            ([id, quantity]) => ({
+                gear_id: id,
+                quantity:
+                    Number(quantity)
+            })
+        );
+
+    if(!items.length){
+        if(result){
+            result.innerText =
+                "❌ Выбери Герс";
+        }
+        return;
+    }
+
+    if(username.length < 3){
+        if(result){
+            result.innerText =
+                "❌ Введи Roblox ник";
+        }
+        return;
+    }
+
+    if(button){
+        button.disabled = true;
+    }
+
+    if(result){
+        result.innerText =
+            "⏳ Отправляем...";
+    }
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "create_gear_deposit_request",
+                roblox_username:
+                    username,
+                referral_code:
+                    referralCode,
+                items:
+                    items
+            });
+
+        if(!data.ok){
+            throw new Error(
+                data.error ||
+                "Ошибка создания заявки"
+            );
+        }
+
+        const bonusText =
+            Number(
+                data.referral_bonus ||
+                0
+            ) > 0
+                ? `\n🎁 Реферальный бонус: +${data.referral_bonus} ⓧ`
+                : "";
+
+        if(result){
+            result.innerText =
+                `✅ Заявка #${data.request_id} создана.${bonusText}\n`
+                +
+                `💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ\n\n`
+                +
+                `⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
+        }
+
+        showToast(
+            `⚙️ Заявка Герсы #${data.request_id} создана`,
+            "info"
+        );
+
+    }
+    catch(error){
+
+        if(result){
+            result.innerText =
+                "❌ "
+                +
+                (
+                    error.message ||
+                    "Ошибка"
+                );
+        }
+
+    }
+    finally{
+
+        if(button){
+            button.disabled = false;
+        }
+
+    }
 
 }
 

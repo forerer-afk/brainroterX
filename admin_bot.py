@@ -412,7 +412,7 @@ async def set_channel(update, channel, enabled):
     if not result.get("ok"):
         await update.message.reply_text("❌ "+result.get("error","Ошибка"))
         return
-    name="ГРН" if channel=="uah" else "Brainrot"
+    name="ГРН" if channel=="uah" else "Brainrot + Герсы"
     await update.message.reply_text(
         ("✅ " if enabled else "⛔ ")+name+
         (" включено" if enabled else " отключено")
@@ -475,7 +475,7 @@ async def button_handler(
         text=("⚙️ СТАТУС ПОПОЛНЕНИЙ\n\n"
               f"Общее: {'✅ ВКЛ' if result.get('deposit_enabled',True) else '⛔ ВЫКЛ'}\n"
               f"ГРН: {'✅ ВКЛ' if result.get('uah_enabled',True) else '⛔ ВЫКЛ'}\n"
-              f"Brainrot: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
+              f"Brainrot + Герсы: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
         await query.answer()
         await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
         return
@@ -609,6 +609,120 @@ async def button_handler(
             old_text
             + "\n\n"
             + "❌ ГРН ЗАЯВКА ОТКЛОНЕНА"
+        )
+
+        return
+
+
+    # =================================================
+    # ГЕРСЫ — ПОДТВЕРДИТЬ
+    # =================================================
+
+    if data.startswith(
+        "gear_approve_"
+    ):
+
+        request_id = data.replace(
+            "gear_approve_",
+            ""
+        )
+
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
+        result = call_server(
+            "admin_approve_gear_deposit_request",
+            request_id=request_id,
+        )
+
+        if not result.get("ok"):
+
+            await query.answer(
+                "❌ "
+                + result.get(
+                    "error",
+                    "Ошибка"
+                ),
+                show_alert=True
+            )
+
+            return
+
+        await query.answer(
+            "✅ Готово"
+        )
+
+        old_text = query.message.text or ""
+
+        await query.edit_message_text(
+            old_text
+            + "\n\n"
+            + "✅ ГЕРСЫ ПОДТВЕРЖДЕНЫ"
+            + "\n"
+            + f"💰 Начислено: {result.get('added_coins', 0)} монет"
+            + "\n"
+            + f"🎯 Добавлен отыгрыш: {result.get('wager_added', 0)}"
+        )
+
+        return
+
+
+    # =================================================
+    # ГЕРСЫ — ОТКЛОНИТЬ
+    # =================================================
+
+    if data.startswith(
+        "gear_reject_"
+    ):
+
+        request_id = data.replace(
+            "gear_reject_",
+            ""
+        )
+
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
+        result = call_server(
+            "admin_reject_gear_deposit_request",
+            request_id=request_id,
+        )
+
+        if not result.get("ok"):
+
+            await query.answer(
+                "❌ "
+                + result.get(
+                    "error",
+                    "Ошибка"
+                ),
+                show_alert=True
+            )
+
+            return
+
+        await query.answer(
+            "✅ Готово"
+        )
+
+        old_text = query.message.text or ""
+
+        await query.edit_message_text(
+            old_text
+            + "\n\n"
+            + "❌ ГЕРСЫ ОТКЛОНЕНЫ"
         )
 
         return
