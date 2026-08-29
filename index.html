@@ -6380,6 +6380,88 @@ body::after{
 </div>
 
 
+
+<style>
+/* Compact source → target preview for the normal upgrader */
+.upgrade-pair-preview{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);
+    align-items:center;
+    gap:8px;
+    margin:10px 0 4px;
+}
+.upgrade-preview-side{min-width:0;}
+.upgrade-preview-label{
+    margin:0 0 5px;
+    text-align:center;
+    font-size:11px;
+    line-height:1.2;
+    font-weight:800;
+    letter-spacing:.02em;
+    opacity:.72;
+}
+.upgrade-preview-card{
+    min-height:72px;
+    padding:8px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:13px;
+    background:rgba(255,255,255,.045);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    overflow:hidden;
+}
+.upgrade-preview-card img{
+    width:48px;
+    height:48px;
+    flex:0 0 48px;
+    object-fit:contain;
+}
+.upgrade-preview-info{min-width:0;}
+.upgrade-preview-name{
+    font-size:11px;
+    line-height:1.15;
+    font-weight:850;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.upgrade-preview-price{
+    margin-top:4px;
+    font-size:11px;
+    font-weight:800;
+    opacity:.76;
+}
+.upgrade-preview-arrow{
+    align-self:end;
+    margin-bottom:22px;
+    text-align:center;
+    font-size:25px;
+    line-height:1;
+    font-weight:900;
+    opacity:.78;
+}
+.upgrade-preview-empty{
+    width:100%;
+    text-align:center;
+    font-size:10px;
+    line-height:1.25;
+    font-weight:700;
+    opacity:.42;
+}
+.upgrade-result-message{
+    min-height:0 !important;
+    margin-top:4px !important;
+}
+.upgrade-result-message:empty{display:none;}
+@media(max-width:390px){
+    .upgrade-pair-preview{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:5px;}
+    .upgrade-preview-card{padding:6px;min-height:66px;gap:6px;}
+    .upgrade-preview-card img{width:42px;height:42px;flex-basis:42px;}
+    .upgrade-preview-arrow{font-size:21px;margin-bottom:21px;}
+}
+</style>
+
 <div
     id="upgraderPage"
     class="page"
@@ -6448,9 +6530,27 @@ body::after{
             ⚡ АПГРЕЙД
         </button>
 
+        <div class="upgrade-pair-preview" id="upgradePairPreview">
+            <div class="upgrade-preview-side">
+                <div class="upgrade-preview-label">Твой предмет</div>
+                <div class="upgrade-preview-card" id="upgradeSourcePreview">
+                    <div class="upgrade-preview-empty">Выбери Brainrot</div>
+                </div>
+            </div>
+
+            <div class="upgrade-preview-arrow" aria-hidden="true">→</div>
+
+            <div class="upgrade-preview-side">
+                <div class="upgrade-preview-label">Цель апгрейда</div>
+                <div class="upgrade-preview-card" id="upgradeTargetPreview">
+                    <div class="upgrade-preview-empty">Выбери предмет</div>
+                </div>
+            </div>
+        </div>
+
         <div
             id="upgradeResult"
-            class="result"
+            class="result upgrade-result-message"
         ></div>
 
         <div class="section-title">
@@ -13587,6 +13687,59 @@ function renderTargetGrid(){
 }
 
 
+let lastUpgradePreviewSource = null;
+let lastUpgradePreviewTarget = null;
+
+function renderUpgradePairPreview(sourceOverride = undefined, targetOverride = undefined){
+
+    const sourceEl = document.getElementById("upgradeSourcePreview");
+    const targetEl = document.getElementById("upgradeTargetPreview");
+
+    if(!sourceEl || !targetEl){
+        return;
+    }
+
+    const currentSource = getSource();
+    const currentTarget = getTarget();
+
+    let source;
+    let target;
+
+    if(sourceOverride !== undefined || targetOverride !== undefined){
+        source = sourceOverride ?? null;
+        target = targetOverride ?? null;
+    }
+    else if(currentSource){
+        source = currentSource;
+        target = currentTarget;
+    }
+    else{
+        source = lastUpgradePreviewSource;
+        target = lastUpgradePreviewTarget;
+    }
+
+    const renderCard = (root, item, isSource) => {
+        if(!item){
+            root.innerHTML = `<div class="upgrade-preview-empty">${isSource ? "Выбери Brainrot" : "Выбери предмет"}</div>`;
+            return;
+        }
+
+        const name = String(item.brainrot_name || item.name || "Brainrot");
+        const value = Number(item.value || 0);
+
+        root.innerHTML = `
+            <img src="${getImage(name)}" alt="">
+            <div class="upgrade-preview-info">
+                <div class="upgrade-preview-name">${name}</div>
+                <div class="upgrade-preview-price">${value} ⓧ</div>
+            </div>
+        `;
+    };
+
+    renderCard(sourceEl, source, true);
+    renderCard(targetEl, target, false);
+}
+
 function updateUpgradeUI(){
 
     const wheel =
@@ -13624,6 +13777,8 @@ function updateUpgradeUI(){
             .querySelector(
                 ".upgrade-wheel-wrap"
             );
+
+    renderUpgradePairPreview();
 
     if(
         wheelWrap
@@ -14690,20 +14845,11 @@ async function upgradeItem(){
                 data.item
             );
 
-            result.innerText =
-                "✅ УСПЕХ!\n"
-                +
-                source.brainrot_name
-                +
-                " → "
-                +
-                data.item.brainrot_name
-                +
-                "\nШанс: "
-                +
-                visualChance
-                +
-                "%";
+            result.innerText = "";
+
+            lastUpgradePreviewSource = { ...source };
+            lastUpgradePreviewTarget = { ...target };
+            renderUpgradePairPreview(lastUpgradePreviewSource, lastUpgradePreviewTarget);
 
             showToast(
                 `✅ Апгрейд: ${source.brainrot_name} → ${data.item.brainrot_name}`,
@@ -14715,16 +14861,11 @@ async function upgradeItem(){
         }
         else{
 
-            result.innerText =
-                "❌ ПРОИГРЫШ\n"
-                +
-                source.brainrot_name
-                +
-                " сгорел\nШанс: "
-                +
-                visualChance
-                +
-                "%";
+            result.innerText = "";
+
+            lastUpgradePreviewSource = { ...source };
+            lastUpgradePreviewTarget = { ...target };
+            renderUpgradePairPreview(lastUpgradePreviewSource, lastUpgradePreviewTarget);
 
             showToast(
                 `❌ Апгрейд не удался: ${source.brainrot_name} сгорел`,
