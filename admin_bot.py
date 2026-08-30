@@ -115,6 +115,17 @@ def is_admin(update: Update):
     return user.id == ADMIN_TELEGRAM_ID
 
 
+def is_owner(update: Update):
+    return is_admin(update)
+
+
+def get_promo_access(telegram_id: int):
+    return call_server(
+        "admin_get_promo_delegate",
+        actor_telegram_id=telegram_id,
+    )
+
+
 # =====================================================
 # /START
 # =====================================================
@@ -124,16 +135,13 @@ async def start_command(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
-    if not is_admin(update):
-
-        await update.message.reply_text(
-            "❌ Нет доступа"
-        )
-
+    user = update.effective_user
+    if not user:
         return
 
-    await update.message.reply_text(
-        "🛠 ADMIN BOT\n\n"
+    if is_owner(update):
+        await update.message.reply_text(
+            "🛠 ADMIN BOT\n\n"
         "Создать промокод:\n"
         "/promo КОД АКТИВАЦИИ МОНЕТЫ\n\n"
         "Пример:\n"
@@ -149,7 +157,26 @@ async def start_command(
         "🍀 Включить повышенный шанс:\n"
         "/luck+ TELEGRAM_ID\n\n"
         "🍀 Выключить повышенный шанс:\n"
-        "/luck- TELEGRAM_ID"
+        "/luck- TELEGRAM_ID\n\n"
+        "👥 Делегированные промо:\n"
+        "/promoadd ID КОЛ-ВО — выдать/добавить лимит\n"
+        "/promotake ID КОЛ-ВО — убрать лимит\n"
+        "/promoblock ID — полностью забрать доступ\n"
+        "/promoinfo ID — посмотреть лимит"
+        )
+        return
+
+    access = get_promo_access(user.id)
+    if not access.get("ok") or not access.get("allowed"):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+
+    await update.message.reply_text(
+        "🎟 ДОСТУП К ПРОМОКОДАМ\n\n"
+        "/promo КОД АКТИВАЦИИ МОНЕТЫ\n\n"
+        f"Максимум на 1 промо: {access.get('max_uses_per_promo', 15)} активаций\n"
+        f"Максимум награда: {access.get('max_reward_coins', 10)} монет\n"
+        f"Осталось создать промокодов: {access.get('remaining_promos', 0)}"
     )
 
 
@@ -162,12 +189,8 @@ async def promo_command(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
-    if not is_admin(update):
-
-        await update.message.reply_text(
-            "❌ Нет доступа"
-        )
-
+    user = update.effective_user
+    if not user:
         return
 
     args = context.args
@@ -223,6 +246,9 @@ async def promo_command(
 
     result = call_server(
         "admin_create_promo",
+        actor_telegram_id=user.id,
+        actor_username=(user.username or ""),
+        actor_name=(user.full_name or ""),
         code=code,
         max_uses=max_uses,
         reward_coins=reward_coins,
@@ -250,6 +276,131 @@ async def promo_command(
         f"🎟 Код: {promo.get('code', code)}\n"
         f"👥 Активаций: {promo.get('max_uses', max_uses)}\n"
         f"💰 Награда: {promo.get('reward_coins', reward_coins)} монет"
+        + (
+            f"\n📦 Осталось создать: {result.get('remaining_promos')}"
+            if result.get("remaining_promos") is not None
+            else ""
+        )
+    )
+
+
+# =====================================================
+# ДЕЛЕГИРОВАННЫЕ СОЗДАТЕЛИ ПРОМО
+# =====================================================
+
+async def promoadd_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    if len(context.args) != 2:
+        await update.message.reply_text("Использование:\n/promoadd TELEGRAM_ID КОЛ-ВО")
+        return
+    try:
+        target_id = int(context.args[0])
+        amount = int(context.args[1])
+    except ValueError:
+        await update.message.reply_text("❌ ID и количество должны быть числами")
+        return
+    if amount < 1:
+        await update.message.reply_text("❌ Количество должно быть минимум 1")
+        return
+    result = call_server(
+        "admin_adjust_promo_delegate",
+        actor_telegram_id=ADMIN_TELEGRAM_ID,
+        target_telegram_id=target_id,
+        delta=amount,
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + result.get("error", "Ошибка"))
+        return
+    await update.message.reply_text(
+        f"✅ Доступ выдан/увеличен\n"
+        f"🆔 {target_id}\n"
+        f"📦 Можно создать промокодов: {result.get('remaining_promos', 0)}\n"
+        f"👥 Лимит активаций на 1 промо: {result.get('max_uses_per_promo', 15)}\n"
+        f"💰 Лимит награды: {result.get('max_reward_coins', 10)} монет"
+    )
+
+
+async def promotake_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    if len(context.args) != 2:
+        await update.message.reply_text("Использование:\n/promotake TELEGRAM_ID КОЛ-ВО")
+        return
+    try:
+        target_id = int(context.args[0])
+        amount = int(context.args[1])
+    except ValueError:
+        await update.message.reply_text("❌ ID и количество должны быть числами")
+        return
+    if amount < 1:
+        await update.message.reply_text("❌ Количество должно быть минимум 1")
+        return
+    result = call_server(
+        "admin_adjust_promo_delegate",
+        actor_telegram_id=ADMIN_TELEGRAM_ID,
+        target_telegram_id=target_id,
+        delta=-amount,
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + result.get("error", "Ошибка"))
+        return
+    await update.message.reply_text(
+        f"✅ Лимит уменьшен\n🆔 {target_id}\n"
+        f"📦 Осталось: {result.get('remaining_promos', 0)}"
+    )
+
+
+async def promoblock_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    if len(context.args) != 1:
+        await update.message.reply_text("Использование:\n/promoblock TELEGRAM_ID")
+        return
+    try:
+        target_id = int(context.args[0])
+    except ValueError:
+        await update.message.reply_text("❌ Telegram ID должен быть числом")
+        return
+    result = call_server(
+        "admin_block_promo_delegate",
+        actor_telegram_id=ADMIN_TELEGRAM_ID,
+        target_telegram_id=target_id,
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + result.get("error", "Ошибка"))
+        return
+    await update.message.reply_text(f"⛔ Доступ к созданию промо забран\n🆔 {target_id}")
+
+
+async def promoinfo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    if len(context.args) != 1:
+        await update.message.reply_text("Использование:\n/promoinfo TELEGRAM_ID")
+        return
+    try:
+        target_id = int(context.args[0])
+    except ValueError:
+        await update.message.reply_text("❌ Telegram ID должен быть числом")
+        return
+    result = call_server(
+        "admin_get_promo_delegate",
+        actor_telegram_id=target_id,
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + result.get("error", "Ошибка"))
+        return
+    await update.message.reply_text(
+        f"👤 PROMO-ДОСТУП\n🆔 {target_id}\n"
+        f"✅ Доступ: {'да' if result.get('allowed') else 'нет'}\n"
+        f"📦 Осталось промокодов: {result.get('remaining_promos', 0)}\n"
+        f"👥 До {result.get('max_uses_per_promo', 15)} активаций\n"
+        f"💰 До {result.get('max_reward_coins', 10)} монет"
     )
 
 
@@ -377,7 +528,11 @@ def commands_text():
     return (
         "📋 ВСЕ КОМАНДЫ\n\n"
         "/promo КОД АКТИВАЦИИ МОНЕТЫ — создать промо\n"
-        "/promoff КОД — отключить промо\n\n"
+        "/promoff КОД — отключить промо\n"
+        "/promoadd ID КОЛ-ВО — добавить право на создание промо\n"
+        "/promotake ID КОЛ-ВО — убрать часть лимита\n"
+        "/promoblock ID — забрать доступ\n"
+        "/promoinfo ID — посмотреть остаток\n\n"
         "/- — отключить все пополнения\n"
         "/+ — включить все пополнения\n"
         "/g- — отключить только ГРН\n"
@@ -1368,6 +1523,11 @@ def main():
             promoff_command
         )
     )
+
+    app.add_handler(CommandHandler("promoadd", promoadd_command))
+    app.add_handler(CommandHandler("promotake", promotake_command))
+    app.add_handler(CommandHandler("promoblock", promoblock_command))
+    app.add_handler(CommandHandler("promoinfo", promoinfo_command))
 
     app.add_handler(
         MessageHandler(
