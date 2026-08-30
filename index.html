@@ -15208,16 +15208,24 @@ function setDepositTab(
     }
 
     if(
-        (
-            requestedTab === "brainrot"
-            ||
-            requestedTab === "gears"
-        )
+        requestedTab === "brainrot"
         &&
         !brainrotDepositEnabled
     ){
         showToast(
-            "🧠 Пополнение Brainrot и Герсами временно отключено",
+            "🧠 Пополнение Brainrot временно недоступно",
+            "error"
+        );
+        return;
+    }
+
+    if(
+        requestedTab === "gears"
+        &&
+        !brainrotDepositEnabled
+    ){
+        showToast(
+            "⚙️ Пополнение Герсами временно недоступно",
             "error"
         );
         return;
@@ -15464,8 +15472,13 @@ function applyDepositTabLocks(){
     .forEach(
         button => {
             if(button){
-                button.disabled =
-                    !brainrotDepositEnabled;
+                // Не используем disabled: иначе onclick не сработает и
+                // игрок не увидит причину, почему способ недоступен.
+                button.disabled = false;
+                button.setAttribute(
+                    "aria-disabled",
+                    String(!brainrotDepositEnabled)
+                );
 
                 button.classList.toggle(
                     "deposit-tab-disabled",
