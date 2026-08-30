@@ -6180,6 +6180,42 @@ body::after{
 }
 </style>
 
+
+<style id="brainroterx-ui-test">
+:root{
+  --ui-bg:#0b0d12;
+  --ui-card:#121722;
+  --ui-card2:#171d2a;
+  --ui-border:rgba(255,255,255,.08);
+  --ui-text:#f7f8fb;
+  --ui-muted:#9ca6b8;
+  --ui-accent:#7c5cff;
+  --ui-accent2:#9b87ff;
+  --ui-radius:18px;
+}
+html,body{background:var(--ui-bg)!important;color:var(--ui-text)!important}
+body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+button,.btn,.action-btn,.main-btn{border-radius:16px!important;border:1px solid var(--ui-border)!important;box-shadow:none!important;transition:transform .12s ease,opacity .12s ease,background .12s ease!important}
+button:active,.btn:active,.action-btn:active,.main-btn:active{transform:scale(.98)!important}
+.card,.panel,.section-card,.case-card,.profile-card,.stat-card,.modal,.modal-content{background:linear-gradient(180deg,var(--ui-card2),var(--ui-card))!important;border:1px solid var(--ui-border)!important;border-radius:var(--ui-radius)!important;box-shadow:none!important}
+.topbar,.header,.app-header{background:rgba(11,13,18,.96)!important;border-bottom:1px solid var(--ui-border)!important;backdrop-filter:none!important}
+.balance,.balance-box,.balance-card{background:var(--ui-card2)!important;border:1px solid var(--ui-border)!important;border-radius:16px!important;padding:10px 14px!important}
+.bottom-nav,.bottom-menu,.nav-bottom{background:rgba(18,23,34,.98)!important;border:1px solid var(--ui-border)!important;border-radius:22px 22px 0 0!important;box-shadow:0 -8px 24px rgba(0,0,0,.18)!important;backdrop-filter:none!important}
+.bottom-nav .active,.bottom-menu .active,.nav-bottom .active{background:rgba(124,92,255,.16)!important;color:#fff!important;border-radius:14px!important}
+input,select,textarea{background:#0f141e!important;color:#fff!important;border:1px solid var(--ui-border)!important;border-radius:14px!important;outline:none!important}
+input:focus,select:focus,textarea:focus{border-color:rgba(124,92,255,.6)!important}
+.modal{background:var(--ui-card)!important}
+.modal-overlay,.overlay{background:rgba(0,0,0,.72)!important;backdrop-filter:none!important}
+.badge,.chip,.tag{border-radius:999px!important}
+.case-card,.item-card,.brainrot-card,.gear-card{overflow:hidden!important}
+.case-card img,.item-card img,.brainrot-card img,.gear-card img{filter:none!important}
+h1,h2,h3,.title{letter-spacing:-.02em!important}
+.small,.muted,.subtitle{color:var(--ui-muted)!important}
+@media (max-width:700px){
+  .card,.panel,.section-card,.case-card,.profile-card,.stat-card,.modal{border-radius:16px!important}
+  .bottom-nav,.bottom-menu,.nav-bottom{border-radius:18px 18px 0 0!important}
+}
+</style>
 </head>
 
 <body>
