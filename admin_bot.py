@@ -604,6 +604,22 @@ async def button_handler(
 
     data = query.data or ""
 
+    # Совместимость с разными версиями callback_data у кнопок вывода.
+    # Нормализуем старые/альтернативные имена в текущие.
+    callback_aliases = (
+        ("withdraw_offline_", "withdraw_player_offline_"),
+        ("withdraw_not_online_", "withdraw_player_offline_"),
+        ("withdraw_player_not_online_", "withdraw_player_offline_"),
+        ("withdraw_bad_username_", "withdraw_invalid_username_"),
+        ("withdraw_wrong_username_", "withdraw_invalid_username_"),
+        ("withdraw_invalid_nickname_", "withdraw_invalid_username_"),
+        ("withdraw_wrong_nickname_", "withdraw_invalid_username_"),
+    )
+    for old_prefix, new_prefix in callback_aliases:
+        if data.startswith(old_prefix):
+            data = new_prefix + data[len(old_prefix):]
+            break
+
     if data in ("menu_mem","menu_luck"):
         result=call_server("admin_get_mode_lists")
         if not result.get("ok"):
@@ -1157,6 +1173,100 @@ async def button_handler(
             + "Игроку отправлено уведомление."
         )
 
+        return
+
+
+    # =================================================
+    # ВЫВОД — ИГРОК НЕ В СЕТИ
+    # =================================================
+
+    if data.startswith(
+        "withdraw_player_offline_"
+    ):
+
+        request_id = data.replace(
+            "withdraw_player_offline_",
+            ""
+        )
+
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
+        result = call_server(
+            "admin_cancel_withdraw_request",
+            request_id=request_id,
+            cancel_reason="player_offline",
+        )
+
+        if not result.get("ok"):
+            await query.answer(
+                "❌ " + result.get("error", "Ошибка"),
+                show_alert=True
+            )
+            return
+
+        await query.answer("✅ Вывод отменён")
+        old_text = query.message.text or ""
+        await query.edit_message_text(
+            old_text
+            + "\n\n"
+            + "📴 ВЫВОД ОТМЕНЁН — ИГРОК НЕ В СЕТИ"
+            + "\nBrainrot снова доступны игроку."
+            + "\nИгроку отправлено уведомление."
+        )
+        return
+
+
+    # =================================================
+    # ВЫВОД — НЕВЕРНЫЙ НИКНЕЙМ
+    # =================================================
+
+    if data.startswith(
+        "withdraw_invalid_username_"
+    ):
+
+        request_id = data.replace(
+            "withdraw_invalid_username_",
+            ""
+        )
+
+        try:
+            request_id = int(request_id)
+        except ValueError:
+            await query.answer(
+                "❌ Неверный ID заявки",
+                show_alert=True
+            )
+            return
+
+        result = call_server(
+            "admin_cancel_withdraw_request",
+            request_id=request_id,
+            cancel_reason="invalid_username",
+        )
+
+        if not result.get("ok"):
+            await query.answer(
+                "❌ " + result.get("error", "Ошибка"),
+                show_alert=True
+            )
+            return
+
+        await query.answer("✅ Вывод отменён")
+        old_text = query.message.text or ""
+        await query.edit_message_text(
+            old_text
+            + "\n\n"
+            + "✏️ ВЫВОД ОТМЕНЁН — НЕВЕРНЫЙ НИКНЕЙМ"
+            + "\nBrainrot снова доступны игроку."
+            + "\nИгроку отправлено уведомление."
+        )
         return
 
 
