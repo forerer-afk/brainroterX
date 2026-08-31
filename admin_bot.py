@@ -583,6 +583,88 @@ async def b_plus_command(update, context): await set_channel(update,"brainrot",T
 # КНОПКИ ЗАЯВОК
 # =====================================================
 
+
+
+# =====================================================
+# TRADE BOT PICKER — dedicated callback handler
+# Registered before the generic button handler so these
+# buttons can never fall through to "Unknown button".
+# =====================================================
+
+TRADE_BOTS = [
+    "brainroterXbot",
+    "brainroterXbot1",
+    "brainroterXbot2",
+    "brainroterXbot3",
+    "brainroterXbot4",
+]
+
+async def deposit_trade_bot_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+    if query.from_user.id != ADMIN_TELEGRAM_ID:
+        await query.answer("❌ Нет доступа", show_alert=True)
+        return
+
+    data = query.data or ""
+    # Supported formats:
+    # deposit_bot_<index>_<request_id>
+    # deposit_trade_bot_<index>_<request_id>
+    # trade_bot_<index>_<request_id>
+    prefixes = ("deposit_bot_", "deposit_trade_bot_", "trade_bot_")
+    prefix = next((p for p in prefixes if data.startswith(p)), None)
+    if not prefix:
+        await query.answer("❌ Неверная кнопка бота", show_alert=True)
+        return
+
+    tail = data[len(prefix):]
+    parts = tail.split("_", 1)
+    if len(parts) != 2:
+        await query.answer("❌ Неверные данные кнопки", show_alert=True)
+        return
+    try:
+        bot_index = int(parts[0])
+        request_id = int(parts[1])
+    except ValueError:
+        await query.answer("❌ Неверные данные кнопки", show_alert=True)
+        return
+
+    if bot_index < 0 or bot_index >= len(TRADE_BOTS):
+        await query.answer("❌ Неизвестный бот", show_alert=True)
+        return
+
+    bot_username = TRADE_BOTS[bot_index]
+    result = call_server(
+        "admin_assign_deposit_trade_bot",
+        request_id=request_id,
+        bot_username=bot_username,
+    )
+    if not result.get("ok"):
+        await query.answer("❌ " + result.get("error", "Ошибка"), show_alert=True)
+        return
+
+    current_markup = query.message.reply_markup if query.message else None
+    if current_markup:
+        rows = []
+        for row in current_markup.inline_keyboard:
+            new_row = []
+            for button in row:
+                text = button.text.lstrip("✅ ")
+                cb = button.callback_data
+                if cb == data:
+                    text = "✅ " + text
+                kwargs = {"text": text}
+                if cb is not None:
+                    kwargs["callback_data"] = cb
+                elif button.url is not None:
+                    kwargs["url"] = button.url
+                new_row.append(InlineKeyboardButton(**kwargs))
+            rows.append(new_row)
+        await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(rows))
+
+    await query.answer(f"✅ Выбран @{bot_username}")
+
 async def button_handler(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
@@ -1739,6 +1821,13 @@ def main():
         MessageHandler(
             filters.TEXT,
             mem_text_router
+        )
+    )
+
+    app.add_handler(
+        CallbackQueryHandler(
+            deposit_trade_bot_handler,
+            pattern=r"^(deposit_bot_|deposit_trade_bot_|trade_bot_)"
         )
     )
 
