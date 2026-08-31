@@ -900,6 +900,83 @@ async def button_handler(
 
 
     # =================================================
+    # ПОПОЛНЕНИЕ — ВЫБРАТЬ БОТА ДЛЯ ТРЕЙДА
+    # =================================================
+
+    if data.startswith("deposit_bot_"):
+        # Формат callback: deposit_bot_<index>_<request_id>
+        parts = data.split("_", 3)
+        if len(parts) != 4:
+            await query.answer("❌ Неверная кнопка", show_alert=True)
+            return
+
+        try:
+            bot_index = int(parts[2])
+            request_id = int(parts[3])
+        except ValueError:
+            await query.answer("❌ Неверные данные", show_alert=True)
+            return
+
+        trade_bots = [
+            "brainroterXbot",
+            "brainroterXbot1",
+            "brainroterXbot2",
+            "brainroterXbot3",
+            "brainroterXbot4",
+        ]
+
+        if bot_index < 0 or bot_index >= len(trade_bots):
+            await query.answer("❌ Неизвестный бот", show_alert=True)
+            return
+
+        bot_username = trade_bots[bot_index]
+
+        result = call_server(
+            "admin_assign_deposit_trade_bot",
+            request_id=request_id,
+            bot_username=bot_username,
+        )
+
+        if not result.get("ok"):
+            await query.answer(
+                "❌ " + result.get("error", "Ошибка"),
+                show_alert=True
+            )
+            return
+
+        # Меняем только клавиатуру: заявка остаётся pending,
+        # подтверждение и отмена остаются доступными.
+        rows = []
+        current_markup = query.message.reply_markup
+        if current_markup:
+            for row in current_markup.inline_keyboard:
+                new_row = []
+                for button in row:
+                    button_text = button.text
+                    callback_data = button.callback_data
+                    if callback_data and callback_data.startswith("deposit_bot_"):
+                        button_text = button_text.lstrip("✅ ")
+                        if callback_data == data:
+                            button_text = "✅ " + button_text
+                    new_row.append(
+                        InlineKeyboardButton(
+                            button_text,
+                            callback_data=callback_data,
+                            url=button.url,
+                        )
+                    )
+                rows.append(new_row)
+
+        if rows:
+            await query.edit_message_reply_markup(
+                reply_markup=InlineKeyboardMarkup(rows)
+            )
+
+        await query.answer(f"✅ Выбран @{bot_username}")
+        return
+
+
+    # =================================================
     # ПОПОЛНЕНИЕ — ПОДТВЕРДИТЬ
     # =================================================
 
