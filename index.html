@@ -18068,40 +18068,6 @@ async function submitWithdraw(){
         return;
     }
 
-    const names =
-        selected
-            .map(
-                item =>
-                    item.brainrot_name
-            )
-            .join(
-                ", "
-            );
-
-    const confirmed =
-        await askActionConfirm({
-            type:
-                "withdraw",
-
-            header:
-                "📤 Вывод",
-
-            title:
-                `Вывести ${selected.length} Brainrot?`,
-
-            text:
-                names,
-
-            confirmText:
-                "Вывести"
-        });
-
-    if(
-        !confirmed
-    ){
-        return;
-    }
-
     /*
         Сохраняем выбранные предметы ДО запроса.
         После ответа они уже могут стать locked.
