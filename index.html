@@ -6428,6 +6428,47 @@ body::after{
 }
 </style>
 
+
+<style id="brainroterx-dice-ui-fix">
+#dicePage .dice-picked,
+#dicePage .dice-picked *,
+#dicePage .dice-inventory,
+#dicePage .dice-inventory *{
+    color:#fff !important;
+}
+#dicePage .dice-picked .muted,
+#dicePage .dice-inventory .muted{
+    color:rgba(255,255,255,.62) !important;
+}
+
+/* Уже окно выбора Brainrot */
+#dicePage .dice-picked{
+    width:84% !important;
+    max-width:300px !important;
+    margin:8px auto 12px !important;
+    box-sizing:border-box !important;
+}
+
+/* Отступ между кнопкой "Мои Brainrot" и карточками */
+#dicePage .dice-picker-tabs{
+    margin:14px 0 14px !important;
+    padding:0 !important;
+    position:relative !important;
+    z-index:2 !important;
+}
+#dicePage .dice-mine-tab{
+    margin:0 auto !important;
+}
+
+/* Сетка предметов ниже, чтобы ничего не перекрывалось */
+#dicePage .dice-inventory{
+    margin-top:12px !important;
+    padding-top:6px !important;
+    position:relative !important;
+    z-index:1 !important;
+}
+</style>
+
 </head>
 
 <body>
@@ -6997,8 +7038,8 @@ body::after{
         <div id="dicePicked" class="dice-picked"><div class="dice-empty">Выбери Brainrot</div></div>
 
         <div class="dice-actions">
-            <button id="diceRollButton" class="dice-roll-btn" onclick="rollDice(false)">🎲 РОЛЛ</button>
-            <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)">⚡ БЫСТРЫЙ РОЛЛ</button>
+            <button id="diceRollButton" class="dice-roll-btn" onclick="rollDice(false)">🎲 ROLL</button>
+            <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)">⚡ FAST ROLL</button>
         </div>
 
         <div class="upgrader-picker-tabs dice-picker-tabs">
