@@ -6180,6 +6180,54 @@ body::after{
 }
 </style>
 
+
+<style id="brainroterx-dice-style">
+/* DICE — lightweight, matches the existing BrainroterX UI */
+.bottom-menu .nav-btn{width:20% !important;font-size:9px !important}
+.dice-panel{padding:12px 10px 18px}
+.dice-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dice-title h2{margin:0;font-size:20px}
+.dice-cubes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px}
+.dice-cube{
+    aspect-ratio:1/1;border-radius:15px;border:1px solid rgba(255,255,255,.09);
+    background:#151020;box-shadow:0 7px 16px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.04);
+    display:flex;align-items:center;justify-content:center;
+}
+.dice-cube-face{width:62%;height:62%;border-radius:12px;border:2px solid rgba(255,255,255,.34);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
+.dice-cube.rolling{animation:diceRoll .22s linear infinite}
+@keyframes diceRoll{0%{transform:rotate(-5deg) scale(.94)}50%{transform:rotate(5deg) scale(1.03)}100%{transform:rotate(-5deg) scale(.94)}}
+.dice-colors{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:10px 0 14px}
+.dice-color{
+    height:43px;border-radius:12px;border:2px solid transparent;background:#151020;padding:4px;
+}
+.dice-color span{display:block;width:100%;height:100%;border-radius:8px}
+.dice-color.active{border-color:#fff;box-shadow:0 0 0 2px rgba(139,92,246,.28)}
+.dice-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.dice-roll-btn{
+    min-height:48px;border:0;border-radius:13px;font-weight:950;font-size:13px;color:#fff;
+    background:linear-gradient(135deg,#7c3aed,#5b21b6);
+}
+.dice-roll-btn.fast{background:linear-gradient(135deg,#312e81,#4c1d95)}
+.dice-roll-btn:disabled{opacity:.45}
+.dice-picked{
+    min-height:76px;border:1px solid rgba(255,255,255,.07);border-radius:14px;
+    background:#100d18;padding:8px;margin:8px 0 12px;display:flex;align-items:center;gap:10px;
+}
+.dice-picked img{width:58px;height:58px;object-fit:contain}
+.dice-picked-name{font-size:12px;font-weight:900}
+.dice-picked-value{font-size:11px;color:#facc15;margin-top:4px;font-weight:850}
+.dice-empty{width:100%;text-align:center;opacity:.45;font-size:11px;font-weight:800}
+.dice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.dice-item{
+    border:2px solid #292137;border-radius:12px;background:#100d18;padding:6px;text-align:center;min-width:0;
+}
+.dice-item.selected{border-color:#8b5cf6}
+.dice-item img{width:58px;height:58px;object-fit:contain;display:block;margin:0 auto 4px}
+.dice-item-name{font-size:8px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dice-item-value{font-size:9px;color:#facc15;font-weight:850;margin-top:2px}
+@media(prefers-reduced-motion:reduce){.dice-cube.rolling{animation:none}}
+</style>
+
 </head>
 
 <body>
@@ -6725,6 +6773,42 @@ body::after{
 
 
 
+
+<div id="dicePage" class="page">
+    <div class="panel dice-panel">
+        <div class="dice-title"><h2>🎲 Дайсы</h2></div>
+
+        <div class="dice-cubes" id="diceCubes">
+            <div class="dice-cube"><div class="dice-cube-face" id="diceFace0"></div></div>
+            <div class="dice-cube"><div class="dice-cube-face" id="diceFace1"></div></div>
+            <div class="dice-cube"><div class="dice-cube-face" id="diceFace2"></div></div>
+            <div class="dice-cube"><div class="dice-cube-face" id="diceFace3"></div></div>
+        </div>
+
+        <div class="dice-colors">
+            <button class="dice-color active" data-dice-color="red" onclick="selectDiceColor('red')"><span style="background:#ef4444"></span></button>
+            <button class="dice-color" data-dice-color="yellow" onclick="selectDiceColor('yellow')"><span style="background:#facc15"></span></button>
+            <button class="dice-color" data-dice-color="blue" onclick="selectDiceColor('blue')"><span style="background:#3b82f6"></span></button>
+            <button class="dice-color" data-dice-color="orange" onclick="selectDiceColor('orange')"><span style="background:#f97316"></span></button>
+            <button class="dice-color" data-dice-color="green" onclick="selectDiceColor('green')"><span style="background:#22c55e"></span></button>
+            <button class="dice-color" data-dice-color="purple" onclick="selectDiceColor('purple')"><span style="background:#a855f7"></span></button>
+        </div>
+
+        <div id="dicePicked" class="dice-picked"><div class="dice-empty">Выбери Brainrot</div></div>
+
+        <div class="dice-actions">
+            <button id="diceRollButton" class="dice-roll-btn" onclick="rollDice(false)">🎲 РОЛЛ</button>
+            <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)">⚡ БЫСТРЫЙ РОЛЛ</button>
+        </div>
+
+        <div class="upgrader-picker-tabs">
+            <button class="upgrader-picker-tab active">Мои Brainrot</button>
+        </div>
+
+        <div id="diceInventory" class="dice-grid"></div>
+    </div>
+</div>
+
 <div id="ladderPage" class="page">
     <div class="ladder-panel">
         <div class="ladder-title"><h2>🪜 Лестница</h2><div class="xcoin">X</div></div>
@@ -6973,6 +7057,17 @@ body::after{
         ⚡
         <br>
         Апгрейдер
+    </button>
+
+
+    <button
+        id="diceButton"
+        class="nav-btn"
+        onclick="showPage('dice')"
+    >
+        🎲
+        <br>
+        Дайсы
     </button>
 
     <button
@@ -9571,6 +9666,7 @@ function showPage(
     [
         "cases",
         "upgrader",
+        "dice",
         "ladder",
         "inventory"
     ]
@@ -9635,6 +9731,7 @@ function showPage(
         resetUpgradeView();
         renderSourceGrid();
         renderTargetGrid();
+        renderDiceInventory();
         updateUpgradeUI();
     }
 
@@ -18253,6 +18350,164 @@ async function submitWithdraw(){
         receiptItems
     );
 
+}
+
+
+
+/* =====================================================
+   DICE
+===================================================== */
+const DICE_COLORS = {
+    red:"#ef4444",
+    yellow:"#facc15",
+    blue:"#3b82f6",
+    orange:"#f97316",
+    green:"#22c55e",
+    purple:"#a855f7"
+};
+
+let diceSelectedColor = "red";
+let diceSelectedInventoryId = null;
+let diceRolling = false;
+
+function selectDiceColor(color){
+    if(!DICE_COLORS[color] || diceRolling) return;
+    diceSelectedColor = color;
+    document.querySelectorAll("[data-dice-color]").forEach(button => {
+        button.classList.toggle("active", button.dataset.diceColor === color);
+    });
+}
+
+function getDiceSelectedItem(){
+    return inventory.find(item =>
+        Number(item.id) === Number(diceSelectedInventoryId) &&
+        !item.locked
+    ) || null;
+}
+
+function selectDiceItem(id){
+    if(diceRolling) return;
+    diceSelectedInventoryId = Number(id);
+    renderDiceInventory();
+    renderDicePicked();
+}
+
+function renderDicePicked(){
+    const root = document.getElementById("dicePicked");
+    if(!root) return;
+    const item = getDiceSelectedItem();
+    if(!item){
+        root.innerHTML = '<div class="dice-empty">Выбери Brainrot</div>';
+        return;
+    }
+    root.innerHTML = `
+        <img src="${getImage(item.brainrot_name)}">
+        <div>
+            <div class="dice-picked-name">${item.brainrot_name}</div>
+            <div class="dice-picked-value">${Number(item.value || 0)} ⓧ</div>
+        </div>
+    `;
+}
+
+function renderDiceInventory(){
+    const root = document.getElementById("diceInventory");
+    if(!root) return;
+
+    const available = inventory
+        .filter(item => !item.locked)
+        .slice()
+        .sort((a,b) => Number(b.value || 0) - Number(a.value || 0));
+
+    if(diceSelectedInventoryId && !available.some(item => Number(item.id) === Number(diceSelectedInventoryId))){
+        diceSelectedInventoryId = null;
+    }
+
+    root.innerHTML = "";
+    if(!available.length){
+        root.innerHTML = '<div class="dice-empty" style="grid-column:1/-1">Инвентарь пуст</div>';
+        renderDicePicked();
+        return;
+    }
+
+    available.forEach(item => {
+        const card = document.createElement("button");
+        card.className = "dice-item" + (Number(item.id) === Number(diceSelectedInventoryId) ? " selected" : "");
+        card.onclick = () => selectDiceItem(item.id);
+        card.innerHTML = `
+            <img src="${getImage(item.brainrot_name)}">
+            <div class="dice-item-name">${item.brainrot_name}</div>
+            <div class="dice-item-value">${Number(item.value || 0)} ⓧ</div>
+        `;
+        root.appendChild(card);
+    });
+
+    renderDicePicked();
+}
+
+function paintDice(colors){
+    (colors || []).slice(0,4).forEach((color,index) => {
+        const face = document.getElementById("diceFace" + index);
+        if(face) face.style.background = DICE_COLORS[color] || "#312e81";
+    });
+}
+
+function setDiceBusy(busy){
+    diceRolling = busy;
+    const roll = document.getElementById("diceRollButton");
+    const fast = document.getElementById("diceFastButton");
+    if(roll) roll.disabled = busy;
+    if(fast) fast.disabled = busy;
+}
+
+async function rollDice(fast){
+    if(diceRolling) return;
+
+    const item = getDiceSelectedItem();
+    if(!item){
+        showToast("Выбери Brainrot", "error");
+        return;
+    }
+
+    setDiceBusy(true);
+
+    const cubes = Array.from(document.querySelectorAll(".dice-cube"));
+    if(!fast){
+        cubes.forEach(cube => cube.classList.add("rolling"));
+        const colors = Object.keys(DICE_COLORS);
+        for(let i=0;i<9;i++){
+            paintDice([0,1,2,3].map(() => colors[Math.floor(Math.random()*colors.length)]));
+            await sleep(90);
+        }
+    }
+
+    try{
+        const data = await apiRequest({
+            action:"dice_roll",
+            inventory_id:Number(item.id),
+            color:diceSelectedColor
+        });
+
+        if(!data || !data.ok){
+            throw new Error(data?.error || "Ошибка ролла");
+        }
+
+        paintDice(data.dice || []);
+        if(data.win){
+            showToast("🎉 Победа x2!", "success");
+        }else{
+            showToast("Проигрыш", "error");
+        }
+
+        diceSelectedInventoryId = null;
+        await silentSync();
+        renderDiceInventory();
+        renderDicePicked();
+    }catch(error){
+        showToast(error?.message || "Ошибка ролла", "error");
+    }finally{
+        cubes.forEach(cube => cube.classList.remove("rolling"));
+        setDiceBusy(false);
+    }
 }
 
 
