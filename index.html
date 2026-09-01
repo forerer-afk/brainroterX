@@ -17469,6 +17469,15 @@ function openWithdraw(
     id
 ){
 
+    // Глобальный /- в админ-боте выключает и пополнение, и вывод.
+    if(!depositEnabled){
+        showToast(
+            "Вывод временно недоступен",
+            "error"
+        );
+        return;
+    }
+
     if(
         !playerProfile.has_deposited
         &&
