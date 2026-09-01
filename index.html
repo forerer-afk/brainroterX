@@ -6196,9 +6196,9 @@ body::after{
 .dice-cube-face{width:62%;height:62%;border-radius:12px;border:2px solid rgba(255,255,255,.34);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
 .dice-cube.rolling{animation:diceRoll .22s linear infinite}
 @keyframes diceRoll{0%{transform:rotate(-5deg) scale(.94)}50%{transform:rotate(5deg) scale(1.03)}100%{transform:rotate(-5deg) scale(.94)}}
-.dice-colors{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:10px 0 14px}
+.dice-colors{display:grid;grid-template-columns:repeat(6,38px);justify-content:center;gap:8px;margin:10px auto 14px}
 .dice-color{
-    height:43px;border-radius:12px;border:2px solid transparent;background:#151020;padding:4px;
+    width:38px;height:38px;border-radius:11px;border:2px solid transparent;background:#151020;padding:4px;
 }
 .dice-color span{display:block;width:100%;height:100%;border-radius:8px}
 .dice-color.active{border-color:#fff;box-shadow:0 0 0 2px rgba(139,92,246,.28)}
@@ -6210,8 +6210,9 @@ body::after{
 .dice-roll-btn.fast{background:linear-gradient(135deg,#312e81,#4c1d95)}
 .dice-roll-btn:disabled{opacity:.45}
 .dice-picked{
-    min-height:76px;border:1px solid rgba(255,255,255,.07);border-radius:14px;
-    background:#100d18;padding:8px;margin:8px 0 12px;display:flex;align-items:center;gap:10px;
+    min-height:70px;border:1px solid rgba(255,255,255,.07);border-radius:14px;
+    background:#100d18;padding:8px;margin:8px auto 12px;display:flex;align-items:center;gap:10px;
+    width:92%;box-sizing:border-box;
 }
 .dice-picked img{width:58px;height:58px;object-fit:contain}
 .dice-picked-name{font-size:12px;font-weight:900}
@@ -6226,6 +6227,27 @@ body::after{
 .dice-item-name{font-size:8px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dice-item-value{font-size:9px;color:#facc15;font-weight:850;margin-top:2px}
 @media(prefers-reduced-motion:reduce){.dice-cube.rolling{animation:none}}
+.dice-picker-tabs{
+    display:flex !important;
+    justify-content:center !important;
+    align-items:center !important;
+    grid-template-columns:none !important;
+    width:100% !important;
+    padding:0 !important;
+    margin:6px 0 0 !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+}
+.dice-mine-tab{
+    width:170px !important;
+    min-width:170px !important;
+    max-width:170px !important;
+    padding-left:14px !important;
+    padding-right:14px !important;
+    margin:0 auto !important;
+    border-radius:11px !important;
+}
 </style>
 
 </head>
@@ -6801,8 +6823,8 @@ body::after{
             <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)">⚡ БЫСТРЫЙ РОЛЛ</button>
         </div>
 
-        <div class="upgrader-picker-tabs">
-            <button class="upgrader-picker-tab active">Мои Brainrot</button>
+        <div class="upgrader-picker-tabs dice-picker-tabs">
+            <button class="upgrader-picker-tab active dice-mine-tab">Мои Brainrot</button>
         </div>
 
         <div id="diceInventory" class="dice-grid"></div>
@@ -9731,8 +9753,14 @@ function showPage(
         resetUpgradeView();
         renderSourceGrid();
         renderTargetGrid();
-        renderDiceInventory();
         updateUpgradeUI();
+    }
+
+    if(
+        page === "dice"
+    ){
+        renderDiceInventory();
+        renderDicePicked();
     }
 
 }
@@ -18470,14 +18498,16 @@ async function rollDice(fast){
 
     setDiceBusy(true);
 
+    // Clear old result before rolling; only the final server result is painted.
+    [0,1,2,3].forEach(index => {
+        const face = document.getElementById("diceFace" + index);
+        if(face) face.style.background = "transparent";
+    });
+
     const cubes = Array.from(document.querySelectorAll(".dice-cube"));
     if(!fast){
         cubes.forEach(cube => cube.classList.add("rolling"));
-        const colors = Object.keys(DICE_COLORS);
-        for(let i=0;i<9;i++){
-            paintDice([0,1,2,3].map(() => colors[Math.floor(Math.random()*colors.length)]));
-            await sleep(90);
-        }
+        await sleep(850);
     }
 
     try{
