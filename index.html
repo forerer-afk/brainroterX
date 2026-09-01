@@ -6250,6 +6250,184 @@ body::after{
 }
 </style>
 
+
+<style id="brainroterx-dice-lively">
+/* ===== Dice visual upgrade: no infinite animations ===== */
+#dicePage .dice-panel{
+    position:relative;
+    overflow:hidden;
+}
+#dicePage .dice-panel::before{
+    content:"";
+    position:absolute;
+    left:16px;
+    right:16px;
+    top:52px;
+    height:132px;
+    border-radius:20px;
+    background:
+        radial-gradient(circle at 50% 15%, rgba(124,58,237,.13), transparent 54%),
+        linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
+    border:1px solid rgba(255,255,255,.045);
+    pointer-events:none;
+}
+.dice-title{
+    position:relative;
+    z-index:1;
+}
+.dice-cubes{
+    position:relative;
+    z-index:1;
+    padding:8px 4px 2px;
+}
+.dice-cube{
+    position:relative;
+    overflow:hidden;
+    transform:translateZ(0);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.dice-cube::after{
+    content:"";
+    position:absolute;
+    width:70%;
+    height:18%;
+    left:15%;
+    bottom:6px;
+    border-radius:50%;
+    background:rgba(0,0,0,.24);
+    filter:blur(5px);
+    opacity:.5;
+    pointer-events:none;
+}
+.dice-cube-face{
+    position:relative;
+    z-index:1;
+    transition:
+        background-color .18s ease,
+        transform .22s cubic-bezier(.2,.8,.2,1),
+        box-shadow .22s ease;
+}
+.dice-cube-face::after{
+    content:"";
+    position:absolute;
+    inset:6px 8px auto 8px;
+    height:24%;
+    border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0));
+    opacity:.42;
+    pointer-events:none;
+}
+.dice-cube.rolling:nth-child(1){animation:diceRollLive1 .72s cubic-bezier(.2,.75,.25,1) infinite}
+.dice-cube.rolling:nth-child(2){animation:diceRollLive2 .66s cubic-bezier(.2,.75,.25,1) infinite}
+.dice-cube.rolling:nth-child(3){animation:diceRollLive3 .78s cubic-bezier(.2,.75,.25,1) infinite}
+.dice-cube.rolling:nth-child(4){animation:diceRollLive4 .69s cubic-bezier(.2,.75,.25,1) infinite}
+
+@keyframes diceRollLive1{
+    0%{transform:translateY(0) rotate(0deg) scale(1)}
+    30%{transform:translateY(-10px) rotate(-10deg) scale(1.04)}
+    65%{transform:translateY(3px) rotate(7deg) scale(.98)}
+    100%{transform:translateY(0) rotate(0deg) scale(1)}
+}
+@keyframes diceRollLive2{
+    0%{transform:translateY(0) rotate(0deg) scale(1)}
+    35%{transform:translateY(-12px) rotate(12deg) scale(1.05)}
+    70%{transform:translateY(2px) rotate(-6deg) scale(.985)}
+    100%{transform:translateY(0) rotate(0deg) scale(1)}
+}
+@keyframes diceRollLive3{
+    0%{transform:translateY(0) rotate(0deg) scale(1)}
+    28%{transform:translateY(-9px) rotate(9deg) scale(1.035)}
+    62%{transform:translateY(4px) rotate(-10deg) scale(.98)}
+    100%{transform:translateY(0) rotate(0deg) scale(1)}
+}
+@keyframes diceRollLive4{
+    0%{transform:translateY(0) rotate(0deg) scale(1)}
+    32%{transform:translateY(-11px) rotate(-12deg) scale(1.045)}
+    68%{transform:translateY(3px) rotate(8deg) scale(.98)}
+    100%{transform:translateY(0) rotate(0deg) scale(1)}
+}
+
+.dice-cube.reveal{
+    animation:diceReveal .34s cubic-bezier(.18,.9,.25,1);
+}
+@keyframes diceReveal{
+    0%{transform:scale(.72) rotate(-7deg);opacity:.55}
+    65%{transform:scale(1.08) rotate(2deg);opacity:1}
+    100%{transform:scale(1) rotate(0)}
+}
+
+.dice-colors{
+    position:relative;
+    z-index:1;
+    padding:5px 7px;
+    border-radius:14px;
+    background:rgba(255,255,255,.022);
+    border:1px solid rgba(255,255,255,.045);
+}
+.dice-color{
+    transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.dice-color:active{
+    transform:scale(.91);
+}
+.dice-color.active{
+    transform:translateY(-2px);
+    box-shadow:0 5px 12px rgba(0,0,0,.22),0 0 0 2px rgba(139,92,246,.24);
+}
+.dice-picked{
+    position:relative;
+    overflow:hidden;
+}
+.dice-picked::before{
+    content:"";
+    position:absolute;
+    width:110px;
+    height:110px;
+    right:-42px;
+    top:-52px;
+    border-radius:50%;
+    background:rgba(124,58,237,.08);
+    pointer-events:none;
+}
+.dice-actions{
+    position:relative;
+}
+.dice-roll-btn{
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 6px 16px rgba(0,0,0,.19);
+    transition:transform .14s ease, box-shadow .14s ease;
+}
+.dice-roll-btn:active{
+    transform:scale(.97);
+}
+.dice-roll-btn:not(:disabled)::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-55%;
+    width:40%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);
+    transform:skewX(-18deg);
+    pointer-events:none;
+}
+.dice-roll-btn.roll-flash::after{
+    animation:diceButtonShine .55s ease forwards;
+}
+@keyframes diceButtonShine{
+    from{left:-55%}
+    to{left:120%}
+}
+@media(prefers-reduced-motion:reduce){
+    .dice-cube.rolling,
+    .dice-cube.reveal,
+    .dice-roll-btn.roll-flash::after{
+        animation:none !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -18505,9 +18683,23 @@ async function rollDice(fast){
     });
 
     const cubes = Array.from(document.querySelectorAll(".dice-cube"));
+    const activeButton = fast
+        ? document.getElementById("diceFastButton")
+        : document.getElementById("diceRollButton");
+
+    activeButton?.classList.add("roll-flash");
+
     if(!fast){
-        cubes.forEach(cube => cube.classList.add("rolling"));
-        await sleep(850);
+        // Stagger the start so the four cubes feel less static.
+        cubes.forEach((cube,index) => {
+            setTimeout(() => cube.classList.add("rolling"), index * 70);
+        });
+        await sleep(980);
+    }else{
+        cubes.forEach((cube,index) => {
+            setTimeout(() => cube.classList.add("rolling"), index * 35);
+        });
+        await sleep(240);
     }
 
     try{
@@ -18521,7 +18713,18 @@ async function rollDice(fast){
             throw new Error(data?.error || "Ошибка ролла");
         }
 
+        cubes.forEach(cube => cube.classList.remove("rolling"));
+
+        // Show the actual server result once, with a short reveal pop.
         paintDice(data.dice || []);
+        cubes.forEach((cube,index) => {
+            setTimeout(() => {
+                cube.classList.remove("reveal");
+                void cube.offsetWidth;
+                cube.classList.add("reveal");
+            }, index * 55);
+        });
+
         if(data.win){
             showToast("🎉 Победа x2!", "success");
         }else{
@@ -18536,6 +18739,10 @@ async function rollDice(fast){
         showToast(error?.message || "Ошибка ролла", "error");
     }finally{
         cubes.forEach(cube => cube.classList.remove("rolling"));
+        activeButton?.classList.remove("roll-flash");
+        setTimeout(() => {
+            cubes.forEach(cube => cube.classList.remove("reveal"));
+        }, 650);
         setDiceBusy(false);
     }
 }
