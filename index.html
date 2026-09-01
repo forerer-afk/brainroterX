@@ -6196,9 +6196,9 @@ body::after{
 .dice-cube-face{width:62%;height:62%;border-radius:12px;border:2px solid rgba(255,255,255,.34);box-shadow:inset 0 0 0 2px rgba(0,0,0,.12)}
 .dice-cube.rolling{animation:diceRoll .22s linear infinite}
 @keyframes diceRoll{0%{transform:rotate(-5deg) scale(.94)}50%{transform:rotate(5deg) scale(1.03)}100%{transform:rotate(-5deg) scale(.94)}}
-.dice-colors{display:grid;grid-template-columns:repeat(6,38px);justify-content:center;gap:8px;margin:10px auto 14px}
+.dice-colors{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:10px 0 14px}
 .dice-color{
-    width:38px;height:38px;border-radius:11px;border:2px solid transparent;background:#151020;padding:4px;
+    height:43px;border-radius:12px;border:2px solid transparent;background:#151020;padding:4px;
 }
 .dice-color span{display:block;width:100%;height:100%;border-radius:8px}
 .dice-color.active{border-color:#fff;box-shadow:0 0 0 2px rgba(139,92,246,.28)}
@@ -6226,19 +6226,6 @@ body::after{
 .dice-item-name{font-size:8px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dice-item-value{font-size:9px;color:#facc15;font-weight:850;margin-top:2px}
 @media(prefers-reduced-motion:reduce){.dice-cube.rolling{animation:none}}
-.dice-picker-tabs{
-    display:flex !important;
-    justify-content:center !important;
-    grid-template-columns:none !important;
-}
-.dice-mine-tab{
-    width:auto !important;
-    min-width:170px;
-    max-width:210px;
-    padding-left:22px !important;
-    padding-right:22px !important;
-    margin:0 auto !important;
-}
 </style>
 
 </head>
@@ -6814,8 +6801,8 @@ body::after{
             <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)">⚡ БЫСТРЫЙ РОЛЛ</button>
         </div>
 
-        <div class="upgrader-picker-tabs dice-picker-tabs">
-            <button class="upgrader-picker-tab active dice-mine-tab">Мои Brainrot</button>
+        <div class="upgrader-picker-tabs">
+            <button class="upgrader-picker-tab active">Мои Brainrot</button>
         </div>
 
         <div id="diceInventory" class="dice-grid"></div>
@@ -9744,14 +9731,8 @@ function showPage(
         resetUpgradeView();
         renderSourceGrid();
         renderTargetGrid();
-        updateUpgradeUI();
-    }
-
-    if(
-        page === "dice"
-    ){
         renderDiceInventory();
-        renderDicePicked();
+        updateUpgradeUI();
     }
 
 }
