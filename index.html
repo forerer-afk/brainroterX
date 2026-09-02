@@ -7228,232 +7228,249 @@ button:focus-visible{
 }
 
 /* =====================================================
-   BRAINROTER X — PREMIUM CSS CASE ART (no image assets)
-   Финальный слой поверх старых .code-case-art стилей.
-   Полностью на CSS/градиентах — картинки для кейсов не нужны.
+   BRAINROTER X — PRISM VAULT CASE ART (no image assets)
+   Финальный слой поверх старых стилей карточек кейсов.
+   Полностью на CSS/SVG — картинки для кейсов не нужны.
 ===================================================== */
 
 .case-card{
-    overflow:visible !important;
+    overflow:hidden !important;
+    isolation:isolate !important;
 }
 
 .code-case-art{
     position:relative !important;
+    z-index:auto !important;
     width:100% !important;
-    height:100px !important;
-    margin:2px auto 8px !important;
+    height:104px !important;
+    margin:0 auto !important;
+    top:auto !important;
+    left:auto !important;
     display:flex !important;
     align-items:flex-end !important;
     justify-content:center !important;
-    perspective:600px;
+    overflow:hidden !important;
+    isolation:isolate;
 }
 
-/* мягкое цветное сияние под кейсом */
+/* луч света, покачивающийся за иконкой */
 .code-case-glow{
     position:absolute !important;
+    z-index:1;
+    top:-20px !important;
+    bottom:auto !important;
     left:50% !important;
-    bottom:6px !important;
-    top:auto !important;
-    width:86px !important;
-    height:86px !important;
+    width:140px !important;
+    height:140px !important;
     transform:translateX(-50%) !important;
-    border-radius:50% !important;
-    background:radial-gradient(circle,color-mix(in srgb,var(--case-accent,#7c3aed) 65%,transparent) 0%,transparent 72%) !important;
-    filter:blur(6px);
-    opacity:.85 !important;
-    animation:crateGlowPulse 2.6s ease-in-out infinite;
+    border-radius:0 !important;
+    background:conic-gradient(from 180deg at 50% 0%,
+        transparent 0deg,
+        color-mix(in srgb,var(--case-accent,#7c3aed) 55%,transparent) 8deg,
+        transparent 20deg,
+        transparent 340deg,
+        color-mix(in srgb,var(--case-accent,#7c3aed) 55%,transparent) 352deg,
+        transparent 360deg) !important;
+    filter:blur(2px);
+    opacity:.7 !important;
+    animation:vaultBeamSway 4s ease-in-out infinite;
+    mix-blend-mode:screen;
     pointer-events:none;
 }
 
-@keyframes crateGlowPulse{
-    0%,100%{opacity:.55;transform:translateX(-50%) scale(.94);}
-    50%{opacity:.95;transform:translateX(-50%) scale(1.05);}
+@keyframes vaultBeamSway{
+    0%,100%{opacity:.45;transform:translateX(-50%) rotate(-4deg);}
+    50%{opacity:.85;transform:translateX(-50%) rotate(4deg);}
 }
 
-/* корпус кейса — глянцевый 3D-куб на градиентах */
-.code-case-shell{
-    position:relative !important;
-    z-index:3;
-    width:78px !important;
-    height:58px !important;
-    left:auto !important;
-    right:auto !important;
-    top:auto !important;
-    bottom:0 !important;
-    border-radius:10px !important;
-    background:
-        linear-gradient(155deg,
-            color-mix(in srgb,var(--case-accent,#7c3aed) 55%,#1c2437) 0%,
-            color-mix(in srgb,var(--case-accent,#7c3aed) 18%,#0c1220) 62%,
-            #060a14 100%) !important;
-    border:1px solid color-mix(in srgb,var(--case-accent,#7c3aed) 55%,rgba(255,255,255,.12)) !important;
-    box-shadow:
-        0 10px 18px rgba(0,0,0,.45),
-        inset 0 1px 0 rgba(255,255,255,.18),
-        inset 0 -10px 14px rgba(0,0,0,.35),
-        0 0 22px color-mix(in srgb,var(--case-accent,#7c3aed) 40%,transparent) !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    transform:rotateX(6deg);
-    transform-style:preserve-3d;
-    transition:transform .25s ease;
-}
-
-.case-card:active .code-case-shell{
-    transform:rotateX(6deg) translateY(2px) scale(.97);
-}
-
-/* центральная металлическая планка-застёжка */
-.code-case-shell::before,
-.code-case-shell::after{
-    content:"" !important;
-    position:absolute !important;
-    left:0 !important;
-    right:0 !important;
-    height:9px !important;
-    top:50% !important;
-    margin-top:-4.5px !important;
-    background:
-        linear-gradient(90deg,
-            transparent,
-            color-mix(in srgb,var(--case-accent,#facc15) 85%,#fff) 18%,
-            color-mix(in srgb,var(--case-accent,#facc15) 85%,#fff) 82%,
-            transparent) !important;
-    opacity:.9;
-    box-shadow:0 0 10px color-mix(in srgb,var(--case-accent,#facc15) 60%,transparent);
-}
-
-.code-case-shell::after{
-    height:2px !important;
-    margin-top:-1px !important;
-    background:rgba(255,255,255,.5) !important;
-    opacity:.6;
-}
-
-/* крышка/грань сверху — придаёт объём кубу */
-.code-case-lid{
-    position:absolute !important;
-    z-index:2;
-    left:50% !important;
-    top:10px !important;
-    width:66px !important;
-    height:16px !important;
-    transform:translateX(-50%) skewX(-18deg) !important;
-    border-radius:4px !important;
-    background:
-        linear-gradient(180deg,
-            color-mix(in srgb,var(--case-accent,#7c3aed) 75%,#fff) 0%,
-            color-mix(in srgb,var(--case-accent,#7c3aed) 40%,#0c1220) 100%) !important;
-    opacity:.9 !important;
-    box-shadow:0 2px 6px rgba(0,0,0,.35);
-}
-
-.code-case-lid::before,
-.code-case-lid::after{
-    content:none !important;
-}
-
-/* мягкая тень-подставка */
+/* световое пятно на "полу" под медальоном */
 .code-case-feet{
     position:absolute !important;
     z-index:1;
     left:50% !important;
-    bottom:-4px !important;
-    width:64px !important;
-    height:10px !important;
+    bottom:6px !important;
+    top:auto !important;
+    width:70px !important;
+    height:14px !important;
     transform:translateX(-50%) !important;
     border-radius:50% !important;
-    background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%) !important;
-    filter:blur(2px);
+    background:radial-gradient(ellipse,color-mix(in srgb,var(--case-accent,#7c3aed) 75%,transparent),transparent 75%) !important;
+    filter:blur(3px);
+    animation:vaultFloorPulse 2.6s ease-in-out infinite;
+    pointer-events:none;
 }
 
-/* символ/лейбл по центру кейса */
+@keyframes vaultFloorPulse{
+    0%,100%{opacity:.5;transform:translateX(-50%) scaleX(.9);}
+    50%{opacity:1;transform:translateX(-50%) scaleX(1.15);}
+}
+
+/* искры вокруг медальона */
+.case-spark{
+    position:absolute;
+    z-index:2;
+    width:3px;height:3px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 0 6px 1px color-mix(in srgb,var(--case-accent,#7c3aed) 90%,#fff);
+    animation:vaultTwinkle 1.8s ease-in-out infinite;
+    pointer-events:none;
+}
+.case-spark.s1{top:14px;left:22%;animation-delay:.1s;}
+.case-spark.s2{top:28px;right:20%;animation-delay:.6s;}
+.case-spark.s3{top:54px;left:16%;animation-delay:1.1s;}
+
+@keyframes vaultTwinkle{
+    0%,100%{opacity:0;transform:scale(.4);}
+    50%{opacity:1;transform:scale(1);}
+}
+
+/* гранёный медальон-подставка под иконку */
+.code-case-shell{
+    position:relative !important;
+    z-index:3;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:2px !important;
+    width:72px !important;
+    height:72px !important;
+    margin:0 !important;
+    border-radius:0 !important;
+    background:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    transform:none !important;
+    transition:transform .2s ease;
+}
+
+.case-card:active .code-case-shell{
+    transform:scale(.96) !important;
+}
+
+.code-case-shell::before{
+    content:"" !important;
+    position:absolute !important;
+    inset:0 !important;
+    left:0 !important;
+    right:0 !important;
+    top:0 !important;
+    height:auto !important;
+    margin:0 !important;
+    border-radius:22px !important;
+    background:
+        linear-gradient(160deg,rgba(255,255,255,.14),transparent 40%),
+        linear-gradient(155deg,color-mix(in srgb,var(--case-accent,#7c3aed) 42%,#161e30) 0%,#0a0f1c 75%) !important;
+    border:1px solid color-mix(in srgb,var(--case-accent,#7c3aed) 60%,rgba(255,255,255,.12)) !important;
+    transform:rotate(45deg) !important;
+    box-shadow:
+        0 8px 18px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.15),
+        inset 0 -10px 16px rgba(0,0,0,.4),
+        0 0 26px color-mix(in srgb,var(--case-accent,#7c3aed) 45%,transparent) !important;
+    opacity:1 !important;
+}
+
+.code-case-shell::after{
+    content:none !important;
+}
+
+.code-case-lid{
+    display:none !important;
+}
+
+/* символ/лейбл по центру медальона — текстовый бейдж по умолчанию */
 .code-case-symbol{
     position:relative !important;
     z-index:4;
-    font-size:13px !important;
-    font-weight:1000 !important;
-    letter-spacing:.4px;
+    font-family:'Unbounded',sans-serif !important;
+    font-size:9.5px !important;
+    font-weight:800 !important;
+    letter-spacing:.1px !important;
+    line-height:1 !important;
     color:#fff !important;
     text-shadow:
         0 0 10px color-mix(in srgb,var(--case-accent,#facc15) 90%,#fff),
         0 2px 3px rgba(0,0,0,.6);
-    white-space:nowrap;
-    max-width:70px;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    white-space:nowrap !important;
+    max-width:none !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
 }
 
-/* лёгкий блик, скользящий по кейсу */
-.code-case-shell{
-    isolation:isolate;
+/* иконки-SVG (подарок, клевер) — одним цветом темы, без цветных эмодзи */
+.case-icon-svg{
+    position:relative;
+    z-index:4;
+    width:30px;
+    height:30px;
+    color:color-mix(in srgb,var(--case-accent,#7c3aed) 78%,#fff);
+    filter:
+        drop-shadow(0 2px 3px rgba(0,0,0,.55))
+        drop-shadow(0 0 9px color-mix(in srgb,var(--case-accent,#7c3aed) 65%,transparent));
 }
-.code-case-shell::marker{content:none;}
-
-.case-card{
-    isolation:isolate;
+.case-icon-svg rect,
+.case-icon-svg circle{
+    fill:currentColor;
+}
+.case-icon-svg line{
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
 }
 
-.case-card .code-case-art{
-    isolation:isolate;
-}
-
+/* блик, пробегающий по карточке при тапе/наведении */
 .case-card .code-case-art::after{
     content:"" !important;
     position:absolute;
-    z-index:5;
-    left:14%;
-    top:8px;
-    width:24px;
-    height:56px;
-    background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.35) 45%,transparent 60%);
-    transform:skewX(-18deg);
+    z-index:6;
+    top:0;
+    left:-40%;
+    width:30%;
+    height:100%;
+    background:linear-gradient(115deg,transparent,rgba(255,255,255,.16) 45%,transparent 65%);
+    transform:skewX(-16deg);
     opacity:0;
     pointer-events:none;
 }
 
-.case-card:hover .code-case-art::after{
+.case-card:hover .code-case-art::after,
+.case-card:active .code-case-art::after{
     opacity:1;
-    animation:crateShine 1.1s ease forwards;
+    animation:vaultSheenSweep 1s ease forwards;
 }
 
-@keyframes crateShine{
-    0%{left:8%;opacity:0;}
-    15%{opacity:1;}
-    100%{left:78%;opacity:0;}
+@keyframes vaultSheenSweep{
+    0%{left:-40%;}
+    100%{left:130%;}
 }
 
-/* редкие темы — тонкие акценты поверх переменной --case-accent */
-.case-theme-hell .code-case-shell,
-.case-theme-dragon .code-case-shell{
+/* редкие темы — усиленное свечение медальона */
+.case-theme-hell .code-case-shell::before,
+.case-theme-dragon .code-case-shell::before{
     box-shadow:
-        0 10px 18px rgba(0,0,0,.5),
+        0 8px 18px rgba(0,0,0,.5),
         inset 0 1px 0 rgba(255,255,255,.2),
-        inset 0 -10px 14px rgba(0,0,0,.4),
-        0 0 30px color-mix(in srgb,var(--case-accent,#ff5a1f) 55%,transparent) !important;
+        inset 0 -10px 16px rgba(0,0,0,.4),
+        0 0 34px color-mix(in srgb,var(--case-accent,#ff5a1f) 55%,transparent) !important;
 }
 
-.case-theme-secret .code-case-symbol{
-    filter:blur(.2px);
-}
-
-.daily-case-card .code-case-shell{
+.daily-case-card .code-case-shell::before{
     background:
-        linear-gradient(155deg,#3fae5c 0%,#123c22 62%,#060a14 100%) !important;
-    border-color:rgba(74,222,128,.55) !important;
-}
-
-.daily-case-card .code-case-symbol{
-    font-size:26px !important;
-    text-shadow:0 0 14px rgba(74,222,128,.9),0 2px 3px rgba(0,0,0,.6);
+        linear-gradient(160deg,rgba(255,255,255,.14),transparent 40%),
+        linear-gradient(155deg,color-mix(in srgb,#4ade80 42%,#161e30) 0%,#0a0f1c 75%) !important;
+    border-color:color-mix(in srgb,#4ade80 60%,rgba(255,255,255,.12)) !important;
 }
 
 @media(max-width:360px){
-    .code-case-art{height:88px !important;}
-    .code-case-shell{width:66px !important;height:50px !important;}
-    .code-case-lid{width:56px !important;top:8px !important;}
-    .code-case-symbol{font-size:11px !important;max-width:58px;}
+    .code-case-art{height:92px !important;}
+    .code-case-shell{width:62px !important;height:62px !important;}
+    .case-icon-svg{width:26px;height:26px;}
+    .code-case-symbol{font-size:8.5px !important;}
 }
 </style>
 
@@ -10689,7 +10706,7 @@ function showPage(
 
 const CASE_VISUALS = {
     "noob case":{theme:"noob",symbol:"NOOB"},
-    "lucky case":{theme:"lucky",symbol:"🍀"},
+    "lucky case":{theme:"lucky",icon:"clover"},
     "chaos case":{theme:"chaos",symbol:"CHAOS"},
     "neon case":{theme:"neon",symbol:"69"},
     "mystery case":{theme:"mystery",symbol:"???"},
@@ -10702,6 +10719,50 @@ const CASE_VISUALS = {
     "secret case":{theme:"secret",symbol:"LOCK"},
     "lavaka case":{theme:"lavaka",symbol:"LAVA"}
 };
+
+
+/*
+  Строит иконку внутри медальона кейса: либо чистый SVG
+  (для gift/clover — без цветных эмодзи-стикеров), либо
+  текстовый wordmark-бейдж (для остальных тем), как в
+  оригинальной системе кейсов.
+*/
+function caseIconMarkup(
+    visual
+){
+
+    if(
+        visual.icon === "gift"
+    ){
+        return `
+            <svg class="case-icon-svg" viewBox="0 0 24 24">
+                <rect x="3" y="10.4" width="18" height="9.3" rx="1.3"></rect>
+                <rect x="2" y="7.2" width="20" height="4" rx="1.2"></rect>
+                <rect x="10.7" y="7.2" width="2.6" height="12.5"></rect>
+                <circle cx="9" cy="5.1" r="2.3"></circle>
+                <circle cx="15" cy="5.1" r="2.3"></circle>
+                <rect x="10.8" y="3.9" width="2.4" height="3.5" rx="1"></rect>
+            </svg>
+        `;
+    }
+
+    if(
+        visual.icon === "clover"
+    ){
+        return `
+            <svg class="case-icon-svg" viewBox="0 0 24 24">
+                <circle cx="8.6" cy="8.4" r="4.1"></circle>
+                <circle cx="15.4" cy="8.4" r="4.1"></circle>
+                <circle cx="8.6" cy="14.6" r="4.1"></circle>
+                <circle cx="15.4" cy="14.6" r="4.1"></circle>
+                <line x1="12" y1="14" x2="12" y2="21.3"></line>
+            </svg>
+        `;
+    }
+
+    return `<span class="code-case-symbol">${visual.symbol || "X"}</span>`;
+
+}
 
 
 function caseVisualFor(
@@ -11128,11 +11189,13 @@ function renderCases(){
         `
         <div class="code-case-art" aria-hidden="true">
             <div class="code-case-glow"></div>
-            <div class="code-case-lid"></div>
-            <div class="code-case-shell">
-                <span class="code-case-symbol">🎁</span>
-            </div>
             <div class="code-case-feet"></div>
+            <span class="case-spark s1"></span>
+            <span class="case-spark s2"></span>
+            <span class="case-spark s3"></span>
+            <div class="code-case-shell">
+                ${caseIconMarkup({icon:"gift"})}
+            </div>
         </div>
 
         <div class="case-name">
@@ -11218,13 +11281,13 @@ function renderCases(){
                 `
                 <div class="code-case-art" aria-hidden="true">
                     <div class="code-case-glow"></div>
-                    <div class="code-case-lid"></div>
-                    <div class="code-case-shell">
-                        <span class="code-case-symbol">
-                            ${visual.symbol}
-                        </span>
-                    </div>
                     <div class="code-case-feet"></div>
+                    <span class="case-spark s1"></span>
+                    <span class="case-spark s2"></span>
+                    <span class="case-spark s3"></span>
+                    <div class="code-case-shell">
+                        ${caseIconMarkup(visual)}
+                    </div>
                 </div>
 
                 <div class="case-name">
