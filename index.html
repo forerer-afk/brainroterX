@@ -6545,7 +6545,7 @@ body::after{
 }
 
 .game{
-    padding-bottom:120px !important;
+    padding-bottom:96px !important;
 }
 
 h1,h2,h3,
@@ -6633,20 +6633,39 @@ h1,h2,h3,
 }
 
 .case-card{
-    background:linear-gradient(160deg,#191233,#0f0a1e) !important;
+    position:relative !important;
+    overflow:hidden !important;
+    background:linear-gradient(165deg,#1b1436,#100a20 65%,#0b0716) !important;
     border:1px solid var(--brx-line) !important;
-    border-top:2px solid var(--case-accent,var(--brx-lime)) !important;
     border-radius:var(--brx-radius-m) !important;
-    box-shadow:0 10px 26px rgba(0,0,0,.35) !important;
+    box-shadow:
+        0 10px 26px rgba(0,0,0,.4),
+        inset 0 1px 0 rgba(255,255,255,.06),
+        inset 0 0 0 1px rgba(0,0,0,.2),
+        inset 0 -34px 40px -20px color-mix(in srgb,var(--case-accent,var(--brx-lime)) 22%,transparent)
+        !important;
     transition:transform .16s ease,box-shadow .16s ease !important;
+}
+
+/* В файле уже накопилось несколько старых "3D"-патчей для .case-card,
+   которые рисовали доп. слои (::before/::after) с собственным позиционированием.
+   При наложении новой темы это давало "оторванную" цветную дугу над карточкой.
+   Отключаем все старые декоративные псевдо-элементы и рисуем акцент заново,
+   безопасным способом — через тень внутри самой карточки (см. box-shadow выше). */
+.case-card::before,
+.case-card::after{
+    content:none !important;
+    display:none !important;
 }
 
 .case-card:active{
     transform:scale(.96);
 }
 
-.case-card::before{
-    background:color-mix(in srgb,var(--case-accent,var(--brx-lime)) 45%,transparent) !important;
+/* Тонкая светящаяся кромка редкости сверху — теперь единственный
+   индикатор редкости на карточке, без лишних слоёв */
+.case-card{
+    border-top:2px solid var(--case-accent,var(--brx-lime)) !important;
 }
 
 /* Витринный кейс — единственный акцент движения на странице */
@@ -6656,18 +6675,33 @@ h1,h2,h3,
 }
 
 @keyframes brxFeaturedPulse{
-    0%,100%{ box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 0 rgba(255,63,143,0); }
-    50%{ box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 22px rgba(255,63,143,.35); }
+    0%,100%{ box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06),0 0 0 rgba(255,63,143,0); }
+    50%{ box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06),0 0 20px rgba(255,63,143,.4); }
+}
+
+.code-case-art{
+    margin-bottom:6px !important;
 }
 
 .case-name{
     font-weight:800 !important;
+    margin:2px 0 6px !important;
 }
 
 .case-price{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px;
+    margin:0 auto 4px !important;
+    padding:4px 10px !important;
+    border-radius:999px !important;
+    background:rgba(198,255,77,.1) !important;
+    border:1px solid rgba(198,255,77,.18) !important;
     color:var(--brx-lime) !important;
     font-weight:800 !important;
-    text-shadow:0 0 10px rgba(198,255,77,.3);
+    text-shadow:none !important;
+    width:fit-content;
 }
 
 .preview-img{
@@ -6819,14 +6853,15 @@ h1,h2,h3,
 /* ---------- BOTTOM NAV ---------- */
 
 .bottom-menu{
-    left:10px !important;
-    right:10px !important;
-    bottom:10px !important;
-    border-radius:22px !important;
-    background:rgba(12,8,22,.92) !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:0 !important;
+    border-radius:20px 20px 0 0 !important;
+    background:rgba(12,8,22,.96) !important;
     border:1px solid var(--brx-line) !important;
-    box-shadow:0 16px 36px rgba(0,0,0,.45) !important;
-    padding:6px !important;
+    border-bottom:none !important;
+    box-shadow:0 -12px 30px rgba(0,0,0,.4) !important;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px)) !important;
     backdrop-filter:blur(22px) saturate(1.15) !important;
 }
 
