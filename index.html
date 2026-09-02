@@ -6502,7 +6502,7 @@ body::after{
 html,
 body{
     background:
-        radial-gradient(circle at 18% -8%,rgba(198,255,77,.10),transparent 40%),
+        radial-gradient(circle at 18% -8%,rgba(198,255,77,.045),transparent 28%),
         radial-gradient(circle at 88% 4%,rgba(255,63,143,.12),transparent 45%),
         radial-gradient(circle at 50% 100%,rgba(139,92,246,.10),transparent 55%),
         radial-gradient(circle at 50% -12%,#241a3f 0%,#150e2b 26%,#0c0818 55%,var(--brx-bg-0) 100%)
@@ -6918,43 +6918,6 @@ button:focus-visible{
 
 </style>
 
-
-<style id="brainroterx-soft-dark-theme">
-/* Softer, less saturated visual pass — functionality unchanged */
-html,body{
-  background:radial-gradient(circle at 50% -10%,#18213a 0%,#0e1422 32%,#090d16 62%,#06080d 100%) !important;
-}
-body::before,body::after{opacity:.18 !important;filter:none !important;}
-.panel,.case-card,.profile-card,.profile-extra-card,.daily-card,.history-card,.ladder-panel,.referral-card,.big-wins-section,.inventory-card,.modal,.loader-box{
-  border-color:rgba(255,255,255,.055) !important;
-  box-shadow:0 10px 26px rgba(0,0,0,.24) !important;
-}
-.panel{background:linear-gradient(145deg,rgba(24,30,43,.98),rgba(11,15,24,.99)) !important;}
-.case-card{background:linear-gradient(145deg,rgba(27,33,46,.98),rgba(11,15,23,.99)) !important;}
-.case-card::before,.profile-glow{opacity:.28 !important;filter:none !important;}
-.topbar,.bottom-menu{background:rgba(8,11,18,.96) !important;box-shadow:none !important;}
-/* calm down neon glows */
-.speed-btn.active,.mystery-crystal,.mystery-crystal.active,.upgrade-wheel,.upgrade-wheel::after,.upgrade-wheel-wrap.mystery-active .upgrade-wheel,.dice-color.active{
-  box-shadow:none !important;
-}
-.upgrade-needle{filter:drop-shadow(0 0 2px rgba(34,197,94,.45)) !important;}
-.wheel-text,.mystery-question,.upgrade-wheel-wrap.mystery-active .wheel-text{text-shadow:none !important;}
-/* less aggressive accent buttons */
-.deposit-top,.submit-btn,.quick-sell-btn{filter:saturate(.72) brightness(.9);box-shadow:none !important;}
-.spin-btn,.promo-btn,.case-count-btn.active{filter:saturate(.68) brightness(.9);box-shadow:none !important;}
-.upgrade-main-btn,.exchange-one,.deposit-tab-btn.active,.dice-roll-btn{filter:saturate(.66) brightness(.88);box-shadow:none !important;}
-.sell-all-btn,.danger-btn{filter:saturate(.68) brightness(.88);box-shadow:none !important;}
-/* softer accent text */
-.case-price,.choice-price,.inventory-value,.case-content-value,.profile-best-drop-label,.profile-best-drop-price,.uah-preview{color:#e2bd4f !important;}
-.section-title,.profile-id,.profile-stat-title,.wager-note,.input-label{color:#8f99aa !important;}
-/* calmer cards and item backgrounds */
-.inventory-img,.preview-img,.roulette-item,.upgrade-choice,.deposit-item,.exchange-option,.dice-item,.dice-picked{filter:saturate(.82);}
-/* preserve readability without glowing whites */
-body{color:#eef0f5 !important;}
-@media (max-width:700px){
-  .topbar,.bottom-menu,.panel,.modal{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
-}
-</style>
 </head>
 
 <body>
