@@ -13409,6 +13409,75 @@ function renderInventory(){
     });
 }
 
+
+/* =====================================================
+   SELL ITEM
+===================================================== */
+
+async function sellItem(id){
+    const soldItem = (Array.isArray(inventory) ? inventory : []).find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if(!soldItem){
+        showToast("Предмет не найден", "error");
+        return false;
+    }
+
+    if(soldItem.locked){
+        showToast("Этот Brainrot сейчас заблокирован", "error");
+        return false;
+    }
+
+    const sellConfirmed = await askActionConfirm({
+        type:"sell",
+        header:"ⓧ Продажа",
+        title:`Продать ${soldItem.brainrot_name}?`,
+        text:`Вы получите ${Number(soldItem.value || 0)} ⓧ`,
+        image:getImage(soldItem.brainrot_name),
+        confirmText:"Продать"
+    });
+
+    if(!sellConfirmed){
+        return false;
+    }
+
+    try{
+        const data = await apiRequest({
+            action:"sell_item",
+            inventory_id:Number(id)
+        });
+
+        if(!data?.ok){
+            showToast(data?.error || "Не удалось продать Brainrot", "error");
+            return false;
+        }
+
+        coins = Number(data.coins ?? coins);
+        inventory = inventory.filter(item => Number(item.id) !== Number(id));
+
+        if(Number(selectedSourceId) === Number(id)){
+            selectedSourceId = null;
+        }
+        if(Number(selectedWithdrawItem?.id) === Number(id)){
+            selectedWithdrawItem = null;
+        }
+
+        updateBalance();
+        renderProfile();
+        renderInventory();
+        renderSourceGrid();
+        renderTargetGrid();
+        updateUpgradeUI();
+
+        showToast(`✅ ${soldItem.brainrot_name} продан за ${Number(soldItem.value || 0)} ⓧ`, "success");
+        return true;
+    }catch(error){
+        showToast(error?.message || "Ошибка продажи", "error");
+        return false;
+    }
+}
+
 function openSellAll(){
 
     const available =
