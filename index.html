@@ -10548,6 +10548,15 @@ function caseVisualFor(
 
 
 
+function escapeHtml(value){
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/\"/g,"&quot;")
+        .replace(/'/g,"&#39;");
+}
+
 function feedProfileInitial(item){
     const name=String(item.player_first_name||item.player_username||"?").trim();
     return (name.charAt(0)||"?").toUpperCase();
@@ -10623,24 +10632,9 @@ function renderBigWins(animateIds = new Set()){
         if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
         if(animateIds.has(itemId)) card.classList.add("big-win-new");
         card.title=String(item.brainrot_name||"");
-        let feedTapX=0;
-        let feedTapY=0;
-        card.addEventListener("pointerdown",(event)=>{
-            feedTapX=event.clientX||0;
-            feedTapY=event.clientY||0;
-        },{passive:true});
-        card.addEventListener("pointerup",(event)=>{
-            const dx=Math.abs((event.clientX||0)-feedTapX);
-            const dy=Math.abs((event.clientY||0)-feedTapY);
-            if(dx>=12 || dy>=12){
-                card.dataset.feedDragged="1";
-                setTimeout(()=>{ delete card.dataset.feedDragged; },120);
-            }
-        },{passive:true});
         card.onclick=(event)=>{
             event.preventDefault();
             event.stopPropagation();
-            if(card.dataset.feedDragged==="1") return;
             openFeedPlayerProfile(item);
         };
         const img=document.createElement("img");
