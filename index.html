@@ -18760,6 +18760,19 @@ async function submitWithdraw(){
         return;
     }
 
+    const withdrawTotal = selected.reduce(
+        (sum,item) => sum + Number(item.value || 0),
+        0
+    );
+
+    if(withdrawTotal < 59){
+        showToast(
+            `Минимальная сумма вывода — 59 ⓧ. Сейчас выбрано: ${withdrawTotal} ⓧ`,
+            "error"
+        );
+        return;
+    }
+
     const username =
         document
             .getElementById(
