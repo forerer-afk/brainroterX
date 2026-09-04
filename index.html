@@ -10632,15 +10632,16 @@ function renderBigWins(animateIds = new Set()){
         card.addEventListener("pointerup",(event)=>{
             const dx=Math.abs((event.clientX||0)-feedTapX);
             const dy=Math.abs((event.clientY||0)-feedTapY);
-            if(dx<12 && dy<12){
-                event.preventDefault();
-                event.stopPropagation();
-                openFeedPlayerProfile(item);
+            if(dx>=12 || dy>=12){
+                card.dataset.feedDragged="1";
+                setTimeout(()=>{ delete card.dataset.feedDragged; },120);
             }
-        });
+        },{passive:true});
         card.onclick=(event)=>{
             event.preventDefault();
             event.stopPropagation();
+            if(card.dataset.feedDragged==="1") return;
+            openFeedPlayerProfile(item);
         };
         const img=document.createElement("img");
         img.className="big-win-brainrot";
