@@ -7252,6 +7252,21 @@ button:focus-visible{
 #feedPlayerProfileModal .modal{width:calc(100% - 28px)!important;max-width:320px!important;max-height:none!important;padding:12px!important;border-radius:18px!important}
 #feedPlayerProfileModal .modal-title{font-size:14px!important}
 #feedPlayerProfileModal .close{padding:6px 9px!important}
+/* FEED MINI PROFILE — PROFILE STYLE */
+#feedPlayerProfileModal .modal{width:calc(100% - 24px)!important;max-width:370px!important;padding:14px!important;border-radius:22px!important;}
+#feedPlayerProfileModal .modal-header{margin-bottom:8px!important;}
+#feedPlayerProfileModal .feed-profile-card{padding:0!important;border:1px solid rgba(255,255,255,.07);border-radius:17px;overflow:hidden;background:linear-gradient(155deg,rgba(35,23,57,.88),rgba(12,9,23,.96));}
+#feedPlayerProfileModal .feed-profile-top{padding:14px!important;border:0!important;border-radius:0!important;background:radial-gradient(circle at 12% 0%,rgba(168,85,247,.14),transparent 42%),rgba(255,255,255,.018)!important;}
+#feedPlayerProfileModal .feed-profile-avatar,#feedPlayerProfileModal .feed-profile-avatar-fallback{width:58px!important;height:58px!important;flex-basis:58px!important;}
+#feedPlayerProfileModal .feed-profile-name{font-size:15px!important;}
+.feed-profile-stats{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.018);}
+.feed-profile-stat{padding:12px 8px;text-align:center;}
+.feed-profile-stat+ .feed-profile-stat{border-left:1px solid rgba(255,255,255,.06);}
+.feed-profile-stat-value{font-size:18px;font-weight:1000;color:#fff;line-height:1.1;}
+.feed-profile-stat-label{margin-top:4px;font-size:9px;font-weight:800;color:#9ca3af;line-height:1.25;}
+#feedPlayerProfileModal .feed-profile-table{margin:0!important;border:0!important;border-top:1px solid rgba(255,255,255,.06)!important;border-radius:0!important;background:rgba(0,0,0,.10)!important;}
+#feedPlayerProfileModal .feed-profile-row{min-height:50px!important;padding:10px 12px!important;}
+
 /* FEED PROFILE CLICK FIX */
 #feedPlayerProfileModal{z-index:1000000!important;}
 #feedPlayerProfileModal.show{display:flex!important;align-items:center!important;justify-content:center!important;}
@@ -10582,7 +10597,8 @@ function openFeedPlayerProfile(itemOrId){
     const avatarHtml=avatar
       ? `<img class="feed-profile-avatar" src="${escapeHtml(avatar)}" alt="">`
       : `<div class="feed-profile-avatar-fallback">${escapeHtml(feedProfileInitial(item))}</div>`;
-    const casesOpened=Math.max(0,Number(item.player_cases_opened||0));
+    const casesOpened=Math.max(0,Number(item.player_cases_opened ?? item.cases_opened ?? 0));
+    const upgradesDone=Math.max(0,Number(item.player_upgrades_done ?? item.upgrades_done ?? 0));
     const bestName=String(item.player_best_drop_name||"").trim();
     const bestValue=Math.max(0,Number(item.player_best_drop_value||0));
     const bestHtml=bestName
@@ -10596,8 +10612,11 @@ function openFeedPlayerProfile(itemOrId){
             <div class="feed-profile-name">${escapeHtml(displayName)}</div>
           </div>
         </div>
+        <div class="feed-profile-stats">
+          <div class="feed-profile-stat"><div class="feed-profile-stat-value">${casesOpened}</div><div class="feed-profile-stat-label">Открыто кейсов<br>за всё время</div></div>
+          <div class="feed-profile-stat"><div class="feed-profile-stat-value">${upgradesDone}</div><div class="feed-profile-stat-label">Сделано апгрейдов<br>за всё время</div></div>
+        </div>
         <div class="feed-profile-table">
-          <div class="feed-profile-row"><div class="feed-profile-label">Открыто кейсов</div><div class="feed-profile-value">${casesOpened}</div></div>
           <div class="feed-profile-row"><div class="feed-profile-label">Лучший дроп</div>${bestHtml}</div>
         </div>
       </div>`;
