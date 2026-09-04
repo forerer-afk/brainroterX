@@ -7252,6 +7252,10 @@ button:focus-visible{
 #feedPlayerProfileModal .modal{width:calc(100% - 28px)!important;max-width:320px!important;max-height:none!important;padding:12px!important;border-radius:18px!important}
 #feedPlayerProfileModal .modal-title{font-size:14px!important}
 #feedPlayerProfileModal .close{padding:6px 9px!important}
+/* FEED PROFILE CLICK FIX */
+#feedPlayerProfileModal{z-index:1000000!important;}
+#feedPlayerProfileModal.show{display:flex!important;}
+
 </style>
 
 <div
@@ -10544,8 +10548,14 @@ function feedProfileInitial(item){
     return (name.charAt(0)||"?").toUpperCase();
 }
 
-function openFeedPlayerProfile(itemId){
-    const item=(Array.isArray(bigWins)?bigWins:[]).find(x=>Number(x.id||0)===Number(itemId));
+function openFeedPlayerProfile(itemOrId){
+    let item=null;
+    if(itemOrId && typeof itemOrId === "object"){
+        item=itemOrId;
+    }else{
+        const wanted=String(itemOrId ?? "");
+        item=(Array.isArray(bigWins)?bigWins:[]).find(x=>String(x?.id ?? "")===wanted) || null;
+    }
     if(!item) return;
     const overlay=document.getElementById("feedPlayerProfileModal");
     const body=document.getElementById("feedPlayerProfileBody");
@@ -10605,12 +10615,16 @@ function renderBigWins(animateIds = new Set()){
     items.forEach(item=>{
         const card=document.createElement("button");
         card.type="button";
-        const itemId=Number(item.id||0);
+        const itemId=String(item.id ?? "");
         card.className="big-win-item";
         if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
         if(animateIds.has(itemId)) card.classList.add("big-win-new");
         card.title=String(item.brainrot_name||"");
-        card.onclick=()=>openFeedPlayerProfile(itemId);
+        card.onclick=(event)=>{
+            event.preventDefault();
+            event.stopPropagation();
+            openFeedPlayerProfile(item);
+        };
         const img=document.createElement("img");
         img.className="big-win-brainrot";
         img.src=getImage(item.brainrot_name);
