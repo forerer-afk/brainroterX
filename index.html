@@ -7226,6 +7226,32 @@ button:focus-visible{
     .upgrade-preview-card img{width:42px;height:42px;flex-basis:42px;}
     .upgrade-preview-arrow{font-size:21px;margin-bottom:21px;}
 }
+
+/* FEED PLAYER MINI PROFILE */
+.big-win-item{width:78px!important;flex-basis:78px!important;height:92px!important;flex-direction:column!important;gap:2px!important;cursor:pointer!important;padding:5px!important}
+.big-win-item>img.big-win-brainrot{width:52px!important;height:52px!important;object-fit:contain!important}
+.big-win-meta{width:100%;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0}
+.big-win-avatar{width:18px!important;height:18px!important;flex:0 0 18px;border-radius:50%!important;object-fit:cover!important;background:#1e293b;border:1px solid rgba(255,255,255,.16);filter:none!important}
+.big-win-avatar-fallback{width:18px;height:18px;flex:0 0 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#312e81;color:#fff;font-size:8px;font-weight:900;border:1px solid rgba(255,255,255,.14)}
+.big-win-price{color:#facc15;font-size:9px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-profile-card{padding:2px 0}
+.feed-profile-top{display:flex;align-items:center;gap:10px;padding:9px 10px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.feed-profile-avatar{width:50px;height:50px;flex:0 0 50px;border-radius:50%;object-fit:cover;background:#1e293b;border:2px solid rgba(168,85,247,.24)}
+.feed-profile-avatar-fallback{width:50px;height:50px;flex:0 0 50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#312e81,#581c87);font-size:19px;font-weight:1000}
+.feed-profile-name{font-size:14px;font-weight:1000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-profile-table{margin-top:7px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.06);background:rgba(15,23,42,.50)}
+.feed-profile-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:36px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.05)}
+.feed-profile-row:last-child{border-bottom:0}
+.feed-profile-label{color:#94a3b8;font-size:10px;font-weight:800}
+.feed-profile-value{color:#fff;font-size:11px;font-weight:1000;text-align:right}
+.feed-profile-best{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0;max-width:65%}
+.feed-profile-best img{width:34px;height:34px;flex:0 0 34px;object-fit:contain}
+.feed-profile-best-info{min-width:0;text-align:right}
+.feed-profile-best-name{font-size:10px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-profile-best-price{margin-top:2px;color:#facc15;font-size:10px;font-weight:1000}
+#feedPlayerProfileModal .modal{width:calc(100% - 28px)!important;max-width:320px!important;max-height:none!important;padding:12px!important;border-radius:18px!important}
+#feedPlayerProfileModal .modal-title{font-size:14px!important}
+#feedPlayerProfileModal .close{padding:6px 9px!important}
 </style>
 
 <div
@@ -10513,159 +10539,105 @@ function caseVisualFor(
 
 
 
-function renderBigWins(
-    animateIds = new Set()
-){
-
-    const root =
-        document.getElementById(
-            "bigWinsTrack"
-        );
-
-    if(
-        !root
-    ){
-        return;
-    }
-
-    root.innerHTML =
-        "";
-
-    const now =
-        Date.now();
-
-    const items =
-        Array.isArray(
-            bigWins
-        )
-        ?
-        bigWins
-            .filter(
-                item => {
-
-                    const created =
-                        new Date(
-                            item.created_at
-                        ).getTime();
-
-                    if(
-                        !Number.isFinite(
-                            created
-                        )
-                    ){
-                        return true;
-                    }
-
-                    return (
-                        now - created
-                        >=
-                        5000
-                    );
-                }
-            )
-            .slice(
-                0,
-                15
-            )
-        :
-        [];
-
-    if(
-        !items.length
-    ){
-        const empty =
-            document.createElement(
-                "div"
-            );
-
-        empty.className =
-            "big-wins-empty";
-
-        empty.innerText =
-            "Пока нет крупных выигрышей";
-
-        root.appendChild(
-            empty
-        );
-
-        return;
-    }
-
-    items.forEach(
-        item => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            const itemId =
-                Number(
-                    item.id
-                    ||
-                    0
-                );
-
-            card.className =
-                "big-win-item";
-
-            if(
-                Number(
-                    item.value
-                    ||
-                    0
-                )
-                >=
-                100
-            ){
-                card.classList.add(
-                    "big-win-gold"
-                );
-            }
-
-            if(
-                animateIds.has(
-                    itemId
-                )
-            ){
-                card.classList.add(
-                    "big-win-new"
-                );
-            }
-
-            card.title =
-                String(
-                    item.brainrot_name
-                    ||
-                    ""
-                );
-
-            const img =
-                document.createElement(
-                    "img"
-                );
-
-            img.src =
-                getImage(
-                    item.brainrot_name
-                );
-
-            img.alt =
-                "";
-
-            card.appendChild(
-                img
-            );
-
-            root.appendChild(
-                card
-            );
-
-        }
-    );
-
+function feedProfileInitial(item){
+    const name=String(item.player_first_name||item.player_username||"?").trim();
+    return (name.charAt(0)||"?").toUpperCase();
 }
 
+function openFeedPlayerProfile(itemId){
+    const item=(Array.isArray(bigWins)?bigWins:[]).find(x=>Number(x.id||0)===Number(itemId));
+    if(!item) return;
+    const overlay=document.getElementById("feedPlayerProfileModal");
+    const body=document.getElementById("feedPlayerProfileBody");
+    if(!overlay||!body) return;
+    const first=String(item.player_first_name||"").trim();
+    const last=String(item.player_last_name||"").trim();
+    const username=String(item.player_username||"").trim();
+    const displayName=username ? "@"+username : ((first+" "+last).trim() || "Игрок BrainroterX");
+    const avatar=String(item.player_photo_url||"").trim();
+    const avatarHtml=avatar
+      ? `<img class="feed-profile-avatar" src="${escapeHtml(avatar)}" alt="">`
+      : `<div class="feed-profile-avatar-fallback">${escapeHtml(feedProfileInitial(item))}</div>`;
+    const casesOpened=Math.max(0,Number(item.player_cases_opened||0));
+    const upgradesDone=Math.max(0,Number(item.player_upgrades_done||0));
+    const bestName=String(item.player_best_drop_name||"").trim();
+    const bestValue=Math.max(0,Number(item.player_best_drop_value||0));
+    const bestHtml=bestName
+      ? `<div class="feed-profile-best"><img src="${escapeHtml(getImage(bestName))}" alt=""><div class="feed-profile-best-info"><div class="feed-profile-best-name">${escapeHtml(bestName)}</div><div class="feed-profile-best-price">${bestValue} ⓧ</div></div></div>`
+      : `<div class="feed-profile-value">—</div>`;
+    body.innerHTML=`
+      <div class="feed-profile-card">
+        <div class="feed-profile-top">
+          ${avatarHtml}
+          <div style="min-width:0;flex:1">
+            <div class="feed-profile-name">${escapeHtml(displayName)}</div>
+          </div>
+        </div>
+        <div class="feed-profile-table">
+          <div class="feed-profile-row"><div class="feed-profile-label">Открыто кейсов</div><div class="feed-profile-value">${casesOpened}</div></div>
+          <div class="feed-profile-row"><div class="feed-profile-label">Апгрейдов</div><div class="feed-profile-value">${upgradesDone}</div></div>
+          <div class="feed-profile-row"><div class="feed-profile-label">Лучший дроп</div>${bestHtml}</div>
+        </div>
+      </div>`;
+    overlay.classList.add("show");
+}
+
+function closeFeedPlayerProfile(){
+    document.getElementById("feedPlayerProfileModal")?.classList.remove("show");
+}
+
+function renderBigWins(animateIds = new Set()){
+    const root=document.getElementById("bigWinsTrack");
+    if(!root) return;
+    root.innerHTML="";
+    const now=Date.now();
+    const items=Array.isArray(bigWins)?bigWins.filter(item=>{
+        const created=new Date(item.created_at).getTime();
+        return !Number.isFinite(created) || now-created>=5000;
+    }).slice(0,15):[];
+    if(!items.length){
+        const empty=document.createElement("div");
+        empty.className="big-wins-empty";
+        empty.innerText="Пока нет крупных выигрышей";
+        root.appendChild(empty);
+        return;
+    }
+    items.forEach(item=>{
+        const card=document.createElement("button");
+        card.type="button";
+        const itemId=Number(item.id||0);
+        card.className="big-win-item";
+        if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
+        if(animateIds.has(itemId)) card.classList.add("big-win-new");
+        card.title=String(item.brainrot_name||"");
+        card.onclick=()=>openFeedPlayerProfile(itemId);
+        const img=document.createElement("img");
+        img.className="big-win-brainrot";
+        img.src=getImage(item.brainrot_name);
+        img.alt="";
+        card.appendChild(img);
+        const meta=document.createElement("div");
+        meta.className="big-win-meta";
+        const avatar=String(item.player_photo_url||"").trim();
+        if(avatar){
+            const av=document.createElement("img");
+            av.className="big-win-avatar";
+            av.src=avatar; av.alt="";
+            meta.appendChild(av);
+        }else{
+            const av=document.createElement("div");
+            av.className="big-win-avatar-fallback";
+            av.textContent=feedProfileInitial(item);
+            meta.appendChild(av);
+        }
+        const price=document.createElement("div");
+        price.className="big-win-price";
+        price.textContent=`${Number(item.value||0)} ⓧ`;
+        meta.appendChild(price);
+        card.appendChild(meta);
+        root.appendChild(card);
+    });
+}
 
 async function refreshBigWins(){
 
@@ -19576,6 +19548,16 @@ loadPlayer()
     </div>
 </div>
 
+
+<div id="feedPlayerProfileModal" class="overlay" onclick="if(event.target===this)closeFeedPlayerProfile()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Профиль игрока</div>
+      <button class="close" onclick="closeFeedPlayerProfile()">✕</button>
+    </div>
+    <div id="feedPlayerProfileBody"></div>
+  </div>
+</div>
 </body>
 
 </html>
