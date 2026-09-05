@@ -7063,6 +7063,807 @@ button:focus-visible{
 }
 </style>
 
+
+<style id="ladder-redesign-v2">
+/* =====================================================
+   BRAINROTER X — LADDER REDESIGN V2
+   Compact, clean, mobile-first. Gameplay logic unchanged.
+===================================================== */
+#ladderPage{
+    --ladder-lime:#c6ff4d;
+    --ladder-violet:#8b5cf6;
+    --ladder-pink:#ff3f8f;
+    --ladder-surface:#100a1d;
+    --ladder-surface-2:#17102a;
+    --ladder-line:rgba(255,255,255,.08);
+}
+
+#ladderPage .ladder-panel{
+    padding:13px !important;
+    border-radius:20px !important;
+    background:linear-gradient(160deg,rgba(22,14,39,.98),rgba(8,5,15,.99)) !important;
+    border:1px solid rgba(198,255,77,.10) !important;
+    box-shadow:0 16px 38px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.035) !important;
+    overflow:hidden !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+}
+
+#ladderPage .ladder-panel::before{
+    display:none !important;
+}
+
+#ladderPage .ladder-title{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    margin:0 0 11px !important;
+}
+
+#ladderPage .ladder-title-main{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+}
+
+#ladderPage .ladder-title-icon{
+    width:34px;
+    height:34px;
+    display:grid;
+    place-items:center;
+    border-radius:11px;
+    background:rgba(139,92,246,.13);
+    border:1px solid rgba(139,92,246,.18);
+    font-size:17px;
+}
+
+#ladderPage .ladder-title h2{
+    margin:0 !important;
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    font-size:17px !important;
+    line-height:1 !important;
+    font-weight:800 !important;
+    letter-spacing:-.4px;
+    color:#fff !important;
+    text-shadow:none !important;
+}
+
+#ladderPage .ladder-max{
+    flex:0 0 auto;
+    padding:7px 9px;
+    border-radius:10px;
+    background:rgba(198,255,77,.09);
+    border:1px solid rgba(198,255,77,.16);
+    color:var(--ladder-lime);
+    font-family:"Unbounded","Manrope",sans-serif;
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.25px;
+}
+
+#ladderPage .ladder-sub{
+    display:none !important;
+}
+
+#ladderPage .ladder-board{
+    position:relative !important;
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:6px !important;
+    max-width:none !important;
+    margin:0 0 10px !important;
+    padding:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    overflow:visible !important;
+}
+
+#ladderPage .ladder-step{
+    position:relative !important;
+    min-height:49px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:1px !important;
+    padding:7px 3px 5px !important;
+    border-radius:12px !important;
+    background:linear-gradient(155deg,rgba(34,24,54,.90),rgba(18,12,31,.96)) !important;
+    border:1px solid rgba(255,255,255,.065) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+    transform:none !important;
+    transition:border-color .18s ease,background .18s ease,box-shadow .18s ease !important;
+}
+
+#ladderPage .ladder-num{
+    position:absolute;
+    top:5px;
+    left:6px;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:7px !important;
+    line-height:1 !important;
+    font-weight:800 !important;
+    color:#716b81 !important;
+}
+
+#ladderPage .ladder-x{
+    margin-top:4px;
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    font-size:13px !important;
+    line-height:1 !important;
+    font-weight:800 !important;
+    color:#f5f2ff !important;
+}
+
+#ladderPage .ladder-step.passed{
+    background:linear-gradient(155deg,rgba(83,120,28,.26),rgba(18,31,12,.92)) !important;
+    border-color:rgba(198,255,77,.25) !important;
+}
+
+#ladderPage .ladder-step.passed .ladder-x{
+    color:var(--ladder-lime) !important;
+}
+
+#ladderPage .ladder-step.current{
+    background:linear-gradient(155deg,rgba(139,92,246,.25),rgba(32,18,56,.96)) !important;
+    border-color:rgba(198,255,77,.48) !important;
+    box-shadow:0 0 0 1px rgba(198,255,77,.06),0 0 18px rgba(139,92,246,.10) !important;
+}
+
+#ladderPage .ladder-step.current .ladder-x{
+    color:#fff !important;
+}
+
+#ladderPage .ladder-step.current::after{
+    content:"";
+    position:absolute;
+    right:6px;
+    top:6px;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--ladder-lime);
+    box-shadow:0 0 8px rgba(198,255,77,.45);
+}
+
+#ladderPage .ladder-stake-visual{
+    min-height:92px !important;
+    margin:0 0 9px !important;
+    padding:10px !important;
+    border-radius:16px !important;
+    background:linear-gradient(145deg,rgba(20,13,35,.92),rgba(12,8,22,.98)) !important;
+    border:1px solid rgba(139,92,246,.13) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+#ladderPage .ladder-stake-visual img{
+    width:62px !important;
+    height:62px !important;
+    object-fit:contain !important;
+}
+
+#ladderPage .ladder-big-coin{
+    width:60px !important;
+    height:60px !important;
+    border-radius:18px !important;
+    background:linear-gradient(145deg,#d7ff73,#a8e637) !important;
+    border:1px solid rgba(255,255,255,.38) !important;
+    box-shadow:0 8px 22px rgba(121,175,35,.14) !important;
+    color:#15180c !important;
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    font-size:22px !important;
+    font-weight:900 !important;
+}
+
+#ladderPage .ladder-stake-name{
+    max-width:95%;
+    margin-top:6px !important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#f5f2ff !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:11px !important;
+    line-height:1.25 !important;
+    font-weight:800 !important;
+    text-align:center !important;
+}
+
+#ladderPage .ladder-tabs{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:4px !important;
+    margin:0 0 7px !important;
+    padding:4px !important;
+    border-radius:13px !important;
+    background:rgba(255,255,255,.035) !important;
+    border:1px solid rgba(255,255,255,.055) !important;
+}
+
+#ladderPage .ladder-tab{
+    min-height:38px;
+    padding:8px 6px !important;
+    border:0 !important;
+    border-radius:10px !important;
+    background:transparent !important;
+    color:#8f899f !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:10px !important;
+    font-weight:800 !important;
+    box-shadow:none !important;
+}
+
+#ladderPage .ladder-tab.active{
+    background:linear-gradient(135deg,rgba(139,92,246,.28),rgba(93,50,169,.24)) !important;
+    color:#fff !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+#ladderPage .ladder-input{
+    width:100% !important;
+    height:46px !important;
+    margin:0 !important;
+    padding:0 13px !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    border-radius:12px !important;
+    outline:0 !important;
+    background:rgba(9,6,17,.88) !important;
+    color:#fff !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:13px !important;
+    font-weight:800 !important;
+    box-shadow:none !important;
+}
+
+#ladderPage .ladder-input::placeholder{
+    color:#696275 !important;
+    font-weight:700 !important;
+}
+
+#ladderPage .ladder-input:focus{
+    border-color:rgba(139,92,246,.38) !important;
+    box-shadow:0 0 0 2px rgba(139,92,246,.06) !important;
+}
+
+#ladderPage .ladder-inventory{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:6px !important;
+    max-height:215px !important;
+    margin:0 !important;
+    padding:1px !important;
+    overflow-y:auto !important;
+}
+
+#ladderPage .ladder-item{
+    min-width:0;
+    padding:7px 5px !important;
+    border-radius:12px !important;
+    background:linear-gradient(150deg,rgba(25,17,42,.96),rgba(12,8,22,.98)) !important;
+    border:1px solid rgba(255,255,255,.065) !important;
+    box-shadow:none !important;
+    text-align:center !important;
+}
+
+#ladderPage .ladder-item.selected{
+    border-color:rgba(198,255,77,.45) !important;
+    background:linear-gradient(150deg,rgba(57,75,28,.34),rgba(18,22,12,.98)) !important;
+    box-shadow:0 0 0 1px rgba(198,255,77,.05) !important;
+}
+
+#ladderPage .ladder-item img{
+    width:54px !important;
+    height:54px !important;
+    object-fit:contain !important;
+}
+
+#ladderPage .ladder-item-name{
+    margin-top:3px;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    color:#f1eef9 !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:8px !important;
+    font-weight:800 !important;
+}
+
+#ladderPage .ladder-item-value{
+    margin-top:2px;
+    color:var(--ladder-lime) !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:9px !important;
+    font-weight:800 !important;
+}
+
+#ladderPage .ladder-empty{
+    grid-column:1/-1;
+    padding:18px 8px;
+    color:#777082;
+    font-size:10px;
+    font-weight:700;
+    text-align:center;
+}
+
+#ladderPage .ladder-start,
+#ladderPage .ladder-cash,
+#ladderPage .ladder-next{
+    min-height:46px !important;
+    border:0 !important;
+    border-radius:12px !important;
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    font-size:9px !important;
+    font-weight:800 !important;
+    letter-spacing:.15px !important;
+    box-shadow:none !important;
+}
+
+#ladderPage .ladder-start{
+    width:100% !important;
+    margin-top:8px !important;
+    color:#13170b !important;
+    background:linear-gradient(135deg,#d6ff70,#a9e83a) !important;
+}
+
+#ladderPage .ladder-actions{
+    grid-template-columns:1fr 1fr !important;
+    gap:6px !important;
+    margin-top:0 !important;
+}
+
+#ladderPage .ladder-cash{
+    color:#15190d !important;
+    background:linear-gradient(135deg,#d4ff6d,#9edc31) !important;
+}
+
+#ladderPage .ladder-next{
+    color:#fff !important;
+    background:linear-gradient(135deg,#9a5cf4,#ff3f8f) !important;
+}
+
+#ladderPage .ladder-status{
+    min-height:13px !important;
+    margin-top:7px !important;
+    color:#91899f !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:9px !important;
+    line-height:1.2 !important;
+    font-weight:800 !important;
+    text-align:center !important;
+}
+
+@media (max-width:360px){
+    #ladderPage .ladder-panel{padding:11px !important}
+    #ladderPage .ladder-board{gap:5px !important}
+    #ladderPage .ladder-step{min-height:46px !important;border-radius:10px !important}
+    #ladderPage .ladder-x{font-size:11px !important}
+    #ladderPage .ladder-title h2{font-size:16px !important}
+}
+</style>
+
+
+<style id="brainroterx-dice-redesign-2026">
+/* =====================================================
+   DICE REDESIGN — denser, cleaner, richer UI
+   Mechanics intentionally unchanged.
+===================================================== */
+#dicePage .dice-panel-v2{
+    padding:10px !important;
+    background:linear-gradient(180deg,rgba(14,9,28,.98),rgba(8,5,17,.99)) !important;
+    border:1px solid rgba(255,255,255,.075) !important;
+    border-radius:22px !important;
+    overflow:visible !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+}
+#dicePage .dice-panel-v2::before{display:none !important}
+
+#dicePage .dice-hero-v2{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    min-height:92px;
+    padding:14px 14px 13px;
+    border-radius:18px;
+    border:1px solid rgba(198,255,77,.11);
+    background:
+        radial-gradient(circle at 8% 10%,rgba(198,255,77,.075),transparent 40%),
+        radial-gradient(circle at 92% 20%,rgba(255,63,143,.08),transparent 38%),
+        linear-gradient(145deg,rgba(29,19,52,.96),rgba(13,8,27,.98));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 10px 24px rgba(0,0,0,.18);
+}
+#dicePage .dice-kicker{
+    color:rgba(198,255,77,.76);
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.16em;
+    margin-bottom:5px;
+}
+#dicePage .dice-hero-title{
+    font-family:"Unbounded","Manrope",sans-serif;
+    font-size:20px;
+    line-height:1.1;
+    font-weight:900;
+    color:#fff;
+    letter-spacing:-.04em;
+}
+#dicePage .dice-hero-sub{
+    margin-top:6px;
+    color:rgba(255,255,255,.55);
+    font-size:10px;
+    font-weight:700;
+}
+#dicePage .dice-x2-badge{
+    width:72px;
+    height:64px;
+    flex:0 0 72px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border-radius:17px;
+    border:1px solid rgba(198,255,77,.18);
+    background:linear-gradient(145deg,rgba(198,255,77,.105),rgba(139,92,246,.12));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+#dicePage .dice-x2-badge span{
+    color:rgba(255,255,255,.48);
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.13em;
+}
+#dicePage .dice-x2-badge strong{
+    margin-top:2px;
+    color:#d8ff82;
+    font-family:"Unbounded","Manrope",sans-serif;
+    font-size:22px;
+    line-height:1;
+}
+
+/* Clean hero artwork — replaces the old x2/x3 card */
+#dicePage .dice-hero-mark{
+    position:relative;
+    width:78px;
+    height:66px;
+    flex:0 0 78px;
+    pointer-events:none;
+}
+#dicePage .dice-mini{
+    position:absolute;
+    display:grid;
+    place-items:center;
+    border-radius:13px;
+    border:1px solid rgba(255,255,255,.10);
+    background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035));
+    box-shadow:0 8px 18px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08);
+}
+#dicePage .dice-mini i{
+    position:absolute;
+    width:5px;
+    height:5px;
+    border-radius:999px;
+    background:rgba(255,255,255,.86);
+    box-shadow:0 0 7px rgba(255,255,255,.14);
+}
+#dicePage .dice-mini-a{
+    width:37px;height:37px;right:3px;top:3px;transform:rotate(9deg);
+}
+#dicePage .dice-mini-b{
+    width:31px;height:31px;left:4px;top:21px;transform:rotate(-11deg);
+}
+#dicePage .dice-mini-c{
+    width:27px;height:27px;right:20px;bottom:0;transform:rotate(5deg);
+    opacity:.72;
+}
+#dicePage .dice-mini-a i:nth-child(1){left:8px;top:8px}
+#dicePage .dice-mini-a i:nth-child(2){right:8px;top:8px}
+#dicePage .dice-mini-a i:nth-child(3){left:8px;bottom:8px}
+#dicePage .dice-mini-a i:nth-child(4){right:8px;bottom:8px}
+#dicePage .dice-mini-b i:nth-child(1){left:7px;top:7px}
+#dicePage .dice-mini-b i:nth-child(2){left:50%;top:50%;transform:translate(-50%,-50%)}
+#dicePage .dice-mini-b i:nth-child(3){right:7px;bottom:7px}
+#dicePage .dice-mini-c i:nth-child(1){left:6px;top:6px}
+#dicePage .dice-mini-c i:nth-child(2){right:6px;top:6px}
+#dicePage .dice-mini-c i:nth-child(3){left:50%;top:50%;transform:translate(-50%,-50%)}
+#dicePage .dice-mini-c i:nth-child(4){left:6px;bottom:6px}
+#dicePage .dice-mini-c i:nth-child(5){right:6px;bottom:6px}
+
+#dicePage .dice-summary-v2{
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1fr;
+    gap:7px;
+    margin:8px 0;
+}
+#dicePage .dice-summary-card{
+    min-width:0;
+    padding:9px 10px;
+    border-radius:13px;
+    border:1px solid rgba(255,255,255,.065);
+    background:rgba(255,255,255,.025);
+}
+#dicePage .dice-summary-card>span{
+    display:block;
+    color:rgba(255,255,255,.38);
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.12em;
+    margin-bottom:4px;
+}
+#dicePage .dice-summary-main{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+}
+#dicePage .dice-summary-main b{
+    color:#fff;
+    font-size:10px;
+    font-weight:900;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+#dicePage .dice-summary-dot{
+    width:9px;
+    height:9px;
+    flex:0 0 9px;
+    border-radius:50%;
+    background:#ef4444;
+    box-shadow:0 0 0 3px rgba(239,68,68,.11);
+}
+
+#dicePage .dice-arena-v2,
+#dicePage .dice-color-card-v2,
+#dicePage .dice-stake-card-v2,
+#dicePage .dice-inventory-card-v2{
+    margin-top:8px;
+    border:1px solid rgba(255,255,255,.065);
+    border-radius:17px;
+    background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.014));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+#dicePage .dice-arena-v2{padding:11px 10px 10px}
+#dicePage .dice-color-card-v2,
+#dicePage .dice-stake-card-v2,
+#dicePage .dice-inventory-card-v2{padding:10px}
+
+#dicePage .dice-section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 2px 7px;
+}
+#dicePage .dice-section-head.compact{margin-bottom:8px}
+#dicePage .dice-section-head>div:first-child{display:flex;flex-direction:column;gap:2px}
+#dicePage .dice-section-head span{
+    color:rgba(255,255,255,.38);
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.12em;
+}
+#dicePage .dice-section-head b{
+    color:#f7f5ff;
+    font-size:11px;
+    font-weight:900;
+}
+#dicePage .dice-rule-chip,
+#dicePage .dice-count-badge{
+    min-width:32px;
+    height:26px;
+    padding:0 8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:9px;
+    border:1px solid rgba(198,255,77,.12);
+    background:rgba(198,255,77,.06);
+    color:#d8ff82;
+    font-size:10px;
+    font-weight:950;
+}
+#dicePage .dice-count-badge{
+    border-color:rgba(139,92,246,.14);
+    background:rgba(139,92,246,.09);
+    color:#c4b5fd;
+}
+
+#dicePage .dice-cubes{
+    margin:2px 0 7px !important;
+    padding:0 !important;
+    gap:7px !important;
+}
+#dicePage .dice-cube{
+    border-radius:16px !important;
+    border:1px solid rgba(255,255,255,.085) !important;
+    background:linear-gradient(145deg,#1b1329,#100a1a) !important;
+    box-shadow:0 7px 15px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#dicePage .dice-cube::after{opacity:.28 !important;filter:none !important}
+#dicePage .dice-cube-face{
+    width:64% !important;
+    height:64% !important;
+    border-radius:13px !important;
+    border:2px solid rgba(255,255,255,.38) !important;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.1),0 4px 10px rgba(0,0,0,.14) !important;
+}
+#dicePage .dice-rule-line{
+    padding:6px 8px 0;
+    text-align:center;
+    color:rgba(255,255,255,.45);
+    font-size:8px;
+    font-weight:800;
+}
+
+#dicePage .dice-colors{
+    display:grid !important;
+    grid-template-columns:repeat(6,1fr) !important;
+    gap:7px !important;
+    margin:0 !important;
+    padding:0 !important;
+    background:transparent !important;
+    border:0 !important;
+}
+#dicePage .dice-color{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:1/1 !important;
+    max-height:44px !important;
+    padding:5px !important;
+    border-radius:12px !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    background:#100a1a !important;
+    box-shadow:none !important;
+}
+#dicePage .dice-color span{border-radius:8px !important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+#dicePage .dice-color.active{
+    transform:translateY(-1px) !important;
+    border-color:rgba(255,255,255,.74) !important;
+    box-shadow:0 0 0 2px rgba(139,92,246,.16) !important;
+}
+
+#dicePage .dice-picked{
+    width:100% !important;
+    max-width:none !important;
+    min-height:68px !important;
+    margin:0 !important;
+    padding:8px !important;
+    border-radius:14px !important;
+    border:1px solid rgba(255,255,255,.07) !important;
+    background:#0d0816 !important;
+    color:#fff !important;
+}
+#dicePage .dice-picked::before{display:none !important}
+#dicePage .dice-picked-placeholder{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+#dicePage .dice-picked-placeholder-icon{
+    width:46px;
+    height:46px;
+    flex:0 0 46px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    border:1px dashed rgba(255,255,255,.11);
+    background:rgba(139,92,246,.06);
+    font-size:20px;
+}
+#dicePage .dice-picked-placeholder b{display:block;color:#fff;font-size:11px;font-weight:900}
+#dicePage .dice-picked-placeholder span{display:block;margin-top:3px;color:rgba(255,255,255,.42);font-size:8px;font-weight:700}
+#dicePage .dice-picked-art{
+    width:50px;
+    height:50px;
+    flex:0 0 50px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:13px;
+    background:rgba(139,92,246,.06);
+    border:1px solid rgba(139,92,246,.11);
+}
+#dicePage .dice-picked-art img{width:44px !important;height:44px !important;object-fit:contain !important}
+#dicePage .dice-picked-info{min-width:0;flex:1}
+#dicePage .dice-picked-label{color:rgba(255,255,255,.34);font-size:7px;font-weight:900;letter-spacing:.1em;margin-bottom:3px}
+#dicePage .dice-picked-name{font-size:11px !important;font-weight:950 !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dicePage .dice-picked-value{font-size:10px !important;color:#d8ff82 !important;margin-top:3px !important;font-weight:900 !important}
+
+#dicePage .dice-actions{
+    grid-template-columns:1fr 1fr !important;
+    gap:7px !important;
+    margin:8px 0 0 !important;
+}
+#dicePage .dice-roll-btn{
+    min-height:48px !important;
+    border-radius:13px !important;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1px;
+    font-family:"Manrope","Arial",sans-serif !important;
+    background:linear-gradient(135deg,#8b5cf6,#6d28d9) !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 7px 15px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#dicePage .dice-roll-btn.fast{background:linear-gradient(135deg,#251347,#421a78) !important}
+#dicePage .dice-roll-btn span{font-size:11px;font-weight:950;color:#fff}
+#dicePage .dice-roll-btn small{font-size:7px;font-weight:800;color:rgba(255,255,255,.48)}
+
+#dicePage .dice-inventory-card-v2{padding-bottom:11px}
+#dicePage .dice-grid{
+    grid-template-columns:repeat(3,1fr) !important;
+    gap:7px !important;
+}
+#dicePage .dice-item{
+    position:relative;
+    min-height:104px;
+    padding:7px 5px 6px !important;
+    border:1px solid rgba(255,255,255,.065) !important;
+    border-radius:13px !important;
+    background:linear-gradient(180deg,rgba(24,15,40,.98),rgba(13,8,22,.98)) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+#dicePage .dice-item.selected{
+    border-color:rgba(198,255,77,.52) !important;
+    box-shadow:0 0 0 2px rgba(198,255,77,.07),inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+#dicePage .dice-item.selected::after{
+    content:"✓";
+    position:absolute;
+    top:5px;
+    right:5px;
+    width:17px;
+    height:17px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:6px;
+    background:#c6ff4d;
+    color:#0c1203;
+    font-size:9px;
+    font-weight:1000;
+}
+#dicePage .dice-item img{
+    width:60px !important;
+    height:60px !important;
+    margin:0 auto 4px !important;
+    object-fit:contain !important;
+}
+#dicePage .dice-item-name{
+    color:#fff !important;
+    font-size:8px !important;
+    font-weight:900 !important;
+}
+#dicePage .dice-item-value{
+    color:#d8ff82 !important;
+    font-size:8px !important;
+    font-weight:900 !important;
+}
+#dicePage .dice-empty{
+    min-height:54px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:rgba(255,255,255,.4) !important;
+    font-size:9px !important;
+    font-weight:800 !important;
+}
+
+@media(max-width:380px){
+    #dicePage .dice-hero-title{font-size:18px}
+    #dicePage .dice-hero-mark{width:68px;flex-basis:68px;transform:scale(.92);transform-origin:right center}
+    #dicePage .dice-summary-card{padding:8px 7px}
+    #dicePage .dice-summary-main b{font-size:9px}
+    #dicePage .dice-color{padding:4px !important}
+}
+</style>
+
 </head>
 
 <body>
@@ -7686,59 +8487,143 @@ button:focus-visible{
 
 
 <div id="dicePage" class="page">
-    <div class="panel dice-panel">
-        <div class="dice-title"><h2>🎲 Дайсы</h2></div>
-
-        <div class="dice-cubes" id="diceCubes">
-            <div class="dice-cube"><div class="dice-cube-face" id="diceFace0"></div></div>
-            <div class="dice-cube"><div class="dice-cube-face" id="diceFace1"></div></div>
-            <div class="dice-cube"><div class="dice-cube-face" id="diceFace2"></div></div>
-            <div class="dice-cube"><div class="dice-cube-face" id="diceFace3"></div></div>
+    <div class="panel dice-panel dice-panel-v2">
+        <div class="dice-hero-v2">
+            <div class="dice-hero-copy">
+                <div class="dice-kicker">BRAINROTERX MODE</div>
+                <div class="dice-hero-title">🎲 Дайсы</div>
+                <div class="dice-hero-sub">Выбери Brainrot и свой цвет</div>
+            </div>
+            <div class="dice-hero-mark" aria-hidden="true">
+                <div class="dice-mini dice-mini-a"><i></i><i></i><i></i><i></i></div>
+                <div class="dice-mini dice-mini-b"><i></i><i></i><i></i></div>
+                <div class="dice-mini dice-mini-c"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
         </div>
 
-        <div class="dice-colors">
-            <button class="dice-color active" data-dice-color="red" onclick="selectDiceColor('red')"><span style="background:#ef4444"></span></button>
-            <button class="dice-color" data-dice-color="yellow" onclick="selectDiceColor('yellow')"><span style="background:#facc15"></span></button>
-            <button class="dice-color" data-dice-color="blue" onclick="selectDiceColor('blue')"><span style="background:#3b82f6"></span></button>
-            <button class="dice-color" data-dice-color="orange" onclick="selectDiceColor('orange')"><span style="background:#f97316"></span></button>
-            <button class="dice-color" data-dice-color="green" onclick="selectDiceColor('green')"><span style="background:#22c55e"></span></button>
-            <button class="dice-color" data-dice-color="purple" onclick="selectDiceColor('purple')"><span style="background:#a855f7"></span></button>
+        <div class="dice-summary-v2">
+            <div class="dice-summary-card">
+                <span>ЦВЕТ</span>
+                <div class="dice-summary-main"><i id="diceColorDot" class="dice-summary-dot"></i><b id="diceColorName">Красный</b></div>
+            </div>
+            <div class="dice-summary-card">
+                <span>СТАВКА</span>
+                <div class="dice-summary-main"><b id="diceStakeValue">—</b></div>
+            </div>
+            <div class="dice-summary-card">
+                <span>ПОБЕДА</span>
+                <div class="dice-summary-main"><b>1 / 4</b></div>
+            </div>
         </div>
 
-        <div id="dicePicked" class="dice-picked"><div class="dice-empty">Выбери Brainrot</div></div>
+        <div class="dice-arena-v2">
+            <div class="dice-section-head">
+                <div>
+                    <span>АРЕНА</span>
+                    <b>4 кубика</b>
+                </div>
 
-        <div class="dice-actions">
-            <button id="diceRollButton" class="dice-roll-btn" onclick="rollDice(false)">🎲 ROLL</button>
-            <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)">⚡ FAST ROLL</button>
+            </div>
+
+            <div class="dice-cubes" id="diceCubes">
+                <div class="dice-cube"><div class="dice-cube-face" id="diceFace0"></div></div>
+                <div class="dice-cube"><div class="dice-cube-face" id="diceFace1"></div></div>
+                <div class="dice-cube"><div class="dice-cube-face" id="diceFace2"></div></div>
+                <div class="dice-cube"><div class="dice-cube-face" id="diceFace3"></div></div>
+            </div>
+
+            <div class="dice-rule-line">1 кубик твоего цвета — ×2 · 4 кубика — ×3</div>
         </div>
 
-        <div class="upgrader-picker-tabs dice-picker-tabs">
-            <button class="upgrader-picker-tab active dice-mine-tab">Мои Brainrot</button>
+        <div class="dice-color-card-v2">
+            <div class="dice-section-head compact">
+                <div>
+                    <span>ТВОЙ ЦВЕТ</span>
+                    <b>Выбери один</b>
+                </div>
+            </div>
+            <div class="dice-colors">
+                <button class="dice-color active" aria-label="Красный" data-dice-color="red" onclick="selectDiceColor('red')"><span style="background:#ef4444"></span></button>
+                <button class="dice-color" aria-label="Жёлтый" data-dice-color="yellow" onclick="selectDiceColor('yellow')"><span style="background:#facc15"></span></button>
+                <button class="dice-color" aria-label="Синий" data-dice-color="blue" onclick="selectDiceColor('blue')"><span style="background:#3b82f6"></span></button>
+                <button class="dice-color" aria-label="Оранжевый" data-dice-color="orange" onclick="selectDiceColor('orange')"><span style="background:#f97316"></span></button>
+                <button class="dice-color" aria-label="Зелёный" data-dice-color="green" onclick="selectDiceColor('green')"><span style="background:#22c55e"></span></button>
+                <button class="dice-color" aria-label="Фиолетовый" data-dice-color="purple" onclick="selectDiceColor('purple')"><span style="background:#a855f7"></span></button>
+            </div>
         </div>
 
-        <div id="diceInventory" class="dice-grid"></div>
+        <div class="dice-stake-card-v2">
+            <div class="dice-section-head compact">
+                <div>
+                    <span>ТВОЯ СТАВКА</span>
+                    <b>Brainrot</b>
+                </div>
+            </div>
+            <div id="dicePicked" class="dice-picked">
+                <div class="dice-picked-placeholder">
+                    <div class="dice-picked-placeholder-icon">🧠</div>
+                    <div><b>Выбери Brainrot</b><span>Он будет твоей ставкой</span></div>
+                </div>
+            </div>
+
+            <div class="dice-actions">
+                <button id="diceRollButton" class="dice-roll-btn" onclick="rollDice(false)"><span>🎲 БРОСИТЬ</span><small>обычный</small></button>
+                <button id="diceFastButton" class="dice-roll-btn fast" onclick="rollDice(true)"><span>⚡ БЫСТРО</span><small>fast roll</small></button>
+            </div>
+        </div>
+
+        <div class="dice-inventory-card-v2">
+            <div class="dice-section-head compact inventory-head">
+                <div>
+                    <span>ИНВЕНТАРЬ</span>
+                    <b>Мои Brainrot</b>
+                </div>
+                <div id="diceInventoryCount" class="dice-count-badge">0</div>
+            </div>
+            <div id="diceInventory" class="dice-grid dice-inventory"></div>
+        </div>
     </div>
 </div>
 
 <div id="ladderPage" class="page">
     <div class="ladder-panel">
-        <div class="ladder-title"><h2>🪜 Лестница</h2><div class="xcoin">X</div></div>
-        <div class="ladder-sub">Минимальная ставка 30 X. Чем выше — тем больше награда и риск.</div>
+        <div class="ladder-title">
+            <div class="ladder-title-main">
+                <span class="ladder-title-icon">🪜</span>
+                <h2>Лесенка</h2>
+            </div>
+            <div class="ladder-max">MAX ×15</div>
+        </div>
+
         <div id="ladderBoard" class="ladder-board"></div>
-        <div id="ladderStakeVisual" class="ladder-stake-visual"><div class="ladder-big-coin">X</div><div class="ladder-stake-name">Выбери ставку</div></div>
+
+        <div id="ladderStakeVisual" class="ladder-stake-visual">
+            <div class="ladder-big-coin">ⓧ</div>
+            <div class="ladder-stake-name">Выбери ставку</div>
+        </div>
+
         <div id="ladderSetup">
             <div class="ladder-tabs">
-                <button id="ladderCoinTab" class="ladder-tab active" onclick="setLadderStakeMode('coins')">🪙 X Coin</button>
+                <button id="ladderCoinTab" class="ladder-tab active" onclick="setLadderStakeMode('coins')">ⓧ Монеты</button>
                 <button id="ladderBrainrotTab" class="ladder-tab" onclick="setLadderStakeMode('brainrot')">🧠 Brainrot</button>
             </div>
-            <div id="ladderCoinsSetup"><input id="ladderCoinAmount" class="ladder-input" inputmode="numeric" type="number" min="30" placeholder="Ставка, минимум 30 X" oninput="renderLadderStakeVisual()"></div>
-            <div id="ladderBrainrotSetup" style="display:none"><div id="ladderInventory" class="ladder-inventory"></div></div>
-            <button class="ladder-start" onclick="startLadder()">🔥 НАЧАТЬ</button>
+
+            <div id="ladderCoinsSetup">
+                <input id="ladderCoinAmount" class="ladder-input" inputmode="numeric" type="number" min="30" placeholder="Ставка от 30 ⓧ" oninput="renderLadderStakeVisual()">
+            </div>
+
+            <div id="ladderBrainrotSetup" style="display:none">
+                <div id="ladderInventory" class="ladder-inventory"></div>
+            </div>
+
+            <button class="ladder-start" onclick="startLadder()">ИГРАТЬ</button>
         </div>
+
         <div id="ladderActions" class="ladder-actions" style="display:none">
-            <button class="ladder-cash" onclick="cashoutLadder()">💰 ЗАБРАТЬ</button>
-            <button class="ladder-next" onclick="stepLadder()">🔥 ДАЛЬШЕ</button>
+            <button class="ladder-cash" onclick="cashoutLadder()">ЗАБРАТЬ</button>
+            <button class="ladder-next" onclick="stepLadder()">РИСКНУТЬ</button>
         </div>
+
         <div id="ladderStatus" class="ladder-status"></div>
     </div>
 </div>
@@ -9033,10 +9918,23 @@ function setLadderStakeMode(mode){
 }
 
 function renderLadderInventory(){
-    const root=document.getElementById("ladderInventory"); if(!root)return; root.innerHTML="";
-    inventory.filter(x=>!x.locked && Number(x.value)>=30).sort((a,b)=>Number(a.value)-Number(b.value)).forEach(item=>{
-        const div=document.createElement("div"); div.className="ladder-item"+(Number(selectedLadderInventoryId)===Number(item.id)?" selected":"");
-        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-item-name">${item.brainrot_name}</div><div class="ladder-item-value">${item.value} X</div>`;
+    const root=document.getElementById("ladderInventory");
+    if(!root)return;
+    root.innerHTML="";
+
+    const items=inventory
+        .filter(x=>!x.locked && Number(x.value)>=30)
+        .sort((a,b)=>Number(a.value)-Number(b.value));
+
+    if(!items.length){
+        root.innerHTML=`<div class="ladder-empty">Нет Brainrot от 30 ⓧ</div>`;
+        return;
+    }
+
+    items.forEach(item=>{
+        const div=document.createElement("div");
+        div.className="ladder-item"+(Number(selectedLadderInventoryId)===Number(item.id)?" selected":"");
+        div.innerHTML=`<img src="${getImage(item.brainrot_name)}"><div class="ladder-item-name">${item.brainrot_name}</div><div class="ladder-item-value">${item.value} ⓧ</div>`;
         div.onclick=()=>{ selectedLadderInventoryId=item.id; renderLadderInventory(); renderLadderStakeVisual(); };
         root.appendChild(div);
     });
@@ -9097,15 +9995,9 @@ function renderLadderStakeVisual(){
 
             root.innerHTML =
                 `
-                <div class="ladder-big-coin">X</div>
+                <div class="ladder-big-coin">ⓧ</div>
                 <div class="ladder-stake-name">
-                    ${
-                        currentStep > 0
-                        ?
-                        `Можно забрать: ${payout} X`
-                        :
-                        `На кону: ${payout} X`
-                    }
+                    ${currentStep > 0 ? `Забрать ${payout} ⓧ` : `${payout} ⓧ`}
                 </div>
                 `;
 
@@ -9125,9 +10017,7 @@ function renderLadderStakeVisual(){
             root.innerHTML =
                 `
                 <img src="${getImage(ladderSession.brainrot_name)}">
-                <div class="ladder-stake-name">
-                    На кону: ${ladderSession.brainrot_name}
-                </div>
+                <div class="ladder-stake-name">${ladderSession.brainrot_name}</div>
                 `;
 
             return;
@@ -9159,9 +10049,7 @@ function renderLadderStakeVisual(){
                 root.innerHTML =
                     `
                     <img src="${getImage(exact.name)}">
-                    <div class="ladder-stake-name">
-                        Можно забрать: ${exact.name} · ${targetValue} X
-                    </div>
+                    <div class="ladder-stake-name">${exact.name} · ${targetValue} ⓧ</div>
                     `;
             }
             else{
@@ -9176,9 +10064,7 @@ function renderLadderStakeVisual(){
                 root.innerHTML =
                     `
                     <img src="${getImage(ladderSession.brainrot_name)}">
-                    <div class="ladder-stake-name">
-                        Можно забрать: ${ladderSession.brainrot_name} + ${difference} X
-                    </div>
+                    <div class="ladder-stake-name">${ladderSession.brainrot_name} + ${difference} ⓧ</div>
                     `;
             }
 
@@ -9193,9 +10079,7 @@ function renderLadderStakeVisual(){
         root.innerHTML =
             `
             <img src="${getImage(ladderSession.brainrot_name)}">
-            <div class="ladder-stake-name">
-                Можно забрать: ${quantity}× ${ladderSession.brainrot_name}
-            </div>
+            <div class="ladder-stake-name">${quantity}× ${ladderSession.brainrot_name}</div>
             `;
 
         return;
@@ -9224,9 +10108,7 @@ function renderLadderStakeVisual(){
             root.innerHTML =
                 `
                 <img src="${getImage(item.brainrot_name)}">
-                <div class="ladder-stake-name">
-                    На кону: ${item.brainrot_name} · ${item.value} X
-                </div>
+                <div class="ladder-stake-name">${item.brainrot_name} · ${item.value} ⓧ</div>
                 `;
 
             return;
@@ -9244,40 +10126,49 @@ function renderLadderStakeVisual(){
 
     root.innerHTML =
         `
-        <div class="ladder-big-coin">X</div>
+        <div class="ladder-big-coin">ⓧ</div>
         <div class="ladder-stake-name">
-            ${
-                ladderStakeMode === "coins"
-                ?
-                (
-                    enteredCoins > 0
-                    ?
-                    `На кону: ${enteredCoins} X`
-                    :
-                    "Введи количество X Coin"
-                )
-                :
-                "Выбери Brainrot"
-            }
+            ${ladderStakeMode === "coins" ? (enteredCoins > 0 ? `${enteredCoins} ⓧ` : "Введи ставку") : "Выбери Brainrot"}
         </div>
         `;
 }
 
 function renderLadder(){
-    const board=document.getElementById("ladderBoard"); if(!board)return; board.innerHTML="";
+    const board=document.getElementById("ladderBoard");
+    if(!board)return;
+    board.innerHTML="";
+
     const current=Number(ladderSession?.current_step||0);
+
     LADDER_MULTIPLIERS.forEach((m,i)=>{
-        const step=i+1; const div=document.createElement("div");
+        const step=i+1;
+        const div=document.createElement("div");
         div.className="ladder-step"+(step<=current?" passed":"")+(step===current+1 && ladderSession?" current":"");
-        div.innerHTML=`<span class="ladder-num">${step} ступень</span><span class="ladder-x">×${m}</span>`;
+        div.innerHTML=`<span class="ladder-num">${step}</span><span class="ladder-x">×${m}</span>`;
         board.appendChild(div);
     });
-    const setup=document.getElementById("ladderSetup"), actions=document.getElementById("ladderActions"), status=document.getElementById("ladderStatus");
+
+    const setup=document.getElementById("ladderSetup");
+    const actions=document.getElementById("ladderActions");
+    const status=document.getElementById("ladderStatus");
+
     if(ladderSession && ladderSession.status==="active"){
-        setup.style.display="none"; actions.style.display="grid";
-        const next=LADDER_MULTIPLIERS[current] || LADDER_MULTIPLIERS[LADDER_MULTIPLIERS.length-1];
-        status.innerText=current>0?`Сейчас можно забрать ×${LADDER_MULTIPLIERS[current-1]}`:`Нажми «Дальше», чтобы пойти на ×1.2`;
-    } else { setup.style.display="block"; actions.style.display="none"; if(status)status.innerText=""; }
+        setup.style.display="none";
+        actions.style.display="grid";
+
+        if(current>=LADDER_MULTIPLIERS.length){
+            status.innerText=`MAX ×${LADDER_MULTIPLIERS[LADDER_MULTIPLIERS.length-1]}`;
+        }else if(current>0){
+            status.innerText=`×${LADDER_MULTIPLIERS[current-1]}  →  ×${LADDER_MULTIPLIERS[current]}`;
+        }else{
+            status.innerText=`Следующая ×${LADDER_MULTIPLIERS[0]}`;
+        }
+    }else{
+        setup.style.display="block";
+        actions.style.display="none";
+        if(status)status.innerText="";
+    }
+
     renderLadderStakeVisual();
 }
 
@@ -19447,6 +20338,15 @@ const DICE_COLORS = {
     purple:"#a855f7"
 };
 
+const DICE_COLOR_NAMES = {
+    red:"Красный",
+    yellow:"Жёлтый",
+    blue:"Синий",
+    orange:"Оранжевый",
+    green:"Зелёный",
+    purple:"Фиолетовый"
+};
+
 let diceSelectedColor = "red";
 let diceSelectedInventoryId = null;
 let diceRolling = false;
@@ -19457,6 +20357,7 @@ function selectDiceColor(color){
     document.querySelectorAll("[data-dice-color]").forEach(button => {
         button.classList.toggle("active", button.dataset.diceColor === color);
     });
+    syncDiceStatus();
 }
 
 function getDiceSelectedItem(){
@@ -19464,6 +20365,20 @@ function getDiceSelectedItem(){
         Number(item.id) === Number(diceSelectedInventoryId) &&
         !item.locked
     ) || null;
+}
+
+function syncDiceStatus(){
+    const name = document.getElementById("diceColorName");
+    const dot = document.getElementById("diceColorDot");
+    const stake = document.getElementById("diceStakeValue");
+    const item = getDiceSelectedItem();
+
+    if(name) name.textContent = DICE_COLOR_NAMES[diceSelectedColor] || "Цвет";
+    if(dot){
+        dot.style.background = DICE_COLORS[diceSelectedColor] || "#8b5cf6";
+        dot.style.boxShadow = `0 0 0 3px ${DICE_COLORS[diceSelectedColor] || "#8b5cf6"}22`;
+    }
+    if(stake) stake.textContent = item ? `${Number(item.value || 0)} ⓧ` : "—";
 }
 
 function selectDiceItem(id){
@@ -19478,16 +20393,24 @@ function renderDicePicked(){
     if(!root) return;
     const item = getDiceSelectedItem();
     if(!item){
-        root.innerHTML = '<div class="dice-empty">Выбери Brainrot</div>';
+        root.innerHTML = `
+            <div class="dice-picked-placeholder">
+                <div class="dice-picked-placeholder-icon">🧠</div>
+                <div><b>Выбери Brainrot</b><span>Он будет твоей ставкой</span></div>
+            </div>
+        `;
+        syncDiceStatus();
         return;
     }
     root.innerHTML = `
-        <img src="${getImage(item.brainrot_name)}">
-        <div>
+        <div class="dice-picked-art"><img src="${getImage(item.brainrot_name)}"></div>
+        <div class="dice-picked-info">
+            <div class="dice-picked-label">ВЫБРАНО</div>
             <div class="dice-picked-name">${item.brainrot_name}</div>
             <div class="dice-picked-value">${Number(item.value || 0)} ⓧ</div>
         </div>
     `;
+    syncDiceStatus();
 }
 
 function renderDiceInventory(){
@@ -19498,6 +20421,9 @@ function renderDiceInventory(){
         .filter(item => !item.locked)
         .slice()
         .sort((a,b) => Number(b.value || 0) - Number(a.value || 0));
+
+    const countBadge = document.getElementById("diceInventoryCount");
+    if(countBadge) countBadge.textContent = String(available.length);
 
     if(diceSelectedInventoryId && !available.some(item => Number(item.id) === Number(diceSelectedInventoryId))){
         diceSelectedInventoryId = null;
@@ -19601,7 +20527,10 @@ async function rollDice(fast){
         });
 
         if(data.win){
-            showToast("🎉 Победа x2!", "success");
+            const diceMultiplier = Number(
+                data.multiplier || (Number(data.match_count) === 4 ? 3 : 2)
+            );
+            showToast(`🎉 Победа x${diceMultiplier}!`, "success");
         }else{
             showToast("Проигрыш", "error");
         }
