@@ -6918,6 +6918,151 @@ button:focus-visible{
 
 </style>
 
+
+<style id="brainroterx-new-case-sections">
+/* =====================================================
+   CASE CATEGORIES + NEW CASES
+   Lightweight: no blur/filter/infinite animations.
+===================================================== */
+.case-browser-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:12px 0 14px;
+}
+
+.case-browser-heading{min-width:0}
+.case-browser-title{
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:20px;
+    line-height:1.1;
+    font-weight:900;
+    color:#fff;
+    letter-spacing:-.35px;
+}
+.case-browser-subtitle{
+    margin-top:4px;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:10px;
+    line-height:1.25;
+    font-weight:700;
+    color:#8f8aa0;
+}
+
+.new-cases-button{
+    flex:0 0 auto;
+    border:1px solid rgba(255,201,91,.24);
+    border-radius:12px;
+    padding:9px 11px;
+    background:linear-gradient(145deg,rgba(68,49,20,.58),rgba(25,18,12,.78));
+    color:#ffd982;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:10px;
+    font-weight:900;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+.new-cases-button:active{transform:scale(.97)}
+.new-cases-button.active{
+    color:#171005;
+    border-color:rgba(255,214,111,.72);
+    background:linear-gradient(135deg,#ffd76a,#f0ad2d);
+    box-shadow:0 0 16px rgba(244,181,54,.18),inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+.case-section{margin:0 0 18px}
+.case-section-head{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 2px 9px;
+}
+.case-section-title-wrap{min-width:0}
+.case-section-title{
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:15px;
+    line-height:1.15;
+    font-weight:900;
+    color:#f5f3fb;
+    letter-spacing:-.2px;
+}
+.case-section-subtitle{
+    margin-top:3px;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:9px;
+    font-weight:800;
+    color:#817b90;
+}
+.case-section-count{
+    flex:0 0 auto;
+    padding:4px 7px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.07);
+    background:rgba(255,255,255,.035);
+    color:#9d97aa;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:8px;
+    font-weight:900;
+}
+.case-section-new .case-section-title{color:#ffd982}
+.case-section-new .case-section-count{
+    color:#ffd982;
+    border-color:rgba(255,202,91,.18);
+    background:rgba(255,189,56,.06);
+}
+
+.case-card.case-card-new{
+    border-color:rgba(255,202,91,.38) !important;
+    border-top-color:#ffd166 !important;
+    box-shadow:
+        0 10px 26px rgba(0,0,0,.4),
+        inset 0 1px 0 rgba(255,255,255,.06),
+        inset 0 0 0 1px rgba(255,209,102,.04),
+        0 0 18px rgba(255,190,60,.16)
+        !important;
+}
+.case-new-badge{
+    position:absolute;
+    top:7px;
+    right:7px;
+    z-index:8;
+    padding:4px 7px;
+    border-radius:999px;
+    border:1px solid rgba(255,224,145,.62);
+    background:linear-gradient(135deg,#ffd76a,#e9a827);
+    color:#211503;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:7px;
+    line-height:1;
+    font-weight:1000;
+    letter-spacing:.5px;
+    box-shadow:0 3px 10px rgba(0,0,0,.25);
+}
+
+.case-theme-toxic{--case-accent:#b7ff43}
+.case-theme-crazy{--case-accent:#ff5cc8}
+.case-theme-moon{--case-accent:#8ba7ff}
+.case-theme-overdrive{--case-accent:#b568ff}
+.case-theme-meteor{--case-accent:#ff9d42}
+
+.case-theme-toxic .code-case-symbol,
+.case-theme-crazy .code-case-symbol,
+.case-theme-moon .code-case-symbol,
+.case-theme-overdrive .code-case-symbol,
+.case-theme-meteor .code-case-symbol{
+    color:var(--case-accent) !important;
+    text-shadow:none !important;
+}
+
+@media(max-width:390px){
+    .case-browser-toolbar{align-items:flex-end}
+    .case-browser-title{font-size:18px}
+    .new-cases-button{padding:8px 9px;font-size:9px}
+    .case-section-title{font-size:14px}
+}
+</style>
+
 </head>
 
 <body>
@@ -7001,6 +7146,22 @@ button:focus-visible{
             id="bigWinsTrack"
             class="big-wins-track"
         ></div>
+    </div>
+
+    <div class="case-browser-toolbar">
+        <div class="case-browser-heading">
+            <div class="case-browser-title">Кейсы</div>
+            <div class="case-browser-subtitle">Выбирай раздел по стоимости</div>
+        </div>
+
+        <button
+            id="newCasesButton"
+            class="new-cases-button"
+            type="button"
+            onclick="toggleNewCasesFirst()"
+        >
+            ✨ Новые кейсы
+        </button>
     </div>
 
     <div id="caseList">
@@ -9229,6 +9390,9 @@ let cases = [];
 
 let caseItems = [];
 
+let newCasesFirst = false;
+const NEW_CASE_WINDOW_MS = 5 * 24 * 60 * 60 * 1000;
+
 let playerProfile = {
 
     telegram_id:"",
@@ -9481,6 +9645,31 @@ const BRAINROT_IMAGES = {
     "rosey and teddy":"./roseyandteddy.png",
     "ginger gerat":"./gingergerat.png",
     "antonio":"./antonio.png",
+
+    /* 23 NEW SECRET BRAINROTS */
+    "skibidi toilet":"./skibidi-toilet.png",
+    "junk pork":"./junk-pork.png",
+    "arcodragon":"./arcodragon.png",
+    "elefanto frigo":"./elefanto-frigo.png",
+    "meowl":"./meowl.png",
+    "strawberry elefanto":"./strawberry-elefanto.png",
+    "singore carapace":"./singore-carapace.png",
+    "headless horseman":"./headless-horseman.png",
+    "dragon aquanatini":"./dragon-aquanatini.png",
+    "calica bros":"./calica-bros.png",
+    "grebatron":"./grebatron.png.jpg",
+    "kraken":"./kraken.png.webp",
+    "moby bros":"./moby-bros.png.webp",
+    "digi narwhal":"./digi-narwhal.png.webp",
+    "hydra bunny":"./Hydra_Bunny.webp",
+    "tirilikalika tirilikalako":"./Tirilikalika_Tirilikalako.webp",
+    "bunny and eggs":"./bunny-and-eggs.png",
+    "digu bros":"./Duggy_Bros.webp",
+    "rubiko and cubiko":"./Rubiko_and_Kubiko.webp",
+    "foxini lanternini":"./Foxini_Lanternini.webp",
+    "festival 67":"./Festive_67.webp",
+    "gum bros":"./Gym_Bros.webp",
+    "money money bros":"./Money_Money_Bros.webp",
 
     /* GEARS */
     "wave rider":"./wave-rider.png",
@@ -10542,7 +10731,12 @@ const CASE_VISUALS = {
     "random case":{theme:"random",symbol:"RNG"},
     "dragon case":{theme:"dragon",symbol:"DRAGON"},
     "secret case":{theme:"secret",symbol:"LOCK"},
-    "lavaka case":{theme:"lavaka",symbol:"LAVA"}
+    "lavaka case":{theme:"lavaka",symbol:"LAVA"},
+    "toxic case":{theme:"toxic",symbol:"☣"},
+    "crazy case":{theme:"crazy",symbol:"CRAZY"},
+    "moon case":{theme:"moon",symbol:"☾"},
+    "overdrive case":{theme:"overdrive",symbol:"⚡"},
+    "meteor case":{theme:"meteor",symbol:"☄"}
 };
 
 
@@ -10896,40 +11090,134 @@ function startBigWinsLive(){
 
 
 
-function renderCases(){
+function isNewCase(gameCase){
 
-    const root =
-        document.getElementById(
-            "caseList"
-        );
-
-    root.innerHTML = "";
+    const createdAt =
+        new Date(
+            gameCase?.created_at || ""
+        ).getTime();
 
     if(
-        !cases.length
+        !Number.isFinite(createdAt)
+        ||
+        createdAt <= 0
     ){
-        root.innerText =
-            "Кейсов пока нет";
-        return;
+        return false;
     }
 
-    const list =
-        document.createElement(
-            "div"
+    const age =
+        Date.now() - createdAt;
+
+    return (
+        age >= -5 * 60 * 1000
+        &&
+        age < NEW_CASE_WINDOW_MS
+    );
+
+}
+
+
+function toggleNewCasesFirst(){
+
+    newCasesFirst =
+        !newCasesFirst;
+
+    renderCases();
+
+}
+
+
+function caseCategoryFor(gameCase){
+
+    const price =
+        Number(
+            gameCase?.price || 0
         );
 
-    list.className =
-        "case-list";
+    if(price <= 250){
+        return "starter";
+    }
 
-    /* Ежедневный кейс всегда самый первый */
+    if(price <= 1000){
+        return "advanced";
+    }
+
+    return "premium";
+
+}
+
+
+function buildCaseCard(gameCase){
+
+    const visual =
+        caseVisualFor(
+            gameCase
+        );
+
+    const isNew =
+        isNewCase(
+            gameCase
+        );
+
+    const card =
+        document.createElement(
+            "button"
+        );
+
+    card.type = "button";
+    card.className =
+        `case-card case-theme-${visual.theme}`;
+
+    if(isNew){
+        card.classList.add(
+            "case-card-new"
+        );
+    }
+
+    card.innerHTML =
+        `
+        ${isNew ? '<div class="case-new-badge">NEW</div>' : ''}
+
+        <div class="code-case-art" aria-hidden="true">
+            <div class="code-case-glow"></div>
+            <div class="code-case-lid"></div>
+            <div class="code-case-shell">
+                <span class="code-case-symbol">
+                    ${visual.symbol}
+                </span>
+            </div>
+            <div class="code-case-feet"></div>
+        </div>
+
+        <div class="case-name">
+            ${escapeHtml(gameCase.name)}
+        </div>
+
+        <div class="case-price">
+            <span class="xcoin xcoin-small">X</span>
+            ${Number(gameCase.price || 0)}
+        </div>
+        `;
+
+    card.onclick =
+        () =>
+            selectCase(
+                gameCase.id
+            );
+
+    return card;
+
+}
+
+
+function buildDailyCaseCard(){
+
     const dailyCard =
         document.createElement(
             "button"
         );
 
-    dailyCard.type =
-        "button";
-
+    dailyCard.type = "button";
     dailyCard.className =
         "case-card case-theme-lucky daily-case-card";
 
@@ -10964,25 +11252,113 @@ function renderCases(){
         () =>
             openDailyCase();
 
-    list.appendChild(
-        dailyCard
+    return dailyCard;
+
+}
+
+
+function appendCaseSection({
+    root,
+    title,
+    subtitle,
+    items,
+    className = "",
+    includeDaily = false
+}){
+
+    if(
+        !includeDaily
+        &&
+        (!Array.isArray(items) || !items.length)
+    ){
+        return;
+    }
+
+    const section =
+        document.createElement(
+            "section"
+        );
+
+    section.className =
+        `case-section ${className}`.trim();
+
+    const totalCount =
+        (Array.isArray(items) ? items.length : 0)
+        +
+        (includeDaily ? 1 : 0);
+
+    section.innerHTML =
+        `
+        <div class="case-section-head">
+            <div class="case-section-title-wrap">
+                <div class="case-section-title">
+                    ${escapeHtml(title)}
+                </div>
+                <div class="case-section-subtitle">
+                    ${escapeHtml(subtitle)}
+                </div>
+            </div>
+            <div class="case-section-count">
+                ${totalCount}
+            </div>
+        </div>
+        `;
+
+    const list =
+        document.createElement(
+            "div"
+        );
+
+    list.className =
+        "case-list";
+
+    if(includeDaily){
+        list.appendChild(
+            buildDailyCaseCard()
+        );
+    }
+
+    (Array.isArray(items) ? items : [])
+        .forEach(
+            gameCase =>
+                list.appendChild(
+                    buildCaseCard(
+                        gameCase
+                    )
+                )
+        );
+
+    section.appendChild(
+        list
     );
 
-    renderDailyCard();
+    root.appendChild(
+        section
+    );
 
-    /*
-      Отдельная FREE-карточка выше уже является ежедневным кейсом.
-      Поэтому не показываем второй Daily Case, который может приходить
-      из таблицы cases в Supabase.
-    */
-    const sortedCases =
-        cases
+}
+
+
+function renderCases(){
+
+    const root =
+        document.getElementById(
+            "caseList"
+        );
+
+    if(!root){
+        return;
+    }
+
+    root.innerHTML = "";
+
+    const filteredCases =
+        (Array.isArray(cases) ? cases : [])
         .filter(
             gameCase => {
                 const name =
                     String(
-                        gameCase.name ||
-                        ""
+                        gameCase.name || ""
                     )
                     .trim()
                     .toLowerCase();
@@ -10990,78 +11366,109 @@ function renderCases(){
                 return !(
                     gameCase.is_daily === true
                     ||
-                    Number(gameCase.price) === 0
-                    && [
-                        "ежедневный кейс",
-                        "ежедневний кейс",
-                        "daily case"
-                    ].includes(name)
+                    (
+                        Number(gameCase.price) === 0
+                        &&
+                        [
+                            "ежедневный кейс",
+                            "ежедневний кейс",
+                            "daily case"
+                        ].includes(name)
+                    )
                 );
             }
+        );
+
+    const newCases =
+        filteredCases
+        .filter(
+            isNewCase
         )
         .sort(
             (a,b) =>
-                Number(a.price)
+                Number(a.price || 0)
                 -
-                Number(b.price)
+                Number(b.price || 0)
         );
 
-    sortedCases.forEach(
-        gameCase => {
+    const button =
+        document.getElementById(
+            "newCasesButton"
+        );
 
-            const visual =
-                caseVisualFor(
-                    gameCase
-                );
+    if(button){
+        button.classList.toggle(
+            "active",
+            newCasesFirst
+        );
 
-            const card =
-                document.createElement(
-                    "button"
-                );
+        button.innerText =
+            newCases.length
+            ?
+            `✨ Новые кейсы · ${newCases.length}`
+            :
+            "✨ Новые кейсы";
+    }
 
-            card.type = "button";
-            card.className =
-                `case-card case-theme-${visual.theme}`;
+    if(newCasesFirst && newCases.length){
+        appendCaseSection({
+            root,
+            title:"✨ Новые кейсы",
+            subtitle:"Добавлены за последние 5 дней",
+            items:newCases,
+            className:"case-section-new"
+        });
+    }
 
-            card.innerHTML =
-                `
-                <div class="code-case-art" aria-hidden="true">
-                    <div class="code-case-glow"></div>
-                    <div class="code-case-lid"></div>
-                    <div class="code-case-shell">
-                        <span class="code-case-symbol">
-                            ${visual.symbol}
-                        </span>
-                    </div>
-                    <div class="code-case-feet"></div>
-                </div>
+    const regularCases =
+        newCasesFirst
+        ?
+        filteredCases.filter(
+            gameCase =>
+                !isNewCase(gameCase)
+        )
+        :
+        filteredCases;
 
-                <div class="case-name">
-                    ${gameCase.name}
-                </div>
-
-                <div class="case-price">
-                    <span class="xcoin xcoin-small">X</span>
-                    ${gameCase.price}
-                </div>
-                `;
-
-            card.onclick =
-                () =>
-                    selectCase(
-                        gameCase.id
-                    );
-
-            list.appendChild(
-                card
+    const byPrice =
+        (category) =>
+            regularCases
+            .filter(
+                gameCase =>
+                    caseCategoryFor(gameCase)
+                    ===
+                    category
+            )
+            .sort(
+                (a,b) =>
+                    Number(a.price || 0)
+                    -
+                    Number(b.price || 0)
             );
 
-        }
-    );
+    appendCaseSection({
+        root,
+        title:"🟢 Стартовые кейсы",
+        subtitle:"до 250 ⓧ",
+        items:byPrice("starter"),
+        includeDaily:true
+    });
 
-    root.appendChild(
-        list
-    );
+    appendCaseSection({
+        root,
+        title:"💜 Продвинутые кейсы",
+        subtitle:"251–1000 ⓧ",
+        items:byPrice("advanced")
+    });
+
+    appendCaseSection({
+        root,
+        title:"🔥 Премиум кейсы",
+        subtitle:"1001–3000 ⓧ",
+        items:byPrice("premium")
+    });
+
+    renderDailyCard();
 
 }
 
