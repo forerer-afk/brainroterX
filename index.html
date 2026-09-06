@@ -7864,6 +7864,481 @@ button:focus-visible{
 }
 </style>
 
+
+<style id="brainroterx-micro-polish-2026">
+/* =====================================================
+   BRAINROTERX — MICRO POLISH EXPERIMENT
+   Visual-only pass: typography, spacing, cards, buttons,
+   nav, modals and micro-interactions. Mechanics untouched.
+===================================================== */
+:root{
+    --bx-bg:#090711;
+    --bx-surface:#12101c;
+    --bx-surface-2:#181423;
+    --bx-border:rgba(255,255,255,.075);
+    --bx-border-strong:rgba(255,255,255,.12);
+    --bx-text:#f8f7fb;
+    --bx-muted:#9690a5;
+    --bx-violet:#8b5cf6;
+    --bx-violet-2:#a855f7;
+    --bx-gold:#f7c94b;
+    --bx-green:#34d399;
+    --bx-danger:#fb7185;
+    --bx-radius:18px;
+    --bx-radius-sm:13px;
+}
+
+html,body{
+    font-family:"Manrope",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+    color:var(--bx-text);
+}
+body{
+    background:
+      radial-gradient(circle at 15% -8%,rgba(139,92,246,.085),transparent 30%),
+      radial-gradient(circle at 95% 8%,rgba(236,72,153,.045),transparent 22%),
+      linear-gradient(180deg,#0b0912 0%,#08070d 100%) !important;
+    background-attachment:scroll !important;
+}
+.game{padding:10px 10px 104px !important;}
+
+/* Typography hierarchy */
+.case-browser-title,
+.upgrader-title,
+.dice-hero-title,
+.ladder-title h2,
+.profile-name,
+.modal-title{
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    letter-spacing:-.025em;
+}
+.case-browser-title{font-size:21px !important;font-weight:800 !important;}
+.case-browser-subtitle,
+.dice-hero-sub,
+.case-section-subtitle{
+    color:var(--bx-muted) !important;
+    font-size:10px !important;
+    line-height:1.35 !important;
+}
+.section-title,
+.case-content-title,
+.profile-extra-title,
+.dice-section-head b,
+.inventory-toolbar h3{
+    letter-spacing:-.015em !important;
+    font-weight:850 !important;
+}
+
+/* Top bar */
+.topbar{
+    background:rgba(9,7,15,.96) !important;
+    border-bottom:1px solid rgba(255,255,255,.055) !important;
+    box-shadow:0 10px 28px rgba(0,0,0,.22) !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    padding:9px 11px !important;
+}
+.brand-home{gap:7px !important;}
+.brand-wordmark,.logo{
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    font-weight:800 !important;
+    letter-spacing:-.035em !important;
+}
+.balance-box{
+    position:relative;
+    min-width:74px;
+    justify-content:center;
+    gap:6px !important;
+    padding:8px 11px !important;
+    border-radius:999px !important;
+    background:linear-gradient(180deg,#191522,#100d17) !important;
+    border:1px solid rgba(247,201,75,.16) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 5px 14px rgba(0,0,0,.18) !important;
+    font-size:12px !important;
+    transition:transform .18s ease,border-color .18s ease;
+}
+.balance-box .xcoin,.balance-box .coin{color:var(--bx-gold) !important;text-shadow:none !important;}
+.balance-box.balance-bump{transform:scale(1.055);border-color:rgba(247,201,75,.38) !important;}
+.deposit-top{
+    width:34px !important;height:34px !important;padding:0 !important;
+    display:grid !important;place-items:center !important;
+    border-radius:11px !important;
+    background:linear-gradient(145deg,#34d399,#159f70) !important;
+    border:1px solid rgba(255,255,255,.12) !important;
+    box-shadow:0 6px 16px rgba(16,185,129,.18) !important;
+    font-size:20px !important;line-height:1 !important;
+}
+
+/* Shared surfaces */
+.panel,
+.profile-card,
+.profile-extra-card,
+.profile-best-drop,
+.ladder-panel,
+.dice-panel-v2,
+.big-wins-section,
+.case-browser-toolbar,
+.inventory-tabs{
+    border-color:var(--bx-border) !important;
+}
+.panel,
+.profile-card,
+.ladder-panel,
+.dice-panel-v2{
+    background:linear-gradient(160deg,rgba(20,16,31,.98),rgba(10,8,16,.99)) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 16px 34px rgba(0,0,0,.20) !important;
+}
+
+/* Cases header & feed */
+.big-wins-section{
+    margin-bottom:10px !important;
+    padding:10px 10px 9px !important;
+    border-radius:16px !important;
+    background:linear-gradient(180deg,rgba(23,18,35,.82),rgba(13,10,20,.88)) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03) !important;
+}
+.big-wins-title{font-size:10px !important;font-weight:850 !important;color:#d8d2e3 !important;}
+.big-wins-live{
+    padding:4px 7px !important;border-radius:999px !important;
+    font-size:8px !important;letter-spacing:.08em !important;
+    background:rgba(244,63,94,.09) !important;border:1px solid rgba(244,63,94,.13) !important;
+}
+.case-browser-toolbar{
+    margin:10px 0 12px !important;padding:10px 11px !important;
+    border:1px solid var(--bx-border) !important;border-radius:17px !important;
+    background:linear-gradient(180deg,rgba(23,19,33,.72),rgba(14,11,21,.72)) !important;
+}
+.new-cases-button{
+    border-radius:11px !important;
+    background:rgba(247,201,75,.075) !important;
+    border:1px solid rgba(247,201,75,.18) !important;
+    color:#ffe292 !important;
+    font-size:9px !important;
+    box-shadow:none !important;
+}
+
+/* Case section labels */
+.case-section-title-wrap{
+    margin:15px 1px 8px !important;
+    padding:0 2px 7px !important;
+    border-bottom:1px solid rgba(255,255,255,.055) !important;
+}
+.case-section-title{
+    font-family:"Unbounded","Manrope",sans-serif !important;
+    font-size:12px !important;font-weight:800 !important;letter-spacing:-.02em !important;
+}
+
+/* Case cards */
+.case-grid,.case-list{gap:9px !important;}
+.case-card{
+    border-radius:17px !important;
+    background:linear-gradient(155deg,rgba(25,20,37,.98),rgba(12,10,18,.99)) !important;
+    border:1px solid rgba(255,255,255,.065) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.028),0 7px 18px rgba(0,0,0,.16) !important;
+    transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease !important;
+}
+.case-card::before{opacity:.45 !important;filter:none !important;}
+.case-card::after{opacity:.32 !important;}
+.case-card:active,.case-card.button-press{transform:scale(.975) !important;}
+.case-card img,.case-card .case-image,.case-card .case-img,.case-card .case-picture{
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.28)) !important;
+}
+.case-name,.case-card .case-name,.case-card .case-title{
+    font-family:"Manrope",sans-serif !important;
+    font-weight:850 !important;
+    font-size:12px !important;
+    line-height:1.25 !important;
+    letter-spacing:-.02em !important;
+}
+.case-price,.case-card .price,.case-card .case-price,.case-card .case-cost{
+    width:max-content !important;
+    max-width:100%;
+    margin:5px auto 0 !important;
+    padding:4px 7px !important;
+    border-radius:999px !important;
+    color:#ffe48f !important;
+    background:rgba(247,201,75,.075) !important;
+    border:1px solid rgba(247,201,75,.12) !important;
+    font-size:10px !important;
+    font-weight:900 !important;
+}
+.case-card.is-new,.case-card.new-case{
+    border-color:rgba(247,201,75,.19) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 18px rgba(247,201,75,.055),0 8px 20px rgba(0,0,0,.16) !important;
+}
+
+/* Loading skeletons */
+#caseList .case-card[style*="opacity"]{
+    position:relative;overflow:hidden;background:#15111d !important;border-color:rgba(255,255,255,.04) !important;
+}
+#caseList .case-card[style*="opacity"]::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.045) 48%,transparent 66%);
+    transform:translateX(-100%);animation:bxSkeleton 1.15s ease-in-out infinite;
+}
+@keyframes bxSkeleton{to{transform:translateX(100%)}}
+
+/* Buttons */
+button,
+.fast-btn,.speed-btn,.back-btn,.spin-btn,.promo-btn,.sell-all-btn,
+.ladder-start,.ladder-cash,.ladder-next,.dice-roll-btn,
+.inventory-tab,.ui-select{
+    transition:transform .13s ease,filter .13s ease,border-color .13s ease,background-color .13s ease !important;
+}
+button:active:not(:disabled),.button-press{transform:scale(.975);}
+.spin-btn,.upgrade-main-btn,.ladder-start,.dice-roll-btn:not(.fast),.promo-btn{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 8px 18px rgba(124,58,237,.16) !important;
+}
+.back-btn,.speed-btn,.ui-select{
+    border:1px solid var(--bx-border) !important;
+    background:rgba(255,255,255,.045) !important;
+    color:#d9d4e1 !important;
+}
+
+/* Forms */
+input,select,textarea,
+.promo-input,.ladder-input{
+    font-family:"Manrope",sans-serif !important;
+    border-radius:12px !important;
+    border:1px solid rgba(255,255,255,.075) !important;
+    background:#0e0b14 !important;
+    color:#fff !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
+    border-color:rgba(139,92,246,.38) !important;
+    outline:none !important;
+    box-shadow:0 0 0 3px rgba(139,92,246,.08) !important;
+}
+.input-label{color:#aaa3b5 !important;font-size:9px !important;font-weight:800 !important;letter-spacing:.03em !important;}
+
+/* Upgrader polish */
+.upgrade-preview-card,
+.upgrade-item,
+.mystery-card,
+.upgrader-picker-tabs{
+    background:rgba(255,255,255,.035) !important;
+    border-color:rgba(255,255,255,.065) !important;
+}
+.upgrade-preview-label{color:#9d96aa !important;font-size:9px !important;letter-spacing:.04em !important;}
+.upgrade-preview-name{font-size:10px !important;font-weight:850 !important;}
+.upgrade-preview-price{color:#f2d77a !important;opacity:1 !important;}
+
+/* Dice & Ladder — keep redesign, unify surfaces */
+#dicePage .dice-summary-card,
+#dicePage .dice-arena-v2,
+#dicePage .dice-color-card-v2,
+#dicePage .dice-stake-card-v2,
+#dicePage .dice-inventory-card-v2{
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.018)) !important;
+    border:1px solid rgba(255,255,255,.065) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+#dicePage .dice-section-head span,
+#dicePage .dice-summary-card>span{
+    color:#817a8e !important;letter-spacing:.08em !important;
+}
+#dicePage .dice-color{
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:none !important;
+}
+#dicePage .dice-color.active{
+    border-color:rgba(255,255,255,.25) !important;
+    box-shadow:0 0 0 2px rgba(139,92,246,.14) !important;
+}
+.ladder-board,.ladder-stake-visual,.ladder-tabs{
+    border-color:rgba(255,255,255,.065) !important;
+}
+
+/* Profile / inventory */
+.profile-card{border-radius:22px !important;padding:14px !important;}
+.profile-avatar{
+    border:2px solid rgba(168,85,247,.22) !important;
+    box-shadow:0 8px 20px rgba(0,0,0,.18) !important;
+}
+.profile-name{font-size:15px !important;}
+.profile-id{color:#797282 !important;font-size:9px !important;}
+.profile-stats{gap:7px !important;}
+.profile-stat{
+    border-radius:14px !important;
+    background:rgba(255,255,255,.03) !important;
+    border:1px solid rgba(255,255,255,.055) !important;
+}
+.profile-number{font-family:"Unbounded","Manrope",sans-serif !important;font-size:17px !important;}
+.profile-stat-title{color:#8d8698 !important;font-size:8px !important;letter-spacing:.04em !important;}
+.profile-extra-card,.profile-best-drop{
+    background:rgba(255,255,255,.027) !important;
+    border:1px solid rgba(255,255,255,.055) !important;
+    border-radius:15px !important;
+}
+.inventory-toolbar{margin-top:12px !important;padding:0 2px !important;}
+.inventory-tabs{
+    padding:4px !important;border-radius:14px !important;
+    background:rgba(255,255,255,.025) !important;
+    border:1px solid rgba(255,255,255,.055) !important;
+}
+.inventory-tab{
+    border:0 !important;background:transparent !important;color:#8f8998 !important;
+    border-radius:10px !important;
+}
+.inventory-tab.active{
+    color:#fff !important;background:rgba(139,92,246,.14) !important;
+    box-shadow:inset 0 0 0 1px rgba(139,92,246,.13) !important;
+}
+.inventory-card,.inventory-pending-card{
+    border-radius:15px !important;
+    background:linear-gradient(155deg,rgba(23,18,34,.96),rgba(12,9,18,.98)) !important;
+    border:1px solid rgba(255,255,255,.06) !important;
+    box-shadow:0 7px 16px rgba(0,0,0,.13) !important;
+}
+.inventory-card img,.inventory-pending-card img{filter:drop-shadow(0 6px 8px rgba(0,0,0,.22)) !important;}
+.inventory-name{font-weight:850 !important;letter-spacing:-.015em !important;}
+.inventory-price{color:#f0d374 !important;font-weight:900 !important;}
+
+/* Modal polish */
+.modal-overlay,.modal-bg{background:rgba(3,2,6,.74) !important;}
+.modal{
+    border:1px solid rgba(255,255,255,.085) !important;
+    background:linear-gradient(160deg,#181320,#0d0a12) !important;
+    border-radius:20px !important;
+    box-shadow:0 24px 60px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+.modal-header{border-bottom-color:rgba(255,255,255,.055) !important;}
+.close{
+    width:32px !important;height:32px !important;border-radius:10px !important;
+    background:rgba(255,255,255,.04) !important;color:#aaa4b1 !important;
+}
+
+/* Bottom dock */
+.bottom-menu{
+    left:50% !important;right:auto !important;bottom:8px !important;
+    width:min(calc(100% - 16px),524px) !important;
+    transform:translateX(-50%) !important;
+    padding:5px !important;
+    border-radius:18px !important;
+    background:rgba(13,10,19,.975) !important;
+    border:1px solid rgba(255,255,255,.07) !important;
+    box-shadow:0 14px 34px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.03) !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+}
+.bottom-menu .nav-btn{
+    position:relative !important;
+    border-radius:12px !important;
+    min-height:50px !important;
+    padding:6px 2px 5px !important;
+    color:#746e7e !important;
+    background:transparent !important;
+    font-family:"Manrope",sans-serif !important;
+    font-size:8px !important;
+    font-weight:800 !important;
+    line-height:1.25 !important;
+}
+.bottom-menu .nav-btn::before{
+    content:"";position:absolute;left:50%;top:2px;width:18px;height:2px;border-radius:999px;
+    transform:translateX(-50%) scaleX(0);background:#a78bfa;opacity:0;transition:.15s ease;
+}
+.bottom-menu .nav-btn.active{
+    color:#f6f3fa !important;
+    background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(139,92,246,.035)) !important;
+}
+.bottom-menu .nav-btn.active::before{opacity:1;transform:translateX(-50%) scaleX(1);}
+
+/* Toasts */
+.toast{
+    border-radius:13px !important;
+    border:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 12px 28px rgba(0,0,0,.30) !important;
+    font-family:"Manrope",sans-serif !important;
+}
+
+/* Soft page entrance, no expensive blur */
+.page.active{animation:bxPageIn .16s ease-out both;}
+@keyframes bxPageIn{from{opacity:.86;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+@media(max-width:390px){
+    .case-browser-title{font-size:19px !important;}
+    .case-browser-toolbar{padding:9px !important;}
+    .new-cases-button{font-size:8px !important;padding:8px 9px !important;}
+    .bottom-menu .nav-btn{font-size:7.5px !important;}
+}
+@media(prefers-reduced-motion:reduce){
+    .page.active,#caseList .case-card[style*="opacity"]::after{animation:none !important;}
+    *,*::before,*::after{scroll-behavior:auto !important;}
+}
+</style>
+
+
+<style id="brainroterx-inventory-toolbar-coin-fix">
+/* Inventory toolbar: Withdraw → Sell all → Price */
+.inventory-toolbar{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:8px !important;
+}
+.inventory-toolbar h3{
+    width:100% !important;
+}
+.inventory-tools{
+    width:100% !important;
+    display:grid !important;
+    grid-template-columns:1fr 1fr .78fr !important;
+    gap:7px !important;
+    align-items:stretch !important;
+}
+.inventory-tools > button{
+    min-width:0 !important;
+    width:100% !important;
+    height:36px !important;
+    padding:0 8px !important;
+    border-radius:10px !important;
+    font-family:"Manrope",sans-serif !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+}
+.inventory-withdraw-all-btn{
+    color:#fff !important;
+    border:1px solid rgba(96,165,250,.24) !important;
+    background:linear-gradient(145deg,#2563eb,#4f46e5) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 7px 16px rgba(37,99,235,.16) !important;
+}
+.inventory-tools .sell-all-btn{
+    margin:0 !important;
+}
+.inventory-tools .inventory-price-sort-btn{
+    max-width:none !important;
+    color:#ddd7e7 !important;
+    background:rgba(255,255,255,.045) !important;
+    border:1px solid rgba(255,255,255,.075) !important;
+}
+/* Per-card withdraw is now handled by the separate toolbar button. */
+.inventory-actions{
+    grid-template-columns:1fr 1fr !important;
+}
+.inventory-actions .exchange-one{
+    grid-column:auto !important;
+}
+/* The X on the top-right coin must stay dark and readable on the gold coin. */
+.balance-box .xcoin{
+    color:#171300 !important;
+    -webkit-text-fill-color:#171300 !important;
+    text-shadow:none !important;
+    font-weight:1000 !important;
+}
+@media (max-width:390px){
+    .inventory-tools{
+        display:grid !important;
+        grid-template-columns:1fr 1fr .78fr !important;
+    }
+    .inventory-tools > button{
+        font-size:8.5px !important;
+        padding:0 5px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -8800,11 +9275,10 @@ button:focus-visible{
         <div class="inventory-tools">
 
             <button
-                id="inventorySortButton"
-                class="ui-select"
-                onclick="toggleInventorySort()"
+                class="inventory-withdraw-all-btn"
+                onclick="openWithdraw()"
             >
-                Цена ↑
+                📤 Вывести
             </button>
 
             <button
@@ -8812,6 +9286,14 @@ button:focus-visible{
                 onclick="openSellAll()"
             >
                 ⓧ Продать всё
+            </button>
+
+            <button
+                id="inventorySortButton"
+                class="ui-select inventory-price-sort-btn"
+                onclick="toggleInventorySort()"
+            >
+                Цена ↑
             </button>
 
         </div>
@@ -14699,7 +15181,6 @@ function renderInventory(){
                 <div class="inventory-value">${item.value} ⓧ</div>
                 <div class="inventory-actions">
                     <button class="inventory-action sell-one" onclick="sellItem(${item.id})">Продать</button>
-                    <button class="inventory-action withdraw-one" onclick="openWithdraw(${item.id})">Вывод</button>
                     <button class="inventory-action exchange-one" onclick="openExchange(${item.id})">🔄 Обмен</button>
                 </div>`;
         }
@@ -20880,6 +21361,26 @@ loadPlayer()
     <div id="feedPlayerProfileBody"></div>
   </div>
 </div>
+
+<script id="brainroterx-micro-polish-js">
+(function(){
+    // Tiny balance feedback when the number changes. No game logic is touched.
+    const coins = document.getElementById('coins');
+    const box = document.querySelector('.balance-box');
+    if(coins && box && 'MutationObserver' in window){
+        let timer = null;
+        const observer = new MutationObserver(() => {
+            box.classList.remove('balance-bump');
+            void box.offsetWidth;
+            box.classList.add('balance-bump');
+            clearTimeout(timer);
+            timer = setTimeout(() => box.classList.remove('balance-bump'), 220);
+        });
+        observer.observe(coins,{childList:true,characterData:true,subtree:true});
+    }
+})();
+</script>
+
 </body>
 
 </html>
