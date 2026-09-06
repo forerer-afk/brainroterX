@@ -21136,17 +21136,38 @@ async function rollDice(fast){
             throw new Error(data?.error || "Ошибка ролла");
         }
 
-        cubes.forEach(cube => cube.classList.remove("rolling"));
+        const resultColors = Array.isArray(data.dice) ? data.dice.slice(0,4) : [];
 
-        // Show the actual server result once, with a short reveal pop.
-        paintDice(data.dice || []);
-        cubes.forEach((cube,index) => {
-            setTimeout(() => {
+        if(fast){
+            // FAST: сразу показываем все 4 кубика одновременно.
+            cubes.forEach(cube => cube.classList.remove("rolling"));
+            paintDice(resultColors);
+            cubes.forEach(cube => {
                 cube.classList.remove("reveal");
                 void cube.offsetWidth;
                 cube.classList.add("reveal");
-            }, index * 55);
-        });
+            });
+        }else{
+            // ОБЫЧНЫЙ: кубики открываются строго по одному слева направо.
+            // Остальные продолжают крутиться, пока не наступит их очередь.
+            for(let index = 0; index < cubes.length; index++){
+                const cube = cubes[index];
+                const face = document.getElementById("diceFace" + index);
+
+                cube.classList.remove("rolling");
+                if(face){
+                    face.style.background = DICE_COLORS[resultColors[index]] || "#312e81";
+                }
+
+                cube.classList.remove("reveal");
+                void cube.offsetWidth;
+                cube.classList.add("reveal");
+
+                if(index < cubes.length - 1){
+                    await sleep(360);
+                }
+            }
+        }
 
         if(data.win){
             const diceMultiplier = Number(
