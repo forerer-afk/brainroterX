@@ -8337,6 +8337,127 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         padding:0 5px !important;
     }
 }
+
+/* Inventory total value */
+.inventory-title-row{
+    width:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+}
+.inventory-title-row h3{
+    margin:0 !important;
+    width:auto !important;
+}
+.inventory-total-card{
+    min-width:118px;
+    padding:7px 10px;
+    border-radius:11px;
+    background:linear-gradient(145deg,rgba(250,204,21,.10),rgba(255,255,255,.025));
+    border:1px solid rgba(250,204,21,.16);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    text-align:right;
+    line-height:1.05;
+}
+.inventory-total-label{
+    display:block;
+    margin-bottom:3px;
+    color:rgba(255,255,255,.52);
+    font-family:"Manrope",sans-serif;
+    font-size:7.5px;
+    font-weight:800;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+}
+#inventoryTotalValue{
+    color:#f8d66d;
+    font-family:"Manrope",sans-serif;
+    font-size:12px;
+    font-weight:1000;
+    letter-spacing:-.02em;
+}
+
+/* Case contents: larger cards, two per row */
+#caseContentList.case-content-list{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    max-height:360px !important;
+    padding:1px 2px 3px !important;
+    overflow-y:auto !important;
+}
+#caseContentList .case-content-item{
+    min-width:0 !important;
+    min-height:128px !important;
+    padding:10px 8px 9px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:5px !important;
+    border-radius:14px !important;
+    background:linear-gradient(160deg,rgba(35,27,55,.92),rgba(14,10,25,.96)) !important;
+    border:1px solid rgba(255,255,255,.065) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 7px 16px rgba(0,0,0,.13) !important;
+}
+#caseContentList .case-content-left{
+    width:100% !important;
+    min-width:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:5px !important;
+}
+#caseContentList .case-content-img{
+    width:70px !important;
+    height:70px !important;
+    flex:0 0 70px !important;
+    object-fit:contain !important;
+    filter:drop-shadow(0 7px 9px rgba(0,0,0,.24));
+}
+#caseContentList .case-content-name{
+    width:100% !important;
+    min-height:25px !important;
+    display:-webkit-box !important;
+    -webkit-box-orient:vertical !important;
+    -webkit-line-clamp:2 !important;
+    overflow:hidden !important;
+    white-space:normal !important;
+    text-overflow:ellipsis !important;
+    text-align:center !important;
+    color:#f5f2f8 !important;
+    font-family:"Manrope",sans-serif !important;
+    font-size:9.5px !important;
+    line-height:1.22 !important;
+    font-weight:850 !important;
+}
+#caseContentList .case-content-value{
+    margin-top:auto !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:3px !important;
+    padding:4px 7px !important;
+    border-radius:999px !important;
+    background:rgba(250,204,21,.075) !important;
+    border:1px solid rgba(250,204,21,.12) !important;
+    color:#f7d35f !important;
+    font-size:10px !important;
+    font-weight:950 !important;
+}
+#caseContentList .case-content-value .xcoin{
+    color:#171300 !important;
+    -webkit-text-fill-color:#171300 !important;
+}
+@media(max-width:370px){
+    .inventory-total-card{min-width:104px;padding:6px 8px;}
+    .inventory-total-label{font-size:6.8px;}
+    #inventoryTotalValue{font-size:11px;}
+    #caseContentList .case-content-item{min-height:120px !important;padding:8px 6px !important;}
+    #caseContentList .case-content-img{width:64px !important;height:64px !important;flex-basis:64px !important;}
+}
 </style>
 
 </head>
@@ -9268,9 +9389,16 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 
     <div class="inventory-toolbar">
 
-        <h3>
-            🎒 Инвентарь
-        </h3>
+        <div class="inventory-title-row">
+            <h3>
+                🎒 Инвентарь
+            </h3>
+
+            <div class="inventory-total-card" aria-label="Общая стоимость инвентаря">
+                <span class="inventory-total-label">Общая стоимость</span>
+                <strong id="inventoryTotalValue">0 ⓧ</strong>
+            </div>
+        </div>
 
         <div class="inventory-tools">
 
@@ -15145,6 +15273,15 @@ function renderInventory(){
     const root=document.getElementById("inventory");
     if(!root) return;
     root.innerHTML="";
+
+    const inventoryTotal = (Array.isArray(inventory) ? inventory : []).reduce(
+        (sum,item) => sum + Number(item?.value || 0),
+        0
+    );
+    const inventoryTotalValue = document.getElementById("inventoryTotalValue");
+    if(inventoryTotalValue){
+        inventoryTotalValue.textContent = `${new Intl.NumberFormat("ru-RU").format(inventoryTotal)} ⓧ`;
+    }
 
     let inventoryItems=[...inventory];
     if(inventoryTabMode === "withdraw"){
