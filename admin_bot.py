@@ -150,14 +150,6 @@ async def start_command(
         "/promoff lavaka676\n\n"
         "⛔ Отключить пополнение: /-\n"
         "✅ Включить пополнение: /+\n\n"
-        "😈 Включить визуальный prank:\n"
-        "/mem+ TELEGRAM_ID\n\n"
-        "🙂 Выключить визуальный prank:\n"
-        "/mem- TELEGRAM_ID\n\n"
-        "🍀 Включить повышенный шанс:\n"
-        "/luck+ TELEGRAM_ID\n\n"
-        "🍀 Выключить повышенный шанс:\n"
-        "/luck- TELEGRAM_ID\n\n"
         "👥 Делегированные промо:\n"
         "/promoadd ID КОЛ-ВО — выдать/добавить лимит\n"
         "/promotake ID КОЛ-ВО — убрать лимит\n"
@@ -518,8 +510,6 @@ async def deposit_plus(
 
 def admin_menu_markup():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("😈 MEM включён", callback_data="menu_mem"),
-         InlineKeyboardButton("🍀 LUCK включён", callback_data="menu_luck")],
         [InlineKeyboardButton("📋 Все команды", callback_data="menu_commands")],
         [InlineKeyboardButton("⚙️ Статус пополнений", callback_data="menu_deposits")]
     ])
@@ -539,10 +529,6 @@ def commands_text():
         "/g+ — включить только ГРН\n"
         "/b- — отключить только Brainrot\n"
         "/b+ — включить только Brainrot\n\n"
-        "/mem+ TELEGRAM_ID — включить MEM\n"
-        "/mem- TELEGRAM_ID — выключить MEM\n"
-        "/luck+ TELEGRAM_ID — включить LUCK\n"
-        "/luck- TELEGRAM_ID — выключить LUCK\n"
         "/menu — открыть это меню"
     )
 
@@ -701,19 +687,6 @@ async def button_handler(
         if data.startswith(old_prefix):
             data = new_prefix + data[len(old_prefix):]
             break
-
-    if data in ("menu_mem","menu_luck"):
-        result=call_server("admin_get_mode_lists")
-        if not result.get("ok"):
-            await query.answer("❌ "+result.get("error","Ошибка"),show_alert=True)
-            return
-        key="mem_ids" if data=="menu_mem" else "luck_ids"
-        title="😈 MEM ВКЛЮЧЁН" if data=="menu_mem" else "🍀 LUCK ВКЛЮЧЁН"
-        ids=result.get(key,[])
-        text=title+"\n\n"+("\n".join("• "+str(x) for x in ids) if ids else "Список пуст.")
-        await query.answer()
-        await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
-        return
 
     if data=="menu_commands":
         await query.answer()
@@ -1437,319 +1410,6 @@ async def button_handler(
 
 
 # =====================================================
-# MEM VISUAL PRANK
-# =====================================================
-
-async def mem_plus_command(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    if not is_admin(update):
-
-        await update.message.reply_text(
-            "❌ Нет доступа"
-        )
-
-        return
-
-    parts = (
-        update.message.text
-        or ""
-    ).strip().split()
-
-    if len(parts) != 2:
-
-        await update.message.reply_text(
-            "Использование:\n"
-            "/mem+ TELEGRAM_ID"
-        )
-
-        return
-
-    try:
-
-        target_telegram_id = int(
-            parts[1]
-        )
-
-    except ValueError:
-
-        await update.message.reply_text(
-            "❌ Telegram ID должен быть числом"
-        )
-
-        return
-
-    result = call_server(
-        "admin_set_visual_prank",
-        target_telegram_id=target_telegram_id,
-        enabled=True,
-    )
-
-    if not result.get("ok"):
-
-        await update.message.reply_text(
-            "❌ "
-            + result.get(
-                "error",
-                "Ошибка"
-            )
-        )
-
-        return
-
-    await update.message.reply_text(
-        "😈 MEM включён\n"
-        f"Telegram ID: {target_telegram_id}\n"
-        "Шансы и награды не меняются.\n"
-        "Проигрыши визуально чаще останавливаются рядом с зоной."
-    )
-
-
-async def mem_minus_command(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    if not is_admin(update):
-
-        await update.message.reply_text(
-            "❌ Нет доступа"
-        )
-
-        return
-
-    parts = (
-        update.message.text
-        or ""
-    ).strip().split()
-
-    if len(parts) != 2:
-
-        await update.message.reply_text(
-            "Использование:\n"
-            "/mem- TELEGRAM_ID"
-        )
-
-        return
-
-    try:
-
-        target_telegram_id = int(
-            parts[1]
-        )
-
-    except ValueError:
-
-        await update.message.reply_text(
-            "❌ Telegram ID должен быть числом"
-        )
-
-        return
-
-    result = call_server(
-        "admin_set_visual_prank",
-        target_telegram_id=target_telegram_id,
-        enabled=False,
-    )
-
-    if not result.get("ok"):
-
-        await update.message.reply_text(
-            "❌ "
-            + result.get(
-                "error",
-                "Ошибка"
-            )
-        )
-
-        return
-
-    await update.message.reply_text(
-        "🙂 MEM выключен\n"
-        f"Telegram ID: {target_telegram_id}"
-    )
-
-
-
-
-# =====================================================
-# LUCK MODE
-# =====================================================
-
-async def luck_plus_command(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    if not is_admin(update):
-        await update.message.reply_text(
-            "❌ Нет доступа"
-        )
-        return
-
-    parts = (
-        update.message.text
-        or ""
-    ).strip().split()
-
-    if len(parts) != 2:
-        await update.message.reply_text(
-            "Использование:\n"
-            "/luck+ TELEGRAM_ID"
-        )
-        return
-
-    try:
-        target_telegram_id = int(
-            parts[1]
-        )
-    except ValueError:
-        await update.message.reply_text(
-            "❌ Telegram ID должен быть числом"
-        )
-        return
-
-    result = call_server(
-        "admin_set_luck_mode",
-        target_telegram_id=target_telegram_id,
-        enabled=True,
-    )
-
-    if not result.get("ok"):
-        await update.message.reply_text(
-            "❌ "
-            + result.get(
-                "error",
-                "Ошибка"
-            )
-        )
-        return
-
-    await update.message.reply_text(
-        "🍀 LUCK включён\n"
-        f"Telegram ID: {target_telegram_id}\n"
-        "Серверный шанс апгрейда минимум 70%."
-    )
-
-
-async def luck_minus_command(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    if not is_admin(update):
-        await update.message.reply_text(
-            "❌ Нет доступа"
-        )
-        return
-
-    parts = (
-        update.message.text
-        or ""
-    ).strip().split()
-
-    if len(parts) != 2:
-        await update.message.reply_text(
-            "Использование:\n"
-            "/luck- TELEGRAM_ID"
-        )
-        return
-
-    try:
-        target_telegram_id = int(
-            parts[1]
-        )
-    except ValueError:
-        await update.message.reply_text(
-            "❌ Telegram ID должен быть числом"
-        )
-        return
-
-    result = call_server(
-        "admin_set_luck_mode",
-        target_telegram_id=target_telegram_id,
-        enabled=False,
-    )
-
-    if not result.get("ok"):
-        await update.message.reply_text(
-            "❌ "
-            + result.get(
-                "error",
-                "Ошибка"
-            )
-        )
-        return
-
-    await update.message.reply_text(
-        "🍀 LUCK выключен\n"
-        f"Telegram ID: {target_telegram_id}"
-    )
-
-
-# =====================================================
-# MEM TEXT ROUTER
-# Telegram command entities do not reliably support +/-
-# so /mem+ and /mem- are parsed as plain text here.
-# =====================================================
-
-async def mem_text_router(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    message = update.message
-
-    if not message:
-        return
-
-    text = (
-        message.text
-        or ""
-    ).strip()
-
-    lower = text.lower()
-
-    if lower.startswith("/mem+"):
-
-        await mem_plus_command(
-            update,
-            context
-        )
-
-        return
-
-    if lower.startswith("/mem-"):
-
-        await mem_minus_command(
-            update,
-            context
-        )
-
-        return
-
-    if lower.startswith("/luck+"):
-
-        await luck_plus_command(
-            update,
-            context
-        )
-
-        return
-
-    if lower.startswith("/luck-"):
-
-        await luck_minus_command(
-            update,
-            context
-        )
-
-        return
-
-
-# =====================================================
 # ЗАПУСК
 # =====================================================
 
@@ -1816,13 +1476,6 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r"^/g\+$"), g_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b-$"), b_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b\+$"), b_plus_command))
-
-    app.add_handler(
-        MessageHandler(
-            filters.TEXT,
-            mem_text_router
-        )
-    )
 
     app.add_handler(
         CallbackQueryHandler(
