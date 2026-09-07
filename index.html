@@ -8518,6 +8518,143 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 </div>
 
 
+<style id="brainroterx-hourly-percent-promo">
+.hourly-percent-promo{
+    position:relative;
+    overflow:hidden;
+    margin:10px 0 15px;
+    padding:13px;
+    border-radius:16px;
+    border:1px solid rgba(250,204,21,.24);
+    background:
+        radial-gradient(circle at 10% 0%,rgba(250,204,21,.10),transparent 42%),
+        linear-gradient(145deg,rgba(22,18,8,.96),rgba(10,13,20,.98));
+    box-shadow:0 10px 26px rgba(0,0,0,.20);
+}
+.hourly-percent-promo::after{
+    content:"";
+    position:absolute;
+    width:110px;
+    height:110px;
+    right:-46px;
+    top:-58px;
+    border-radius:50%;
+    background:rgba(250,204,21,.08);
+    pointer-events:none;
+}
+.hourly-promo-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+}
+.hourly-promo-kicker{
+    color:#fde68a;
+    font-size:9px;
+    font-weight:1000;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+.hourly-promo-title{
+    margin-top:3px;
+    color:#fff;
+    font-size:13px;
+    font-weight:1000;
+}
+.hourly-promo-percent{
+    flex:0 0 auto;
+    min-width:53px;
+    padding:7px 8px;
+    border-radius:12px;
+    text-align:center;
+    color:#111827;
+    background:#facc15;
+    font-size:16px;
+    font-weight:1000;
+    box-shadow:0 0 18px rgba(250,204,21,.14);
+}
+.hourly-promo-middle{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:8px;
+    align-items:center;
+    margin-top:11px;
+}
+.hourly-promo-code-box{
+    min-width:0;
+    padding:9px 10px;
+    border-radius:11px;
+    border:1px solid rgba(255,255,255,.07);
+    background:rgba(2,6,23,.54);
+}
+.hourly-promo-code-label{
+    color:#94a3b8;
+    font-size:8px;
+    font-weight:800;
+    text-transform:uppercase;
+}
+.hourly-promo-code{
+    margin-top:2px;
+    color:#fff;
+    font-size:12px;
+    font-weight:1000;
+    letter-spacing:.05em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.hourly-promo-timer-box{
+    min-width:68px;
+    padding:8px 9px;
+    border-radius:11px;
+    text-align:center;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.06);
+}
+.hourly-promo-timer-label{
+    color:#94a3b8;
+    font-size:8px;
+    font-weight:800;
+}
+.hourly-promo-timer{
+    margin-top:2px;
+    color:#fde68a;
+    font-size:12px;
+    font-weight:1000;
+    font-variant-numeric:tabular-nums;
+}
+.hourly-promo-bottom{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+}
+.hourly-promo-note{
+    flex:1 1 auto;
+    color:#94a3b8;
+    font-size:9px;
+    line-height:1.35;
+}
+.hourly-promo-use{
+    flex:0 0 auto;
+    border:0;
+    border-radius:11px;
+    padding:9px 12px;
+    color:#111827;
+    background:#facc15;
+    font-size:9px;
+    font-weight:1000;
+}
+.hourly-promo-use:disabled{
+    opacity:.5;
+}
+@media (max-width:380px){
+    .hourly-percent-promo{padding:11px}
+    .hourly-promo-title{font-size:12px}
+    .hourly-promo-percent{font-size:15px;min-width:50px}
+}
+</style>
+
 <div class="game">
 
 
@@ -8563,6 +8700,62 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         >
             ✨ Новые кейсы
         </button>
+    </div>
+
+    <div
+        id="hourlyPercentPromo"
+        class="hourly-percent-promo"
+    >
+        <div class="hourly-promo-top">
+            <div>
+                <div class="hourly-promo-kicker">🎟 Часовой промокод</div>
+                <div class="hourly-promo-title">Бонус к следующему пополнению</div>
+            </div>
+
+            <div
+                id="hourlyPromoPercent"
+                class="hourly-promo-percent"
+            >
+                +5%
+            </div>
+        </div>
+
+        <div class="hourly-promo-middle">
+            <div class="hourly-promo-code-box">
+                <div class="hourly-promo-code-label">Активный код</div>
+                <div
+                    id="hourlyPromoCode"
+                    class="hourly-promo-code"
+                >
+                    Загрузка...
+                </div>
+            </div>
+
+            <div class="hourly-promo-timer-box">
+                <div class="hourly-promo-timer-label">Осталось</div>
+                <div
+                    id="hourlyPromoTimer"
+                    class="hourly-promo-timer"
+                >
+                    --:--
+                </div>
+            </div>
+        </div>
+
+        <div class="hourly-promo-bottom">
+            <div class="hourly-promo-note">
+                Код меняется каждый час.
+            </div>
+
+            <button
+                id="hourlyPromoUseButton"
+                class="hourly-promo-use"
+                type="button"
+                onclick="useHourlyDepositPromo()"
+            >
+                ПОПОЛНИТЬ
+            </button>
+        </div>
     </div>
 
     <div id="caseList">
@@ -9625,7 +9818,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         >
 
         <div class="input-label">
-            Реферальный код
+            Реферальный или промокод
         </div>
 
         <input
@@ -9686,7 +9879,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
             >
 
             <div class="input-label">
-                Реферальный код
+                Реферальный или промокод
             </div>
 
             <input
@@ -9744,7 +9937,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
                 </div>
 
                 <div class="input-label">
-                    Реферальный код
+                    Реферальный или промокод
                 </div>
 
                 <input
@@ -9885,8 +10078,8 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
                 class="referral-note"
             >
                 Если кто-то пополняет баланс с твоим кодом,
-                он получает +10% к пополнению, а тебе начисляется
-                +10% в реферальный баланс.
+                он получает +5% к пополнению, а тебе начисляется
+                +5% в реферальный баланс.
             </div>
 
             <div
@@ -11062,8 +11255,14 @@ let referralProfile = {
     code:"",
     referral_balance:0,
     total_earned:0,
-    uses_count:0
+    uses_count:0,
+    player_percent:5,
+    owner_percent:5
 };
+
+let hourlyDepositPromo = null;
+let hourlyDepositPromoTimer = null;
+let hourlyDepositPromoRefreshing = false;
 
 let silentSyncRunning = false;
 
@@ -11785,8 +11984,27 @@ async function loadPlayer(){
                     data.referral?.uses_count
                     ||
                     0
+                ),
+
+            player_percent:
+                Number(
+                    data.referral?.player_percent
+                    ??
+                    5
+                ),
+
+            owner_percent:
+                Number(
+                    data.referral?.owner_percent
+                    ??
+                    5
                 )
         };
+
+        if(data.hourly_deposit_promo){
+            hourlyDepositPromo =
+                data.hourly_deposit_promo;
+        }
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
@@ -11818,6 +12036,8 @@ async function loadPlayer(){
         renderDepositGrid();
 
         renderReferral();
+        renderHourlyDepositPromo();
+        startHourlyDepositPromoTimer();
 
         updateUpgradeUI();
 
@@ -18358,6 +18578,280 @@ async function submitUahDeposit(){
 }
 
 
+function getHourlyPromoRemainingMs(){
+
+    if(
+        !hourlyDepositPromo
+        ||
+        !hourlyDepositPromo.expires_at
+    ){
+        return 0;
+    }
+
+    const expiresAt =
+        new Date(
+            hourlyDepositPromo.expires_at
+        )
+        .getTime();
+
+    if(!Number.isFinite(expiresAt)){
+        return 0;
+    }
+
+    return Math.max(
+        0,
+        expiresAt - Date.now()
+    );
+
+}
+
+
+function formatHourlyPromoTimer(ms){
+
+    const totalSeconds =
+        Math.max(
+            0,
+            Math.ceil(
+                Number(ms || 0) /
+                1000
+            )
+        );
+
+    const minutes =
+        Math.floor(
+            totalSeconds / 60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+    return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+
+}
+
+
+function renderHourlyDepositPromo(){
+
+    const codeElement =
+        document.getElementById(
+            "hourlyPromoCode"
+        );
+
+    const percentElement =
+        document.getElementById(
+            "hourlyPromoPercent"
+        );
+
+    const timerElement =
+        document.getElementById(
+            "hourlyPromoTimer"
+        );
+
+    const button =
+        document.getElementById(
+            "hourlyPromoUseButton"
+        );
+
+    if(
+        !codeElement
+        ||
+        !percentElement
+        ||
+        !timerElement
+    ){
+        return;
+    }
+
+    const promo =
+        hourlyDepositPromo;
+
+    if(
+        !promo
+        ||
+        !promo.code
+    ){
+        codeElement.innerText =
+            "Загрузка...";
+
+        percentElement.innerText =
+            "+?%";
+
+        timerElement.innerText =
+            "--:--";
+
+        if(button){
+            button.disabled = true;
+        }
+
+        return;
+    }
+
+    codeElement.innerText =
+        String(promo.code);
+
+    percentElement.innerText =
+        `+${Number(promo.percent || 0)}%`;
+
+    const remainingMs =
+        getHourlyPromoRemainingMs();
+
+    timerElement.innerText =
+        formatHourlyPromoTimer(
+            remainingMs
+        );
+
+    if(button){
+        button.disabled =
+            remainingMs <= 0;
+    }
+
+}
+
+
+async function refreshHourlyDepositPromo(){
+
+    if(hourlyDepositPromoRefreshing){
+        return;
+    }
+
+    hourlyDepositPromoRefreshing =
+        true;
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "get_hourly_deposit_promo"
+            });
+
+        if(
+            data
+            &&
+            data.ok
+            &&
+            data.promo
+        ){
+            hourlyDepositPromo =
+                data.promo;
+        }
+
+    }
+    catch(error){
+        console.warn(
+            "hourly promo refresh failed",
+            error
+        );
+    }
+    finally{
+        hourlyDepositPromoRefreshing =
+            false;
+    }
+
+    renderHourlyDepositPromo();
+
+}
+
+
+function startHourlyDepositPromoTimer(){
+
+    if(hourlyDepositPromoTimer){
+        return;
+    }
+
+    hourlyDepositPromoTimer =
+        setInterval(
+            () => {
+                const remainingMs =
+                    getHourlyPromoRemainingMs();
+
+                renderHourlyDepositPromo();
+
+                if(
+                    hourlyDepositPromo
+                    &&
+                    remainingMs <= 0
+                ){
+                    refreshHourlyDepositPromo();
+                }
+            },
+            1000
+        );
+
+}
+
+
+async function useHourlyDepositPromo(){
+
+    if(
+        !hourlyDepositPromo
+        ||
+        getHourlyPromoRemainingMs() <= 0
+    ){
+        await refreshHourlyDepositPromo();
+    }
+
+    const promo =
+        hourlyDepositPromo;
+
+    if(
+        !promo
+        ||
+        !promo.code
+        ||
+        getHourlyPromoRemainingMs() <= 0
+    ){
+        showToast(
+            "Промокод обновляется. Попробуй ещё раз.",
+            "error"
+        );
+        return;
+    }
+
+    await openDeposit();
+
+    const modal =
+        document.getElementById(
+            "depositModal"
+        );
+
+    if(
+        !modal
+        ||
+        !modal.classList.contains(
+            "show"
+        )
+    ){
+        return;
+    }
+
+    [
+        "depositReferral",
+        "gearsDepositReferral",
+        "uahReferral"
+    ]
+    .forEach(
+        id => {
+            const input =
+                document.getElementById(
+                    id
+                );
+
+            if(input){
+                input.value =
+                    String(promo.code);
+            }
+        }
+    );
+
+    showToast(
+        `🎟 Код ${promo.code} · +${promo.percent}% применён`,
+        "success"
+    );
+
+}
+
+
 function applyDepositTabLocks(){
 
     const brainrotButton =
@@ -19550,30 +20044,27 @@ function renderReferral(){
             .trim()
             .toUpperCase();
 
-        if(
-            ownCode ===
-            "SHARKBITE"
-        ){
+        const playerPercent =
+            Number(
+                referralProfile.player_percent
+                ??
+                5
+            );
+
+        const ownerPercent =
+            Number(
+                referralProfile.owner_percent
+                ??
+                5
+            );
+
+        if(ownCode){
             note.innerText =
-                "Твой код SHARKBITE даёт игроку +25% к пополнению, а тебе начисляется +30% в реферальный баланс.";
-        }
-        else if(
-            ownCode ===
-            "WERIFCHIK"
-        ){
-            note.innerText =
-                "Твой код WERIFCHIK даёт игроку +20% к пополнению, а тебе начисляется +20% в реферальный баланс.";
-        }
-        else if(
-            ownCode ===
-            "PETROSYAN"
-        ){
-            note.innerText =
-                "Твой код PETROSYAN даёт игроку +20% к пополнению, а тебе начисляется +20% в реферальный баланс.";
+                `Твой код ${ownCode} даёт игроку +${playerPercent}% к пополнению, а тебе начисляется +${ownerPercent}% в реферальный баланс.`;
         }
         else{
             note.innerText =
-                "Если кто-то пополняет баланс с твоим кодом, он получает +10% к пополнению, а тебе начисляется +10% в реферальный баланс.";
+                `Обычный реферальный код даёт +${playerPercent}% игроку и +${ownerPercent}% владельцу кода.`;
         }
 
     }
@@ -19912,8 +20403,27 @@ async function silentSync(){
                     data.referral?.uses_count
                     ||
                     0
+                ),
+
+            player_percent:
+                Number(
+                    data.referral?.player_percent
+                    ??
+                    5
+                ),
+
+            owner_percent:
+                Number(
+                    data.referral?.owner_percent
+                    ??
+                    5
                 )
         };
+
+        if(data.hourly_deposit_promo){
+            hourlyDepositPromo =
+                data.hourly_deposit_promo;
+        }
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
@@ -19937,6 +20447,8 @@ async function silentSync(){
         renderTargetGrid();
         renderDepositGrid();
         renderReferral();
+        renderHourlyDepositPromo();
+        startHourlyDepositPromoTimer();
         updateUpgradeUI();
 
     }
