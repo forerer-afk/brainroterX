@@ -8838,6 +8838,24 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 #feedPlayerProfileModal .feed-profile-top{border-radius:12px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.045);}
 #feedPlayerProfileModal .feed-profile-table{margin-top:8px!important;}
 
+/* FEED PROFILE — PUBLIC INVENTORY */
+.feed-public-inventory{margin-top:9px;border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.10)}
+.feed-public-inventory-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border-bottom:1px solid rgba(255,255,255,.055)}
+.feed-public-inventory-title{font-size:11px;font-weight:1000;color:#fff}
+.feed-public-inventory-summary{font-size:9px;font-weight:900;color:#b7afc7;white-space:nowrap}
+.feed-public-inventory-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:244px;overflow-y:auto;overscroll-behavior:contain;padding:8px;-webkit-overflow-scrolling:touch}
+.feed-public-item{position:relative;min-width:0;padding:7px;border:1px solid rgba(255,255,255,.055);border-radius:12px;background:linear-gradient(155deg,rgba(39,28,57,.82),rgba(14,10,23,.94));text-align:center}
+.feed-public-item.is-locked{opacity:.62}
+.feed-public-item img{display:block;width:62px;height:62px;max-width:100%;margin:0 auto 3px;object-fit:contain;background:transparent!important;border:0!important;filter:none!important}
+.feed-public-item-name{min-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#fff;font-size:9px;font-weight:900;line-height:1.25}
+.feed-public-item-meta{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:5px}
+.feed-public-item-price{color:#facc15;font-size:9px;font-weight:1000;white-space:nowrap}
+.feed-public-item-qty{padding:2px 5px;border-radius:7px;background:rgba(168,85,247,.13);color:#d8b4fe;font-size:8px;font-weight:1000}
+.feed-public-item-lock{position:absolute;right:5px;top:5px;padding:2px 4px;border-radius:6px;background:rgba(120,53,15,.76);color:#fde68a;font-size:7px;font-weight:1000}
+.feed-public-inventory-loading,.feed-public-inventory-empty{grid-column:1/-1;padding:18px 8px;text-align:center;color:#9ca3af;font-size:10px;font-weight:800}
+.feed-public-inventory-loading::before{content:"";display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-2px;border:2px solid rgba(255,255,255,.16);border-top-color:#a855f7;border-radius:50%;animation:feedProfileSpin .8s linear infinite}
+@keyframes feedProfileSpin{to{transform:rotate(360deg)}}
+@media(max-height:720px){.feed-public-inventory-grid{max-height:190px}}
 
 /* INVENTORY TABS + PENDING WITHDRAWALS */
 .inventory-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0 12px}
@@ -11019,6 +11037,19 @@ let bigWinsKnownIds = new Set();
 let bigWinsPolling = false;
 let bigWinsTimer = null;
 
+/* Feed profile cache survives Mini App re-entry so avatars do not blink away. */
+const FEED_PROFILE_CACHE_KEY = "brainroterx_feed_profiles_v2";
+let feedProfilePersistentCache = {};
+let feedPublicProfileCache = new Map();
+let activeFeedProfileTelegramId = 0;
+
+try{
+    const cached = JSON.parse(localStorage.getItem(FEED_PROFILE_CACHE_KEY) || "{}");
+    if(cached && typeof cached === "object") feedProfilePersistentCache = cached;
+}catch(_){
+    feedProfilePersistentCache = {};
+}
+
 
 let ladderSession = null;
 let ladderStakeMode = "coins";
@@ -11759,7 +11790,11 @@ async function loadPlayer(){
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
-        bigWins = Array.isArray(data.big_wins) ? data.big_wins : [];
+        bigWins = hydrateFeedProfilesFromCache(
+            Array.isArray(data.big_wins) ? data.big_wins : []
+        );
+        rememberFeedProfiles(bigWins);
+        preloadFeedAvatars(bigWins);
         ladderSession = data.ladder_session || null;
 
         updateBalance();
@@ -12297,6 +12332,169 @@ function feedProfileInitial(item){
     return (name.charAt(0)||"?").toUpperCase();
 }
 
+function feedProfileCacheId(item){
+    return String(Number(item?.telegram_id || 0) || "");
+}
+
+function hydrateFeedProfilesFromCache(items){
+    return (Array.isArray(items)?items:[]).map(item=>{
+        const id=feedProfileCacheId(item);
+        const cached=id ? feedProfilePersistentCache[id] : null;
+        if(!cached) return item;
+        return {
+            ...item,
+            player_first_name:String(item.player_first_name||cached.first_name||""),
+            player_last_name:String(item.player_last_name||cached.last_name||""),
+            player_username:String(item.player_username||cached.username||""),
+            player_photo_url:String(item.player_photo_url||cached.photo_url||"")
+        };
+    });
+}
+
+function rememberFeedProfiles(items){
+    let changed=false;
+    (Array.isArray(items)?items:[]).forEach(item=>{
+        const id=feedProfileCacheId(item);
+        if(!id) return;
+        const previous=feedProfilePersistentCache[id]||{};
+        const next={
+            first_name:String(item.player_first_name||previous.first_name||""),
+            last_name:String(item.player_last_name||previous.last_name||""),
+            username:String(item.player_username||previous.username||""),
+            photo_url:String(item.player_photo_url||previous.photo_url||""),
+            saved_at:Date.now()
+        };
+        if(next.first_name||next.last_name||next.username||next.photo_url){
+            feedProfilePersistentCache[id]=next;
+            changed=true;
+        }
+    });
+    if(!changed) return;
+    try{
+        const entries=Object.entries(feedProfilePersistentCache)
+            .sort((a,b)=>Number(b[1]?.saved_at||0)-Number(a[1]?.saved_at||0))
+            .slice(0,80);
+        feedProfilePersistentCache=Object.fromEntries(entries);
+        localStorage.setItem(FEED_PROFILE_CACHE_KEY,JSON.stringify(feedProfilePersistentCache));
+    }catch(_){}
+}
+
+function preloadFeedAvatars(items){
+    (Array.isArray(items)?items:[]).slice(0,15).forEach(item=>{
+        const url=String(item.player_photo_url||"").trim();
+        if(!url) return;
+        const image=new Image();
+        image.decoding="async";
+        image.src=url;
+    });
+}
+
+function groupFeedPublicInventory(items){
+    const map=new Map();
+    (Array.isArray(items)?items:[]).forEach(item=>{
+        const name=String(item.brainrot_name||"").trim();
+        if(!name) return;
+        const value=Math.max(0,Number(item.value||0));
+        const locked=Boolean(item.locked);
+        const rarity=String(item.rarity||"");
+        const key=`${name.toLowerCase()}|${value}|${rarity.toLowerCase()}|${locked?1:0}`;
+        if(!map.has(key)){
+            map.set(key,{name,value,rarity,locked,quantity:0});
+        }
+        map.get(key).quantity+=1;
+    });
+    return [...map.values()].sort((a,b)=>b.value-a.value || a.name.localeCompare(b.name));
+}
+
+function renderFeedPublicInventory(data,targetTelegramId){
+    if(Number(activeFeedProfileTelegramId)!==Number(targetTelegramId)) return;
+    const root=document.getElementById("feedProfileInventoryGrid");
+    const summary=document.getElementById("feedProfileInventorySummary");
+    if(!root||!summary) return;
+
+    const items=Array.isArray(data?.inventory)?data.inventory:[];
+    const groups=groupFeedPublicInventory(items);
+    const count=Math.max(0,Number(data?.inventory_count ?? items.length));
+    const total=Math.max(0,Number(data?.inventory_total_value ?? items.reduce((s,x)=>s+Number(x.value||0),0)));
+    summary.textContent=`${count} шт. · ${total.toLocaleString("ru-RU")} ⓧ`;
+
+    if(!groups.length){
+        root.innerHTML='<div class="feed-public-inventory-empty">Инвентарь пуст</div>';
+        return;
+    }
+
+    root.innerHTML=groups.map(group=>{
+        const lock=group.locked?'<div class="feed-public-item-lock">НА ВЫВОДЕ</div>':'';
+        return `
+          <div class="feed-public-item${group.locked?' is-locked':''}">
+            ${lock}
+            <img src="${escapeHtml(getImage(group.name))}" alt="" loading="lazy" decoding="async">
+            <div class="feed-public-item-name">${escapeHtml(group.name)}</div>
+            <div class="feed-public-item-meta">
+              <div class="feed-public-item-price">${group.value.toLocaleString("ru-RU")} ⓧ</div>
+              <div class="feed-public-item-qty">×${group.quantity}</div>
+            </div>
+          </div>`;
+    }).join("");
+}
+
+function applyFeedPublicProfileData(data,targetTelegramId){
+    if(Number(activeFeedProfileTelegramId)!==Number(targetTelegramId)) return;
+    const player=data?.player||{};
+
+    const cases=document.getElementById("feedProfileCasesOpened");
+    const upgrades=document.getElementById("feedProfileUpgradesDone");
+    if(cases) cases.textContent=String(Math.max(0,Number(player.cases_opened||0)));
+    if(upgrades) upgrades.textContent=String(Math.max(0,Number(player.upgrades_done||0)));
+
+    const bestRoot=document.getElementById("feedProfileBestDrop");
+    if(bestRoot){
+        const best=player.best_drop||null;
+        const bestName=String(best?.brainrot_name||"").trim();
+        const bestValue=Math.max(0,Number(best?.value||0));
+        bestRoot.innerHTML=bestName
+          ? `<div class="feed-profile-best"><img src="${escapeHtml(getImage(bestName))}" alt="" loading="eager" decoding="async"><div class="feed-profile-best-info"><div class="feed-profile-best-name">${escapeHtml(bestName)}</div><div class="feed-profile-best-price">${bestValue.toLocaleString("ru-RU")} ⓧ</div></div></div>`
+          : `<div class="feed-profile-value">—</div>`;
+    }
+
+    renderFeedPublicInventory(data,targetTelegramId);
+}
+
+async function loadFeedPublicProfile(item){
+    const targetTelegramId=Number(item?.telegram_id||0);
+    const inventoryRoot=document.getElementById("feedProfileInventoryGrid");
+    if(!targetTelegramId){
+        if(inventoryRoot) inventoryRoot.innerHTML='<div class="feed-public-inventory-empty">Инвентарь недоступен</div>';
+        return;
+    }
+
+    const cached=feedPublicProfileCache.get(targetTelegramId);
+    if(cached){
+        applyFeedPublicProfileData(cached,targetTelegramId);
+        if(Date.now()-Number(cached.__cached_at||0)<15000) return;
+    }
+
+    try{
+        const data=await apiRequest({
+            action:"get_public_player_profile",
+            target_telegram_id:targetTelegramId
+        });
+        if(!data?.ok) throw new Error(data?.error||"Не удалось загрузить профиль");
+        data.__cached_at=Date.now();
+        feedPublicProfileCache.set(targetTelegramId,data);
+        applyFeedPublicProfileData(data,targetTelegramId);
+    }catch(error){
+        if(Number(activeFeedProfileTelegramId)!==targetTelegramId) return;
+        if(!cached && inventoryRoot){
+            inventoryRoot.innerHTML=`<div class="feed-public-inventory-empty">${escapeHtml(error?.message||"Не удалось загрузить инвентарь")}</div>`;
+        }
+        const bestRoot=document.getElementById("feedProfileBestDrop");
+        if(bestRoot && !cached && !String(item.player_best_drop_name||"").trim()){
+            bestRoot.innerHTML='<div class="feed-profile-value">—</div>';
+        }
+    }
+}
+
 function openFeedPlayerProfile(itemOrId){
     let item=null;
     if(itemOrId && typeof itemOrId === "object"){
@@ -12309,21 +12507,26 @@ function openFeedPlayerProfile(itemOrId){
     const overlay=document.getElementById("feedPlayerProfileModal");
     const body=document.getElementById("feedPlayerProfileBody");
     if(!overlay||!body) return;
+
+    const targetTelegramId=Number(item.telegram_id||0);
+    activeFeedProfileTelegramId=targetTelegramId;
+
     const first=String(item.player_first_name||"").trim();
     const last=String(item.player_last_name||"").trim();
     const username=String(item.player_username||"").trim();
     const displayName=username ? "@"+username : ((first+" "+last).trim() || "Игрок BrainroterX");
     const avatar=String(item.player_photo_url||"").trim();
     const avatarHtml=avatar
-      ? `<img class="feed-profile-avatar" src="${escapeHtml(avatar)}" alt="">`
+      ? `<img class="feed-profile-avatar" src="${escapeHtml(avatar)}" alt="" loading="eager" decoding="async">`
       : `<div class="feed-profile-avatar-fallback">${escapeHtml(feedProfileInitial(item))}</div>`;
     const casesOpened=Math.max(0,Number(item.player_cases_opened ?? item.cases_opened ?? 0));
     const upgradesDone=Math.max(0,Number(item.player_upgrades_done ?? item.upgrades_done ?? 0));
     const bestName=String(item.player_best_drop_name||"").trim();
     const bestValue=Math.max(0,Number(item.player_best_drop_value||0));
     const bestHtml=bestName
-      ? `<div class="feed-profile-best"><img src="${escapeHtml(getImage(bestName))}" alt=""><div class="feed-profile-best-info"><div class="feed-profile-best-name">${escapeHtml(bestName)}</div><div class="feed-profile-best-price">${bestValue} ⓧ</div></div></div>`
-      : `<div class="feed-profile-value">—</div>`;
+      ? `<div class="feed-profile-best"><img src="${escapeHtml(getImage(bestName))}" alt="" loading="eager" decoding="async"><div class="feed-profile-best-info"><div class="feed-profile-best-name">${escapeHtml(bestName)}</div><div class="feed-profile-best-price">${bestValue.toLocaleString("ru-RU")} ⓧ</div></div></div>`
+      : `<div class="feed-profile-value">Загрузка...</div>`;
+
     body.innerHTML=`
       <div class="feed-profile-card">
         <div class="feed-profile-top">
@@ -12333,17 +12536,39 @@ function openFeedPlayerProfile(itemOrId){
           </div>
         </div>
         <div class="feed-profile-stats">
-          <div class="feed-profile-stat"><div class="feed-profile-stat-value">${casesOpened}</div><div class="feed-profile-stat-label">Открыто кейсов<br>за всё время</div></div>
-          <div class="feed-profile-stat"><div class="feed-profile-stat-value">${upgradesDone}</div><div class="feed-profile-stat-label">Сделано апгрейдов<br>за всё время</div></div>
+          <div class="feed-profile-stat"><div id="feedProfileCasesOpened" class="feed-profile-stat-value">${casesOpened}</div><div class="feed-profile-stat-label">Открыто кейсов<br>за всё время</div></div>
+          <div class="feed-profile-stat"><div id="feedProfileUpgradesDone" class="feed-profile-stat-value">${upgradesDone}</div><div class="feed-profile-stat-label">Сделано апгрейдов<br>за всё время</div></div>
         </div>
         <div class="feed-profile-table">
-          <div class="feed-profile-row"><div class="feed-profile-label">Лучший дроп</div>${bestHtml}</div>
+          <div class="feed-profile-row"><div class="feed-profile-label">Лучший дроп</div><div id="feedProfileBestDrop">${bestHtml}</div></div>
+        </div>
+      </div>
+      <div class="feed-public-inventory">
+        <div class="feed-public-inventory-head">
+          <div class="feed-public-inventory-title">Инвентарь игрока</div>
+          <div id="feedProfileInventorySummary" class="feed-public-inventory-summary">...</div>
+        </div>
+        <div id="feedProfileInventoryGrid" class="feed-public-inventory-grid">
+          <div class="feed-public-inventory-loading">Загрузка инвентаря</div>
         </div>
       </div>`;
+
+    const profileAvatar=body.querySelector("img.feed-profile-avatar");
+    if(profileAvatar){
+        profileAvatar.onerror=()=>{
+            const fallback=document.createElement("div");
+            fallback.className="feed-profile-avatar-fallback";
+            fallback.textContent=feedProfileInitial(item);
+            profileAvatar.replaceWith(fallback);
+        };
+    }
+
     overlay.classList.add("show");
+    loadFeedPublicProfile(item);
 }
 
 function closeFeedPlayerProfile(){
+    activeFeedProfileTelegramId=0;
     document.getElementById("feedPlayerProfileModal")?.classList.remove("show");
 }
 
@@ -12387,7 +12612,15 @@ function renderBigWins(animateIds = new Set()){
         if(avatar){
             const av=document.createElement("img");
             av.className="big-win-avatar";
+            av.loading="eager";
+            av.decoding="async";
             av.src=avatar; av.alt="";
+            av.onerror=()=>{
+                const fallback=document.createElement("div");
+                fallback.className="big-win-avatar-fallback";
+                fallback.textContent=feedProfileInitial(item);
+                av.replaceWith(fallback);
+            };
             meta.appendChild(av);
         }else{
             const av=document.createElement("div");
@@ -12504,7 +12737,10 @@ async function refreshBigWins(){
         }
 
         bigWins =
-            nextWins;
+            hydrateFeedProfilesFromCache(nextWins);
+
+        rememberFeedProfiles(bigWins);
+        preloadFeedAvatars(bigWins);
 
         bigWinsKnownIds =
             new Set(
@@ -19681,7 +19917,11 @@ async function silentSync(){
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
-        bigWins = Array.isArray(data.big_wins) ? data.big_wins : bigWins;
+        bigWins = hydrateFeedProfilesFromCache(
+            Array.isArray(data.big_wins) ? data.big_wins : bigWins
+        );
+        rememberFeedProfiles(bigWins);
+        preloadFeedAvatars(bigWins);
         ladderSession = data.ladder_session || ladderSession;
 
         updateBalance();
@@ -21517,7 +21757,7 @@ loadPlayer()
 <div id="feedPlayerProfileModal" class="overlay" onclick="if(event.target===this)closeFeedPlayerProfile()">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Статистика игрока</div>
+      <div class="modal-title">Профиль игрока</div>
       <button class="close" onclick="closeFeedPlayerProfile()">✕</button>
     </div>
     <div id="feedPlayerProfileBody"></div>
