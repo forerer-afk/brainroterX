@@ -13566,6 +13566,18 @@ async function selectCase(
     ).style.display =
         "none";
 
+    const hourlyPercentPromo =
+        document.getElementById(
+            "hourlyPercentPromo"
+        );
+
+    if(
+        hourlyPercentPromo
+    ){
+        hourlyPercentPromo.style.display =
+            "none";
+    }
+
     document.getElementById(
         "activeCase"
     ).style.display =
@@ -13841,6 +13853,18 @@ function closeCase(
         "caseList"
     ).style.display =
         "block";
+
+    const hourlyPercentPromo =
+        document.getElementById(
+            "hourlyPercentPromo"
+        );
+
+    if(
+        hourlyPercentPromo
+    ){
+        hourlyPercentPromo.style.display =
+            "";
+    }
 
     document.getElementById(
         "activeCase"
@@ -14706,6 +14730,18 @@ function openDailyCase(){
         )
         .style.display =
             "none";
+
+    const hourlyPercentPromo =
+        document.getElementById(
+            "hourlyPercentPromo"
+        );
+
+    if(
+        hourlyPercentPromo
+    ){
+        hourlyPercentPromo.style.display =
+            "none";
+    }
 
     document
         .getElementById(
