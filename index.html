@@ -8888,6 +8888,106 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     }
 }
 </style>
+
+<style id="brainroterx-exchange-limited-targets">
+/* Exchange: only Garama / Capitano / Cerberus, max 5x */
+#exchangeModal .exchange-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:8px !important;
+}
+#exchangeModal .exchange-option-limited{
+    position:relative !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    padding:8px 6px 9px !important;
+    border-radius:14px !important;
+    background:linear-gradient(155deg,rgba(28,21,42,.98),rgba(12,9,19,.99)) !important;
+    border:1px solid rgba(167,139,250,.13) !important;
+}
+#exchangeModal .exchange-option-visual{
+    position:relative;
+    width:100%;
+}
+#exchangeModal .exchange-option-limited img{
+    display:block !important;
+    width:72px !important;
+    height:72px !important;
+    max-width:100% !important;
+    margin:0 auto 4px !important;
+    object-fit:contain !important;
+}
+#exchangeModal .exchange-quantity-badge{
+    position:absolute;
+    right:2px;
+    top:2px;
+    min-width:30px;
+    padding:4px 6px;
+    border-radius:999px;
+    color:#171300;
+    background:#facc15;
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+    font-size:10px;
+    font-weight:1000;
+    line-height:1;
+    text-align:center;
+}
+#exchangeModal .exchange-option-name{
+    min-height:24px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    white-space:normal !important;
+    text-overflow:ellipsis;
+    text-align:center;
+    font-size:9px !important;
+    line-height:1.2;
+    font-weight:900;
+}
+#exchangeModal .exchange-result-limited{
+    margin-top:5px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+}
+#exchangeModal .exchange-result-main{
+    color:#fff;
+    font-size:11px;
+    font-weight:1000;
+}
+#exchangeModal .exchange-result-coins{
+    color:#facc15;
+    font-size:9px;
+    font-weight:1000;
+}
+#exchangeModal .exchange-empty{
+    grid-column:1/-1;
+    padding:14px 10px;
+    color:#aaa3b5;
+    text-align:center;
+    font-size:10px;
+    font-weight:800;
+    line-height:1.4;
+}
+@media(max-width:370px){
+    #exchangeModal .exchange-grid{
+        gap:6px !important;
+    }
+    #exchangeModal .exchange-option-limited{
+        padding:7px 4px 8px !important;
+    }
+    #exchangeModal .exchange-option-limited img{
+        width:60px !important;
+        height:60px !important;
+    }
+    #exchangeModal .exchange-quantity-badge{
+        min-width:27px;
+        padding:3px 5px;
+        font-size:9px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -16684,6 +16784,13 @@ function renderExchangeGrid(){
             selectedExchangeItem.value
         );
 
+    const allowedExchangeNames =
+        new Set([
+            "garama and madundung",
+            "capitano moby",
+            "cerberus"
+        ]);
+
     const options =
         brainrots
         .filter(
@@ -16693,19 +16800,18 @@ function renderExchangeGrid(){
                         item.value
                     );
 
-                const specialExchange =
-                    normalizeName(item.name).includes("garama")
-                    ||
-                    normalizeName(item.name).includes("captain");
-
                 return (
+                    allowedExchangeNames.has(
+                        normalizeName(
+                            item.name
+                        )
+                    )
+                    &&
+                    targetValue > 0
+                    &&
                     targetValue < sourceValue
                     &&
-                    (
-                        specialExchange
-                        ||
-                        sourceValue - targetValue <= 200
-                    )
+                    Number(item.brainrot_id) !== Number(selectedExchangeItem.brainrot_id)
                 );
             }
         )
@@ -16727,8 +16833,8 @@ function renderExchangeGrid(){
         !options.length
     ){
 
-        root.innerText =
-            "Нет Brainrot в допустимом диапазоне: максимум на 200 ⓧ дешевле.";
+        root.innerHTML =
+            `<div class="exchange-empty">Этот Brainrot нельзя обменять на Garama, Capitano или Cerberus.</div>`;
 
         return;
 
@@ -16737,22 +16843,38 @@ function renderExchangeGrid(){
     options.forEach(
         item => {
 
+            const targetValue =
+                Number(
+                    item.value
+                );
+
             const quantity =
-                Math.floor(
-                    sourceValue
-                    /
-                    Number(
-                        item.value
+                Math.min(
+                    5,
+                    Math.floor(
+                        sourceValue
+                        /
+                        targetValue
                     )
                 );
 
-            const remainder =
-                sourceValue
-                -
+            if(
+                quantity < 1
+            ){
+                return;
+            }
+
+            const usedValue =
                 quantity
                 *
-                Number(
-                    item.value
+                targetValue;
+
+            const remainder =
+                Math.max(
+                    0,
+                    sourceValue
+                    -
+                    usedValue
                 );
 
             const div =
@@ -16762,32 +16884,27 @@ function renderExchangeGrid(){
                     );
 
             div.className =
-                "exchange-option";
+                "exchange-option exchange-option-limited";
 
             div.innerHTML =
                 `
-                <img
-                    src="${getImage(item.name)}"
-                >
+                <div class="exchange-option-visual">
+                    <img
+                        src="${getImage(item.name)}"
+                        alt="${item.name}"
+                    >
+                    <div class="exchange-quantity-badge">
+                        ${quantity}x
+                    </div>
+                </div>
 
                 <div class="exchange-option-name">
                     ${item.name}
                 </div>
 
-                <div class="exchange-result">
-
-                    ${quantity}×
-
-                    ${
-                        remainder
-                        >
-                        0
-                        ?
-                        `<br>+${remainder} ⓧ`
-                        :
-                        ""
-                    }
-
+                <div class="exchange-result exchange-result-limited">
+                    <span class="exchange-result-main">${quantity}x</span>
+                    <span class="exchange-result-coins">+${remainder} X</span>
                 </div>
                 `;
 
@@ -16849,7 +16966,13 @@ async function exchangeItem(
                 `Обменять ${selectedExchangeItem.brainrot_name}?`,
 
             text:
-                `Получить ${targetItemForConfirm.name}? Остаток стоимости, если он будет, начислится монетами.`,
+                (() => {
+                    const sourceValue = Number(selectedExchangeItem.value || 0);
+                    const targetValue = Number(targetItemForConfirm.value || 0);
+                    const quantity = Math.min(5, Math.floor(sourceValue / targetValue));
+                    const remainder = Math.max(0, sourceValue - quantity * targetValue);
+                    return `Получить ${quantity}x ${targetItemForConfirm.name}${remainder > 0 ? ` + ${remainder} X на баланс` : ""}?`;
+                })(),
 
             image:
                 getImage(
