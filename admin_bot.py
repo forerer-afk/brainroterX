@@ -12,7 +12,19 @@ from telegram.ext import (
 import urllib.request
 import urllib.error
 import json
+import logging
 
+
+
+# =====================================================
+# ЛОГИ / ДИАГНОСТИКА POLLING
+# =====================================================
+
+logging.basicConfig(
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    level=logging.INFO,
+)
+logger = logging.getLogger("brainroterx-admin")
 
 # =====================================================
 # НАСТРОЙКИ
@@ -1750,6 +1762,51 @@ async def mem_text_router(
 
 
 # =====================================================
+# STARTUP / POLLING DIAGNOSTICS
+# =====================================================
+
+async def on_startup(application):
+    """Проверяем токен, убираем старый webhook и явно сообщаем о старте polling."""
+    me = await application.bot.get_me()
+    logger.info(
+        "Telegram bot authenticated: @%s (id=%s), ADMIN_TELEGRAM_ID=%s",
+        me.username,
+        me.id,
+        ADMIN_TELEGRAM_ID,
+    )
+
+    webhook = await application.bot.get_webhook_info()
+    if webhook.url:
+        logger.warning("Active webhook detected and removed: %s", webhook.url)
+        await application.bot.delete_webhook(drop_pending_updates=False)
+    else:
+        # Безопасно вызываем и при пустом webhook: гарантирует режим getUpdates/polling.
+        await application.bot.delete_webhook(drop_pending_updates=False)
+
+    try:
+        await application.bot.send_message(
+            chat_id=ADMIN_TELEGRAM_ID,
+            text=(
+                "✅ Admin bot polling запущен.\n"
+                f"Bot: @{me.username}\n"
+                f"ADMIN_TELEGRAM_ID: {ADMIN_TELEGRAM_ID}"
+            ),
+        )
+    except Exception as exc:
+        logger.warning("Could not send startup message to admin: %r", exc)
+
+
+async def on_error(update, context):
+    logger.exception("Unhandled Telegram update error", exc_info=context.error)
+    error_text = str(context.error or "")
+    if "Conflict" in error_text or "terminated by other getUpdates request" in error_text:
+        logger.critical(
+            "POLLING CONFLICT: another instance is using the same ADMIN_BOT_TOKEN. "
+            "Railway must have exactly ONE running replica/service for this token."
+        )
+
+
+# =====================================================
 # ЗАПУСК
 # =====================================================
 
@@ -1762,8 +1819,11 @@ def main():
     app = (
         ApplicationBuilder()
         .token(ADMIN_BOT_TOKEN)
+        .post_init(on_startup)
         .build()
     )
+
+    app.add_error_handler(on_error)
 
     app.add_handler(
         CommandHandler(
@@ -1800,26 +1860,26 @@ def main():
 
     app.add_handler(
         MessageHandler(
-            filters.Regex(r"^/-$"),
+            filters.Regex(r"^/-(@[A-Za-z0-9_]+)?\s*$"),
             deposit_minus
         )
     )
 
     app.add_handler(
         MessageHandler(
-            filters.Regex(r"^/\+$"),
+            filters.Regex(r"^/\+(@[A-Za-z0-9_]+)?\s*$"),
             deposit_plus
         )
     )
 
-    app.add_handler(MessageHandler(filters.Regex(r"^/g-$"), g_minus_command))
-    app.add_handler(MessageHandler(filters.Regex(r"^/g\+$"), g_plus_command))
-    app.add_handler(MessageHandler(filters.Regex(r"^/b-$"), b_minus_command))
-    app.add_handler(MessageHandler(filters.Regex(r"^/b\+$"), b_plus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/g-(@[A-Za-z0-9_]+)?\s*$"), g_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/g\+(@[A-Za-z0-9_]+)?\s*$"), g_plus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/b-(@[A-Za-z0-9_]+)?\s*$"), b_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/b\+(@[A-Za-z0-9_]+)?\s*$"), b_plus_command))
 
     app.add_handler(
         MessageHandler(
-            filters.TEXT,
+            filters.Regex(r"^/(?:mem|luck)[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"),
             mem_text_router
         )
     )
@@ -1837,7 +1897,11 @@ def main():
         )
     )
 
-    app.run_polling()
+    logger.info("Starting long polling; only one Railway instance may use this token.")
+    app.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        drop_pending_updates=False,
+    )
 
 
 if __name__ == "__main__":

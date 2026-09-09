@@ -8465,483 +8465,243 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 </style>
 
 
-<style id="brainroterx-premium-cases-redesign">
-/* =====================================================
-   BRAINROTERX — PREMIUM CASES SCREEN
-   Visual-only redesign. No gameplay/backend changes.
-===================================================== */
-:root{
-    --case-common:#94a3b8;
-    --case-rare:#38bdf8;
-    --case-epic:#a855f7;
-    --case-legendary:#f6c453;
-    --case-gold:#f6c453;
-    --case-ink:#09070f;
-    --case-surface:#12101a;
-}
-
-/* More atmosphere on the cases page without heavy repeated blur layers. */
-#casesPage{
-    position:relative;
-    isolation:isolate;
-}
-#casesPage::before{
-    content:"";
+<style id="brainroterx-feed-source-card-full-hover">
+/* FEED SOURCE — animated icon over the full Brainrot feed card + fullscreen reveal */
+.big-win-item{overflow:hidden !important;}
+.big-win-source-card-overlay{
     position:absolute;
-    z-index:-1;
-    inset:-18px -12px 0;
-    pointer-events:none;
-    background:
-        radial-gradient(circle at 12% 10%,rgba(120,72,255,.12),transparent 28%),
-        radial-gradient(circle at 88% 30%,rgba(246,196,83,.07),transparent 24%),
-        linear-gradient(180deg,rgba(20,14,31,.22),transparent 44%);
-}
-
-#caseList .case-list{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:12px !important;
-}
-
-#caseList .case-card{
-    --rarity-color:var(--case-common);
-    position:relative !important;
-    isolation:isolate !important;
-    min-width:0 !important;
-    min-height:208px !important;
-    overflow:hidden !important;
-    padding:13px 9px 11px !important;
-    border-radius:20px !important;
-    border:1px solid color-mix(in srgb,var(--rarity-color) 52%,rgba(255,255,255,.06)) !important;
-    background:
-        radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--case-accent,#8b5cf6) 23%,transparent) 0%,transparent 47%),
-        linear-gradient(155deg,color-mix(in srgb,var(--case-accent,#8b5cf6) 8%,#17131f),#0b0910 72%) !important;
-    box-shadow:
-        0 12px 26px rgba(0,0,0,.33),
-        0 0 0 1px rgba(255,255,255,.018) inset,
-        0 1px 0 rgba(255,255,255,.055) inset,
-        0 0 20px color-mix(in srgb,var(--case-accent,#8b5cf6) 10%,transparent) !important;
-    color:#fff !important;
-    transform:translateY(0) scale(1);
-    transition:
-        transform .18s cubic-bezier(.2,.8,.2,1),
-        border-color .18s ease,
-        box-shadow .18s ease,
-        filter .18s ease !important;
-}
-
-#caseList .case-card::before{
-    content:"" !important;
-    position:absolute !important;
-    z-index:-2 !important;
-    left:50% !important;
-    top:32px !important;
-    width:150px !important;
-    height:120px !important;
-    transform:translateX(-50%) !important;
-    border-radius:50% !important;
-    background:radial-gradient(circle,color-mix(in srgb,var(--case-accent,#8b5cf6) 34%,transparent),transparent 68%) !important;
-    opacity:.9 !important;
-    filter:none !important;
-    pointer-events:none !important;
-}
-
-/* Tiny sparks/particles. Pure gradients = cheaper than extra DOM animations. */
-#caseList .case-card::after{
-    content:"" !important;
-    position:absolute !important;
-    z-index:-1 !important;
-    inset:0 !important;
-    height:auto !important;
-    border-radius:inherit !important;
-    pointer-events:none !important;
-    opacity:.55 !important;
-    background:
-        radial-gradient(circle at 18% 27%,color-mix(in srgb,var(--case-accent,#8b5cf6) 72%,white) 0 1px,transparent 1.6px),
-        radial-gradient(circle at 82% 22%,rgba(255,255,255,.65) 0 1px,transparent 1.5px),
-        radial-gradient(circle at 74% 54%,color-mix(in srgb,var(--case-accent,#8b5cf6) 68%,white) 0 1.2px,transparent 1.8px),
-        radial-gradient(circle at 24% 60%,rgba(255,255,255,.34) 0 1px,transparent 1.6px) !important;
-}
-.case-card-particles{display:none !important;}
-
-#caseList .case-rarity-common{--rarity-color:var(--case-common);}
-#caseList .case-rarity-rare{--rarity-color:var(--case-rare);}
-#caseList .case-rarity-epic{--rarity-color:var(--case-epic);}
-#caseList .case-rarity-legendary{--rarity-color:var(--case-legendary);}
-
-/* Theme accents requested for the most recognizable cards. */
-#caseList .daily-case-card{
-    --case-accent:#34d399 !important;
-    --case-accent2:#065f46 !important;
-}
-#caseList .case-theme-toxic{
-    --case-accent:#c45cff !important;
-    --case-accent2:#5b21b6 !important;
-}
-#caseList .case-theme-toxic::before{
-    background:
-        radial-gradient(circle at 50% 45%,rgba(196,92,255,.28),transparent 60%),
-        radial-gradient(circle at 58% 58%,rgba(190,255,66,.08),transparent 48%) !important;
-}
-#caseList .case-theme-lucky:not(.daily-case-card){
-    --case-accent:#f6c453 !important;
-    --case-accent2:#9a6700 !important;
-}
-
-.case-rarity-badge{
-    position:absolute;
-    z-index:9;
-    top:8px;
-    left:8px;
-    min-height:19px;
-    display:inline-flex;
-    align-items:center;
-    padding:4px 7px;
-    border-radius:999px;
-    color:var(--rarity-color);
-    background:color-mix(in srgb,var(--rarity-color) 10%,rgba(7,6,11,.92));
-    border:1px solid color-mix(in srgb,var(--rarity-color) 52%,transparent);
-    box-shadow:0 0 12px color-mix(in srgb,var(--rarity-color) 12%,transparent);
-    font-family:"Manrope",sans-serif;
-    font-size:7px;
-    line-height:1;
-    font-weight:1000;
-    letter-spacing:.08em;
-}
-
-.case-new-badge{
-    overflow:hidden !important;
-    isolation:isolate !important;
-    border-color:rgba(255,225,145,.62) !important;
-    background:linear-gradient(135deg,#ffe08a,#efad32) !important;
-    color:#211503 !important;
-    box-shadow:0 4px 14px rgba(246,196,83,.18) !important;
-}
-.case-new-badge::after{
-    content:"";
-    position:absolute;
-    z-index:2;
-    top:-8px;
-    bottom:-8px;
-    width:16px;
-    left:-22px;
-    transform:skewX(-18deg);
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.78),transparent);
-    animation:brxNewShimmer 2.35s ease-in-out infinite;
-}
-@keyframes brxNewShimmer{
-    0%,48%{left:-24px;opacity:0;}
-    58%{opacity:.85;}
-    80%,100%{left:calc(100% + 16px);opacity:0;}
-}
-
-#caseList .code-case-art{
-    width:min(124px,86%) !important;
-    height:104px !important;
-    margin:10px auto 2px !important;
-    transform:translateZ(0);
-    filter:drop-shadow(0 12px 15px rgba(0,0,0,.34)) !important;
-}
-#caseList .code-case-glow{
-    left:9% !important;
-    right:9% !important;
-    bottom:0 !important;
-    height:28px !important;
-    opacity:.42 !important;
-    background:radial-gradient(ellipse,var(--case-accent,#8b5cf6),transparent 72%) !important;
-    filter:none !important;
-}
-#caseList .code-case-shell{
-    box-shadow:
-        inset 0 0 18px rgba(0,0,0,.56),
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 0 16px color-mix(in srgb,var(--case-accent,#8b5cf6) 22%,transparent) !important;
-}
-
-#caseList .case-name{
-    min-height:32px !important;
-    margin:2px 0 0 !important;
-    padding:0 4px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    color:#f8f7fb !important;
-    font-size:12px !important;
-    font-weight:900 !important;
-    line-height:1.2 !important;
-    letter-spacing:-.02em !important;
-    text-align:center !important;
-    text-shadow:0 2px 8px rgba(0,0,0,.35);
-}
-
-/* Existing price/FREE control becomes the large open CTA without changing click logic. */
-#caseList .case-price{
-    width:calc(100% - 10px) !important;
-    min-height:36px !important;
-    margin:8px auto 0 !important;
-    padding:7px 9px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    gap:6px !important;
-    border-radius:12px !important;
-    border:1px solid color-mix(in srgb,var(--case-accent,#8b5cf6) 62%,rgba(255,255,255,.12)) !important;
-    background:
-        linear-gradient(180deg,color-mix(in srgb,var(--case-accent,#8b5cf6) 30%,#241d31),color-mix(in srgb,var(--case-accent,#8b5cf6) 15%,#100d16)) !important;
-    color:#fff !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.10),
-        0 7px 18px color-mix(in srgb,var(--case-accent,#8b5cf6) 14%,transparent) !important;
-    font-family:"Manrope",sans-serif !important;
-    font-size:12px !important;
-    font-weight:1000 !important;
-    transition:filter .16s ease,box-shadow .16s ease,transform .16s ease !important;
-}
-#caseList .case-price .xcoin-small{
-    flex:0 0 auto !important;
-    color:#211803 !important;
-    -webkit-text-fill-color:#211803 !important;
-    background:radial-gradient(circle at 35% 28%,#fff2a8 0%,#ffd95c 36%,#f4b928 72%,#c88706 100%) !important;
-    border:1px solid #ffe598 !important;
-    box-shadow:0 0 10px rgba(246,196,83,.34),inset 0 1px 0 rgba(255,255,255,.42) !important;
-}
-#caseList .daily-free-label{
-    min-width:0 !important;
-    padding:0 !important;
-    color:#d9fff0 !important;
-    background:transparent !important;
-    border:0 !important;
-    box-shadow:none !important;
-    letter-spacing:.08em !important;
-    text-shadow:0 0 10px rgba(52,211,153,.22);
-}
-
-/* Stronger hierarchy for premium section. */
-#caseList .case-section-premium .case-section-head,
-#caseList .premium-cases .case-section-head{
-    border-color:rgba(246,196,83,.13) !important;
-}
-#caseList .case-rarity-legendary .case-rarity-badge{
-    color:#ffe9a7;
-    background:linear-gradient(180deg,rgba(246,196,83,.14),rgba(57,40,7,.44));
-}
-
-@media (hover:hover) and (pointer:fine){
-    #caseList .case-card:hover{
-        transform:translateY(-4px) scale(1.01) !important;
-        border-color:color-mix(in srgb,var(--rarity-color) 82%,white 6%) !important;
-        box-shadow:
-            0 17px 32px rgba(0,0,0,.40),
-            0 0 0 1px rgba(255,255,255,.025) inset,
-            0 1px 0 rgba(255,255,255,.07) inset,
-            0 0 28px color-mix(in srgb,var(--case-accent,#8b5cf6) 20%,transparent) !important;
-    }
-    #caseList .case-card:hover .case-price{filter:brightness(1.08);}
-}
-#caseList .case-card:active,
-#caseList .case-card.button-press{
-    transform:scale(.972) !important;
-}
-
-/* Only legendary cards breathe, keeping WebView workload small. */
-#caseList .case-rarity-legendary{
-    animation:brxLegendaryBreath 2.9s ease-in-out infinite;
-}
-@keyframes brxLegendaryBreath{
-    0%,100%{
-        box-shadow:0 12px 26px rgba(0,0,0,.33),0 0 18px rgba(246,196,83,.08),inset 0 1px 0 rgba(255,255,255,.055) !important;
-    }
-    50%{
-        box-shadow:0 13px 28px rgba(0,0,0,.36),0 0 27px rgba(246,196,83,.18),inset 0 1px 0 rgba(255,255,255,.07) !important;
-    }
-}
-
-/* Balance = compact gold pill. */
-.topbar .balance-box{
-    min-width:82px !important;
-    padding:8px 12px !important;
-    border-radius:999px !important;
-    background:linear-gradient(180deg,#1b1710,#100d0a) !important;
-    border:1px solid rgba(246,196,83,.42) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.055),
-        0 0 0 1px rgba(246,196,83,.025),
-        0 7px 18px rgba(0,0,0,.22),
-        0 0 16px rgba(246,196,83,.055) !important;
-}
-.topbar .balance-box #coins{
-    color:#fff4cf !important;
-    font-weight:1000 !important;
-}
-.topbar .balance-box .xcoin{
-    box-shadow:0 0 10px rgba(246,196,83,.28),inset 0 1px 0 rgba(255,255,255,.38) !important;
-}
-
-/* Bottom navigation: clear active capsule + stronger icon hierarchy. */
-.bottom-menu{
-    gap:3px !important;
-    padding:5px !important;
-    background:linear-gradient(180deg,rgba(17,13,25,.985),rgba(8,6,12,.995)) !important;
-    border:1px solid rgba(255,255,255,.075) !important;
-    box-shadow:0 14px 34px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.025) !important;
-}
-.bottom-menu .nav-btn{
-    min-width:0 !important;
-    min-height:52px !important;
-    padding:5px 2px !important;
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-    gap:3px !important;
-    border-radius:13px !important;
-    color:#746e7e !important;
-    background:transparent !important;
-    border:1px solid transparent !important;
-    box-shadow:none !important;
-}
-.bottom-menu .nav-btn::before{display:none !important;}
-.bottom-menu .nav-icon{
-    height:21px;
-    display:grid;
-    place-items:center;
-    font-size:18px;
-    line-height:1;
-    opacity:.55;
-    filter:saturate(.65) brightness(.82);
-    transition:opacity .16s ease,filter .16s ease,transform .16s ease;
-}
-.bottom-menu .nav-label{
-    display:block;
-    max-width:100%;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    font-size:7.5px;
-    line-height:1;
-    font-weight:850;
-}
-.bottom-menu .nav-btn.active{
-    color:#fff !important;
-    background:
-        radial-gradient(circle at 50% 0%,rgba(168,85,247,.24),transparent 62%),
-        linear-gradient(180deg,rgba(124,58,237,.22),rgba(78,33,130,.09)) !important;
-    border-color:rgba(168,85,247,.20) !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 20px rgba(124,58,237,.11) !important;
-}
-.bottom-menu .nav-btn.active .nav-icon{
-    opacity:1;
-    filter:saturate(1.15) brightness(1.14);
-    transform:translateY(-1px) scale(1.04);
-    text-shadow:0 0 12px rgba(168,85,247,.58);
-}
-.bottom-menu .nav-btn.active .nav-label{color:#f7f2ff;}
-
-@media(max-width:390px){
-    #caseList .case-list{gap:9px !important;}
-    #caseList .case-card{min-height:194px !important;padding:11px 7px 9px !important;}
-    #caseList .code-case-art{width:min(112px,88%) !important;height:94px !important;}
-    #caseList .case-name{font-size:10.5px !important;min-height:30px !important;}
-    #caseList .case-price{min-height:34px !important;font-size:11px !important;}
-    .case-rarity-badge{font-size:6.5px;padding:4px 6px;}
-    .bottom-menu .nav-label{font-size:7px;}
-}
-
-@media(prefers-reduced-motion:reduce){
-    #caseList .case-rarity-legendary,
-    .case-new-badge::after{animation:none !important;}
-    #caseList .case-card{transition:none !important;}
-}
-</style>
-
-<style id="brainroterx-feed-source-hover">
-/* FEED — show where the Brainrot was won on hover */
-.big-win-item{
-    overflow:hidden !important;
-}
-.big-win-source-overlay{
-    position:absolute;
-    z-index:12;
-    inset:4px;
+    z-index:20;
+    inset:3px;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:3px;
-    padding:5px;
-    border-radius:11px;
-    background:
-        radial-gradient(circle at 50% 25%,rgba(139,92,246,.25),transparent 58%),
-        rgba(10,7,18,.93);
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow:inset 0 0 16px rgba(139,92,246,.08),0 7px 18px rgba(0,0,0,.28);
-    opacity:0;
-    transform:translateY(7px) scale(.92);
-    transition:opacity .18s ease,transform .20s cubic-bezier(.2,.8,.25,1);
+    gap:4px;
+    border-radius:12px;
     pointer-events:none;
+    opacity:0;
+    transform:scale(.88);
+    background:
+        radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--feed-source-color,#a78bfa) 32%,transparent),transparent 58%),
+        rgba(7,5,12,.94);
+    border:1px solid color-mix(in srgb,var(--feed-source-color,#a78bfa) 42%,rgba(255,255,255,.12));
+    box-shadow:inset 0 0 22px color-mix(in srgb,var(--feed-source-color,#a78bfa) 12%,transparent);
+    transition:opacity .16s ease,transform .22s cubic-bezier(.16,.86,.24,1.14);
 }
-.big-win-source-icon{
-    font-size:20px;
+.big-win-source-card-icon{
+    display:grid;
+    place-items:center;
+    width:56px;
+    height:56px;
+    font-size:42px;
     line-height:1;
-    transform:translateY(3px) scale(.82);
-    transition:transform .24s cubic-bezier(.2,.9,.25,1.15);
-    filter:drop-shadow(0 0 7px rgba(167,139,250,.28));
+    transform:scale(.35) rotate(-10deg);
+    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--feed-source-color,#a78bfa) 72%,transparent));
 }
-.big-win-source-title{
-    max-width:100%;
+.big-win-source-card-title{
+    width:95%;
     color:#fff;
-    font-size:8px;
-    line-height:1.1;
+    font-size:7.5px;
+    line-height:1.08;
     font-weight:1000;
-    letter-spacing:.03em;
+    letter-spacing:.025em;
     text-align:center;
     text-transform:uppercase;
-    white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-}
-.big-win-source-detail{
-    max-width:100%;
-    color:#c4b5fd;
-    font-size:7px;
-    line-height:1.1;
-    font-weight:850;
-    text-align:center;
     white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
 }
 @media (hover:hover) and (pointer:fine){
-    .big-win-item:hover .big-win-source-overlay{
+    .big-win-item:hover .big-win-source-card-overlay{
         opacity:1;
-        transform:translateY(0) scale(1);
+        transform:scale(1);
     }
-    .big-win-item:hover .big-win-source-icon{
-        transform:translateY(0) scale(1);
+    .big-win-item:hover .big-win-source-card-icon{
+        animation:feedSourceCardIconIn .42s cubic-bezier(.16,.9,.22,1.26) both,
+                  feedSourceCardIconFloat 1.2s ease-in-out .42s infinite;
     }
     .big-win-item:hover>img.big-win-brainrot,
     .big-win-item:hover>.big-win-meta{
-        opacity:.16;
         transform:scale(.94);
+        filter:brightness(.45) blur(.4px);
     }
 }
-.big-win-item>img.big-win-brainrot,
-.big-win-item>.big-win-meta{
-    transition:opacity .16s ease,transform .18s ease;
+@keyframes feedSourceCardIconIn{
+    0%{opacity:0;transform:scale(.25) rotate(-14deg)}
+    72%{opacity:1;transform:scale(1.13) rotate(4deg)}
+    100%{opacity:1;transform:scale(1) rotate(0)}
 }
+@keyframes feedSourceCardIconFloat{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-4px) scale(1.05)}
+}
+
+#feedSourceFullscreen{
+    --feed-source-color:#a78bfa;
+    position:fixed;
+    z-index:10050;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    background:
+        radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--feed-source-color) 20%,transparent) 0%,transparent 34%),
+        radial-gradient(circle at 50% 50%,rgba(12,8,22,.70) 0%,rgba(5,3,10,.92) 72%);
+    transition:opacity .18s ease,visibility 0s linear .18s;
+}
+#feedSourceFullscreen.show{
+    opacity:1;
+    visibility:visible;
+    transition:opacity .18s ease;
+}
+.feed-source-fullscreen-inner{
+    width:min(88vw,340px);
+    transform:translateY(12px) scale(.92);
+    opacity:0;
+    text-align:center;
+}
+#feedSourceFullscreen.show .feed-source-fullscreen-inner{
+    animation:feedSourcePanelIn .34s cubic-bezier(.16,.86,.24,1.14) forwards;
+}
+.feed-source-drop-card{
+    position:relative;
+    width:min(78vw,300px);
+    aspect-ratio:.78;
+    margin:0 auto;
+    overflow:hidden;
+    border-radius:26px;
+    border:1px solid color-mix(in srgb,var(--feed-source-color) 58%,rgba(255,255,255,.18));
+    background:
+        radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--feed-source-color) 24%,transparent),transparent 46%),
+        linear-gradient(180deg,rgba(20,17,29,.97),rgba(7,6,12,.99));
+    box-shadow:0 24px 70px rgba(0,0,0,.48),0 0 46px color-mix(in srgb,var(--feed-source-color) 22%,transparent),inset 0 1px 0 rgba(255,255,255,.07);
+}
+.feed-source-drop-image{
+    position:absolute;
+    inset:42px 22px 84px;
+    width:calc(100% - 44px);
+    height:calc(100% - 126px);
+    object-fit:contain;
+    filter:drop-shadow(0 18px 20px rgba(0,0,0,.35));
+    opacity:.88;
+}
+.feed-source-drop-shade{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg,transparent 50%,rgba(4,3,8,.82) 100%);
+}
+.feed-source-fullscreen-kicker{
+    position:absolute;
+    top:18px;
+    left:18px;
+    right:18px;
+    color:rgba(255,255,255,.58);
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+}
+.feed-source-fullscreen-avatar{
+    position:absolute;
+    z-index:4;
+    left:50%;
+    top:48%;
+    width:128px;
+    height:128px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle,color-mix(in srgb,var(--feed-source-color) 38%,#151020),rgba(9,7,15,.92) 72%);
+    border:1px solid color-mix(in srgb,var(--feed-source-color) 72%,rgba(255,255,255,.22));
+    box-shadow:0 0 0 7px color-mix(in srgb,var(--feed-source-color) 8%,transparent),0 0 48px color-mix(in srgb,var(--feed-source-color) 38%,transparent);
+}
+.feed-source-fullscreen-avatar::before,
+.feed-source-fullscreen-avatar::after{
+    content:"";
+    position:absolute;
+    inset:-13px;
+    border-radius:50%;
+    border:2px solid color-mix(in srgb,var(--feed-source-color) 52%,transparent);
+    opacity:.42;
+}
+.feed-source-fullscreen-avatar::after{
+    inset:-27px;
+    border-width:1px;
+    border-style:dashed;
+    opacity:.28;
+}
+#feedSourceFullscreen.show .feed-source-fullscreen-avatar::before{animation:feedSourceRingPulse 1.2s ease-in-out infinite;}
+#feedSourceFullscreen.show .feed-source-fullscreen-avatar::after{animation:feedSourceRingSpin 4.5s linear infinite;}
+.feed-source-fullscreen-icon{
+    position:relative;
+    z-index:3;
+    font-size:72px;
+    line-height:1;
+    filter:drop-shadow(0 10px 15px rgba(0,0,0,.28)) drop-shadow(0 0 18px color-mix(in srgb,var(--feed-source-color) 62%,transparent));
+}
+#feedSourceFullscreen.show .feed-source-fullscreen-icon{
+    animation:feedSourceIconPop .46s cubic-bezier(.16,.9,.22,1.24) both,feedSourceIconFloat 1.5s ease-in-out .46s infinite;
+}
+.feed-source-drop-bottom{
+    position:absolute;
+    z-index:5;
+    left:16px;
+    right:16px;
+    bottom:16px;
+    text-align:left;
+}
+.feed-source-drop-name{
+    color:#fff;
+    font-family:"Unbounded","Manrope",sans-serif;
+    font-size:15px;
+    line-height:1.12;
+    font-weight:900;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.feed-source-drop-price{margin-top:4px;color:#fde68a;font-size:12px;font-weight:1000;}
+.feed-source-fullscreen-title{margin-top:16px;color:#fff;font-family:"Unbounded","Manrope",sans-serif;font-size:clamp(19px,5.5vw,28px);font-weight:900;line-height:1.08;}
+.feed-source-fullscreen-detail{margin-top:7px;color:color-mix(in srgb,var(--feed-source-color) 66%,#fff);font-size:11px;font-weight:850;line-height:1.35;}
+@keyframes feedSourcePanelIn{from{opacity:0;transform:translateY(12px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes feedSourceIconPop{0%{opacity:0;transform:scale(.4) rotate(-9deg)}68%{opacity:1;transform:scale(1.11) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes feedSourceIconFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.03)}}
+@keyframes feedSourceRingPulse{0%,100%{transform:scale(.985);opacity:.3}50%{transform:scale(1.06);opacity:.64}}
+@keyframes feedSourceRingSpin{to{transform:rotate(360deg)}}
+@media (hover:none),(pointer:coarse){#feedSourceFullscreen{display:none!important}.big-win-source-card-overlay{display:none!important}}
 @media (prefers-reduced-motion:reduce){
-    .big-win-source-overlay,
-    .big-win-source-icon,
-    .big-win-item>img.big-win-brainrot,
-    .big-win-item>.big-win-meta{
-        transition:none !important;
-    }
+    #feedSourceFullscreen,.feed-source-fullscreen-inner,.feed-source-fullscreen-avatar::before,.feed-source-fullscreen-avatar::after,.feed-source-fullscreen-icon,.big-win-source-card-overlay,.big-win-source-card-icon{animation:none!important;transition:none!important}
 }
 </style>
 
 </head>
 
 <body>
+
+<div id="feedSourceFullscreen" aria-hidden="true">
+    <div class="feed-source-fullscreen-inner">
+        <div class="feed-source-drop-card">
+            <div class="feed-source-fullscreen-kicker">ИСТОЧНИК ДРОПА</div>
+            <img id="feedSourceFullscreenBrainrot" class="feed-source-drop-image" src="" alt="">
+            <div class="feed-source-drop-shade"></div>
+            <div class="feed-source-fullscreen-avatar">
+                <div id="feedSourceFullscreenIcon" class="feed-source-fullscreen-icon">⚡</div>
+            </div>
+            <div class="feed-source-drop-bottom">
+                <div id="feedSourceFullscreenBrainrotName" class="feed-source-drop-name">Brainrot</div>
+                <div id="feedSourceFullscreenBrainrotPrice" class="feed-source-drop-price">0 ⓧ</div>
+            </div>
+        </div>
+        <div id="feedSourceFullscreenTitle" class="feed-source-fullscreen-title">АПГРЕЙДЕР</div>
+        <div id="feedSourceFullscreenDetail" class="feed-source-fullscreen-detail"></div>
+    </div>
+</div>
+
 
 <div id="appLoader">
     <div class="loader-box">
@@ -10145,8 +9905,9 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn active"
         onclick="showPage('cases')"
     >
-        <span class="nav-icon" aria-hidden="true">🎁</span>
-        <span class="nav-label">Кейсы</span>
+        🎁
+        <br>
+        Кейсы
     </button>
 
     <button
@@ -10154,17 +9915,20 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn"
         onclick="showPage('upgrader')"
     >
-        <span class="nav-icon" aria-hidden="true">⚡</span>
-        <span class="nav-label">Апгрейдер</span>
+        ⚡
+        <br>
+        Апгрейдер
     </button>
+
 
     <button
         id="diceButton"
         class="nav-btn"
         onclick="showPage('dice')"
     >
-        <span class="nav-icon" aria-hidden="true">🎲</span>
-        <span class="nav-label">Дайсы</span>
+        🎲
+        <br>
+        Дайсы
     </button>
 
     <button
@@ -10172,8 +9936,9 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn"
         onclick="showPage('ladder')"
     >
-        <span class="nav-icon" aria-hidden="true">🪜</span>
-        <span class="nav-label">Лестница</span>
+        🪜
+        <br>
+        Лестница
     </button>
 
     <button
@@ -10181,8 +9946,9 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn"
         onclick="showPage('inventory')"
     >
-        <span class="nav-icon" aria-hidden="true">👤</span>
-        <span class="nav-label">Профиль</span>
+        👤
+        <br>
+        Профиль
     </button>
 
 </div>
@@ -13261,42 +13027,66 @@ function closeFeedPlayerProfile(){
     document.getElementById("feedPlayerProfileModal")?.classList.remove("show");
 }
 
+
+function feedCaseSourceVisual(sourceLabel){
+    const key=normalizeName(sourceLabel||"");
+    const visual=(typeof CASE_VISUALS !== "undefined" && CASE_VISUALS[key]) ? CASE_VISUALS[key] : null;
+    const themeColor={
+        noob:"#b69264",lucky:"#42df66",chaos:"#ff6b00",neon:"#25a7ff",mystery:"#b056ff",
+        elite:"#ffd21a",pro:"#f6b817",phantom:"#49e6e0",hell:"#ff2828",random:"#c839ff",
+        dragon:"#ff5a1f",secret:"#45df8b",lavaka:"#ff8b3d",toxic:"#b568ff",crazy:"#ff5cc8",
+        moon:"#8ba7ff",overdrive:"#b568ff",meteor:"#ff9d42"
+    };
+    return {icon:visual?.symbol || "🎁",color:themeColor[visual?.theme] || "#f59e0b"};
+}
+
 function feedSourceInfo(item){
     const source=String(item?.source||"").trim().toLowerCase();
     const sourceLabel=String(item?.source_label||"").trim();
-
-    if(source === "upgrade") {
-        return {icon:"⚡", title:"АПГРЕЙДЕР", detail:""};
+    if(source === "upgrade") return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд",color:"#a855f7"};
+    if(source === "daily") return {icon:"🎁",title:"ЕЖЕДНЕВНЫЙ КЕЙС",detail:"Brainrot выпал из бесплатного кейса",color:"#22c55e"};
+    if(source === "case"){
+        const visual=feedCaseSourceVisual(sourceLabel);
+        return {icon:visual.icon,title:sourceLabel || "КЕЙС",detail:"Brainrot выпал из кейса",color:visual.color};
     }
+    if(source === "dice") return {icon:"🎲",title:"ДАЙСЫ",detail:sourceLabel || "Выигрыш в дайсах",color:"#60a5fa"};
+    if(source === "ladder") return {icon:"🪜",title:"ЛЕСТНИЦА",detail:"Выигрыш в лестнице",color:"#fb7185"};
+    return {icon:"✨",title:sourceLabel || "ДРОП",detail:"Источник выигрыша",color:"#a78bfa"};
+}
 
-    if(source === "daily") {
-        return {icon:"🎁", title:"ЕЖЕДНЕВНЫЙ КЕЙС", detail:""};
-    }
+function showFeedSourceFullscreen(item){
+    if(!window.matchMedia?.("(hover:hover) and (pointer:fine)")?.matches) return;
+    const overlay=document.getElementById("feedSourceFullscreen");
+    if(!overlay) return;
+    const info=feedSourceInfo(item);
+    const icon=document.getElementById("feedSourceFullscreenIcon");
+    const title=document.getElementById("feedSourceFullscreenTitle");
+    const detail=document.getElementById("feedSourceFullscreenDetail");
+    const brainrot=document.getElementById("feedSourceFullscreenBrainrot");
+    const brainrotName=document.getElementById("feedSourceFullscreenBrainrotName");
+    const brainrotPrice=document.getElementById("feedSourceFullscreenBrainrotPrice");
+    overlay.style.setProperty("--feed-source-color",info.color||"#a78bfa");
+    if(icon) icon.textContent=info.icon||"✨";
+    if(title) title.textContent=info.title||"ДРОП";
+    if(detail){detail.textContent=info.detail||"";detail.style.display=info.detail?"block":"none";}
+    if(brainrot){brainrot.src=getImage(item?.brainrot_name);brainrot.alt=String(item?.brainrot_name||"");}
+    if(brainrotName) brainrotName.textContent=String(item?.brainrot_name||"Brainrot");
+    if(brainrotPrice) brainrotPrice.textContent=`${Number(item?.value||0)} ⓧ`;
+    overlay.classList.remove("show");
+    void overlay.offsetWidth;
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden","false");
+}
 
-    if(source === "case") {
-        return {
-            icon:"🎁",
-            title:"КЕЙС",
-            detail:sourceLabel || "Обычный кейс"
-        };
-    }
-
-    if(source === "dice") {
-        return {icon:"🎲", title:"ДАЙСЫ", detail:sourceLabel};
-    }
-
-    if(source === "ladder") {
-        return {icon:"🪜", title:"ЛЕСТНИЦА", detail:""};
-    }
-
-    return {
-        icon:"✨",
-        title:sourceLabel || "ДРОП",
-        detail:""
-    };
+function hideFeedSourceFullscreen(){
+    const overlay=document.getElementById("feedSourceFullscreen");
+    if(!overlay) return;
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden","true");
 }
 
 function renderBigWins(animateIds = new Set()){
+    hideFeedSourceFullscreen();
     const root=document.getElementById("bigWinsTrack");
     if(!root) return;
     root.innerHTML="";
@@ -13325,6 +13115,23 @@ function renderBigWins(animateIds = new Set()){
             event.stopPropagation();
             openFeedPlayerProfile(item);
         };
+
+        const sourceInfo=feedSourceInfo(item);
+        card.style.setProperty("--feed-source-color",sourceInfo.color||"#a78bfa");
+        const sourceOverlay=document.createElement("div");
+        sourceOverlay.className="big-win-source-card-overlay";
+        const sourceIcon=document.createElement("div");
+        sourceIcon.className="big-win-source-card-icon";
+        sourceIcon.textContent=sourceInfo.icon||"✨";
+        const sourceTitle=document.createElement("div");
+        sourceTitle.className="big-win-source-card-title";
+        sourceTitle.textContent=sourceInfo.title||"ДРОП";
+        sourceOverlay.appendChild(sourceIcon);
+        sourceOverlay.appendChild(sourceTitle);
+        card.appendChild(sourceOverlay);
+        card.addEventListener("mouseenter",()=>showFeedSourceFullscreen(item));
+        card.addEventListener("mouseleave",hideFeedSourceFullscreen);
+
         const img=document.createElement("img");
         img.className="big-win-brainrot";
         img.src=getImage(item.brainrot_name);
@@ -13357,29 +13164,6 @@ function renderBigWins(animateIds = new Set()){
         price.textContent=`${Number(item.value||0)} ⓧ`;
         meta.appendChild(price);
         card.appendChild(meta);
-
-        const sourceInfo=feedSourceInfo(item);
-        const sourceOverlay=document.createElement("div");
-        sourceOverlay.className="big-win-source-overlay";
-
-        const sourceIcon=document.createElement("div");
-        sourceIcon.className="big-win-source-icon";
-        sourceIcon.textContent=sourceInfo.icon;
-        sourceOverlay.appendChild(sourceIcon);
-
-        const sourceTitle=document.createElement("div");
-        sourceTitle.className="big-win-source-title";
-        sourceTitle.textContent=sourceInfo.title;
-        sourceOverlay.appendChild(sourceTitle);
-
-        if(sourceInfo.detail){
-            const sourceDetail=document.createElement("div");
-            sourceDetail.className="big-win-source-detail";
-            sourceDetail.textContent=sourceInfo.detail;
-            sourceOverlay.appendChild(sourceDetail);
-        }
-
-        card.appendChild(sourceOverlay);
         root.appendChild(card);
     });
 }
@@ -13635,27 +13419,6 @@ function caseCategoryFor(gameCase){
 }
 
 
-function caseRarityFor(gameCase){
-
-    const price =
-        Number(gameCase?.price || 0);
-
-    if(price >= 1500){
-        return {key:"legendary", label:"LEGENDARY"};
-    }
-
-    if(price >= 500){
-        return {key:"epic", label:"EPIC"};
-    }
-
-    if(price >= 150){
-        return {key:"rare", label:"RARE"};
-    }
-
-    return {key:"common", label:"COMMON"};
-}
-
-
 function buildCaseCard(gameCase){
 
     const visual =
@@ -13668,11 +13431,6 @@ function buildCaseCard(gameCase){
             gameCase
         );
 
-    const rarity =
-        caseRarityFor(
-            gameCase
-        );
-
     const card =
         document.createElement(
             "button"
@@ -13680,10 +13438,7 @@ function buildCaseCard(gameCase){
 
     card.type = "button";
     card.className =
-        `case-card case-theme-${visual.theme} case-rarity-${rarity.key}`;
-
-    card.dataset.rarity =
-        rarity.key;
+        `case-card case-theme-${visual.theme}`;
 
     if(isNew){
         card.classList.add(
@@ -13693,10 +13448,7 @@ function buildCaseCard(gameCase){
 
     card.innerHTML =
         `
-        <div class="case-rarity-badge">${rarity.label}</div>
         ${isNew ? '<div class="case-new-badge">NEW</div>' : ''}
-
-        <div class="case-card-particles" aria-hidden="true"></div>
 
         <div class="code-case-art" aria-hidden="true">
             <div class="code-case-glow"></div>
@@ -13739,16 +13491,10 @@ function buildDailyCaseCard(){
 
     dailyCard.type = "button";
     dailyCard.className =
-        "case-card case-theme-lucky daily-case-card case-rarity-common";
-
-    dailyCard.dataset.rarity =
-        "common";
+        "case-card case-theme-lucky daily-case-card";
 
     dailyCard.innerHTML =
         `
-        <div class="case-rarity-badge">COMMON</div>
-        <div class="case-card-particles" aria-hidden="true"></div>
-
         <div class="code-case-art" aria-hidden="true">
             <div class="code-case-glow"></div>
             <div class="code-case-lid"></div>
