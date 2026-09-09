@@ -8466,216 +8466,106 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 
 
 <style id="brainroterx-feed-source-card-full-hover">
-/* FEED SOURCE — animated icon over the full Brainrot feed card + fullscreen reveal */
-.big-win-item{overflow:hidden !important;}
+/* FEED SOURCE — in-card hover reveal only */
+.big-win-item{
+    position:relative;
+    overflow:hidden !important;
+}
 .big-win-source-card-overlay{
     position:absolute;
     z-index:20;
-    inset:3px;
+    inset:0;
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-end;
     gap:4px;
-    border-radius:12px;
+    padding:10px 7px 9px;
+    border-radius:inherit;
     pointer-events:none;
     opacity:0;
-    transform:scale(.88);
+    transform:translateY(100%);
     background:
-        radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--feed-source-color,#a78bfa) 32%,transparent),transparent 58%),
-        rgba(7,5,12,.94);
-    border:1px solid color-mix(in srgb,var(--feed-source-color,#a78bfa) 42%,rgba(255,255,255,.12));
-    box-shadow:inset 0 0 22px color-mix(in srgb,var(--feed-source-color,#a78bfa) 12%,transparent);
-    transition:opacity .16s ease,transform .22s cubic-bezier(.16,.86,.24,1.14);
+        linear-gradient(180deg,rgba(7,5,12,0) 0%,rgba(10,7,18,.72) 34%,rgba(7,5,12,.97) 100%),
+        radial-gradient(circle at 50% 100%,color-mix(in srgb,var(--feed-source-color,#a78bfa) 26%,transparent),transparent 56%);
+    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--feed-source-color,#a78bfa) 18%,rgba(255,255,255,.08));
+    transition:opacity .16s ease,transform .24s cubic-bezier(.16,.86,.24,1.14);
+}
+.big-win-source-card-overlay::before{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:100%;
+    background:linear-gradient(180deg,transparent 0%,transparent 42%,rgba(255,255,255,.02) 100%);
+    pointer-events:none;
 }
 .big-win-source-card-icon{
+    position:relative;
+    z-index:2;
     display:grid;
     place-items:center;
-    width:56px;
-    height:56px;
-    font-size:42px;
+    width:44px;
+    height:44px;
+    margin-top:auto;
+    font-size:34px;
     line-height:1;
-    transform:scale(.35) rotate(-10deg);
-    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--feed-source-color,#a78bfa) 72%,transparent));
+    transform:translateY(18px) scale(.84);
+    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--feed-source-color,#a78bfa) 60%,transparent));
+}
+.big-win-source-card-title,
+.big-win-source-card-detail{
+    position:relative;
+    z-index:2;
+    width:100%;
+    text-align:center;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 .big-win-source-card-title{
-    width:95%;
     color:#fff;
     font-size:7.5px;
     line-height:1.08;
     font-weight:1000;
-    letter-spacing:.025em;
-    text-align:center;
+    letter-spacing:.03em;
     text-transform:uppercase;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+}
+.big-win-source-card-detail{
+    color:color-mix(in srgb,var(--feed-source-color,#a78bfa) 72%,#fff);
+    font-size:6.7px;
+    line-height:1.08;
+    font-weight:850;
 }
 @media (hover:hover) and (pointer:fine){
     .big-win-item:hover .big-win-source-card-overlay{
         opacity:1;
-        transform:scale(1);
+        transform:translateY(0);
     }
     .big-win-item:hover .big-win-source-card-icon{
-        animation:feedSourceCardIconIn .42s cubic-bezier(.16,.9,.22,1.26) both,
-                  feedSourceCardIconFloat 1.2s ease-in-out .42s infinite;
+        animation:feedSourceCardIconIn .38s cubic-bezier(.16,.9,.22,1.22) both,
+                  feedSourceCardIconFloat 1.15s ease-in-out .38s infinite;
     }
     .big-win-item:hover>img.big-win-brainrot,
     .big-win-item:hover>.big-win-meta{
-        transform:scale(.94);
-        filter:brightness(.45) blur(.4px);
+        transform:scale(.96);
+        filter:brightness(.45) blur(.45px);
     }
 }
 @keyframes feedSourceCardIconIn{
-    0%{opacity:0;transform:scale(.25) rotate(-14deg)}
-    72%{opacity:1;transform:scale(1.13) rotate(4deg)}
-    100%{opacity:1;transform:scale(1) rotate(0)}
+    0%{opacity:0;transform:translateY(22px) scale(.62) rotate(-10deg)}
+    72%{opacity:1;transform:translateY(-2px) scale(1.08) rotate(3deg)}
+    100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
 }
 @keyframes feedSourceCardIconFloat{
     0%,100%{transform:translateY(0) scale(1)}
-    50%{transform:translateY(-4px) scale(1.05)}
+    50%{transform:translateY(-3px) scale(1.04)}
 }
-
-#feedSourceFullscreen{
-    --feed-source-color:#a78bfa;
-    position:fixed;
-    z-index:10050;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    pointer-events:none;
-    opacity:0;
-    visibility:hidden;
-    background:
-        radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--feed-source-color) 20%,transparent) 0%,transparent 34%),
-        radial-gradient(circle at 50% 50%,rgba(12,8,22,.70) 0%,rgba(5,3,10,.92) 72%);
-    transition:opacity .18s ease,visibility 0s linear .18s;
-}
-#feedSourceFullscreen.show{
-    opacity:1;
-    visibility:visible;
-    transition:opacity .18s ease;
-}
-.feed-source-fullscreen-inner{
-    width:min(88vw,340px);
-    transform:translateY(12px) scale(.92);
-    opacity:0;
-    text-align:center;
-}
-#feedSourceFullscreen.show .feed-source-fullscreen-inner{
-    animation:feedSourcePanelIn .34s cubic-bezier(.16,.86,.24,1.14) forwards;
-}
-.feed-source-drop-card{
-    position:relative;
-    width:min(78vw,300px);
-    aspect-ratio:.78;
-    margin:0 auto;
-    overflow:hidden;
-    border-radius:26px;
-    border:1px solid color-mix(in srgb,var(--feed-source-color) 58%,rgba(255,255,255,.18));
-    background:
-        radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--feed-source-color) 24%,transparent),transparent 46%),
-        linear-gradient(180deg,rgba(20,17,29,.97),rgba(7,6,12,.99));
-    box-shadow:0 24px 70px rgba(0,0,0,.48),0 0 46px color-mix(in srgb,var(--feed-source-color) 22%,transparent),inset 0 1px 0 rgba(255,255,255,.07);
-}
-.feed-source-drop-image{
-    position:absolute;
-    inset:42px 22px 84px;
-    width:calc(100% - 44px);
-    height:calc(100% - 126px);
-    object-fit:contain;
-    filter:drop-shadow(0 18px 20px rgba(0,0,0,.35));
-    opacity:.88;
-}
-.feed-source-drop-shade{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(180deg,transparent 50%,rgba(4,3,8,.82) 100%);
-}
-.feed-source-fullscreen-kicker{
-    position:absolute;
-    top:18px;
-    left:18px;
-    right:18px;
-    color:rgba(255,255,255,.58);
-    font-size:9px;
-    font-weight:900;
-    letter-spacing:.15em;
-    text-transform:uppercase;
-}
-.feed-source-fullscreen-avatar{
-    position:absolute;
-    z-index:4;
-    left:50%;
-    top:48%;
-    width:128px;
-    height:128px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
-    transform:translate(-50%,-50%);
-    background:radial-gradient(circle,color-mix(in srgb,var(--feed-source-color) 38%,#151020),rgba(9,7,15,.92) 72%);
-    border:1px solid color-mix(in srgb,var(--feed-source-color) 72%,rgba(255,255,255,.22));
-    box-shadow:0 0 0 7px color-mix(in srgb,var(--feed-source-color) 8%,transparent),0 0 48px color-mix(in srgb,var(--feed-source-color) 38%,transparent);
-}
-.feed-source-fullscreen-avatar::before,
-.feed-source-fullscreen-avatar::after{
-    content:"";
-    position:absolute;
-    inset:-13px;
-    border-radius:50%;
-    border:2px solid color-mix(in srgb,var(--feed-source-color) 52%,transparent);
-    opacity:.42;
-}
-.feed-source-fullscreen-avatar::after{
-    inset:-27px;
-    border-width:1px;
-    border-style:dashed;
-    opacity:.28;
-}
-#feedSourceFullscreen.show .feed-source-fullscreen-avatar::before{animation:feedSourceRingPulse 1.2s ease-in-out infinite;}
-#feedSourceFullscreen.show .feed-source-fullscreen-avatar::after{animation:feedSourceRingSpin 4.5s linear infinite;}
-.feed-source-fullscreen-icon{
-    position:relative;
-    z-index:3;
-    font-size:72px;
-    line-height:1;
-    filter:drop-shadow(0 10px 15px rgba(0,0,0,.28)) drop-shadow(0 0 18px color-mix(in srgb,var(--feed-source-color) 62%,transparent));
-}
-#feedSourceFullscreen.show .feed-source-fullscreen-icon{
-    animation:feedSourceIconPop .46s cubic-bezier(.16,.9,.22,1.24) both,feedSourceIconFloat 1.5s ease-in-out .46s infinite;
-}
-.feed-source-drop-bottom{
-    position:absolute;
-    z-index:5;
-    left:16px;
-    right:16px;
-    bottom:16px;
-    text-align:left;
-}
-.feed-source-drop-name{
-    color:#fff;
-    font-family:"Unbounded","Manrope",sans-serif;
-    font-size:15px;
-    line-height:1.12;
-    font-weight:900;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-}
-.feed-source-drop-price{margin-top:4px;color:#fde68a;font-size:12px;font-weight:1000;}
-.feed-source-fullscreen-title{margin-top:16px;color:#fff;font-family:"Unbounded","Manrope",sans-serif;font-size:clamp(19px,5.5vw,28px);font-weight:900;line-height:1.08;}
-.feed-source-fullscreen-detail{margin-top:7px;color:color-mix(in srgb,var(--feed-source-color) 66%,#fff);font-size:11px;font-weight:850;line-height:1.35;}
-@keyframes feedSourcePanelIn{from{opacity:0;transform:translateY(12px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes feedSourceIconPop{0%{opacity:0;transform:scale(.4) rotate(-9deg)}68%{opacity:1;transform:scale(1.11) rotate(3deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-@keyframes feedSourceIconFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.03)}}
-@keyframes feedSourceRingPulse{0%,100%{transform:scale(.985);opacity:.3}50%{transform:scale(1.06);opacity:.64}}
-@keyframes feedSourceRingSpin{to{transform:rotate(360deg)}}
-@media (hover:none),(pointer:coarse){#feedSourceFullscreen{display:none!important}.big-win-source-card-overlay{display:none!important}}
+#feedSourceFullscreen{display:none !important;}
+@media (hover:none),(pointer:coarse){.big-win-source-card-overlay{display:none!important}}
 @media (prefers-reduced-motion:reduce){
-    #feedSourceFullscreen,.feed-source-fullscreen-inner,.feed-source-fullscreen-avatar::before,.feed-source-fullscreen-avatar::after,.feed-source-fullscreen-icon,.big-win-source-card-overlay,.big-win-source-card-icon{animation:none!important;transition:none!important}
+    .big-win-source-card-overlay,.big-win-source-card-icon,.big-win-item>img.big-win-brainrot,.big-win-item>.big-win-meta{animation:none!important;transition:none!important}
 }
 </style>
 
@@ -13055,6 +12945,8 @@ function feedSourceInfo(item){
 }
 
 function showFeedSourceFullscreen(item){
+    return;
+
     if(!window.matchMedia?.("(hover:hover) and (pointer:fine)")?.matches) return;
     const overlay=document.getElementById("feedSourceFullscreen");
     if(!overlay) return;
@@ -13079,6 +12971,8 @@ function showFeedSourceFullscreen(item){
 }
 
 function hideFeedSourceFullscreen(){
+    return;
+
     const overlay=document.getElementById("feedSourceFullscreen");
     if(!overlay) return;
     overlay.classList.remove("show");
@@ -13126,11 +13020,13 @@ function renderBigWins(animateIds = new Set()){
         const sourceTitle=document.createElement("div");
         sourceTitle.className="big-win-source-card-title";
         sourceTitle.textContent=sourceInfo.title||"ДРОП";
+        const sourceDetail=document.createElement("div");
+        sourceDetail.className="big-win-source-card-detail";
+        sourceDetail.textContent=sourceInfo.detail||"Источник дропа";
         sourceOverlay.appendChild(sourceIcon);
         sourceOverlay.appendChild(sourceTitle);
+        sourceOverlay.appendChild(sourceDetail);
         card.appendChild(sourceOverlay);
-        card.addEventListener("mouseenter",()=>showFeedSourceFullscreen(item));
-        card.addEventListener("mouseleave",hideFeedSourceFullscreen);
 
         const img=document.createElement("img");
         img.className="big-win-brainrot";
