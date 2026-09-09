@@ -8839,6 +8839,55 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
   #casesPage #caseList .code-case-art{height:92px !important;min-height:92px !important;}
 }
 </style>
+
+<style id="brainroterx-inventory-card-actions-fit-fix">
+/* FIX: inventory card action buttons must never overflow narrow mobile cards. */
+#inventory .inventory-card{
+    min-width:0 !important;
+    overflow:hidden !important;
+}
+#inventory .inventory-actions{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+}
+#inventory .inventory-action{
+    min-width:0 !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    line-height:1 !important;
+}
+
+/* Telegram/mobile: stack Sell and Exchange so both always fit inside the Brainrot card. */
+@media (max-width:430px){
+    #inventory .inventory-actions{
+        display:grid !important;
+        grid-template-columns:minmax(0,1fr) !important;
+        gap:4px !important;
+        margin-top:5px !important;
+    }
+    #inventory .inventory-actions .sell-one,
+    #inventory .inventory-actions .exchange-one{
+        grid-column:1 !important;
+        padding:6px 3px !important;
+        border-radius:7px !important;
+        font-size:7.5px !important;
+    }
+}
+
+/* Extra narrow phones: keep text readable without breaking the card. */
+@media (max-width:350px){
+    #inventory .inventory-actions .sell-one,
+    #inventory .inventory-actions .exchange-one{
+        padding:5px 2px !important;
+        font-size:7px !important;
+    }
+}
+</style>
 </head>
 
 <body>
