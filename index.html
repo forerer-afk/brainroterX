@@ -8569,6 +8569,276 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 }
 </style>
 
+
+
+<style id="brainroterx-premium-safe-redesign">
+/* =====================================================
+   SAFE PREMIUM REDESIGN
+   Scoped to the cases home screen. No markup/JS changes.
+===================================================== */
+:root{
+  --bx-safe-bg:#090b10;
+  --bx-safe-surface:#11141b;
+  --bx-safe-surface-2:#151922;
+  --bx-safe-line:rgba(255,255,255,.065);
+  --bx-safe-text:#f5f7fb;
+  --bx-safe-muted:#7d8595;
+  --bx-safe-accent:#8b5cf6;
+  --bx-safe-gold:#f2cd69;
+}
+
+/* Page rhythm only — do not touch other app pages */
+#casesPage{
+  color:var(--bx-safe-text);
+}
+
+#casesPage .big-wins-section{
+  margin:4px 0 15px !important;
+  padding:9px 9px 8px !important;
+  border-radius:15px !important;
+  border:1px solid rgba(255,255,255,.045) !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.026),rgba(255,255,255,.012)) !important;
+  box-shadow:none !important;
+}
+#casesPage .big-wins-title-row{
+  margin-bottom:7px !important;
+}
+#casesPage .big-wins-title{
+  font-size:9px !important;
+  color:#9da5b5 !important;
+  font-weight:850 !important;
+}
+#casesPage .big-wins-live{
+  font-size:6.5px !important;
+  padding:3px 6px !important;
+  background:rgba(34,197,94,.06) !important;
+  border-color:rgba(34,197,94,.11) !important;
+}
+#casesPage .big-wins-track{
+  gap:7px !important;
+}
+
+/* Keep the original feed card dimensions mostly intact to avoid clipping */
+#casesPage .big-win-item{
+  border-radius:12px !important;
+  background:rgba(15,18,25,.96) !important;
+  border-color:rgba(255,255,255,.055) !important;
+  box-shadow:none !important;
+}
+
+#casesPage .case-browser-toolbar{
+  margin:0 0 11px !important;
+  padding:0 2px !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+#casesPage .case-browser-title{
+  color:#fff !important;
+  font-family:"Unbounded","Manrope",sans-serif !important;
+  font-size:22px !important;
+  line-height:1.05 !important;
+  font-weight:900 !important;
+  letter-spacing:-.045em !important;
+}
+#casesPage .case-browser-subtitle{
+  margin-top:4px !important;
+  color:#788092 !important;
+  font-size:8.5px !important;
+}
+#casesPage .new-cases-button{
+  min-height:32px !important;
+  padding:0 10px !important;
+  border-radius:11px !important;
+  color:#d9ceff !important;
+  background:rgba(139,92,246,.075) !important;
+  border-color:rgba(139,92,246,.16) !important;
+  box-shadow:none !important;
+}
+
+/* Compact promo, but preserve its original three-row structure */
+#casesPage .hourly-percent-promo{
+  margin:0 0 18px !important;
+  padding:11px !important;
+  border-radius:15px !important;
+  border:1px solid rgba(242,205,105,.11) !important;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(242,205,105,.075),transparent 42%),
+    linear-gradient(145deg,rgba(21,19,13,.98),rgba(14,16,22,.98)) !important;
+  box-shadow:none !important;
+}
+#casesPage .hourly-percent-promo::after{
+  opacity:.35 !important;
+}
+#casesPage .hourly-promo-top{
+  gap:8px !important;
+  align-items:center !important;
+}
+#casesPage .hourly-promo-kicker{
+  font-size:7.5px !important;
+  color:#dfc370 !important;
+}
+#casesPage .hourly-promo-title{
+  margin-top:2px !important;
+  font-size:10px !important;
+  color:#e8eaf0 !important;
+}
+#casesPage .hourly-promo-percent{
+  min-width:48px !important;
+  padding:6px 8px !important;
+  border-radius:10px !important;
+  background:#e8c961 !important;
+  color:#17140b !important;
+  font-size:14px !important;
+  box-shadow:none !important;
+}
+#casesPage .hourly-promo-middle{
+  margin-top:8px !important;
+  gap:7px !important;
+}
+#casesPage .hourly-promo-code-box,
+#casesPage .hourly-promo-timer-box{
+  padding:7px 8px !important;
+  border-radius:10px !important;
+  background:rgba(255,255,255,.022) !important;
+  border-color:rgba(255,255,255,.045) !important;
+}
+#casesPage .hourly-promo-code-label,
+#casesPage .hourly-promo-timer-label{
+  font-size:6px !important;
+  color:#5f6775 !important;
+}
+#casesPage .hourly-promo-code,
+#casesPage .hourly-promo-timer{
+  margin-top:2px !important;
+  font-size:8.5px !important;
+}
+#casesPage .hourly-promo-bottom{
+  margin-top:8px !important;
+  gap:8px !important;
+}
+#casesPage .hourly-promo-note{
+  font-size:6.5px !important;
+  color:#626a79 !important;
+}
+#casesPage .hourly-promo-use{
+  min-height:30px !important;
+  padding:0 11px !important;
+  border-radius:9px !important;
+  font-size:7px !important;
+  background:#7c3aed !important;
+  box-shadow:none !important;
+}
+
+/* Sections: cleaner without changing generated structure */
+#casesPage .case-section{
+  margin-bottom:20px !important;
+}
+#casesPage .case-section-head{
+  margin:0 2px 8px !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+#casesPage .case-section-title{
+  color:#f1f3f7 !important;
+  font-size:11.5px !important;
+  font-weight:900 !important;
+}
+#casesPage .case-section-subtitle{
+  margin-top:2px !important;
+  color:#687181 !important;
+  font-size:7.2px !important;
+}
+#casesPage .case-section-count{
+  color:#747d8e !important;
+  background:rgba(255,255,255,.028) !important;
+  border-color:rgba(255,255,255,.04) !important;
+  box-shadow:none !important;
+}
+
+/* Keep two columns but do NOT force card height: long names/prices cannot break */
+#casesPage #caseList .case-list{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:9px !important;
+  width:100% !important;
+}
+#casesPage #caseList .case-card{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:188px !important;
+  height:auto !important;
+  padding:10px 8px 9px !important;
+  border-radius:16px !important;
+  border-color:rgba(255,255,255,.055) !important;
+  background:
+    radial-gradient(circle at 50% 24%,color-mix(in srgb,var(--case-accent,#8b5cf6) 8%,transparent),transparent 46%),
+    linear-gradient(180deg,rgba(20,23,31,.98),rgba(15,18,24,.99)) !important;
+  box-shadow:0 8px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+#casesPage #caseList .case-card:active{
+  transform:scale(.985) !important;
+}
+@media (hover:hover) and (pointer:fine){
+  #casesPage #caseList .case-card:hover{
+    border-color:rgba(167,139,250,.13) !important;
+    box-shadow:0 11px 26px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035) !important;
+  }
+}
+#casesPage #caseList .code-case-art{
+  width:min(120px,88%) !important;
+  height:104px !important;
+  min-height:104px !important;
+  margin:0 auto 3px !important;
+}
+#casesPage #caseList .code-case-glow{
+  opacity:.10 !important;
+}
+#casesPage #caseList .case-name{
+  width:100% !important;
+  min-height:28px !important;
+  margin:2px 0 3px !important;
+  color:#f2f4f8 !important;
+  font-size:10px !important;
+  line-height:1.2 !important;
+  font-weight:850 !important;
+  text-align:center !important;
+}
+#casesPage #caseList .case-price{
+  min-height:28px !important;
+  margin-top:auto !important;
+  padding:5px 8px !important;
+  border-radius:9px !important;
+  color:#e6cd78 !important;
+  background:rgba(242,205,105,.045) !important;
+  border-color:rgba(242,205,105,.075) !important;
+  box-shadow:none !important;
+  font-size:9px !important;
+}
+#casesPage #caseList .case-new-badge{
+  top:7px !important;
+  right:7px !important;
+  border-radius:7px !important;
+  box-shadow:none !important;
+}
+
+/* Small screens: only spacing/size adjustments, no structural hacks */
+@media(max-width:390px){
+  #casesPage .case-browser-title{font-size:20px !important;}
+  #casesPage #caseList .case-list{gap:8px !important;}
+  #casesPage #caseList .case-card{min-height:180px !important;padding:9px 7px 8px !important;}
+  #casesPage #caseList .code-case-art{width:min(112px,90%) !important;height:98px !important;min-height:98px !important;}
+  #casesPage #caseList .case-name{font-size:9.5px !important;min-height:27px !important;}
+  #casesPage .hourly-percent-promo{padding:10px !important;}
+}
+
+@media(max-width:345px){
+  #casesPage #caseList .case-card{min-height:174px !important;}
+  #casesPage #caseList .code-case-art{height:92px !important;min-height:92px !important;}
+}
+</style>
 </head>
 
 <body>
