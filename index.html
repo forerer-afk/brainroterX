@@ -8464,6 +8464,395 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 }
 </style>
 
+
+<style id="brainroterx-premium-cases-redesign">
+/* =====================================================
+   BRAINROTERX — PREMIUM CASES SCREEN
+   Visual-only redesign. No gameplay/backend changes.
+===================================================== */
+:root{
+    --case-common:#94a3b8;
+    --case-rare:#38bdf8;
+    --case-epic:#a855f7;
+    --case-legendary:#f6c453;
+    --case-gold:#f6c453;
+    --case-ink:#09070f;
+    --case-surface:#12101a;
+}
+
+/* More atmosphere on the cases page without heavy repeated blur layers. */
+#casesPage{
+    position:relative;
+    isolation:isolate;
+}
+#casesPage::before{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    inset:-18px -12px 0;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at 12% 10%,rgba(120,72,255,.12),transparent 28%),
+        radial-gradient(circle at 88% 30%,rgba(246,196,83,.07),transparent 24%),
+        linear-gradient(180deg,rgba(20,14,31,.22),transparent 44%);
+}
+
+#caseList .case-list{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:12px !important;
+}
+
+#caseList .case-card{
+    --rarity-color:var(--case-common);
+    position:relative !important;
+    isolation:isolate !important;
+    min-width:0 !important;
+    min-height:208px !important;
+    overflow:hidden !important;
+    padding:13px 9px 11px !important;
+    border-radius:20px !important;
+    border:1px solid color-mix(in srgb,var(--rarity-color) 52%,rgba(255,255,255,.06)) !important;
+    background:
+        radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--case-accent,#8b5cf6) 23%,transparent) 0%,transparent 47%),
+        linear-gradient(155deg,color-mix(in srgb,var(--case-accent,#8b5cf6) 8%,#17131f),#0b0910 72%) !important;
+    box-shadow:
+        0 12px 26px rgba(0,0,0,.33),
+        0 0 0 1px rgba(255,255,255,.018) inset,
+        0 1px 0 rgba(255,255,255,.055) inset,
+        0 0 20px color-mix(in srgb,var(--case-accent,#8b5cf6) 10%,transparent) !important;
+    color:#fff !important;
+    transform:translateY(0) scale(1);
+    transition:
+        transform .18s cubic-bezier(.2,.8,.2,1),
+        border-color .18s ease,
+        box-shadow .18s ease,
+        filter .18s ease !important;
+}
+
+#caseList .case-card::before{
+    content:"" !important;
+    position:absolute !important;
+    z-index:-2 !important;
+    left:50% !important;
+    top:32px !important;
+    width:150px !important;
+    height:120px !important;
+    transform:translateX(-50%) !important;
+    border-radius:50% !important;
+    background:radial-gradient(circle,color-mix(in srgb,var(--case-accent,#8b5cf6) 34%,transparent),transparent 68%) !important;
+    opacity:.9 !important;
+    filter:none !important;
+    pointer-events:none !important;
+}
+
+/* Tiny sparks/particles. Pure gradients = cheaper than extra DOM animations. */
+#caseList .case-card::after{
+    content:"" !important;
+    position:absolute !important;
+    z-index:-1 !important;
+    inset:0 !important;
+    height:auto !important;
+    border-radius:inherit !important;
+    pointer-events:none !important;
+    opacity:.55 !important;
+    background:
+        radial-gradient(circle at 18% 27%,color-mix(in srgb,var(--case-accent,#8b5cf6) 72%,white) 0 1px,transparent 1.6px),
+        radial-gradient(circle at 82% 22%,rgba(255,255,255,.65) 0 1px,transparent 1.5px),
+        radial-gradient(circle at 74% 54%,color-mix(in srgb,var(--case-accent,#8b5cf6) 68%,white) 0 1.2px,transparent 1.8px),
+        radial-gradient(circle at 24% 60%,rgba(255,255,255,.34) 0 1px,transparent 1.6px) !important;
+}
+.case-card-particles{display:none !important;}
+
+#caseList .case-rarity-common{--rarity-color:var(--case-common);}
+#caseList .case-rarity-rare{--rarity-color:var(--case-rare);}
+#caseList .case-rarity-epic{--rarity-color:var(--case-epic);}
+#caseList .case-rarity-legendary{--rarity-color:var(--case-legendary);}
+
+/* Theme accents requested for the most recognizable cards. */
+#caseList .daily-case-card{
+    --case-accent:#34d399 !important;
+    --case-accent2:#065f46 !important;
+}
+#caseList .case-theme-toxic{
+    --case-accent:#c45cff !important;
+    --case-accent2:#5b21b6 !important;
+}
+#caseList .case-theme-toxic::before{
+    background:
+        radial-gradient(circle at 50% 45%,rgba(196,92,255,.28),transparent 60%),
+        radial-gradient(circle at 58% 58%,rgba(190,255,66,.08),transparent 48%) !important;
+}
+#caseList .case-theme-lucky:not(.daily-case-card){
+    --case-accent:#f6c453 !important;
+    --case-accent2:#9a6700 !important;
+}
+
+.case-rarity-badge{
+    position:absolute;
+    z-index:9;
+    top:8px;
+    left:8px;
+    min-height:19px;
+    display:inline-flex;
+    align-items:center;
+    padding:4px 7px;
+    border-radius:999px;
+    color:var(--rarity-color);
+    background:color-mix(in srgb,var(--rarity-color) 10%,rgba(7,6,11,.92));
+    border:1px solid color-mix(in srgb,var(--rarity-color) 52%,transparent);
+    box-shadow:0 0 12px color-mix(in srgb,var(--rarity-color) 12%,transparent);
+    font-family:"Manrope",sans-serif;
+    font-size:7px;
+    line-height:1;
+    font-weight:1000;
+    letter-spacing:.08em;
+}
+
+.case-new-badge{
+    overflow:hidden !important;
+    isolation:isolate !important;
+    border-color:rgba(255,225,145,.62) !important;
+    background:linear-gradient(135deg,#ffe08a,#efad32) !important;
+    color:#211503 !important;
+    box-shadow:0 4px 14px rgba(246,196,83,.18) !important;
+}
+.case-new-badge::after{
+    content:"";
+    position:absolute;
+    z-index:2;
+    top:-8px;
+    bottom:-8px;
+    width:16px;
+    left:-22px;
+    transform:skewX(-18deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.78),transparent);
+    animation:brxNewShimmer 2.35s ease-in-out infinite;
+}
+@keyframes brxNewShimmer{
+    0%,48%{left:-24px;opacity:0;}
+    58%{opacity:.85;}
+    80%,100%{left:calc(100% + 16px);opacity:0;}
+}
+
+#caseList .code-case-art{
+    width:min(124px,86%) !important;
+    height:104px !important;
+    margin:10px auto 2px !important;
+    transform:translateZ(0);
+    filter:drop-shadow(0 12px 15px rgba(0,0,0,.34)) !important;
+}
+#caseList .code-case-glow{
+    left:9% !important;
+    right:9% !important;
+    bottom:0 !important;
+    height:28px !important;
+    opacity:.42 !important;
+    background:radial-gradient(ellipse,var(--case-accent,#8b5cf6),transparent 72%) !important;
+    filter:none !important;
+}
+#caseList .code-case-shell{
+    box-shadow:
+        inset 0 0 18px rgba(0,0,0,.56),
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 0 16px color-mix(in srgb,var(--case-accent,#8b5cf6) 22%,transparent) !important;
+}
+
+#caseList .case-name{
+    min-height:32px !important;
+    margin:2px 0 0 !important;
+    padding:0 4px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    color:#f8f7fb !important;
+    font-size:12px !important;
+    font-weight:900 !important;
+    line-height:1.2 !important;
+    letter-spacing:-.02em !important;
+    text-align:center !important;
+    text-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+
+/* Existing price/FREE control becomes the large open CTA without changing click logic. */
+#caseList .case-price{
+    width:calc(100% - 10px) !important;
+    min-height:36px !important;
+    margin:8px auto 0 !important;
+    padding:7px 9px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:6px !important;
+    border-radius:12px !important;
+    border:1px solid color-mix(in srgb,var(--case-accent,#8b5cf6) 62%,rgba(255,255,255,.12)) !important;
+    background:
+        linear-gradient(180deg,color-mix(in srgb,var(--case-accent,#8b5cf6) 30%,#241d31),color-mix(in srgb,var(--case-accent,#8b5cf6) 15%,#100d16)) !important;
+    color:#fff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.10),
+        0 7px 18px color-mix(in srgb,var(--case-accent,#8b5cf6) 14%,transparent) !important;
+    font-family:"Manrope",sans-serif !important;
+    font-size:12px !important;
+    font-weight:1000 !important;
+    transition:filter .16s ease,box-shadow .16s ease,transform .16s ease !important;
+}
+#caseList .case-price .xcoin-small{
+    flex:0 0 auto !important;
+    color:#211803 !important;
+    -webkit-text-fill-color:#211803 !important;
+    background:radial-gradient(circle at 35% 28%,#fff2a8 0%,#ffd95c 36%,#f4b928 72%,#c88706 100%) !important;
+    border:1px solid #ffe598 !important;
+    box-shadow:0 0 10px rgba(246,196,83,.34),inset 0 1px 0 rgba(255,255,255,.42) !important;
+}
+#caseList .daily-free-label{
+    min-width:0 !important;
+    padding:0 !important;
+    color:#d9fff0 !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+    letter-spacing:.08em !important;
+    text-shadow:0 0 10px rgba(52,211,153,.22);
+}
+
+/* Stronger hierarchy for premium section. */
+#caseList .case-section-premium .case-section-head,
+#caseList .premium-cases .case-section-head{
+    border-color:rgba(246,196,83,.13) !important;
+}
+#caseList .case-rarity-legendary .case-rarity-badge{
+    color:#ffe9a7;
+    background:linear-gradient(180deg,rgba(246,196,83,.14),rgba(57,40,7,.44));
+}
+
+@media (hover:hover) and (pointer:fine){
+    #caseList .case-card:hover{
+        transform:translateY(-4px) scale(1.01) !important;
+        border-color:color-mix(in srgb,var(--rarity-color) 82%,white 6%) !important;
+        box-shadow:
+            0 17px 32px rgba(0,0,0,.40),
+            0 0 0 1px rgba(255,255,255,.025) inset,
+            0 1px 0 rgba(255,255,255,.07) inset,
+            0 0 28px color-mix(in srgb,var(--case-accent,#8b5cf6) 20%,transparent) !important;
+    }
+    #caseList .case-card:hover .case-price{filter:brightness(1.08);}
+}
+#caseList .case-card:active,
+#caseList .case-card.button-press{
+    transform:scale(.972) !important;
+}
+
+/* Only legendary cards breathe, keeping WebView workload small. */
+#caseList .case-rarity-legendary{
+    animation:brxLegendaryBreath 2.9s ease-in-out infinite;
+}
+@keyframes brxLegendaryBreath{
+    0%,100%{
+        box-shadow:0 12px 26px rgba(0,0,0,.33),0 0 18px rgba(246,196,83,.08),inset 0 1px 0 rgba(255,255,255,.055) !important;
+    }
+    50%{
+        box-shadow:0 13px 28px rgba(0,0,0,.36),0 0 27px rgba(246,196,83,.18),inset 0 1px 0 rgba(255,255,255,.07) !important;
+    }
+}
+
+/* Balance = compact gold pill. */
+.topbar .balance-box{
+    min-width:82px !important;
+    padding:8px 12px !important;
+    border-radius:999px !important;
+    background:linear-gradient(180deg,#1b1710,#100d0a) !important;
+    border:1px solid rgba(246,196,83,.42) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.055),
+        0 0 0 1px rgba(246,196,83,.025),
+        0 7px 18px rgba(0,0,0,.22),
+        0 0 16px rgba(246,196,83,.055) !important;
+}
+.topbar .balance-box #coins{
+    color:#fff4cf !important;
+    font-weight:1000 !important;
+}
+.topbar .balance-box .xcoin{
+    box-shadow:0 0 10px rgba(246,196,83,.28),inset 0 1px 0 rgba(255,255,255,.38) !important;
+}
+
+/* Bottom navigation: clear active capsule + stronger icon hierarchy. */
+.bottom-menu{
+    gap:3px !important;
+    padding:5px !important;
+    background:linear-gradient(180deg,rgba(17,13,25,.985),rgba(8,6,12,.995)) !important;
+    border:1px solid rgba(255,255,255,.075) !important;
+    box-shadow:0 14px 34px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+.bottom-menu .nav-btn{
+    min-width:0 !important;
+    min-height:52px !important;
+    padding:5px 2px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:3px !important;
+    border-radius:13px !important;
+    color:#746e7e !important;
+    background:transparent !important;
+    border:1px solid transparent !important;
+    box-shadow:none !important;
+}
+.bottom-menu .nav-btn::before{display:none !important;}
+.bottom-menu .nav-icon{
+    height:21px;
+    display:grid;
+    place-items:center;
+    font-size:18px;
+    line-height:1;
+    opacity:.55;
+    filter:saturate(.65) brightness(.82);
+    transition:opacity .16s ease,filter .16s ease,transform .16s ease;
+}
+.bottom-menu .nav-label{
+    display:block;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:7.5px;
+    line-height:1;
+    font-weight:850;
+}
+.bottom-menu .nav-btn.active{
+    color:#fff !important;
+    background:
+        radial-gradient(circle at 50% 0%,rgba(168,85,247,.24),transparent 62%),
+        linear-gradient(180deg,rgba(124,58,237,.22),rgba(78,33,130,.09)) !important;
+    border-color:rgba(168,85,247,.20) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 20px rgba(124,58,237,.11) !important;
+}
+.bottom-menu .nav-btn.active .nav-icon{
+    opacity:1;
+    filter:saturate(1.15) brightness(1.14);
+    transform:translateY(-1px) scale(1.04);
+    text-shadow:0 0 12px rgba(168,85,247,.58);
+}
+.bottom-menu .nav-btn.active .nav-label{color:#f7f2ff;}
+
+@media(max-width:390px){
+    #caseList .case-list{gap:9px !important;}
+    #caseList .case-card{min-height:194px !important;padding:11px 7px 9px !important;}
+    #caseList .code-case-art{width:min(112px,88%) !important;height:94px !important;}
+    #caseList .case-name{font-size:10.5px !important;min-height:30px !important;}
+    #caseList .case-price{min-height:34px !important;font-size:11px !important;}
+    .case-rarity-badge{font-size:6.5px;padding:4px 6px;}
+    .bottom-menu .nav-label{font-size:7px;}
+}
+
+@media(prefers-reduced-motion:reduce){
+    #caseList .case-rarity-legendary,
+    .case-new-badge::after{animation:none !important;}
+    #caseList .case-card{transition:none !important;}
+}
+</style>
 </head>
 
 <body>
@@ -9670,9 +10059,8 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn active"
         onclick="showPage('cases')"
     >
-        🎁
-        <br>
-        Кейсы
+        <span class="nav-icon" aria-hidden="true">🎁</span>
+        <span class="nav-label">Кейсы</span>
     </button>
 
     <button
@@ -9680,20 +10068,17 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn"
         onclick="showPage('upgrader')"
     >
-        ⚡
-        <br>
-        Апгрейдер
+        <span class="nav-icon" aria-hidden="true">⚡</span>
+        <span class="nav-label">Апгрейдер</span>
     </button>
-
 
     <button
         id="diceButton"
         class="nav-btn"
         onclick="showPage('dice')"
     >
-        🎲
-        <br>
-        Дайсы
+        <span class="nav-icon" aria-hidden="true">🎲</span>
+        <span class="nav-label">Дайсы</span>
     </button>
 
     <button
@@ -9701,9 +10086,8 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn"
         onclick="showPage('ladder')"
     >
-        🪜
-        <br>
-        Лестница
+        <span class="nav-icon" aria-hidden="true">🪜</span>
+        <span class="nav-label">Лестница</span>
     </button>
 
     <button
@@ -9711,9 +10095,8 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         class="nav-btn"
         onclick="showPage('inventory')"
     >
-        👤
-        <br>
-        Профиль
+        <span class="nav-icon" aria-hidden="true">👤</span>
+        <span class="nav-label">Профиль</span>
     </button>
 
 </div>
@@ -13108,6 +13491,27 @@ function caseCategoryFor(gameCase){
 }
 
 
+function caseRarityFor(gameCase){
+
+    const price =
+        Number(gameCase?.price || 0);
+
+    if(price >= 1500){
+        return {key:"legendary", label:"LEGENDARY"};
+    }
+
+    if(price >= 500){
+        return {key:"epic", label:"EPIC"};
+    }
+
+    if(price >= 150){
+        return {key:"rare", label:"RARE"};
+    }
+
+    return {key:"common", label:"COMMON"};
+}
+
+
 function buildCaseCard(gameCase){
 
     const visual =
@@ -13120,6 +13524,11 @@ function buildCaseCard(gameCase){
             gameCase
         );
 
+    const rarity =
+        caseRarityFor(
+            gameCase
+        );
+
     const card =
         document.createElement(
             "button"
@@ -13127,7 +13536,10 @@ function buildCaseCard(gameCase){
 
     card.type = "button";
     card.className =
-        `case-card case-theme-${visual.theme}`;
+        `case-card case-theme-${visual.theme} case-rarity-${rarity.key}`;
+
+    card.dataset.rarity =
+        rarity.key;
 
     if(isNew){
         card.classList.add(
@@ -13137,7 +13549,10 @@ function buildCaseCard(gameCase){
 
     card.innerHTML =
         `
+        <div class="case-rarity-badge">${rarity.label}</div>
         ${isNew ? '<div class="case-new-badge">NEW</div>' : ''}
+
+        <div class="case-card-particles" aria-hidden="true"></div>
 
         <div class="code-case-art" aria-hidden="true">
             <div class="code-case-glow"></div>
@@ -13180,10 +13595,16 @@ function buildDailyCaseCard(){
 
     dailyCard.type = "button";
     dailyCard.className =
-        "case-card case-theme-lucky daily-case-card";
+        "case-card case-theme-lucky daily-case-card case-rarity-common";
+
+    dailyCard.dataset.rarity =
+        "common";
 
     dailyCard.innerHTML =
         `
+        <div class="case-rarity-badge">COMMON</div>
+        <div class="case-card-particles" aria-hidden="true"></div>
+
         <div class="code-case-art" aria-hidden="true">
             <div class="code-case-glow"></div>
             <div class="code-case-lid"></div>
