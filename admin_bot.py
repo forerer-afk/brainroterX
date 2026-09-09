@@ -138,6 +138,35 @@ def get_promo_access(telegram_id: int):
     )
 
 
+def promo_access_text(access: dict) -> str:
+    remaining = access.get("remaining_promos")
+    remaining_text = "без лимита" if remaining is None else str(max(0, int(remaining or 0)))
+    return (
+        "🎟 ДОСТУП К ПРОМОКОДАМ\n\n"
+        "/promo КОД АКТИВАЦИИ МОНЕТЫ\n\n"
+        f"Максимум на 1 промо: {access.get('max_uses_per_promo', 15)} активаций\n"
+        f"Максимум награда: {access.get('max_reward_coins', 10)} монет\n"
+        f"Осталось создать промокодов: {remaining_text}"
+    )
+
+
+def check_promo_access_for_user(user_id: int) -> dict:
+    """Единая проверка owner/delegate. Всегда возвращает dict и не падает молча."""
+    if int(user_id) == ADMIN_TELEGRAM_ID:
+        return {
+            "ok": True,
+            "allowed": True,
+            "owner": True,
+            "remaining_promos": None,
+            "max_uses_per_promo": 1000000,
+            "max_reward_coins": 1000000,
+        }
+    result = get_promo_access(int(user_id))
+    if not isinstance(result, dict):
+        return {"ok": False, "allowed": False, "error": "Сервер не вернул ответ"}
+    return result
+
+
 # =====================================================
 # /START
 # =====================================================
@@ -178,18 +207,21 @@ async def start_command(
         )
         return
 
-    access = get_promo_access(user.id)
-    if not access.get("ok") or not access.get("allowed"):
-        await update.message.reply_text("❌ Нет доступа")
+    access = check_promo_access_for_user(user.id)
+    if not access.get("ok"):
+        await update.message.reply_text(
+            "❌ Не удалось проверить promo-доступ.\n" + str(access.get("error", "Ошибка сервера"))
+        )
+        return
+    if not access.get("allowed"):
+        remaining = int(access.get("remaining_promos", 0) or 0)
+        if remaining <= 0:
+            await update.message.reply_text("❌ Нет активного promo-доступа или закончился лимит промокодов.")
+        else:
+            await update.message.reply_text("❌ Нет доступа к созданию промокодов.")
         return
 
-    await update.message.reply_text(
-        "🎟 ДОСТУП К ПРОМОКОДАМ\n\n"
-        "/promo КОД АКТИВАЦИИ МОНЕТЫ\n\n"
-        f"Максимум на 1 промо: {access.get('max_uses_per_promo', 15)} активаций\n"
-        f"Максимум награда: {access.get('max_reward_coins', 10)} монет\n"
-        f"Осталось создать промокодов: {access.get('remaining_promos', 0)}"
-    )
+    await update.message.reply_text(promo_access_text(access))
 
 
 # =====================================================
@@ -203,6 +235,18 @@ async def promo_command(
 
     user = update.effective_user
     if not user:
+        return
+
+    access = check_promo_access_for_user(user.id)
+    if not access.get("ok"):
+        await update.message.reply_text(
+            "❌ Не удалось проверить promo-доступ.\n" + str(access.get("error", "Ошибка сервера"))
+        )
+        return
+    if not access.get("allowed"):
+        await update.message.reply_text(
+            "❌ Нет активного promo-доступа или закончился лимит промокодов."
+        )
         return
 
     args = context.args
@@ -325,12 +369,35 @@ async def promoadd_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not result.get("ok"):
         await update.message.reply_text("❌ " + result.get("error", "Ошибка"))
         return
+    notify_ok = False
+    notify_error = ""
+    try:
+        await context.bot.send_message(
+            chat_id=target_id,
+            text=(
+                "✅ Тебе выдан доступ к созданию промокодов BrainroterX.\n\n"
+                "/promo КОД АКТИВАЦИИ МОНЕТЫ\n\n"
+                f"📦 Доступно промокодов: {result.get('remaining_promos', 0)}\n"
+                f"👥 До {result.get('max_uses_per_promo', 15)} активаций на промо\n"
+                f"💰 До {result.get('max_reward_coins', 10)} монет награды"
+            ),
+        )
+        notify_ok = True
+    except Exception as exc:
+        notify_error = str(exc)
+        logger.info("Could not notify promo delegate %s: %r", target_id, exc)
+
     await update.message.reply_text(
         f"✅ Доступ выдан/увеличен\n"
         f"🆔 {target_id}\n"
         f"📦 Можно создать промокодов: {result.get('remaining_promos', 0)}\n"
         f"👥 Лимит активаций на 1 промо: {result.get('max_uses_per_promo', 15)}\n"
-        f"💰 Лимит награды: {result.get('max_reward_coins', 10)} монет"
+        f"💰 Лимит награды: {result.get('max_reward_coins', 10)} монет\n\n"
+        + (
+            "📨 Пользователь уведомлён."
+            if notify_ok
+            else "⚠️ Не смог написать пользователю первым. Пусть он откроет бота и нажмёт /start, затем /promo."
+        )
     )
 
 
@@ -559,13 +626,28 @@ def commands_text():
     )
 
 async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update):
-        await update.message.reply_text("❌ Нет доступа")
+    user = update.effective_user
+    if not user:
         return
-    await update.message.reply_text(
-        "🛠 ADMIN MENU\n\nВыбери раздел:",
-        reply_markup=admin_menu_markup()
-    )
+
+    if is_admin(update):
+        await update.message.reply_text(
+            "🛠 ADMIN MENU\n\nВыбери раздел:",
+            reply_markup=admin_menu_markup()
+        )
+        return
+
+    access = check_promo_access_for_user(user.id)
+    if not access.get("ok"):
+        await update.message.reply_text(
+            "❌ Не удалось проверить promo-доступ.\n" + str(access.get("error", "Ошибка сервера"))
+        )
+        return
+    if not access.get("allowed"):
+        await update.message.reply_text("❌ Нет активного promo-доступа или закончился лимит промокодов.")
+        return
+
+    await update.message.reply_text(promo_access_text(access))
 
 async def set_channel(update, channel, enabled):
     if not is_admin(update):
@@ -1761,12 +1843,35 @@ async def mem_text_router(
         return
 
 
+
+
+async def promo_delegate_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Fallback для /start /menu /promo, если Telegram не распознал entity как bot_command."""
+    message = update.effective_message
+    if not message or not message.text:
+        return
+
+    raw = message.text.strip()
+    first, *rest = raw.split()
+    command = first.split("@", 1)[0].lower()
+
+    if command == "/start":
+        context.args = rest
+        await start_command(update, context)
+    elif command == "/menu":
+        context.args = rest
+        await menu_command(update, context)
+    elif command == "/promo":
+        context.args = rest
+        await promo_command(update, context)
+
+
 # =====================================================
 # STARTUP / POLLING DIAGNOSTICS
 # =====================================================
 
 async def on_startup(application):
-    """Проверяем токен, убираем старый webhook и явно сообщаем о старте polling."""
+    """Проверяем токен и гарантируем polling без сообщений админу при каждом рестарте."""
     me = await application.bot.get_me()
     logger.info(
         "Telegram bot authenticated: @%s (id=%s), ADMIN_TELEGRAM_ID=%s",
@@ -1778,22 +1883,9 @@ async def on_startup(application):
     webhook = await application.bot.get_webhook_info()
     if webhook.url:
         logger.warning("Active webhook detected and removed: %s", webhook.url)
-        await application.bot.delete_webhook(drop_pending_updates=False)
-    else:
-        # Безопасно вызываем и при пустом webhook: гарантирует режим getUpdates/polling.
-        await application.bot.delete_webhook(drop_pending_updates=False)
 
-    try:
-        await application.bot.send_message(
-            chat_id=ADMIN_TELEGRAM_ID,
-            text=(
-                "✅ Admin bot polling запущен.\n"
-                f"Bot: @{me.username}\n"
-                f"ADMIN_TELEGRAM_ID: {ADMIN_TELEGRAM_ID}"
-            ),
-        )
-    except Exception as exc:
-        logger.warning("Could not send startup message to admin: %r", exc)
+    # Всегда очищаем webhook, чтобы getUpdates/polling работал стабильно.
+    await application.bot.delete_webhook(drop_pending_updates=False)
 
 
 async def on_error(update, context):
@@ -1857,6 +1949,15 @@ def main():
     app.add_handler(CommandHandler("promotake", promotake_command))
     app.add_handler(CommandHandler("promoblock", promoblock_command))
     app.add_handler(CommandHandler("promoinfo", promoinfo_command))
+
+    # Fallback для делегированных пользователей. Он стоит ПОСЛЕ CommandHandler в той же группе,
+    # поэтому не дублирует нормальные ответы, а ловит только текст команды без bot_command entity.
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(r"^/(?:start|menu|promo)(?:@[A-Za-z0-9_]+)?(?:\s|$)"),
+            promo_delegate_text_router,
+        )
+    )
 
     app.add_handler(
         MessageHandler(
