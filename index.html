@@ -24775,7 +24775,15 @@ function withdrawOutOfStockItems(request){
 }
 function closeWithdrawOutOfStockPopup(){
     const id=Number(activeWithdrawOutOfStockRequest?.id||0);
-    if(id>0) persistWithdrawOutOfStockDismissed(id);
+    if(id>0){
+        persistWithdrawOutOfStockDismissed(id);
+        // Сервер тоже запоминает закрытие: после перезахода, очистки кэша
+        // или входа с другого устройства эта же заявка больше не всплывёт.
+        apiRequest({
+            action:"dismiss_withdraw_out_of_stock_notification",
+            request_id:id
+        }).catch(()=>{});
+    }
     document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
     activeWithdrawOutOfStockRequest=null;
 }
