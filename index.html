@@ -24903,7 +24903,7 @@ if(document.readyState==="loading"){
 }else{
     setTimeout(startWithdrawOutOfStockWatch,700);
 }
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ withdrawOutOfStockSessionDismissed.clear(); pollWithdrawOutOfStockNotifications(true); } });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ pollWithdrawOutOfStockNotifications(true); } });
 window.addEventListener("focus",()=>pollWithdrawOutOfStockNotifications());
 </script>
 
