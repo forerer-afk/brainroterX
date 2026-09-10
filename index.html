@@ -18870,6 +18870,8 @@ async function upgradeItem(){
 
         }
 
+        adminRenderLastUpgradeDebug(data);
+
         const visualChance =
             calculateChance(
                 source,
@@ -23945,7 +23947,8 @@ body.admin-panel-page-locked{
         </div>
         <button class="admin-action-btn" onclick="adminLoadTestAccount()">ЗАГРУЗИТЬ TEST</button>
         <div id="adminTestStatus" class="result">Укажи ID и нажми «Загрузить TEST».</div>
-        <div class="admin-hint" style="margin-top:9px">×1.00 = обычный шанс · меньше 1 = Unluck · больше 1 = Luck · ×0 = 0% реального выигрыша. Максимальный итоговый шанс всё равно 70%.</div>
+        <div id="adminTestLastRoll" class="result" style="margin-top:7px;display:none"></div>
+        <div class="admin-hint" style="margin-top:9px">×1.00 = обычный шанс · меньше 1 = Unluck · больше 1 = Luck · ×0 = 0% реального выигрыша. Максимальный итоговый шанс всё равно 70%. TEST имеет приоритет над старыми MEM/LUCK.</div>
         <input id="adminTestMultiplier" class="admin-range" type="range" min="0" max="500" step="5" value="100" oninput="adminRenderTestChanceMultiplier()">
         <div id="adminTestMultiplierText" class="admin-delta">×1.00</div>
         <div class="admin-coin-actions">
@@ -24119,11 +24122,30 @@ async function adminSaveTestChance(){
     const multiplier=Number(document.getElementById("adminTestMultiplier")?.value||100)/100;
     const root=document.getElementById("adminTestStatus");
     if(!target){if(root)root.innerText="❌ Укажи Telegram ID";return}
-    const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:Boolean(adminTestAccountEnabled),multiplier});
+    if(root)root.innerText="⏳ Сохраняем и включаем TEST...";
+    const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:true,multiplier});
     if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
+    adminTestAccountEnabled=true;
     adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:false});
-    showToast(`⚡ TEST шанс ×${Number(data.test_upgrade_multiplier||1).toFixed(2)}`,"success");
+    showToast(`🧪 TEST включён · ×${Number(data.test_upgrade_multiplier||1).toFixed(2)}`,"success");
 }
+function adminRenderLastUpgradeDebug(data){
+    if(!adminPanelAccess || !data || !data.test_mode_enabled) return;
+    const root=document.getElementById("adminTestLastRoll");
+    if(!root) return;
+    const chance=Number(data.effective_server_chance);
+    const mult=Number(data.test_upgrade_multiplier ?? 1);
+    const roll=Number(data.roll);
+    const parts=[`Последний TEST: ×${mult.toFixed(2)}`];
+    if(Number.isFinite(chance)) parts.push(`серверный шанс ${chance}%`);
+    if(Number.isFinite(roll)) parts.push(`roll ${roll}`);
+    parts.push(data.win ? "✅ выигрыш" : "❌ проигрыш");
+    if(data.legacy_mem_ignored) parts.push("MEM проигнорирован");
+    if(data.legacy_luck_ignored) parts.push("LUCK проигнорирован");
+    root.innerText=parts.join(" · ");
+    root.style.display="block";
+}
+
 async function adminApplyCoins(direction){
     const target=Number(document.getElementById("adminCoinTargetId")?.value||0);
     const amount=Math.floor(Number(document.getElementById("adminCoinAmount")?.value||0));
