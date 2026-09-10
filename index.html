@@ -8988,6 +8988,44 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     }
 }
 </style>
+
+<style id="brainroterx-deposit-trade-live-ui">
+/* Ordinary inventory exchange is removed: exchange is only a withdraw replacement flow. */
+#inventory .inventory-actions{grid-template-columns:1fr !important;}
+#inventory .inventory-actions .sell-one{width:100% !important;min-width:0 !important;}
+
+.deposit-trade-box{
+    margin-top:12px;padding:12px;border-radius:15px;
+    background:linear-gradient(145deg,rgba(36,25,55,.94),rgba(15,11,24,.98));
+    border:1px solid rgba(167,139,250,.18);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.deposit-trade-timer-row,.deposit-trade-bot-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.deposit-trade-timer-row{color:#c7bed7;font-size:10px;font-weight:850;}
+#depositTradeTimer{font-family:"Unbounded","Manrope",sans-serif;font-size:22px;color:#f7d66d;letter-spacing:-.03em;}
+.deposit-trade-warning{margin-top:9px;color:#fff;font-size:11px;line-height:1.45;font-weight:850;}
+.deposit-trade-bot-row{margin-top:11px;padding:9px 10px;border-radius:11px;background:rgba(255,255,255,.045);color:#9f97ab;font-size:9px;font-weight:850;}
+#depositTradeBot{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:11px;text-align:right;}
+.deposit-trade-state-text{margin-top:7px;color:#9990a6;font-size:9px;line-height:1.35;}
+.deposit-trade-floating{
+    position:fixed;z-index:100050;
+    top:calc(env(safe-area-inset-top,0px) + 72px);
+    right:max(9px,env(safe-area-inset-right,0px));
+    width:min(245px,calc(100vw - 18px));
+    display:none;align-items:center;gap:9px;
+    padding:9px 10px;border-radius:14px;
+    background:rgba(16,12,23,.97);border:1px solid rgba(167,139,250,.18);
+    box-shadow:0 12px 28px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.035);
+    cursor:pointer;
+}
+.deposit-trade-floating.active{display:flex;animation:depositFloatIn .18s ease-out both;}
+.deposit-trade-floating-icon{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(139,92,246,.13);font-size:17px;}
+.deposit-trade-floating-copy{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.deposit-trade-floating-copy b{color:#fff;font-size:10px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deposit-trade-floating-copy span{color:#b8afc5;font-size:8.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@keyframes depositFloatIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+</style>
+
 </head>
 
 <body>
@@ -11726,6 +11764,7 @@ let withdrawGroups = [];
 
 
 let selectedExchangeItem = null;
+let exchangeReplacementAllowedId = null;
 
 let caseOpenCount = 1;
 
@@ -16488,7 +16527,6 @@ function renderInventory(){
                 <div class="inventory-value">${item.value} ⓧ</div>
                 <div class="inventory-actions">
                     <button class="inventory-action sell-one" onclick="sellItem(${item.id})">Продать</button>
-                    <button class="inventory-action exchange-one" onclick="openExchange(${item.id})">🔄 Обмен</button>
                 </div>`;
         }
         root.appendChild(div);
@@ -16725,6 +16763,11 @@ function openExchange(
     id
 ){
 
+    if(Number(exchangeReplacementAllowedId) !== Number(id)){
+        showToast("Обмен доступен только как замена Brainrot, которого нет в наличии на вывод", "info");
+        return;
+    }
+
     selectedExchangeItem =
         inventory.find(
             item =>
@@ -16795,6 +16838,7 @@ function closeExchange(){
 
     selectedExchangeItem =
         null;
+    exchangeReplacementAllowedId = null;
 
     document
         .getElementById(
@@ -16836,7 +16880,8 @@ function renderExchangeGrid(){
         new Set([
             "garama and madundung",
             "capitano moby",
-            "cerberus"
+            "cerberus",
+            "dragon cannelloni"
         ]);
 
     const options =
@@ -16857,7 +16902,7 @@ function renderExchangeGrid(){
                     &&
                     targetValue > 0
                     &&
-                    targetValue < sourceValue
+                    targetValue <= sourceValue
                     &&
                     Number(item.brainrot_id) !== Number(selectedExchangeItem.brainrot_id)
                 );
@@ -16882,7 +16927,7 @@ function renderExchangeGrid(){
     ){
 
         root.innerHTML =
-            `<div class="exchange-empty">Этот Brainrot нельзя обменять на Garama, Capitano или Cerberus.</div>`;
+            `<div class="exchange-empty">Этот Brainrot нельзя заменить на Garama, Capitano, Cerberus или Dragon Cannelloni.</div>`;
 
         return;
 
@@ -17182,7 +17227,7 @@ function getTarget(){
 }
 
 
-function calculateChance(
+function calculateServerBaseUpgradeChance(
     source,
     target
 ){
@@ -17192,40 +17237,63 @@ function calculateChance(
         ||
         !target
     ){
-
         return 0;
-
     }
 
-    let chance =
+    const sourceValue = Number(source.value);
+    const targetValue = Number(target.value);
+
+    if(
+        !Number.isFinite(sourceValue)
+        ||
+        !Number.isFinite(targetValue)
+        ||
+        sourceValue <= 0
+        ||
+        targetValue <= 0
+    ){
+        return 0;
+    }
+
+    // ВАЖНО: это ровно тот базовый шанс, который сначала считает backend.
+    // Он НЕ обрезается до 70%, чтобы подборщик не принимал 71%+ за визуальные 70%.
+    return Math.max(
+        0,
         Math.floor(
-            (
-                Number(
-                    source.value
-                )
-                /
-                Number(
-                    target.value
-                )
-            )
-            *
-            100
-            *
-            0.865
-            *
-            Number(globalUpgradeChanceMultiplier || 1)
+            (sourceValue / targetValue)
+            * 100
+            * 0.865
+        )
+    );
+
+}
+
+
+function calculateChance(
+    source,
+    target
+){
+
+    const baseChance =
+        calculateServerBaseUpgradeChance(
+            source,
+            target
         );
 
-    chance =
-        Math.min(
-            70,
-            Math.max(
-                chance,
-                0
-            )
-        );
+    // Backend сначала округляет базовый шанс, затем применяет глобальный множитель
+    // и округляет ещё раз. Клиент теперь считает абсолютно так же.
+    const chance = Math.floor(
+        baseChance
+        * Number(globalUpgradeChanceMultiplier || 1)
+    );
 
-    return chance;
+    return Math.min(
+        70,
+        Math.max(
+            chance,
+            0
+        )
+    );
 
 }
 
@@ -17488,16 +17556,9 @@ function renderTargetGrid(){
                     );
 
                 const realChance =
-                    Math.floor(
-                        (
-                            sourceValue
-                            /
-                            targetValue
-                        )
-                        *
-                        100
-                        *
-                        0.865
+                    calculateServerBaseUpgradeChance(
+                        source,
+                        item
                     );
 
                 return (
@@ -17957,16 +18018,16 @@ function selectByChance(
                     return false;
                 }
 
-                const realChance =
-                    calculateChance(
+                const serverBaseChance =
+                    calculateServerBaseUpgradeChance(
                         source,
                         item
                     );
 
                 return (
-                    realChance > 0
+                    serverBaseChance > 0
                     &&
-                    realChance <= 70
+                    serverBaseChance <= 70
                 );
 
             }
@@ -17995,9 +18056,17 @@ function selectByChance(
                 );
 
             if(
-                diff
-                <
-                difference
+                diff < difference
+                ||
+                (
+                    diff === difference
+                    &&
+                    (
+                        !best
+                        ||
+                        Number(item.value) < Number(best.value)
+                    )
+                )
             ){
 
                 difference =
@@ -18096,14 +18165,27 @@ function selectMultiplier(
 
     const targets =
         getUpgraderTargets().filter(
-            item =>
-                Number(
-                    item.value
-                )
-                >
-                Number(
-                    source.value
-                )
+            item => {
+                if(
+                    Number(item.value)
+                    <=
+                    Number(source.value)
+                ){
+                    return false;
+                }
+
+                const serverBaseChance =
+                    calculateServerBaseUpgradeChance(
+                        source,
+                        item
+                    );
+
+                return (
+                    serverBaseChance > 0
+                    &&
+                    serverBaseChance <= 70
+                );
+            }
         );
 
     let best =
@@ -20571,8 +20653,165 @@ function renderDepositPicked(){
  selected.forEach(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));if(!item)return;const row=document.createElement("div");row.className="deposit-picked-row";row.innerHTML=`<img src="${getImage(item.name)}" alt=""><div class="deposit-picked-info"><div class="deposit-picked-name">${String(item.name||"")}</div><div class="deposit-picked-price">${getBrainrotDepositValue(item)} ⓧ × ${Number(q)}</div></div><button class="deposit-picked-remove" onclick="removeDepositPicked(${Number(item.brainrot_id)})">УБРАТЬ</button>`;list.appendChild(row);});
 }
 function removeDepositPicked(id){delete depositSelection[id];renderDepositGrid();renderDepositPicked();}
-function closeDepositReceipt(event){if(event)event.stopPropagation();document.getElementById("depositReceiptOverlay")?.classList.remove("active");}
-function showDepositReceipt(data,items){const o=document.getElementById("depositReceiptOverlay"),sub=document.getElementById("depositReceiptSub"),root=document.getElementById("depositReceiptItems"),total=document.getElementById("depositReceiptTotal");if(!o||!root||!total)return;sub.innerText=`Номер заявки: #${data.request_id}`;root.innerHTML="";items.forEach(item=>{const row=document.createElement("div");row.className="deposit-receipt-row";row.innerHTML=`<img src="${getImage(item.name)}" alt=""><div><div class="deposit-receipt-row-name">${String(item.name||"")}</div><div class="deposit-receipt-row-meta">${Number(item.value||0)} ⓧ × ${Number(item.quantity||1)}</div></div>`;root.appendChild(row);});const base=Number(data.total_value||0),bonus=Number(data.referral_bonus||0),credited=Number(data.credited_value||base);total.innerHTML=`💰 Стоимость: <b>${base} ⓧ</b><br>🎁 Реф. бонус: <b>+${bonus} ⓧ</b><br>✅ Будет начислено: <b>${credited} ⓧ</b>`;o.classList.add("active");}
+function closeDepositReceipt(event){
+    if(event) event.stopPropagation();
+    document.getElementById("depositReceiptOverlay")?.classList.remove("active");
+}
+
+let activeDepositTradeRequest = null;
+let depositTradeCountdownTimer = null;
+let depositTradePollTimer = null;
+const DEPOSIT_TRADE_SECONDS = 5 * 60;
+
+function formatDepositTradeTime(seconds){
+    const safe = Math.max(0, Math.floor(Number(seconds || 0)));
+    const mm = String(Math.floor(safe / 60)).padStart(2,"0");
+    const ss = String(safe % 60).padStart(2,"0");
+    return `${mm}:${ss}`;
+}
+
+function depositTradeRemainingSeconds(){
+    if(!activeDepositTradeRequest) return 0;
+    const createdMs = new Date(activeDepositTradeRequest.created_at || Date.now()).getTime();
+    if(!Number.isFinite(createdMs)) return DEPOSIT_TRADE_SECONDS;
+    return Math.max(0, Math.ceil((createdMs + DEPOSIT_TRADE_SECONDS * 1000 - Date.now()) / 1000));
+}
+
+function renderDepositTradeStatus(){
+    const req = activeDepositTradeRequest;
+    const floating = document.getElementById("depositTradeFloating");
+    if(!req){
+        floating?.classList.remove("active");
+        return;
+    }
+
+    const remaining = depositTradeRemainingSeconds();
+    const timerText = formatDepositTradeTime(remaining);
+    const botText = req.trade_bot_username ? `@${String(req.trade_bot_username).replace(/^@/,"")}` : "Ожидаем выбора бота…";
+
+    const timer = document.getElementById("depositTradeTimer");
+    const bot = document.getElementById("depositTradeBot");
+    const state = document.getElementById("depositTradeStateText");
+    const floatTitle = document.getElementById("depositTradeFloatingTitle");
+    const floatMeta = document.getElementById("depositTradeFloatingMeta");
+
+    if(timer) timer.textContent = timerText;
+    if(bot) bot.textContent = botText;
+    if(state){
+        state.textContent = req.trade_bot_username
+            ? "Зайди в Roblox и прими трейд от выбранного бота."
+            : "Администратор выбирает бота для трейда…";
+    }
+    if(floatTitle) floatTitle.textContent = `Пополнение #${req.request_id} · ${timerText}`;
+    if(floatMeta) floatMeta.textContent = botText;
+    floating?.classList.add("active");
+}
+
+function stopDepositTradeTracking(finalStatus, expired=false){
+    if(depositTradeCountdownTimer){ clearInterval(depositTradeCountdownTimer); depositTradeCountdownTimer=null; }
+    if(depositTradePollTimer){ clearInterval(depositTradePollTimer); depositTradePollTimer=null; }
+    try{ localStorage.removeItem("brainroterx_active_deposit_request"); }catch(_){ }
+    const requestId = activeDepositTradeRequest?.request_id;
+    activeDepositTradeRequest = null;
+    document.getElementById("depositTradeFloating")?.classList.remove("active");
+    document.getElementById("depositReceiptOverlay")?.classList.remove("active");
+    if(finalStatus === "approved"){
+        showToast(`✅ Пополнение #${requestId || ""} подтверждено`,"success");
+        if(typeof silentSync === "function") silentSync();
+    }else if(expired || finalStatus === "expired"){
+        showToast(`⌛ Время заявки #${requestId || ""} истекло`,"error");
+    }else if(finalStatus === "rejected"){
+        showToast(`❌ Заявка #${requestId || ""} отклонена`,"error");
+    }
+}
+
+async function pollDepositTradeStatus(){
+    const requestId = Number(activeDepositTradeRequest?.request_id || 0);
+    try{
+        const data = await apiRequest({
+            action:"get_balance_request_trade_status",
+            ...(requestId ? {request_id:requestId} : {})
+        });
+        if(!data?.ok) return;
+        if(!data.active && !data.request_id){
+            if(activeDepositTradeRequest) stopDepositTradeTracking(data.status || "rejected", Boolean(data.expired));
+            return;
+        }
+        if(data.request_id){
+            activeDepositTradeRequest = {
+                ...(activeDepositTradeRequest || {}),
+                request_id:Number(data.request_id),
+                created_at:data.created_at || activeDepositTradeRequest?.created_at || new Date().toISOString(),
+                trade_bot_username:data.trade_bot_username || null,
+                status:data.status || "pending",
+                total_value:Number(data.total_value || activeDepositTradeRequest?.total_value || 0),
+                credited_value:Number(data.credited_value || activeDepositTradeRequest?.credited_value || data.total_value || 0),
+                referral_bonus:Number(data.referral_bonus || activeDepositTradeRequest?.referral_bonus || 0),
+                items:Array.isArray(data.items) ? data.items : (activeDepositTradeRequest?.items || [])
+            };
+        }
+        renderDepositTradeStatus();
+        if(data.status && data.status !== "pending"){
+            stopDepositTradeTracking(data.status, Boolean(data.expired));
+        }
+    }catch(_){ }
+}
+
+function openActiveDepositTradeModal(){
+    if(!activeDepositTradeRequest) return;
+    const data = activeDepositTradeRequest;
+    const items = Array.isArray(data.items) ? data.items : [];
+    const o=document.getElementById("depositReceiptOverlay"),sub=document.getElementById("depositReceiptSub"),root=document.getElementById("depositReceiptItems"),total=document.getElementById("depositReceiptTotal");
+    if(!o||!root||!total)return;
+    sub.innerText=`Номер заявки: #${data.request_id}`;
+    root.innerHTML="";
+    items.forEach(item=>{
+        const row=document.createElement("div");
+        row.className="deposit-receipt-row";
+        const name = item.name || item.brainrot_name || "Brainrot";
+        const value = Number(item.value || item.value_each || 0);
+        row.innerHTML=`<img src="${getImage(name)}" alt=""><div><div class="deposit-receipt-row-name">${String(name)}</div><div class="deposit-receipt-row-meta">${value} ⓧ × ${Number(item.quantity||1)}</div></div>`;
+        root.appendChild(row);
+    });
+    const base=Number(data.total_value||0),bonus=Number(data.referral_bonus||0),credited=Number(data.credited_value||base+bonus);
+    total.innerHTML=`💰 Стоимость: <b>${base} ⓧ</b><br>🎁 Реф. бонус: <b>+${bonus} ⓧ</b><br>✅ Будет начислено: <b>${credited} ⓧ</b>`;
+    renderDepositTradeStatus();
+    o.classList.add("active");
+}
+
+function startDepositTradeTracking(data, items, openModal=true){
+    activeDepositTradeRequest = {
+        request_id:Number(data.request_id),
+        created_at:data.created_at || new Date().toISOString(),
+        trade_bot_username:data.trade_bot_username || null,
+        status:data.status || "pending",
+        total_value:Number(data.total_value || 0),
+        referral_bonus:Number(data.referral_bonus || 0),
+        credited_value:Number(data.credited_value || data.total_value || 0),
+        items:Array.isArray(items) ? items : (Array.isArray(data.items) ? data.items : [])
+    };
+    try{ localStorage.setItem("brainroterx_active_deposit_request", String(activeDepositTradeRequest.request_id)); }catch(_){ }
+    if(depositTradeCountdownTimer) clearInterval(depositTradeCountdownTimer);
+    if(depositTradePollTimer) clearInterval(depositTradePollTimer);
+    depositTradeCountdownTimer = setInterval(renderDepositTradeStatus,1000);
+    depositTradePollTimer = setInterval(pollDepositTradeStatus,2200);
+    renderDepositTradeStatus();
+    if(openModal) openActiveDepositTradeModal();
+    pollDepositTradeStatus();
+}
+
+async function restoreActiveDepositTradeRequest(){
+    try{
+        const data = await apiRequest({action:"get_balance_request_trade_status"});
+        if(!data?.ok || !data.active || !data.request_id) return;
+        startDepositTradeTracking(data, Array.isArray(data.items) ? data.items : [], false);
+    }catch(_){ }
+}
+
+function showDepositReceipt(data,items){
+    startDepositTradeTracking(data,items,true);
+}
+
 
 async function submitDeposit(){
 
@@ -21748,12 +21987,13 @@ function changeWithdrawQuantity(
 
 
 function replaceUnavailableWithdraw(id){
+    exchangeReplacementAllowedId = Number(id);
     closeWithdraw();
     showToast(
-        "Этот Brainrot сейчас нет в наличии. Выбери замену в обмене.",
+        "Этот Brainrot сейчас нет в наличии. Выбери замену.",
         "info"
     );
-    openExchange(Number(id));
+    setTimeout(() => openExchange(Number(id)), 180);
 }
 
 
@@ -23125,11 +23365,25 @@ loadPlayer()
 
 <div id="depositReceiptOverlay" class="deposit-receipt-overlay" onclick="closeDepositReceipt(event)">
   <div class="deposit-receipt-card" onclick="event.stopPropagation()">
-    <div class="deposit-receipt-head"><span>✅ Заявка отправлена</span><span onclick="closeDepositReceipt()" style="cursor:pointer">✕</span></div>
+    <div class="deposit-receipt-head"><span>🟡 Заявка на пополнение</span><span onclick="closeDepositReceipt()" style="cursor:pointer">✕</span></div>
     <div id="depositReceiptSub" class="deposit-receipt-sub"></div>
+    <div class="deposit-trade-box">
+      <div class="deposit-trade-timer-row"><span>⏱ Время на трейд</span><b id="depositTradeTimer">05:00</b></div>
+      <div class="deposit-trade-warning">У вас есть 5 минут, чтобы зайти в игру и принять трейд.</div>
+      <div class="deposit-trade-bot-row"><span>Ник бота</span><b id="depositTradeBot">Ожидаем выбора бота…</b></div>
+      <div id="depositTradeStateText" class="deposit-trade-state-text">Администратор выбирает бота для трейда…</div>
+    </div>
     <div id="depositReceiptItems" class="deposit-receipt-items"></div>
     <div id="depositReceiptTotal" class="deposit-receipt-total"></div>
-    <button class="deposit-receipt-done" onclick="closeDepositReceipt()">ГОТОВО</button>
+    <button class="deposit-receipt-done" onclick="closeDepositReceipt()">СКРЫТЬ</button>
+  </div>
+</div>
+
+<div id="depositTradeFloating" class="deposit-trade-floating" onclick="openActiveDepositTradeModal()">
+  <div class="deposit-trade-floating-icon">🤖</div>
+  <div class="deposit-trade-floating-copy">
+    <b id="depositTradeFloatingTitle">Пополнение</b>
+    <span id="depositTradeFloatingMeta">Ожидаем выбора бота…</span>
   </div>
 </div>
 
@@ -23482,7 +23736,31 @@ body::after{
     font-weight:1000;
 }
 #adminPanelButton.show{display:flex;align-items:center;justify-content:center;gap:6px}
-.admin-panel-modal{max-width:500px!important;max-height:86dvh!important;padding:14px!important}
+.admin-panel-modal{
+    max-width:500px!important;
+    max-height:86dvh!important;
+    padding:14px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+}
+#adminPanelModal{
+    overflow:hidden!important;
+    overscroll-behavior:contain!important;
+}
+html.admin-panel-page-locked,
+body.admin-panel-page-locked{
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+}
+body.admin-panel-page-locked{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    width:100%!important;
+}
 .admin-panel-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:11px 0}
 .admin-panel-tab{padding:8px 3px;border-radius:9px;background:rgba(255,255,255,.045);color:#958da5;font-size:8px;font-weight:900}
 .admin-panel-tab.active{background:rgba(139,92,246,.22);color:#fff;border:1px solid rgba(167,139,250,.22)}
@@ -23540,7 +23818,7 @@ body::after{
     <div id="adminSectionChance" class="admin-panel-section">
       <div class="admin-box">
         <div class="admin-box-title">🧪 Скрытый шанс TEST-аккаунта</div>
-        <div class="admin-hint">Работает только для отдельного SANDBOX-аккаунта. На игровом экране изменённый коэффициент не показывается. TEST нельзя включить аккаунту, который уже пополнялся. После первого включения аккаунт навсегда остаётся SANDBOX: пополнение и вывод для него сервером заблокированы даже после выключения скрытого шанса.</div>
+        <div class="admin-hint">TEST не блокирует аккаунт вообще: пополнение, вывод, заявки, обмен и остальные функции продолжают работать. Скрытый коэффициент влияет только на серверный шанс апгрейдера и на игровом экране не показывается. Для безопасности TEST можно включить только аккаунту, которому выдан доступ к админ-панели через /admin ID.</div>
         <div class="admin-id-row">
           <input id="adminTestTargetId" inputmode="numeric" placeholder="Telegram ID тестового аккаунта">
           <button class="admin-mini-btn" onclick="adminUseMyTestId();adminLoadTestAccount()">Мой ID</button>
@@ -23574,6 +23852,27 @@ let adminPanelServerState = null;
 let adminTestAccountEnabled = false;
 let adminTestAccountHasDeposited = false;
 let adminTestSandboxLocked = false;
+let adminPanelPageScrollY = 0;
+
+function setAdminPanelPageLock(locked){
+    const html=document.documentElement;
+    const body=document.body;
+    if(!html||!body)return;
+
+    if(locked){
+        if(body.classList.contains("admin-panel-page-locked"))return;
+        adminPanelPageScrollY=window.scrollY||window.pageYOffset||0;
+        html.classList.add("admin-panel-page-locked");
+        body.classList.add("admin-panel-page-locked");
+        body.style.top=`-${adminPanelPageScrollY}px`;
+    }else{
+        if(!body.classList.contains("admin-panel-page-locked"))return;
+        html.classList.remove("admin-panel-page-locked");
+        body.classList.remove("admin-panel-page-locked");
+        body.style.top="";
+        window.scrollTo(0,adminPanelPageScrollY);
+    }
+}
 
 window.updateAdminPanelAccessUI = function(){
     const button = document.getElementById("adminPanelButton");
@@ -23597,7 +23896,10 @@ window.renderGlobalChanceNotice = function(){
     }
 };
 
-function closeAdminPanel(){document.getElementById("adminPanelModal")?.classList.remove("show")}
+function closeAdminPanel(){
+    document.getElementById("adminPanelModal")?.classList.remove("show");
+    setAdminPanelPageLock(false);
+}
 
 async function openAdminPanel(){
     if(!adminPanelAccess){
@@ -23606,6 +23908,11 @@ async function openAdminPanel(){
     }
     const modal=document.getElementById("adminPanelModal");
     modal?.classList.add("show");
+    setAdminPanelPageLock(true);
+    if(modal){
+        const panel=modal.querySelector(".admin-panel-modal");
+        if(panel)panel.scrollTop=0;
+    }
     try{
         const data=await apiRequest({action:"admin_panel_get_state"});
         if(!data?.ok) throw new Error(data?.error||"Ошибка загрузки панели");
@@ -23626,6 +23933,7 @@ async function openAdminPanel(){
         updateUpgradeUI();
     }catch(error){
         showToast(error?.message||"Ошибка админ-панели","error");
+        closeAdminPanel();
     }
 }
 
@@ -23653,19 +23961,14 @@ function adminRenderTestStatus(data){
     const root=document.getElementById("adminTestStatus");
     if(!root)return;
     const enabled=Boolean(data?.test_enabled);
-    const sandboxLocked=Boolean(data?.sandbox_locked);
     const hasDeposited=Boolean(data?.has_deposited);
     const multiplier=Number(data?.test_upgrade_multiplier??1);
     adminTestAccountEnabled=enabled;
     adminTestAccountHasDeposited=hasDeposited;
-    adminTestSandboxLocked=sandboxLocked;
+    adminTestSandboxLocked=false;
     root.innerText = enabled
-      ? `🧪 TEST ВКЛЮЧЁН · скрытый ×${multiplier.toFixed(2)} · SANDBOX без пополнения/вывода`
-      : (sandboxLocked
-          ? `🧪 SANDBOX · скрытый шанс выключен · сохранён ×${multiplier.toFixed(2)} · пополнение/вывод остаются заблокированы`
-          : (hasDeposited
-              ? "⛔ Этот аккаунт уже пополнялся — включить TEST нельзя."
-              : `Обычный аккаунт · TEST выключен · множитель ×${multiplier.toFixed(2)}`));
+      ? `🧪 TEST ВКЛЮЧЁН · скрытый ×${multiplier.toFixed(2)} · никаких блокировок аккаунта`
+      : `${hasDeposited ? "Обычный пополнявшийся аккаунт" : "Обычный аккаунт"} · TEST выключен · множитель ×${multiplier.toFixed(2)}`;
 }
 async function adminLoadTestAccount(silent=false){
     const target=Number(document.getElementById("adminTestTargetId")?.value||0);
@@ -23684,10 +23987,11 @@ async function adminSetTestAccount(enabled){
     const multiplier=Number(document.getElementById("adminTestMultiplier")?.value||100)/100;
     const root=document.getElementById("adminTestStatus");
     if(!target){if(root)root.innerText="❌ Укажи Telegram ID";return}
+
     if(root)root.innerText="⏳ Сохраняем TEST...";
     const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:Boolean(enabled),multiplier});
     if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
-    adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:Boolean(data.sandbox_locked||adminTestSandboxLocked)});
+    adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:false});
     showToast(enabled?"🧪 TEST включён":"✅ TEST выключен","success");
 }
 async function adminSaveTestChance(){
@@ -23697,7 +24001,7 @@ async function adminSaveTestChance(){
     if(!target){if(root)root.innerText="❌ Укажи Telegram ID";return}
     const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:Boolean(adminTestAccountEnabled),multiplier});
     if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
-    adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:Boolean(data.sandbox_locked||adminTestSandboxLocked)});
+    adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:false});
     showToast(`⚡ TEST шанс ×${Number(data.test_upgrade_multiplier||1).toFixed(2)}`,"success");
 }
 async function adminApplyCoins(direction){
@@ -23770,6 +24074,11 @@ async function adminApplyChanceMultiplier(){
 }
 
 setTimeout(()=>{updateAdminPanelAccessUI();renderGlobalChanceNotice();adminRenderTestChanceMultiplier()},0);
+</script>
+
+
+<script id="brainroterx-deposit-trade-restore">
+window.addEventListener("load",()=>{ setTimeout(()=>{ if(typeof restoreActiveDepositTradeRequest==="function") restoreActiveDepositTradeRequest(); },1200); },{once:true});
 </script>
 
 </body>
