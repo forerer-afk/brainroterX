@@ -24719,8 +24719,49 @@ let activeWithdrawOutOfStockRequest = null;
 let withdrawOutOfStockReplacementCatalog = [];
 const withdrawOutOfStockSessionDismissed = new Set();
 
-// Старые вызовы из основной логики оставлены совместимыми, но localStorage больше не нужен:
-// серверный status=out_of_stock является источником истины и переживает перезаход/другое устройство.
+// Серверный status=out_of_stock остаётся источником истины,
+// но закрытие конкретного popup запоминаем между перезаходами,
+// чтобы одна и та же заявка не просила выбрать замену снова и снова.
+function withdrawOutOfStockDismissedStorageKey(){
+    const userId=Number(
+        playerProfile?.telegram_id
+        || tg?.initDataUnsafe?.user?.id
+        || 0
+    );
+    return `brainroterx_withdraw_oos_dismissed_v1_${userId>0?userId:"guest"}`;
+}
+function readWithdrawOutOfStockDismissed(){
+    try{
+        const parsed=JSON.parse(localStorage.getItem(withdrawOutOfStockDismissedStorageKey())||"[]");
+        return new Set(
+            (Array.isArray(parsed)?parsed:[])
+                .map(Number)
+                .filter(id=>Number.isInteger(id)&&id>0)
+        );
+    }catch(_){
+        return new Set();
+    }
+}
+function persistWithdrawOutOfStockDismissed(id){
+    const requestId=Number(id||0);
+    if(!Number.isInteger(requestId)||requestId<=0) return;
+    withdrawOutOfStockSessionDismissed.add(requestId);
+    try{
+        const ids=readWithdrawOutOfStockDismissed();
+        ids.add(requestId);
+        // Храним только последние ID, чтобы localStorage не рос бесконечно.
+        const compact=Array.from(ids).sort((a,b)=>b-a).slice(0,100);
+        localStorage.setItem(withdrawOutOfStockDismissedStorageKey(),JSON.stringify(compact));
+    }catch(_){ }
+}
+function isWithdrawOutOfStockDismissed(id){
+    const requestId=Number(id||0);
+    if(!Number.isInteger(requestId)||requestId<=0) return true;
+    return withdrawOutOfStockSessionDismissed.has(requestId)
+        || readWithdrawOutOfStockDismissed().has(requestId);
+}
+
+// Старые вызовы из основной логики оставлены совместимыми.
 function rememberPendingWithdrawRequestIds(){ }
 
 function withdrawOutOfStockItems(request){
@@ -24734,7 +24775,7 @@ function withdrawOutOfStockItems(request){
 }
 function closeWithdrawOutOfStockPopup(){
     const id=Number(activeWithdrawOutOfStockRequest?.id||0);
-    if(id>0) withdrawOutOfStockSessionDismissed.add(id);
+    if(id>0) persistWithdrawOutOfStockDismissed(id);
     document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
     activeWithdrawOutOfStockRequest=null;
 }
@@ -24877,7 +24918,7 @@ async function pollWithdrawOutOfStockNotifications(force=false){
         withdrawOutOfStockReplacementCatalog=Array.isArray(data.replacement_options)?data.replacement_options:[];
         const candidate=data.requests.find(req=>{
             const id=Number(req?.id||0);
-            return id>0 && !withdrawOutOfStockSessionDismissed.has(id);
+            return id>0 && !isWithdrawOutOfStockDismissed(id);
         });
         if(candidate){
             const activeId=Number(activeWithdrawOutOfStockRequest?.id||0);
