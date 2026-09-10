@@ -10102,6 +10102,14 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         </div>
 
         <button
+            id="adminPanelButton"
+            class="profile-admin-btn"
+            onclick="openAdminPanel()"
+        >
+            🛠 Админ-панель
+        </button>
+
+        <button
             class="profile-support-btn"
             onclick="openSupport()"
         >
@@ -23460,13 +23468,20 @@ body::after{
 
 <style id="brainroterx-admin-panel-style">
 #adminPanelButton{
-    display:none;position:fixed;z-index:430;right:12px;top:64px;
-    height:34px;padding:0 12px;border-radius:999px;color:#fff;
-    background:linear-gradient(135deg,#7c3aed,#4f46e5);
-    border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 22px rgba(0,0,0,.32);
-    font-size:9px;font-weight:1000;
+    display:none;
+    width:100%;
+    margin-top:9px;
+    padding:11px 12px;
+    border-radius:12px;
+    color:#fff;
+    background:linear-gradient(135deg,rgba(124,58,237,.92),rgba(79,70,229,.92));
+    border:1px solid rgba(167,139,250,.22);
+    box-shadow:0 7px 18px rgba(76,29,149,.18),inset 0 1px 0 rgba(255,255,255,.08);
+    font-family:"Manrope",sans-serif;
+    font-size:10px;
+    font-weight:1000;
 }
-#adminPanelButton.show{display:flex;align-items:center;justify-content:center;gap:5px}
+#adminPanelButton.show{display:flex;align-items:center;justify-content:center;gap:6px}
 .admin-panel-modal{max-width:500px!important;max-height:86dvh!important;padding:14px!important}
 .admin-panel-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:11px 0}
 .admin-panel-tab{padding:8px 3px;border-radius:9px;background:rgba(255,255,255,.045);color:#958da5;font-size:8px;font-weight:900}
@@ -23475,7 +23490,7 @@ body::after{
 .admin-box{padding:11px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-top:8px}
 .admin-box-title{font-size:11px;font-weight:1000;margin-bottom:7px}.admin-hint{color:#8e8799;font-size:8.5px;line-height:1.45}
 .admin-id-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}.admin-id-row input{min-width:0;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#0e0a16;color:#fff;font-size:12px}.admin-mini-btn{padding:8px 10px;border-radius:9px;background:#272033;color:#fff;font-size:8px}
-.admin-range{width:100%;margin:11px 0 5px}.admin-delta{font-size:18px;font-weight:1000;text-align:center}.admin-action-btn{width:100%;margin-top:8px;padding:11px;border-radius:11px;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);font-size:10px}.admin-action-btn.danger{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+.admin-range{width:100%;margin:11px 0 5px}.admin-delta{font-size:18px;font-weight:1000;text-align:center}.admin-coin-amount{width:100%;margin-top:8px;padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);outline:0;background:#0e0a16;color:#fff;font-size:14px;font-weight:900}.admin-coin-amount:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.12)}.admin-coin-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.admin-action-btn{width:100%;margin-top:8px;padding:11px;border-radius:11px;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);font-size:10px}.admin-coin-actions .admin-action-btn{margin-top:0}.admin-action-btn.add{background:linear-gradient(135deg,#22c55e,#15803d)}.admin-action-btn.danger{background:linear-gradient(135deg,#ef4444,#b91c1c)}
 .admin-brainrot-tools{display:flex;gap:6px;margin:7px 0}.admin-brainrot-search{width:100%;padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:#0d0a14;color:#fff;font-size:11px}
 .admin-brainrot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:48vh;overflow:auto;padding:2px}
 .admin-brainrot-card{min-width:0;padding:8px;border-radius:12px;background:#100c18;border:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:48px 1fr;gap:7px;align-items:center}.admin-brainrot-card img{width:48px;height:48px;object-fit:contain}.admin-brainrot-name{font-size:8.5px;font-weight:900;line-height:1.2;overflow-wrap:anywhere}.admin-brainrot-meta{color:#a39bad;font-size:8px;margin-top:3px}.admin-toggle-btn{width:100%;margin-top:6px;padding:7px 4px;border-radius:8px;font-size:8px;font-weight:1000}.admin-toggle-btn.on{background:rgba(34,197,94,.16);color:#86efac;border:1px solid rgba(34,197,94,.20)}.admin-toggle-btn.off{background:rgba(239,68,68,.14);color:#fca5a5;border:1px solid rgba(239,68,68,.20)}
@@ -23484,7 +23499,6 @@ body::after{
 @media(max-width:380px){.admin-panel-tabs{grid-template-columns:1fr 1fr}.admin-brainrot-grid{grid-template-columns:1fr}.admin-panel-modal{padding:11px!important}}
 </style>
 
-<button id="adminPanelButton" onclick="openAdminPanel()">🛠 Админ</button>
 <div id="adminPanelModal" class="overlay" onclick="if(event.target===this)closeAdminPanel()">
   <div class="modal admin-panel-modal">
     <div class="modal-header"><div class="modal-title">🛠 Админ-панель</div><button class="close" onclick="closeAdminPanel()">✕</button></div>
@@ -23500,9 +23514,11 @@ body::after{
         <div class="admin-box-title">Изменить баланс игрока</div>
         <div class="admin-hint">Укажи Telegram ID. Плюс выдаёт X, минус снимает X. Сервер не даст балансу уйти ниже нуля.</div>
         <div class="admin-id-row"><input id="adminCoinTargetId" inputmode="numeric" placeholder="Telegram ID"><button class="admin-mini-btn" onclick="adminUseMyId()">Мой ID</button></div>
-        <input id="adminCoinDelta" class="admin-range" type="range" min="-1000" max="1000" step="10" value="100" oninput="adminRenderCoinDelta()">
-        <div id="adminCoinDeltaText" class="admin-delta">+100 X</div>
-        <button class="admin-action-btn" onclick="adminApplyCoins()">ПРИМЕНИТЬ</button>
+        <input id="adminCoinAmount" class="admin-coin-amount" type="number" inputmode="numeric" min="1" step="1" value="100" placeholder="Количество X">
+        <div class="admin-coin-actions">
+          <button class="admin-action-btn add" onclick="adminApplyCoins(1)">+ ДОБАВИТЬ X</button>
+          <button class="admin-action-btn danger" onclick="adminApplyCoins(-1)">− УБРАТЬ X</button>
+        </div>
         <div id="adminCoinResult" class="result"></div>
       </div>
     </div>
@@ -23523,11 +23539,30 @@ body::after{
 
     <div id="adminSectionChance" class="admin-panel-section">
       <div class="admin-box">
+        <div class="admin-box-title">🧪 Скрытый шанс TEST-аккаунта</div>
+        <div class="admin-hint">Работает только для отдельного SANDBOX-аккаунта. На игровом экране изменённый коэффициент не показывается. TEST нельзя включить аккаунту, который уже пополнялся. После первого включения аккаунт навсегда остаётся SANDBOX: пополнение и вывод для него сервером заблокированы даже после выключения скрытого шанса.</div>
+        <div class="admin-id-row">
+          <input id="adminTestTargetId" inputmode="numeric" placeholder="Telegram ID тестового аккаунта">
+          <button class="admin-mini-btn" onclick="adminUseMyTestId();adminLoadTestAccount()">Мой ID</button>
+        </div>
+        <button class="admin-action-btn" onclick="adminLoadTestAccount()">ЗАГРУЗИТЬ TEST</button>
+        <div id="adminTestStatus" class="result">Укажи ID и нажми «Загрузить TEST».</div>
+        <div class="admin-hint" style="margin-top:9px">×1.00 = обычный шанс · меньше 1 = Unluck · больше 1 = Luck · ×0 = 0% реального выигрыша. Максимальный итоговый шанс всё равно 70%.</div>
+        <input id="adminTestMultiplier" class="admin-range" type="range" min="0" max="500" step="5" value="100" oninput="adminRenderTestChanceMultiplier()">
+        <div id="adminTestMultiplierText" class="admin-delta">×1.00</div>
+        <div class="admin-coin-actions">
+          <button class="admin-action-btn add" onclick="adminSetTestAccount(true)">ВКЛЮЧИТЬ TEST</button>
+          <button class="admin-action-btn danger" onclick="adminSetTestAccount(false)">ВЫКЛЮЧИТЬ TEST</button>
+        </div>
+        <button class="admin-action-btn" onclick="adminSaveTestChance()">СОХРАНИТЬ СКРЫТЫЙ ШАНС</button>
+      </div>
+
+      <div class="admin-box">
         <div class="admin-box-title">Глобальный шанс апгрейдера</div>
-        <div class="admin-hint">Это НЕ скрытая персональная подкрутка: множитель применяется ко всем игрокам и отображается игрокам. Диапазон ×0.50–×1.50, итоговый шанс всё равно не выше 70%.</div>
+        <div class="admin-hint">Обычный глобальный множитель остаётся отдельным: он применяется ко всем и отображается игрокам. Диапазон ×0.50–×1.50.</div>
         <input id="adminChanceMultiplier" class="admin-range" type="range" min="50" max="150" step="5" value="100" oninput="adminRenderChanceMultiplier()">
         <div id="adminChanceMultiplierText" class="admin-delta">×1.00</div>
-        <button class="admin-action-btn" onclick="adminApplyChanceMultiplier()">СОХРАНИТЬ</button>
+        <button class="admin-action-btn" onclick="adminApplyChanceMultiplier()">СОХРАНИТЬ ГЛОБАЛЬНЫЙ</button>
         <div id="adminChanceResult" class="result"></div>
       </div>
     </div>
@@ -23536,6 +23571,9 @@ body::after{
 
 <script id="brainroterx-admin-panel-script">
 let adminPanelServerState = null;
+let adminTestAccountEnabled = false;
+let adminTestAccountHasDeposited = false;
+let adminTestSandboxLocked = false;
 
 window.updateAdminPanelAccessUI = function(){
     const button = document.getElementById("adminPanelButton");
@@ -23579,6 +23617,7 @@ async function openAdminPanel(){
         document.getElementById("adminChanceMultiplier").value=String(Math.round(globalUpgradeChanceMultiplier*100));
         adminRenderChanceMultiplier();
         adminUseMyId();
+        adminUseMyTestId();
         adminRenderBrainrots("deposit");
         adminRenderBrainrots("withdraw");
         renderDepositGrid();
@@ -23594,22 +23633,79 @@ function setAdminPanelTab(tab){
     document.querySelectorAll(".admin-panel-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.adminTab===tab));
     ["coins","deposit","withdraw","chance"].forEach(name=>document.getElementById("adminSection"+name[0].toUpperCase()+name.slice(1))?.classList.toggle("active",name===tab));
     if(tab==="deposit"||tab==="withdraw") adminRenderBrainrots(tab);
+    if(tab==="chance") adminLoadTestAccount(true);
 }
 
 function adminUseMyId(){
     const input=document.getElementById("adminCoinTargetId");
     if(input) input.value=String(playerProfile?.telegram_id||"");
 }
-function adminRenderCoinDelta(){
-    const value=Number(document.getElementById("adminCoinDelta")?.value||0);
-    const root=document.getElementById("adminCoinDeltaText");
-    if(root) root.innerText=`${value>=0?"+":""}${value} X`;
+function adminUseMyTestId(){
+    const input=document.getElementById("adminTestTargetId");
+    if(input && !input.value) input.value=String(playerProfile?.telegram_id||"");
 }
-async function adminApplyCoins(){
+function adminRenderTestChanceMultiplier(){
+    const value=Number(document.getElementById("adminTestMultiplier")?.value||100)/100;
+    const root=document.getElementById("adminTestMultiplierText");
+    if(root) root.innerText=`×${value.toFixed(2)}`;
+}
+function adminRenderTestStatus(data){
+    const root=document.getElementById("adminTestStatus");
+    if(!root)return;
+    const enabled=Boolean(data?.test_enabled);
+    const sandboxLocked=Boolean(data?.sandbox_locked);
+    const hasDeposited=Boolean(data?.has_deposited);
+    const multiplier=Number(data?.test_upgrade_multiplier??1);
+    adminTestAccountEnabled=enabled;
+    adminTestAccountHasDeposited=hasDeposited;
+    adminTestSandboxLocked=sandboxLocked;
+    root.innerText = enabled
+      ? `🧪 TEST ВКЛЮЧЁН · скрытый ×${multiplier.toFixed(2)} · SANDBOX без пополнения/вывода`
+      : (sandboxLocked
+          ? `🧪 SANDBOX · скрытый шанс выключен · сохранён ×${multiplier.toFixed(2)} · пополнение/вывод остаются заблокированы`
+          : (hasDeposited
+              ? "⛔ Этот аккаунт уже пополнялся — включить TEST нельзя."
+              : `Обычный аккаунт · TEST выключен · множитель ×${multiplier.toFixed(2)}`));
+}
+async function adminLoadTestAccount(silent=false){
+    const target=Number(document.getElementById("adminTestTargetId")?.value||0);
+    const root=document.getElementById("adminTestStatus");
+    if(!target){if(!silent&&root)root.innerText="❌ Укажи Telegram ID";return}
+    if(root&&!silent)root.innerText="⏳ Загружаем...";
+    const data=await apiRequest({action:"admin_panel_get_test_account",target_telegram_id:target});
+    if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
+    const range=document.getElementById("adminTestMultiplier");
+    if(range) range.value=String(Math.round(Number(data.test_upgrade_multiplier??1)*100));
+    adminRenderTestChanceMultiplier();
+    adminRenderTestStatus(data);
+}
+async function adminSetTestAccount(enabled){
+    const target=Number(document.getElementById("adminTestTargetId")?.value||0);
+    const multiplier=Number(document.getElementById("adminTestMultiplier")?.value||100)/100;
+    const root=document.getElementById("adminTestStatus");
+    if(!target){if(root)root.innerText="❌ Укажи Telegram ID";return}
+    if(root)root.innerText="⏳ Сохраняем TEST...";
+    const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:Boolean(enabled),multiplier});
+    if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
+    adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:Boolean(data.sandbox_locked||adminTestSandboxLocked)});
+    showToast(enabled?"🧪 TEST включён":"✅ TEST выключен","success");
+}
+async function adminSaveTestChance(){
+    const target=Number(document.getElementById("adminTestTargetId")?.value||0);
+    const multiplier=Number(document.getElementById("adminTestMultiplier")?.value||100)/100;
+    const root=document.getElementById("adminTestStatus");
+    if(!target){if(root)root.innerText="❌ Укажи Telegram ID";return}
+    const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:Boolean(adminTestAccountEnabled),multiplier});
+    if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
+    adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:Boolean(data.sandbox_locked||adminTestSandboxLocked)});
+    showToast(`⚡ TEST шанс ×${Number(data.test_upgrade_multiplier||1).toFixed(2)}`,"success");
+}
+async function adminApplyCoins(direction){
     const target=Number(document.getElementById("adminCoinTargetId")?.value||0);
-    const delta=Number(document.getElementById("adminCoinDelta")?.value||0);
+    const amount=Math.floor(Number(document.getElementById("adminCoinAmount")?.value||0));
     const result=document.getElementById("adminCoinResult");
-    if(!target||!Number.isFinite(delta)||delta===0){if(result)result.innerText="❌ Укажи ID и ненулевое изменение";return}
+    if(!target||!Number.isFinite(amount)||amount<=0){if(result)result.innerText="❌ Укажи Telegram ID и количество X больше 0";return}
+    const delta=amount*(Number(direction)<0?-1:1);
     if(result)result.innerText="⏳ Сохраняем...";
     const data=await apiRequest({action:"admin_panel_adjust_coins",target_telegram_id:target,delta:delta});
     if(!data?.ok){if(result)result.innerText="❌ "+(data?.error||"Ошибка");return}
@@ -23673,8 +23769,7 @@ async function adminApplyChanceMultiplier(){
     renderGlobalChanceNotice();updateUpgradeUI();
 }
 
-adminRenderCoinDelta();
-setTimeout(()=>{updateAdminPanelAccessUI();renderGlobalChanceNotice()},0);
+setTimeout(()=>{updateAdminPanelAccessUI();renderGlobalChanceNotice();adminRenderTestChanceMultiplier()},0);
 </script>
 
 </body>

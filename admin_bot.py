@@ -201,7 +201,7 @@ async def start_command(
         "/luck- TELEGRAM_ID\n\n"
         "🛠 Админ-панель Mini App:\n"
         "/admin ID — выдать доступ\n"
-        "/adminoff ID — забрать доступ\n"
+        "/admin- [ID] — отключить админ-панель\n"
         "Можно также написать: админ ID\n\n"
         "👥 Делегированные промо:\n"
         "/promoadd ID КОЛ-ВО — выдать/добавить лимит\n"
@@ -627,7 +627,7 @@ def commands_text():
         "/luck+ TELEGRAM_ID — включить LUCK\n"
         "/luck- TELEGRAM_ID — выключить LUCK\n\n"
         "/admin ID — выдать кнопку админ-панели\n"
-        "/adminoff ID — забрать кнопку админ-панели\n"
+        "/admin- [ID] — отключить админ-панель\n"
         "Также работает: админ ID / админ- ID\n"
         "/menu — открыть это меню"
     )
@@ -1913,14 +1913,20 @@ async def admin_panel_revoke_command(update: Update, context: ContextTypes.DEFAU
             await update.message.reply_text("❌ Нет доступа")
         return
 
-    if not context.args:
-        await update.message.reply_text("Использование: /adminoff TELEGRAM_ID\nИли: админ- TELEGRAM_ID")
-        return
-    try:
-        target_id = int(context.args[0])
-    except Exception:
-        await update.message.reply_text("Неверный Telegram ID")
-        return
+    args = list(context.args or [])
+    if not args and update.message and update.message.text:
+        raw = update.message.text.strip()
+        parts = raw.split()
+        if len(parts) > 1:
+            args = parts[1:]
+
+    target_id = ADMIN_TELEGRAM_ID
+    if args:
+        try:
+            target_id = int(args[0])
+        except Exception:
+            await update.message.reply_text("Неверный Telegram ID")
+            return
 
     result = call_server(
         "admin_set_panel_access",
@@ -1939,11 +1945,11 @@ async def admin_panel_text_router(update: Update, context: ContextTypes.DEFAULT_
         return
     text = update.message.text.strip()
     parts = text.split()
-    command = parts[0].lower()
+    command = parts[0].lower().split("@", 1)[0]
     context.args = parts[1:]
-    if command in ("админ", "admin"):
+    if command in ("админ", "admin", "/admin"):
         await admin_panel_grant_command(update, context)
-    elif command in ("админ-", "adminoff"):
+    elif command in ("админ-", "adminoff", "/admin-", "/adminoff"):
         await admin_panel_revoke_command(update, context)
 
 
@@ -2030,6 +2036,15 @@ def main():
     app.add_handler(CommandHandler("promotake", promotake_command))
     app.add_handler(CommandHandler("promoblock", promoblock_command))
     app.add_handler(CommandHandler("promoinfo", promoinfo_command))
+
+    # Telegram BotCommand names cannot contain '-', so /admin- is handled as text.
+    # Put it before /admin in the same group so it cannot be mistaken for /admin.
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(r"^/admin-(?:@[A-Za-z0-9_]+)?(?:\s+\d+)?\s*$"),
+            admin_panel_text_router,
+        )
+    )
     app.add_handler(CommandHandler("admin", admin_panel_grant_command))
     app.add_handler(CommandHandler("adminoff", admin_panel_revoke_command))
 
@@ -2063,7 +2078,7 @@ def main():
 
     app.add_handler(
         MessageHandler(
-            filters.TEXT & filters.Regex(r"^(?:админ|admin|админ-|adminoff)(?:\s+\d+)?\s*$"),
+            filters.TEXT & filters.Regex(r"^(?:админ|admin|админ-|adminoff|/adminoff)(?:\s+\d+)?\s*$"),
             admin_panel_text_router
         )
     )
