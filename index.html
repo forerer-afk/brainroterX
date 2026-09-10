@@ -9042,6 +9042,29 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 .deposit-approved-note{margin-top:7px;font-size:9px;font-weight:800;color:#9bc7ad;}
 </style>
 
+
+<style id="brainroterx-test-feed-badge-fix">
+.big-win-test-badge{
+    position:absolute;
+    z-index:7;
+    top:5px;
+    left:5px;
+    padding:2px 5px;
+    border-radius:999px;
+    border:1px solid rgba(245,158,11,.45);
+    background:rgba(18,12,6,.88);
+    color:#fbbf24;
+    font-size:6px;
+    line-height:1.2;
+    font-weight:1000;
+    letter-spacing:.45px;
+    pointer-events:none;
+}
+.big-win-item.big-win-test{
+    outline:1px solid rgba(245,158,11,.18);
+}
+</style>
+
 </head>
 
 <body>
@@ -13455,6 +13478,7 @@ function feedCaseSourceVisual(sourceLabel){
 function feedSourceInfo(item){
     const source=String(item?.source||"").trim().toLowerCase();
     const sourceLabel=String(item?.source_label||"").trim();
+    if(source === "upgrade_test") return {icon:"🧪",title:"АПГРЕЙДЕР · TEST",detail:"Тестовый апгрейд с изменённым шансом",color:"#f59e0b"};
     if(source === "upgrade") return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд",color:"#a855f7"};
     if(source === "daily") return {icon:"🎁",title:"ЕЖЕДНЕВНЫЙ КЕЙС",detail:"Brainrot выпал из бесплатного кейса",color:"#22c55e"};
     if(source === "case"){
@@ -13523,6 +13547,8 @@ function renderBigWins(animateIds = new Set()){
         card.type="button";
         const itemId=String(item.id ?? "");
         card.className="big-win-item";
+        const isTestFeedDrop=String(item?.source||"").trim().toLowerCase()==="upgrade_test";
+        if(isTestFeedDrop) card.classList.add("big-win-test");
         if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
         if(animateIds.has(itemId)) card.classList.add("big-win-new");
         card.title=String(item.brainrot_name||"");
@@ -13555,6 +13581,12 @@ function renderBigWins(animateIds = new Set()){
         img.src=getImage(item.brainrot_name);
         img.alt="";
         card.appendChild(img);
+        if(isTestFeedDrop){
+            const testBadge=document.createElement("div");
+            testBadge.className="big-win-test-badge";
+            testBadge.textContent="TEST";
+            card.appendChild(testBadge);
+        }
         const meta=document.createElement("div");
         meta.className="big-win-meta";
         const avatar=String(item.player_photo_url||"").trim();
@@ -18872,6 +18904,38 @@ async function upgradeItem(){
             inventory.unshift(
                 data.item
             );
+
+            const returnedBestDrop =
+                data.best_drop
+                || null;
+
+            if(
+                returnedBestDrop
+                &&
+                returnedBestDrop.brainrot_name
+            ){
+                playerProfile.best_drop =
+                    returnedBestDrop;
+            }
+            else if(
+                data.item
+                &&
+                Number(data.item.value || 0)
+                >
+                Number(playerProfile.best_drop?.value || 0)
+            ){
+                // Fallback for compatibility during rolling deploys.
+                playerProfile.best_drop = {
+                    brainrot_id:
+                        data.item.brainrot_id,
+                    brainrot_name:
+                        data.item.brainrot_name,
+                    value:
+                        Number(data.item.value || 0),
+                    source:
+                        "upgrade"
+                };
+            }
 
             result.innerText = "";
 
