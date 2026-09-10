@@ -9110,6 +9110,114 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 
 
 
+
+<style id="brainroterx-multi-case-roulette-style">
+/* ×3 / ×5: все рулетки крутятся одновременно, без последовательной задержки. */
+.roulette-container.multi-roulette-active{
+    height:auto !important;
+    min-height:155px;
+    transition:min-height .18s ease;
+}
+.roulette-container.multi-roulette-active > .roulette-pointer,
+.roulette-container.multi-roulette-active > .roulette-line,
+.roulette-container.multi-roulette-active > #rouletteTrack{
+    visibility:hidden !important;
+}
+.multi-roulette-wrap{
+    position:relative;
+    z-index:18;
+    width:100%;
+    padding:9px 0;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    overflow:hidden;
+}
+.multi-roulette-wrap::after{
+    content:"";
+    position:absolute;
+    z-index:30;
+    left:50%;
+    top:5px;
+    bottom:5px;
+    width:2px;
+    transform:translateX(-50%);
+    border-radius:3px;
+    background:linear-gradient(180deg,var(--brx-lime,#c6ff4d),var(--brx-magenta,#ff3f8f));
+    box-shadow:0 0 8px rgba(198,255,77,.35);
+    pointer-events:none;
+}
+.multi-roulette-lane{
+    position:relative;
+    height:54px;
+    overflow:hidden;
+    border-top:1px solid rgba(255,255,255,.035);
+    border-bottom:1px solid rgba(255,255,255,.035);
+    background:rgba(5,3,12,.28);
+}
+.multi-roulette-track{
+    position:absolute;
+    left:0;
+    top:0;
+    height:54px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding-left:8px;
+    will-change:transform;
+}
+.multi-roulette-item{
+    flex:0 0 70px;
+    width:70px;
+    height:46px;
+    padding:3px 4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    border-radius:9px;
+    overflow:hidden;
+    background:linear-gradient(150deg,#1c1436,#0f0a1e);
+    border:1px solid rgba(255,255,255,.08);
+    transform:scale(.96);
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.multi-roulette-item img{
+    width:34px;
+    height:34px;
+    object-fit:contain;
+    flex:0 0 auto;
+}
+.multi-roulette-item .roulette-name{
+    min-width:0;
+    font-size:7px;
+    line-height:1.05;
+    white-space:normal;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    text-align:left;
+}
+.multi-roulette-item .xcoin{
+    font-size:23px !important;
+    margin:0 !important;
+    flex:0 0 auto;
+}
+.multi-roulette-item.winner-pop{
+    transform:scale(1.08);
+    border-color:rgba(198,255,77,.72);
+    box-shadow:0 0 14px rgba(198,255,77,.22), inset 0 0 12px rgba(255,63,143,.08);
+}
+@media (max-width:430px){
+    .multi-roulette-wrap{gap:4px;padding:7px 0}
+    .multi-roulette-lane,.multi-roulette-track{height:49px}
+    .multi-roulette-item{height:41px;flex-basis:64px;width:64px}
+    .multi-roulette-item img{width:30px;height:30px}
+    .multi-roulette-item .roulette-name{font-size:6.5px}
+}
+</style>
+
 </head>
 
 <body>
@@ -15266,6 +15374,92 @@ async function animateCase(
 }
 
 
+async function animateMultiCases(winners, baseTime = 1300){
+    const container = document.getElementById("rouletteContainer");
+    const mainTrack = document.getElementById("rouletteTrack");
+    const items = getCaseItems();
+    const list = Array.isArray(winners) ? winners.filter(Boolean) : [];
+
+    if(!container || !mainTrack || !items.length || list.length < 2){
+        return;
+    }
+
+    container.querySelector(".multi-roulette-wrap")?.remove();
+    container.classList.add("multi-roulette-active");
+
+    const wrap = document.createElement("div");
+    wrap.className = "multi-roulette-wrap";
+    container.appendChild(wrap);
+
+    const lanes = [];
+    const winnerIndex = 22;
+
+    list.slice(0, 5).forEach((winner, laneIndex) => {
+        const lane = document.createElement("div");
+        lane.className = "multi-roulette-lane";
+
+        const track = document.createElement("div");
+        track.className = "multi-roulette-track";
+        lane.appendChild(track);
+        wrap.appendChild(lane);
+
+        let winnerElement = null;
+
+        for(let i = 0; i < 28; i++){
+            let item;
+            if(i === winnerIndex){
+                item = {
+                    brainrot_name: winner.brainrot_name,
+                    reward_type: winner.reward_type,
+                    reward_amount: winner.reward_amount,
+                    value: winner.value
+                };
+            }else{
+                item = items[Math.floor(Math.random() * items.length)];
+            }
+
+            const card = rouletteCard(item);
+            card.className = "multi-roulette-item";
+            if(i === winnerIndex) winnerElement = card;
+            track.appendChild(card);
+        }
+
+        lanes.push({lane, track, winnerElement, laneIndex});
+    });
+
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+    const normalTime = Math.max(250, Number(baseTime) / Math.max(1, Number(caseSpeed || 1)));
+    let maxTime = normalTime;
+
+    lanes.forEach(({lane, track, winnerElement, laneIndex}) => {
+        if(!winnerElement) return;
+
+        const center = lane.clientWidth / 2;
+        const winnerCenter = winnerElement.offsetLeft + winnerElement.offsetWidth / 2;
+        const jitter = randomBetween(-7, 7);
+        const x = center - winnerCenter + jitter;
+        const laneTime = Math.max(220, normalTime + laneIndex * 24);
+        maxTime = Math.max(maxTime, laneTime);
+
+        track.style.transition = `transform ${laneTime}ms cubic-bezier(.06,.72,.13,1)`;
+        track.style.transform = `translateX(${x}px)`;
+    });
+
+    const completed = await waitCaseAnimation(maxTime + 55);
+
+    if(completed){
+        lanes.forEach(({winnerElement}) => winnerElement?.classList.add("winner-pop"));
+        playSound(caseDropSound);
+        await waitCaseAnimation(150);
+    }
+
+    wrap.remove();
+    container.classList.remove("multi-roulette-active");
+    createIdleRoulette();
+}
+
+
 function renderRecentCaseWinners(){
     const result = document.getElementById("caseResult");
     const quick = document.getElementById("quickSellArea");
@@ -16229,6 +16423,15 @@ async function openSelectedCase(){
             /* Fallback for older server response during a rolling deploy. */
             if(!displayWinners.length && addedItems.length){
                 displayWinners.push(...addedItems);
+            }
+
+            /*
+              ×3/×5: один быстрый batch-запрос, но визуально каждая
+              награда крутится в своей дорожке ОДНОВРЕМЕННО.
+              Никакой очереди из 3/5 рулеток больше нет.
+            */
+            if(displayWinners.length > 1){
+                await animateMultiCases(displayWinners, 1300);
             }
 
             updateBalance();
