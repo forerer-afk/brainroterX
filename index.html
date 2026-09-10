@@ -13478,7 +13478,8 @@ function feedCaseSourceVisual(sourceLabel){
 function feedSourceInfo(item){
     const source=String(item?.source||"").trim().toLowerCase();
     const sourceLabel=String(item?.source_label||"").trim();
-    if(source === "upgrade_test") return {icon:"🧪",title:"АПГРЕЙДЕР · TEST",detail:"Тестовый апгрейд с изменённым шансом",color:"#f59e0b"};
+    const isTestUpgrade = source === "upgrade_test" || (source === "upgrade" && /test/i.test(sourceLabel));
+    if(isTestUpgrade) return {icon:"🧪",title:"АПГРЕЙДЕР · TEST",detail:"Тестовый апгрейд с изменённым шансом",color:"#f59e0b"};
     if(source === "upgrade") return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд",color:"#a855f7"};
     if(source === "daily") return {icon:"🎁",title:"ЕЖЕДНЕВНЫЙ КЕЙС",detail:"Brainrot выпал из бесплатного кейса",color:"#22c55e"};
     if(source === "case"){
@@ -13547,7 +13548,7 @@ function renderBigWins(animateIds = new Set()){
         card.type="button";
         const itemId=String(item.id ?? "");
         card.className="big-win-item";
-        const isTestFeedDrop=String(item?.source||"").trim().toLowerCase()==="upgrade_test";
+        const isTestFeedDrop=String(item?.source||"").trim().toLowerCase()==="upgrade_test" || /test/i.test(String(item?.source_label||""));
         if(isTestFeedDrop) card.classList.add("big-win-test");
         if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
         if(animateIds.has(itemId)) card.classList.add("big-win-new");
@@ -20924,9 +20925,46 @@ function startDepositTradeTracking(data, items, openModal=true){
 
 async function restoreActiveDepositTradeRequest(){
     try{
-        const data = await apiRequest({action:"get_balance_request_trade_status"});
-        if(!data?.ok || !data.active || !data.request_id) return;
-        startDepositTradeTracking(data, Array.isArray(data.items) ? data.items : [], false);
+        let storedRequestId = 0;
+        try{
+            storedRequestId = Number(localStorage.getItem("brainroterx_active_deposit_request") || 0);
+        }catch(_){ }
+
+        // Сначала восстанавливаем именно ту заявку, которая была активна до закрытия Mini App.
+        let data = await apiRequest({
+            action:"get_balance_request_trade_status",
+            ...(storedRequestId > 0 ? {request_id:storedRequestId} : {})
+        });
+
+        // Если локальный ID устарел/очищен — ищем текущую pending-заявку игрока на сервере.
+        if((!data?.ok || !data?.request_id) && storedRequestId > 0){
+            data = await apiRequest({action:"get_balance_request_trade_status"});
+        }
+
+        if(!data?.ok || !data?.request_id){
+            try{ localStorage.removeItem("brainroterx_active_deposit_request"); }catch(_){ }
+            return;
+        }
+
+        const restored = {
+            request_id:Number(data.request_id),
+            created_at:data.created_at || new Date().toISOString(),
+            trade_bot_username:data.trade_bot_username || null,
+            status:data.status || "pending",
+            total_value:Number(data.total_value || 0),
+            referral_bonus:Number(data.referral_bonus || 0),
+            credited_value:Number(data.credited_value || data.total_value || 0),
+            items:Array.isArray(data.items) ? data.items : []
+        };
+
+        if(data.status === "pending" && data.active){
+            startDepositTradeTracking(restored, restored.items, false);
+            return;
+        }
+
+        // Если заявку обработали, пока Mini App был закрыт, покажем результат при возвращении.
+        activeDepositTradeRequest = restored;
+        stopDepositTradeTracking(data.status || "rejected", Boolean(data.expired));
     }catch(_){ }
 }
 
@@ -23407,6 +23445,11 @@ function sleep(
 ===================================================== */
 
 loadPlayer()
+    .then(async () => {
+        if(typeof restoreActiveDepositTradeRequest === "function"){
+            await restoreActiveDepositTradeRequest();
+        }
+    })
     .finally(
         () => {
             const loader =
@@ -24220,7 +24263,15 @@ setTimeout(()=>{updateAdminPanelAccessUI();renderGlobalChanceNotice();adminRende
 
 
 <script id="brainroterx-deposit-trade-restore">
-window.addEventListener("load",()=>{ setTimeout(()=>{ if(typeof restoreActiveDepositTradeRequest==="function") restoreActiveDepositTradeRequest(); },1200); },{once:true});
+// Telegram WebView может замораживать страницу вместо полной перезагрузки.
+// При возвращении ещё раз проверяем сервер, если локально активной заявки нет.
+const restoreDepositTradeOnReturn = () => {
+    if(!activeDepositTradeRequest && typeof restoreActiveDepositTradeRequest === "function"){
+        restoreActiveDepositTradeRequest();
+    }
+};
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) restoreDepositTradeOnReturn(); });
+window.addEventListener("focus",restoreDepositTradeOnReturn);
 </script>
 
 </body>
