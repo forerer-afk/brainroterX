@@ -199,6 +199,10 @@ async def start_command(
         "/luck+ TELEGRAM_ID\n\n"
         "🍀 Выключить повышенный шанс:\n"
         "/luck- TELEGRAM_ID\n\n"
+        "🛠 Админ-панель Mini App:\n"
+        "/admin ID — выдать доступ\n"
+        "/adminoff ID — забрать доступ\n"
+        "Можно также написать: админ ID\n\n"
         "👥 Делегированные промо:\n"
         "/promoadd ID КОЛ-ВО — выдать/добавить лимит\n"
         "/promotake ID КОЛ-ВО — убрать лимит\n"
@@ -621,7 +625,10 @@ def commands_text():
         "/mem+ TELEGRAM_ID — включить MEM\n"
         "/mem- TELEGRAM_ID — выключить MEM\n"
         "/luck+ TELEGRAM_ID — включить LUCK\n"
-        "/luck- TELEGRAM_ID — выключить LUCK\n"
+        "/luck- TELEGRAM_ID — выключить LUCK\n\n"
+        "/admin ID — выдать кнопку админ-панели\n"
+        "/adminoff ID — забрать кнопку админ-панели\n"
+        "Также работает: админ ID / админ- ID\n"
         "/menu — открыть это меню"
     )
 
@@ -1866,6 +1873,80 @@ async def promo_delegate_text_router(update: Update, context: ContextTypes.DEFAU
         await promo_command(update, context)
 
 
+
+# =====================================================
+# MINI APP ADMIN PANEL ACCESS
+# =====================================================
+
+async def admin_panel_grant_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update):
+        if update.message:
+            await update.message.reply_text("❌ Нет доступа")
+        return
+
+    target_id = ADMIN_TELEGRAM_ID
+    if context.args:
+        try:
+            target_id = int(context.args[0])
+        except Exception:
+            await update.message.reply_text("Использование: /admin TELEGRAM_ID\nИли: админ TELEGRAM_ID")
+            return
+
+    result = call_server(
+        "admin_set_panel_access",
+        target_telegram_id=target_id,
+        enabled=True,
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + str(result.get("error", "Ошибка")))
+        return
+
+    await update.message.reply_text(
+        f"✅ Админ-панель выдана ID {target_id}.\n"
+        "Пусть пользователь заново откроет Mini App — появится кнопка «🛠 Админ»."
+    )
+
+
+async def admin_panel_revoke_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update):
+        if update.message:
+            await update.message.reply_text("❌ Нет доступа")
+        return
+
+    if not context.args:
+        await update.message.reply_text("Использование: /adminoff TELEGRAM_ID\nИли: админ- TELEGRAM_ID")
+        return
+    try:
+        target_id = int(context.args[0])
+    except Exception:
+        await update.message.reply_text("Неверный Telegram ID")
+        return
+
+    result = call_server(
+        "admin_set_panel_access",
+        target_telegram_id=target_id,
+        enabled=False,
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + str(result.get("error", "Ошибка")))
+        return
+
+    await update.message.reply_text(f"⛔ Админ-панель отключена для ID {target_id}.")
+
+
+async def admin_panel_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.message or not update.message.text:
+        return
+    text = update.message.text.strip()
+    parts = text.split()
+    command = parts[0].lower()
+    context.args = parts[1:]
+    if command in ("админ", "admin"):
+        await admin_panel_grant_command(update, context)
+    elif command in ("админ-", "adminoff"):
+        await admin_panel_revoke_command(update, context)
+
+
 # =====================================================
 # STARTUP / POLLING DIAGNOSTICS
 # =====================================================
@@ -1949,6 +2030,8 @@ def main():
     app.add_handler(CommandHandler("promotake", promotake_command))
     app.add_handler(CommandHandler("promoblock", promoblock_command))
     app.add_handler(CommandHandler("promoinfo", promoinfo_command))
+    app.add_handler(CommandHandler("admin", admin_panel_grant_command))
+    app.add_handler(CommandHandler("adminoff", admin_panel_revoke_command))
 
     # Fallback для делегированных пользователей. Он стоит ПОСЛЕ CommandHandler в той же группе,
     # поэтому не дублирует нормальные ответы, а ловит только текст команды без bot_command entity.
@@ -1977,6 +2060,13 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r"^/g\+(@[A-Za-z0-9_]+)?\s*$"), g_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b-(@[A-Za-z0-9_]+)?\s*$"), b_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b\+(@[A-Za-z0-9_]+)?\s*$"), b_plus_command))
+
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(r"^(?:админ|admin|админ-|adminoff)(?:\s+\d+)?\s*$"),
+            admin_panel_text_router
+        )
+    )
 
     app.add_handler(
         MessageHandler(

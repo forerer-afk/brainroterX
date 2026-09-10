@@ -9640,6 +9640,8 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 
         </div>
 
+        <div id="globalChanceNotice" class="global-chance-notice" style="display:none"></div>
+
         <div class="upgrade-wheel-wrap">
 
             <div
@@ -11814,6 +11816,14 @@ let depositEnabled = true;
 let uahDepositEnabled = true;
 let brainrotDepositEnabled = true;
 
+/* ADMIN PANEL / LIVE AVAILABILITY */
+let adminPanelAccess = false;
+let adminAvailabilityLoaded = false;
+let adminDepositEnabledIds = new Set();
+let adminWithdrawInStockIds = new Set();
+let globalUpgradeChanceMultiplier = 1;
+
+
 const GEARS_DEPOSIT_ITEMS = [
     {
         id: "wave-rider",
@@ -12502,6 +12512,36 @@ async function loadPlayer(){
 
         brainrotDepositEnabled =
             data.brainrot_deposit_enabled !== false;
+
+        adminPanelAccess =
+            Boolean(data.can_admin_panel);
+
+        if(Array.isArray(data.deposit_brainrot_enabled_ids)){
+            adminDepositEnabledIds = new Set(
+                data.deposit_brainrot_enabled_ids.map(Number)
+            );
+            adminAvailabilityLoaded = true;
+        }
+
+        if(Array.isArray(data.withdraw_brainrot_in_stock_ids)){
+            adminWithdrawInStockIds = new Set(
+                data.withdraw_brainrot_in_stock_ids.map(Number)
+            );
+            adminAvailabilityLoaded = true;
+        }
+
+        const runtimeMultiplier = Number(
+            data.global_upgrade_chance_multiplier ?? 1
+        );
+        globalUpgradeChanceMultiplier =
+            Number.isFinite(runtimeMultiplier)
+                ? Math.min(1.5, Math.max(0.5, runtimeMultiplier))
+                : 1;
+
+        setTimeout(() => {
+            window.updateAdminPanelAccessUI?.();
+            window.renderGlobalChanceNotice?.();
+        }, 0);
 
         referralProfile = {
             code:
@@ -17163,13 +17203,18 @@ function calculateChance(
             *
             100
             *
-            0.9
+            0.865
+            *
+            Number(globalUpgradeChanceMultiplier || 1)
         );
 
     chance =
-        Math.max(
-            chance,
-            0
+        Math.min(
+            70,
+            Math.max(
+                chance,
+                0
+            )
         );
 
     return chance;
@@ -18939,52 +18984,54 @@ function getGaramaValue(){
 }
 
 
-function getDepositItems(){
+function isLegacyDepositBrainrot(item){
 
     const minimum =
         getGaramaValue();
 
+    return (
+        Number(item?.value || 0) >= minimum
+        &&
+        ![
+            "la jolly grande",
+            "los tictacs",
+            "eviledon",
+            "gold gold gold",
+            "swaggy bros",
+            "chillin chili",
+            "money money reindeer",
+            "guest 666",
+            "los tacoritas",
+            "los spaghettis",
+            "w or l",
+            "stekini fatini",
+            "los primos"
+        ].includes(normalizeName(item?.name))
+    );
+
+}
+
+function isBrainrotDepositEnabled(item){
+    if(!item) return false;
+
+    if(adminAvailabilityLoaded){
+        return adminDepositEnabledIds.has(
+            Number(item.brainrot_id)
+        );
+    }
+
+    return isLegacyDepositBrainrot(item);
+}
+
+function getDepositItems(){
+
     return brainrots
-        .filter(
-            item =>
-                Number(
-                    item.value
-                )
-                >=
-                minimum
-                &&
-                ![
-                    "la jolly grande",
-                    "los tictacs",
-                    "eviledon",
-                    "gold gold gold",
-                    "swaggy bros",
-                    "chillin chili",
-                    "money money reindeer",
-                    "guest 666",
-                    "los tacoritas",
-                    "los spaghettis",
-                    "w or l",
-                    "stekini fatini",
-                    "los primos"
-                ].includes(
-                    normalizeName(
-                        item.name
-                    )
-                )
-        )
+        .filter(isBrainrotDepositEnabled)
         .sort(
-            (
-                a,
-                b
-            ) =>
-                Number(
-                    a.value
-                )
+            (a,b) =>
+                Number(a.value || 0)
                 -
-                Number(
-                    b.value
-                )
+                Number(b.value || 0)
         );
 
 }
@@ -21063,6 +21110,36 @@ async function silentSync(){
         brainrotDepositEnabled =
             data.brainrot_deposit_enabled !== false;
 
+        adminPanelAccess =
+            Boolean(data.can_admin_panel);
+
+        if(Array.isArray(data.deposit_brainrot_enabled_ids)){
+            adminDepositEnabledIds = new Set(
+                data.deposit_brainrot_enabled_ids.map(Number)
+            );
+            adminAvailabilityLoaded = true;
+        }
+
+        if(Array.isArray(data.withdraw_brainrot_in_stock_ids)){
+            adminWithdrawInStockIds = new Set(
+                data.withdraw_brainrot_in_stock_ids.map(Number)
+            );
+            adminAvailabilityLoaded = true;
+        }
+
+        const runtimeMultiplier = Number(
+            data.global_upgrade_chance_multiplier ?? 1
+        );
+        globalUpgradeChanceMultiplier =
+            Number.isFinite(runtimeMultiplier)
+                ? Math.min(1.5, Math.max(0.5, runtimeMultiplier))
+                : 1;
+
+        setTimeout(() => {
+            window.updateAdminPanelAccessUI?.();
+            window.renderGlobalChanceNotice?.();
+        }, 0);
+
         referralProfile = {
             code:
                 data.referral?.code
@@ -21195,21 +21272,73 @@ window.addEventListener(
    WITHDRAW — MULTI 1..5
 ===================================================== */
 
+function isBurguruWithdrawItem(item){
+
+    const name = normalizeName(
+        item?.brainrot_name
+        || item?.name
+        || ""
+    );
+
+    return (
+        name.includes("burguru")
+        || name.includes("burguro")
+    );
+
+}
+
+function isWithdrawBrainrotInStock(item){
+
+    if(!item){
+        return false;
+    }
+
+    if(!adminAvailabilityLoaded){
+        return true;
+    }
+
+    return adminWithdrawInStockIds.has(
+        Number(item.brainrot_id)
+    );
+
+}
+
 function getEligibleWithdrawItems(){
 
     return inventory.filter(
         item =>
             !item.locked
             &&
-            Number(
-                item.value
+            isWithdrawBrainrotInStock(item)
+            &&
+            (
+                Number(
+                    item.value
+                    ||
+                    0
+                )
+                >=
+                59
                 ||
-                0
+                isBurguruWithdrawItem(item)
             )
-            >=
-            59
     );
 
+}
+
+function getUnavailableWithdrawItems(){
+    return inventory.filter(
+        item =>
+            !item.locked
+            &&
+            !isWithdrawBrainrotInStock(item)
+            &&
+            (
+                Number(item.value || 0) >= 59
+                ||
+                isBurguruWithdrawItem(item)
+            )
+    );
 }
 
 
@@ -21374,8 +21503,13 @@ function renderWithdrawSelection(){
     root.innerHTML =
         "";
 
+    const unavailableWithdrawItems =
+        getUnavailableWithdrawItems();
+
     if(
         !withdrawGroups.length
+        &&
+        !unavailableWithdrawItems.length
     ){
         root.innerText =
             "Нет Brainrot, доступных для вывода.";
@@ -21475,6 +21609,38 @@ function renderWithdrawSelection(){
             }
         );
 
+    if(unavailableWithdrawItems.length){
+
+        const title = document.createElement("div");
+        title.className = "withdraw-stock-title";
+        title.innerText = "Нет в наличии — можно заменить";
+        root.appendChild(title);
+
+        const seenUnavailable = new Set();
+
+        unavailableWithdrawItems.forEach(item => {
+            const key = `${item.brainrot_id}::${item.brainrot_name}`;
+            if(seenUnavailable.has(key)) return;
+            seenUnavailable.add(key);
+
+            const card = document.createElement("div");
+            card.className = "withdraw-select-card withdraw-out-of-stock-card";
+            card.innerHTML = `
+                <img src="${getImage(item.brainrot_name)}">
+                <div style="min-width:0;flex:1">
+                    <div class="withdraw-select-name">${item.brainrot_name}</div>
+                    <div class="withdraw-select-value">${Number(item.value || 0)} X · нет в наличии</div>
+                </div>
+                <button class="withdraw-replace-btn" type="button">Заменить</button>
+            `;
+
+            card.querySelector(".withdraw-replace-btn").onclick = () =>
+                replaceUnavailableWithdraw(item.id);
+
+            root.appendChild(card);
+        });
+    }
+
     const selected =
         selectedWithdrawCount();
 
@@ -21573,6 +21739,16 @@ function changeWithdrawQuantity(
 }
 
 
+function replaceUnavailableWithdraw(id){
+    closeWithdraw();
+    showToast(
+        "Этот Brainrot сейчас нет в наличии. Выбери замену в обмене.",
+        "info"
+    );
+    openExchange(Number(id));
+}
+
+
 function openWithdraw(
     id
 ){
@@ -21648,13 +21824,19 @@ function openWithdraw(
         &&
         !clickedItem.locked
         &&
-        Number(
-            clickedItem.value
+        isWithdrawBrainrotInStock(clickedItem)
+        &&
+        (
+            Number(
+                clickedItem.value
+                ||
+                0
+            )
+            >=
+            59
             ||
-            0
+            isBurguruWithdrawItem(clickedItem)
         )
-        >=
-        59
     ){
         const group =
             withdrawGroups.find(
@@ -22122,9 +22304,15 @@ async function submitWithdraw(){
         0
     );
 
-    if(withdrawTotal < 59){
+    const burguruOnly =
+        selected.length > 0
+        && selected.every(
+            item => isBurguruWithdrawItem(item)
+        );
+
+    if(withdrawTotal < 59 && !burguruOnly){
         showToast(
-            `Минимальная сумма вывода — 59 ⓧ. Сейчас выбрано: ${withdrawTotal} ⓧ`,
+            `Минимальная сумма вывода — 59 ⓧ. Burguru доступен для вывода отдельно. Сейчас выбрано: ${withdrawTotal} ⓧ`,
             "error"
         );
         return;
@@ -23229,6 +23417,265 @@ body::after{
 }
 
 </style>
+
+
+<style id="brainroterx-case-label-no-ellipsis-fix">
+/* CASE LABEL FIX: never show CRA..., DRA..., GHO... inside case art. */
+#casesPage #caseList .code-case-symbol{
+    max-width:90% !important;
+    overflow:visible !important;
+    white-space:nowrap !important;
+    text-overflow:clip !important;
+    font-size:14px !important;
+    line-height:1 !important;
+    letter-spacing:-.75px !important;
+    transform:scaleX(.94);
+    transform-origin:center;
+}
+
+/* Full case names under the art: wrap instead of ellipsis/clipping. */
+#casesPage #caseList .case-name{
+    width:100% !important;
+    height:auto !important;
+    max-height:none !important;
+    min-height:30px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    -webkit-line-clamp:unset !important;
+    -webkit-box-orient:initial !important;
+    overflow-wrap:anywhere !important;
+    word-break:normal !important;
+}
+
+@media(max-width:390px){
+    #casesPage #caseList .code-case-symbol{font-size:13px !important;}
+    #casesPage #caseList .case-name{font-size:9.5px !important;line-height:1.15 !important;}
+}
+</style>
+
+
+<style id="brainroterx-admin-panel-style">
+#adminPanelButton{
+    display:none;position:fixed;z-index:430;right:12px;top:64px;
+    height:34px;padding:0 12px;border-radius:999px;color:#fff;
+    background:linear-gradient(135deg,#7c3aed,#4f46e5);
+    border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 22px rgba(0,0,0,.32);
+    font-size:9px;font-weight:1000;
+}
+#adminPanelButton.show{display:flex;align-items:center;justify-content:center;gap:5px}
+.admin-panel-modal{max-width:500px!important;max-height:86dvh!important;padding:14px!important}
+.admin-panel-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:11px 0}
+.admin-panel-tab{padding:8px 3px;border-radius:9px;background:rgba(255,255,255,.045);color:#958da5;font-size:8px;font-weight:900}
+.admin-panel-tab.active{background:rgba(139,92,246,.22);color:#fff;border:1px solid rgba(167,139,250,.22)}
+.admin-panel-section{display:none}.admin-panel-section.active{display:block}
+.admin-box{padding:11px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-top:8px}
+.admin-box-title{font-size:11px;font-weight:1000;margin-bottom:7px}.admin-hint{color:#8e8799;font-size:8.5px;line-height:1.45}
+.admin-id-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}.admin-id-row input{min-width:0;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#0e0a16;color:#fff;font-size:12px}.admin-mini-btn{padding:8px 10px;border-radius:9px;background:#272033;color:#fff;font-size:8px}
+.admin-range{width:100%;margin:11px 0 5px}.admin-delta{font-size:18px;font-weight:1000;text-align:center}.admin-action-btn{width:100%;margin-top:8px;padding:11px;border-radius:11px;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);font-size:10px}.admin-action-btn.danger{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+.admin-brainrot-tools{display:flex;gap:6px;margin:7px 0}.admin-brainrot-search{width:100%;padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:#0d0a14;color:#fff;font-size:11px}
+.admin-brainrot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:48vh;overflow:auto;padding:2px}
+.admin-brainrot-card{min-width:0;padding:8px;border-radius:12px;background:#100c18;border:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:48px 1fr;gap:7px;align-items:center}.admin-brainrot-card img{width:48px;height:48px;object-fit:contain}.admin-brainrot-name{font-size:8.5px;font-weight:900;line-height:1.2;overflow-wrap:anywhere}.admin-brainrot-meta{color:#a39bad;font-size:8px;margin-top:3px}.admin-toggle-btn{width:100%;margin-top:6px;padding:7px 4px;border-radius:8px;font-size:8px;font-weight:1000}.admin-toggle-btn.on{background:rgba(34,197,94,.16);color:#86efac;border:1px solid rgba(34,197,94,.20)}.admin-toggle-btn.off{background:rgba(239,68,68,.14);color:#fca5a5;border:1px solid rgba(239,68,68,.20)}
+.global-chance-notice{margin:8px 0 0;padding:7px 9px;border-radius:10px;text-align:center;background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.14);color:#fde68a;font-size:8px;font-weight:900}
+.withdraw-stock-title{margin:10px 0 6px;color:#fca5a5;font-size:9px;font-weight:1000}.withdraw-out-of-stock-card{opacity:.82;border-color:rgba(248,113,113,.18)!important}.withdraw-replace-btn{padding:8px 7px;border-radius:9px;background:rgba(124,58,237,.22);color:#ddd6fe;font-size:8px;font-weight:1000;white-space:nowrap}
+@media(max-width:380px){.admin-panel-tabs{grid-template-columns:1fr 1fr}.admin-brainrot-grid{grid-template-columns:1fr}.admin-panel-modal{padding:11px!important}}
+</style>
+
+<button id="adminPanelButton" onclick="openAdminPanel()">🛠 Админ</button>
+<div id="adminPanelModal" class="overlay" onclick="if(event.target===this)closeAdminPanel()">
+  <div class="modal admin-panel-modal">
+    <div class="modal-header"><div class="modal-title">🛠 Админ-панель</div><button class="close" onclick="closeAdminPanel()">✕</button></div>
+    <div class="admin-panel-tabs">
+      <button class="admin-panel-tab active" data-admin-tab="coins" onclick="setAdminPanelTab('coins')">ⓧ Монеты</button>
+      <button class="admin-panel-tab" data-admin-tab="deposit" onclick="setAdminPanelTab('deposit')">➕ Пополнение</button>
+      <button class="admin-panel-tab" data-admin-tab="withdraw" onclick="setAdminPanelTab('withdraw')">📤 Вывод</button>
+      <button class="admin-panel-tab" data-admin-tab="chance" onclick="setAdminPanelTab('chance')">⚡ Шансы</button>
+    </div>
+
+    <div id="adminSectionCoins" class="admin-panel-section active">
+      <div class="admin-box">
+        <div class="admin-box-title">Изменить баланс игрока</div>
+        <div class="admin-hint">Укажи Telegram ID. Плюс выдаёт X, минус снимает X. Сервер не даст балансу уйти ниже нуля.</div>
+        <div class="admin-id-row"><input id="adminCoinTargetId" inputmode="numeric" placeholder="Telegram ID"><button class="admin-mini-btn" onclick="adminUseMyId()">Мой ID</button></div>
+        <input id="adminCoinDelta" class="admin-range" type="range" min="-1000" max="1000" step="10" value="100" oninput="adminRenderCoinDelta()">
+        <div id="adminCoinDeltaText" class="admin-delta">+100 X</div>
+        <button class="admin-action-btn" onclick="adminApplyCoins()">ПРИМЕНИТЬ</button>
+        <div id="adminCoinResult" class="result"></div>
+      </div>
+    </div>
+
+    <div id="adminSectionDeposit" class="admin-panel-section">
+      <div class="admin-box-title">Brainrot в пополнении</div>
+      <div class="admin-hint">«Добавить» может включить даже Brainrot, который раньше не показывался в пополнении.</div>
+      <div class="admin-brainrot-tools"><input id="adminDepositSearch" class="admin-brainrot-search" placeholder="Поиск Brainrot" oninput="adminRenderBrainrots('deposit')"></div>
+      <div id="adminDepositGrid" class="admin-brainrot-grid"></div>
+    </div>
+
+    <div id="adminSectionWithdraw" class="admin-panel-section">
+      <div class="admin-box-title">Наличие на вывод</div>
+      <div class="admin-hint">Если поставить «Нет в наличии», игрок не сможет отправить этот Brainrot на вывод и увидит кнопку «Заменить».</div>
+      <div class="admin-brainrot-tools"><input id="adminWithdrawSearch" class="admin-brainrot-search" placeholder="Поиск Brainrot" oninput="adminRenderBrainrots('withdraw')"></div>
+      <div id="adminWithdrawGrid" class="admin-brainrot-grid"></div>
+    </div>
+
+    <div id="adminSectionChance" class="admin-panel-section">
+      <div class="admin-box">
+        <div class="admin-box-title">Глобальный шанс апгрейдера</div>
+        <div class="admin-hint">Это НЕ скрытая персональная подкрутка: множитель применяется ко всем игрокам и отображается игрокам. Диапазон ×0.50–×1.50, итоговый шанс всё равно не выше 70%.</div>
+        <input id="adminChanceMultiplier" class="admin-range" type="range" min="50" max="150" step="5" value="100" oninput="adminRenderChanceMultiplier()">
+        <div id="adminChanceMultiplierText" class="admin-delta">×1.00</div>
+        <button class="admin-action-btn" onclick="adminApplyChanceMultiplier()">СОХРАНИТЬ</button>
+        <div id="adminChanceResult" class="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="brainroterx-admin-panel-script">
+let adminPanelServerState = null;
+
+window.updateAdminPanelAccessUI = function(){
+    const button = document.getElementById("adminPanelButton");
+    if(!button) return;
+    button.classList.toggle("show", Boolean(adminPanelAccess));
+    if(!adminPanelAccess){
+        document.getElementById("adminPanelModal")?.classList.remove("show");
+    }
+};
+
+window.renderGlobalChanceNotice = function(){
+    const notice = document.getElementById("globalChanceNotice");
+    if(!notice) return;
+    const multiplier = Number(globalUpgradeChanceMultiplier || 1);
+    if(Math.abs(multiplier - 1) < 0.001){
+        notice.style.display = "none";
+        notice.innerText = "";
+    }else{
+        notice.style.display = "block";
+        notice.innerText = `⚡ Глобальный множитель шанса апгрейдера: ×${multiplier.toFixed(2)}`;
+    }
+};
+
+function closeAdminPanel(){document.getElementById("adminPanelModal")?.classList.remove("show")}
+
+async function openAdminPanel(){
+    if(!adminPanelAccess){
+        showToast("Нет доступа к админ-панели","error");
+        return;
+    }
+    const modal=document.getElementById("adminPanelModal");
+    modal?.classList.add("show");
+    try{
+        const data=await apiRequest({action:"admin_panel_get_state"});
+        if(!data?.ok) throw new Error(data?.error||"Ошибка загрузки панели");
+        adminPanelServerState=data;
+        adminDepositEnabledIds=new Set((data.deposit_brainrot_enabled_ids||[]).map(Number));
+        adminWithdrawInStockIds=new Set((data.withdraw_brainrot_in_stock_ids||[]).map(Number));
+        adminAvailabilityLoaded=true;
+        globalUpgradeChanceMultiplier=Number(data.global_upgrade_chance_multiplier||1);
+        document.getElementById("adminChanceMultiplier").value=String(Math.round(globalUpgradeChanceMultiplier*100));
+        adminRenderChanceMultiplier();
+        adminUseMyId();
+        adminRenderBrainrots("deposit");
+        adminRenderBrainrots("withdraw");
+        renderDepositGrid();
+        buildWithdrawGroups();
+        renderGlobalChanceNotice();
+        updateUpgradeUI();
+    }catch(error){
+        showToast(error?.message||"Ошибка админ-панели","error");
+    }
+}
+
+function setAdminPanelTab(tab){
+    document.querySelectorAll(".admin-panel-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.adminTab===tab));
+    ["coins","deposit","withdraw","chance"].forEach(name=>document.getElementById("adminSection"+name[0].toUpperCase()+name.slice(1))?.classList.toggle("active",name===tab));
+    if(tab==="deposit"||tab==="withdraw") adminRenderBrainrots(tab);
+}
+
+function adminUseMyId(){
+    const input=document.getElementById("adminCoinTargetId");
+    if(input) input.value=String(playerProfile?.telegram_id||"");
+}
+function adminRenderCoinDelta(){
+    const value=Number(document.getElementById("adminCoinDelta")?.value||0);
+    const root=document.getElementById("adminCoinDeltaText");
+    if(root) root.innerText=`${value>=0?"+":""}${value} X`;
+}
+async function adminApplyCoins(){
+    const target=Number(document.getElementById("adminCoinTargetId")?.value||0);
+    const delta=Number(document.getElementById("adminCoinDelta")?.value||0);
+    const result=document.getElementById("adminCoinResult");
+    if(!target||!Number.isFinite(delta)||delta===0){if(result)result.innerText="❌ Укажи ID и ненулевое изменение";return}
+    if(result)result.innerText="⏳ Сохраняем...";
+    const data=await apiRequest({action:"admin_panel_adjust_coins",target_telegram_id:target,delta:delta});
+    if(!data?.ok){if(result)result.innerText="❌ "+(data?.error||"Ошибка");return}
+    if(result)result.innerText=`✅ ${target}: ${data.old_coins} X → ${data.new_coins} X`;
+    if(Number(playerProfile?.telegram_id)===target){coins=Number(data.new_coins||0);updateBalance()}
+}
+
+function adminBrainrotList(){
+    const list=Array.isArray(adminPanelServerState?.brainrots)?adminPanelServerState.brainrots:brainrots;
+    return [...(list||[])].sort((a,b)=>Number(b.value||0)-Number(a.value||0));
+}
+function adminRenderBrainrots(type){
+    const isDeposit=type==="deposit";
+    const root=document.getElementById(isDeposit?"adminDepositGrid":"adminWithdrawGrid");
+    const search=normalizeName(document.getElementById(isDeposit?"adminDepositSearch":"adminWithdrawSearch")?.value||"");
+    if(!root)return;
+    root.innerHTML="";
+    adminBrainrotList().filter(item=>!search||normalizeName(item.name).includes(search)).forEach(item=>{
+        const id=Number(item.brainrot_id);
+        const enabled=isDeposit?adminDepositEnabledIds.has(id):adminWithdrawInStockIds.has(id);
+        const card=document.createElement("div");
+        card.className="admin-brainrot-card";
+        const statusText = isDeposit
+            ? (enabled ? "Сейчас доступен" : "Сейчас скрыт")
+            : (enabled ? "В наличии" : "Нет в наличии");
+        const actionText = isDeposit
+            ? (enabled ? "УБРАТЬ" : "ДОБАВИТЬ")
+            : (enabled ? "НЕТ В НАЛИЧИИ" : "В НАЛИЧИИ");
+        const actionClass = enabled ? "off" : "on";
+        card.innerHTML=`<img src="${getImage(item.name)}"><div><div class="admin-brainrot-name">${item.name}</div><div class="admin-brainrot-meta">${Number(item.value||0)} X · ${statusText}</div><button class="admin-toggle-btn ${actionClass}">${actionText}</button></div>`;
+        card.querySelector("button").onclick=()=>adminToggleBrainrot(type,id,!enabled);
+        root.appendChild(card);
+    });
+}
+async function adminToggleBrainrot(type,brainrotId,enabled){
+    const data=await apiRequest({action:"admin_panel_set_brainrot_availability",mode:type,brainrot_id:Number(brainrotId),enabled:Boolean(enabled)});
+    if(!data?.ok){showToast(data?.error||"Ошибка","error");return}
+    adminDepositEnabledIds=new Set((data.deposit_brainrot_enabled_ids||[]).map(Number));
+    adminWithdrawInStockIds=new Set((data.withdraw_brainrot_in_stock_ids||[]).map(Number));
+    adminAvailabilityLoaded=true;
+    if(adminPanelServerState){adminPanelServerState.deposit_brainrot_enabled_ids=[...adminDepositEnabledIds];adminPanelServerState.withdraw_brainrot_in_stock_ids=[...adminWithdrawInStockIds]}
+    adminRenderBrainrots(type);
+    renderDepositGrid();
+    if(document.getElementById("withdrawModal")?.classList.contains("show")){buildWithdrawGroups();renderWithdrawSelection()}
+    showToast(enabled?"✅ Включено":"⛔ Отключено","success");
+}
+
+function adminRenderChanceMultiplier(){
+    const value=Number(document.getElementById("adminChanceMultiplier")?.value||100)/100;
+    const root=document.getElementById("adminChanceMultiplierText");
+    if(root)root.innerText=`×${value.toFixed(2)}`;
+}
+async function adminApplyChanceMultiplier(){
+    const value=Number(document.getElementById("adminChanceMultiplier")?.value||100)/100;
+    const result=document.getElementById("adminChanceResult");
+    if(result)result.innerText="⏳ Сохраняем...";
+    const data=await apiRequest({action:"admin_panel_set_global_upgrade_multiplier",multiplier:value});
+    if(!data?.ok){if(result)result.innerText="❌ "+(data?.error||"Ошибка");return}
+    globalUpgradeChanceMultiplier=Number(data.global_upgrade_chance_multiplier||1);
+    if(result)result.innerText=`✅ Теперь ×${globalUpgradeChanceMultiplier.toFixed(2)} для всех игроков`;
+    renderGlobalChanceNotice();updateUpgradeUI();
+}
+
+adminRenderCoinDelta();
+setTimeout(()=>{updateAdminPanelAccessUI();renderGlobalChanceNotice()},0);
+</script>
 
 </body>
 
