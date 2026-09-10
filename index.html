@@ -24363,7 +24363,7 @@ body.admin-panel-page-locked{
     <div id="adminSectionChance" class="admin-panel-section">
       <div class="admin-box">
         <div class="admin-box-title">🧪 Скрытый шанс TEST-аккаунта</div>
-        <div class="admin-hint">TEST не блокирует аккаунт вообще: пополнение, вывод, заявки, обмен и остальные функции продолжают работать. Скрытый коэффициент влияет только на серверный шанс апгрейдера и на игровом экране не показывается. Для безопасности TEST можно включить только аккаунту, которому выдан доступ к админ-панели через /admin ID.</div>
+        <div class="admin-hint">TEST работает ТОЛЬКО для Telegram ID, указанного ниже. При включении для одного ID TEST автоматически выключается у других тестовых аккаунтов. Пополнение, вывод, заявки, обмен и остальные функции не блокируются.</div>
         <div class="admin-id-row">
           <input id="adminTestTargetId" inputmode="numeric" placeholder="Telegram ID тестового аккаунта">
           <button class="admin-mini-btn" onclick="adminUseMyTestId();adminLoadTestAccount()">Мой ID</button>
@@ -24513,7 +24513,7 @@ function adminRenderTestStatus(data){
     adminTestAccountHasDeposited=hasDeposited;
     adminTestSandboxLocked=false;
     root.innerText = enabled
-      ? `🧪 TEST ВКЛЮЧЁН · скрытый ×${multiplier.toFixed(2)} · никаких блокировок аккаунта`
+      ? `🧪 TEST ВКЛЮЧЁН ТОЛЬКО ДЛЯ ID ${Number(data?.target_telegram_id||0)} · скрытый ×${multiplier.toFixed(2)}`
       : `${hasDeposited ? "Обычный пополнявшийся аккаунт" : "Обычный аккаунт"} · TEST выключен · множитель ×${multiplier.toFixed(2)}`;
 }
 async function adminLoadTestAccount(silent=false){
@@ -24538,7 +24538,7 @@ async function adminSetTestAccount(enabled){
     const data=await apiRequest({action:"admin_panel_set_test_account",target_telegram_id:target,enabled:Boolean(enabled),multiplier});
     if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
     adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:false});
-    showToast(enabled?"🧪 TEST включён":"✅ TEST выключен","success");
+    showToast(enabled?`🧪 TEST ×${multiplier.toFixed(2)} только для ID ${target}`:"✅ TEST выключен","success");
 }
 async function adminSaveTestChance(){
     const target=Number(document.getElementById("adminTestTargetId")?.value||0);
@@ -24550,7 +24550,7 @@ async function adminSaveTestChance(){
     if(!data?.ok){if(root)root.innerText="❌ "+(data?.error||"Ошибка");return}
     adminTestAccountEnabled=true;
     adminRenderTestStatus({...data,has_deposited:adminTestAccountHasDeposited,sandbox_locked:false});
-    showToast(`🧪 TEST включён · ×${Number(data.test_upgrade_multiplier||1).toFixed(2)}`,"success");
+    showToast(`🧪 TEST ×${Number(data.test_upgrade_multiplier||1).toFixed(2)} только для ID ${target}`,"success");
 }
 function adminRenderLastUpgradeDebug(data){
     if(!adminPanelAccess || !data || !data.test_mode_enabled) return;
