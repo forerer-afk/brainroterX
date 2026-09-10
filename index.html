@@ -9024,6 +9024,22 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 .deposit-trade-floating-copy b{color:#fff;font-size:10px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .deposit-trade-floating-copy span{color:#b8afc5;font-size:8.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @keyframes depositFloatIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.deposit-approved-result{
+    margin-top:14px !important;
+    padding:22px 14px !important;
+    text-align:center;
+    border:1px solid rgba(74,222,128,.24) !important;
+    background:linear-gradient(145deg,rgba(7,40,29,.94),rgba(8,24,21,.98)) !important;
+}
+.deposit-approved-check{
+    width:52px;height:52px;margin:0 auto 10px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:29px;font-weight:1000;color:#052e1a;background:#4ade80;
+    box-shadow:0 0 24px rgba(74,222,128,.20);
+}
+.deposit-approved-title{font-size:12px;font-weight:1000;color:#dcfce7;letter-spacing:.02em;}
+.deposit-approved-coins{margin-top:7px;font-family:"Unbounded","Manrope",sans-serif;font-size:27px;font-weight:1000;color:#4ade80;}
+.deposit-approved-note{margin-top:7px;font-size:9px;font-weight:800;color:#9bc7ad;}
 </style>
 
 </head>
@@ -20707,21 +20723,60 @@ function renderDepositTradeStatus(){
     floating?.classList.add("active");
 }
 
+function resetDepositReceiptPendingState(){
+    const head = document.getElementById("depositReceiptTitle");
+    const tradeBox = document.getElementById("depositTradeBox");
+    const doneButton = document.getElementById("depositReceiptDoneButton");
+    const total = document.getElementById("depositReceiptTotal");
+    if(head) head.textContent = "🟡 Заявка на пополнение";
+    if(tradeBox) tradeBox.style.display = "";
+    if(doneButton) doneButton.textContent = "СКРЫТЬ";
+    if(total) total.classList.remove("deposit-approved-result");
+}
+
+function showDepositApprovedReceipt(request){
+    const overlay = document.getElementById("depositReceiptOverlay");
+    const head = document.getElementById("depositReceiptTitle");
+    const sub = document.getElementById("depositReceiptSub");
+    const tradeBox = document.getElementById("depositTradeBox");
+    const items = document.getElementById("depositReceiptItems");
+    const total = document.getElementById("depositReceiptTotal");
+    const doneButton = document.getElementById("depositReceiptDoneButton");
+    if(!overlay || !sub || !items || !total) return;
+
+    const requestId = Number(request?.request_id || 0);
+    const credited = Math.max(0, Number(request?.credited_value || request?.total_value || 0));
+
+    if(head) head.textContent = "✅ Заявка подтверждена";
+    sub.textContent = requestId ? `Заявка #${requestId} успешно подтверждена` : "Заявка успешно подтверждена";
+    if(tradeBox) tradeBox.style.display = "none";
+    items.innerHTML = "";
+    total.classList.add("deposit-approved-result");
+    total.innerHTML = `<div class="deposit-approved-check">✓</div><div class="deposit-approved-title">ЗАЯВКА ПОДТВЕРЖДЕНА</div><div class="deposit-approved-coins">+${credited} X</div><div class="deposit-approved-note">Монеты уже зачислены на баланс</div>`;
+    if(doneButton) doneButton.textContent = "ЗАКРЫТЬ";
+    overlay.classList.add("active");
+}
+
 function stopDepositTradeTracking(finalStatus, expired=false){
     if(depositTradeCountdownTimer){ clearInterval(depositTradeCountdownTimer); depositTradeCountdownTimer=null; }
     if(depositTradePollTimer){ clearInterval(depositTradePollTimer); depositTradePollTimer=null; }
     try{ localStorage.removeItem("brainroterx_active_deposit_request"); }catch(_){ }
-    const requestId = activeDepositTradeRequest?.request_id;
+    const finishedRequest = activeDepositTradeRequest ? {...activeDepositTradeRequest} : null;
+    const requestId = finishedRequest?.request_id;
     activeDepositTradeRequest = null;
     document.getElementById("depositTradeFloating")?.classList.remove("active");
-    document.getElementById("depositReceiptOverlay")?.classList.remove("active");
+
     if(finalStatus === "approved"){
+        showDepositApprovedReceipt(finishedRequest);
         showToast(`✅ Пополнение #${requestId || ""} подтверждено`,"success");
         if(typeof silentSync === "function") silentSync();
-    }else if(expired || finalStatus === "expired"){
-        showToast(`⌛ Время заявки #${requestId || ""} истекло`,"error");
-    }else if(finalStatus === "rejected"){
-        showToast(`❌ Заявка #${requestId || ""} отклонена`,"error");
+    }else{
+        document.getElementById("depositReceiptOverlay")?.classList.remove("active");
+        if(expired || finalStatus === "expired"){
+            showToast(`⌛ Время заявки #${requestId || ""} истекло`,"error");
+        }else if(finalStatus === "rejected"){
+            showToast(`❌ Заявка #${requestId || ""} отклонена`,"error");
+        }
     }
 }
 
@@ -20759,6 +20814,7 @@ async function pollDepositTradeStatus(){
 
 function openActiveDepositTradeModal(){
     if(!activeDepositTradeRequest) return;
+    resetDepositReceiptPendingState();
     const data = activeDepositTradeRequest;
     const items = Array.isArray(data.items) ? data.items : [];
     const o=document.getElementById("depositReceiptOverlay"),sub=document.getElementById("depositReceiptSub"),root=document.getElementById("depositReceiptItems"),total=document.getElementById("depositReceiptTotal");
@@ -23365,9 +23421,9 @@ loadPlayer()
 
 <div id="depositReceiptOverlay" class="deposit-receipt-overlay" onclick="closeDepositReceipt(event)">
   <div class="deposit-receipt-card" onclick="event.stopPropagation()">
-    <div class="deposit-receipt-head"><span>🟡 Заявка на пополнение</span><span onclick="closeDepositReceipt()" style="cursor:pointer">✕</span></div>
+    <div class="deposit-receipt-head"><span id="depositReceiptTitle">🟡 Заявка на пополнение</span><span onclick="closeDepositReceipt()" style="cursor:pointer">✕</span></div>
     <div id="depositReceiptSub" class="deposit-receipt-sub"></div>
-    <div class="deposit-trade-box">
+    <div id="depositTradeBox" class="deposit-trade-box">
       <div class="deposit-trade-timer-row"><span>⏱ Время на трейд</span><b id="depositTradeTimer">05:00</b></div>
       <div class="deposit-trade-warning">У вас есть 5 минут, чтобы зайти в игру и принять трейд.</div>
       <div class="deposit-trade-bot-row"><span>Ник бота</span><b id="depositTradeBot">Ожидаем выбора бота…</b></div>
@@ -23375,7 +23431,7 @@ loadPlayer()
     </div>
     <div id="depositReceiptItems" class="deposit-receipt-items"></div>
     <div id="depositReceiptTotal" class="deposit-receipt-total"></div>
-    <button class="deposit-receipt-done" onclick="closeDepositReceipt()">СКРЫТЬ</button>
+    <button id="depositReceiptDoneButton" class="deposit-receipt-done" onclick="closeDepositReceipt()">СКРЫТЬ</button>
   </div>
 </div>
 
