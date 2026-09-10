@@ -16426,12 +16426,25 @@ async function openSelectedCase(){
             }
 
             /*
-              ×3/×5: один быстрый batch-запрос, но визуально каждая
-              награда крутится в своей дорожке ОДНОВРЕМЕННО.
-              Никакой очереди из 3/5 рулеток больше нет.
+              ×3/×5: сервер рассчитывает все награды ОДНИМ batch-запросом,
+              поэтому перед первой прокруткой больше нет ожидания 3/5
+              последовательных API-запросов.
+
+              Визуально используется старая схема один-в-один: обычная рулетка
+              animateCase() крутит каждый выпавший предмет ПО ОДНОМУ по 4200 мс,
+              как у одиночного открытия. Оптимизирована только задержка ДО первой
+              прокрутки: вместо 3/5 отдельных API-запросов используется один batch.
             */
             if(displayWinners.length > 1){
-                await animateMultiCases(displayWinners, 1300);
+                for(let i = 0; i < displayWinners.length; i++){
+                    result.innerText =
+                        `🎰 Результат ${i + 1} из ${displayWinners.length}`;
+
+                    await animateCase(
+                        displayWinners[i],
+                        4200
+                    );
+                }
             }
 
             updateBalance();
@@ -16442,7 +16455,6 @@ async function openSelectedCase(){
 
             lastCaseWinners = [...displayWinners];
             renderRecentCaseWinners();
-            playSound(caseDropSound);
         }
         else{
             const data = await apiRequest({
