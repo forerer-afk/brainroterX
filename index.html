@@ -9108,27 +9108,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 </style>
 
 
-<style id="brainroterx-test-feed-badge-fix">
-.big-win-test-badge{
-    position:absolute;
-    z-index:7;
-    top:5px;
-    left:5px;
-    padding:2px 5px;
-    border-radius:999px;
-    border:1px solid rgba(245,158,11,.45);
-    background:rgba(18,12,6,.88);
-    color:#fbbf24;
-    font-size:6px;
-    line-height:1.2;
-    font-weight:1000;
-    letter-spacing:.45px;
-    pointer-events:none;
-}
-.big-win-item.big-win-test{
-    outline:1px solid rgba(245,158,11,.18);
-}
-</style>
+
 
 </head>
 
@@ -13554,8 +13534,8 @@ function feedCaseSourceVisual(sourceLabel){
 function feedSourceInfo(item){
     const source=String(item?.source||"").trim().toLowerCase();
     const sourceLabel=String(item?.source_label||"").trim();
-    const isTestUpgrade = source === "upgrade_test" || (source === "upgrade" && /test/i.test(sourceLabel));
-    if(isTestUpgrade) return {icon:"🧪",title:"АПГРЕЙДЕР · TEST",detail:"Тестовый апгрейд с изменённым шансом",color:"#f59e0b"};
+    const isAdjustedUpgrade = source === "upgrade_test" || (source === "upgrade" && /test/i.test(sourceLabel));
+    if(isAdjustedUpgrade) return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд · шанс изменён админом",color:"#a855f7"};
     if(source === "upgrade") return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд",color:"#a855f7"};
     if(source === "daily") return {icon:"🎁",title:"ЕЖЕДНЕВНЫЙ КЕЙС",detail:"Brainrot выпал из бесплатного кейса",color:"#22c55e"};
     if(source === "case"){
@@ -13624,8 +13604,6 @@ function renderBigWins(animateIds = new Set()){
         card.type="button";
         const itemId=String(item.id ?? "");
         card.className="big-win-item";
-        const isTestFeedDrop=String(item?.source||"").trim().toLowerCase()==="upgrade_test" || /test/i.test(String(item?.source_label||""));
-        if(isTestFeedDrop) card.classList.add("big-win-test");
         if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
         if(animateIds.has(itemId)) card.classList.add("big-win-new");
         card.title=String(item.brainrot_name||"");
@@ -13658,12 +13636,6 @@ function renderBigWins(animateIds = new Set()){
         img.src=getImage(item.brainrot_name);
         img.alt="";
         card.appendChild(img);
-        if(isTestFeedDrop){
-            const testBadge=document.createElement("div");
-            testBadge.className="big-win-test-badge";
-            testBadge.textContent="TEST";
-            card.appendChild(testBadge);
-        }
         const meta=document.createElement("div");
         meta.className="big-win-meta";
         const avatar=String(item.player_photo_url||"").trim();
@@ -24672,51 +24644,48 @@ window.addEventListener("focus",restoreDepositTradeOnReturn);
 
 <style id="brainroterx-withdraw-oos-popup-style">
 .withdraw-oos-overlay{
-    position:fixed;
-    inset:0;
-    z-index:4200;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-    background:rgba(3,2,8,.72);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
+    position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;
+    padding:14px;background:rgba(4,3,8,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
 .withdraw-oos-overlay.active{display:flex}
 .withdraw-oos-card{
-    width:min(430px,100%);
-    max-height:min(82vh,620px);
-    overflow-y:auto;
-    overscroll-behavior:contain;
-    -webkit-overflow-scrolling:touch;
-    border-radius:20px;
-    padding:14px;
-    color:#fff;
-    background:linear-gradient(160deg,rgba(28,18,45,.98),rgba(9,6,17,.99));
-    border:1px solid rgba(196,156,255,.17);
-    box-shadow:0 26px 70px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.05);
+    width:min(520px,100%);max-height:min(82vh,720px);overflow-y:auto;overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;border-radius:20px;padding:14px;color:#fff;
+    background:linear-gradient(160deg,rgba(28,18,45,.985),rgba(9,6,17,.995));
+    border:1px solid rgba(196,156,255,.18);box-shadow:0 26px 70px rgba(0,0,0,.56),inset 0 1px 0 rgba(255,255,255,.05);
 }
 .withdraw-oos-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:1000}
 .withdraw-oos-close{border:0;background:transparent!important;box-shadow:none!important;color:#aaa!important;font-size:18px;padding:4px 6px;cursor:pointer}
-.withdraw-oos-sub{margin-top:7px;color:#b7a9c9;font-size:10px;line-height:1.45}
-.withdraw-oos-list{display:grid;gap:8px;margin-top:12px}
-.withdraw-oos-row{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)}
-.withdraw-oos-row img{width:54px;height:54px;object-fit:contain}
-.withdraw-oos-name{font-size:10px;font-weight:900;line-height:1.25}
-.withdraw-oos-value{margin-top:3px;color:#facc15;font-size:9px;font-weight:800}
-.withdraw-oos-replace{padding:9px 10px;border-radius:10px;border:1px solid rgba(168,85,247,.35);color:#fff;background:linear-gradient(135deg,#7c3aed,#9333ea);font-size:9px;font-weight:1000;cursor:pointer;white-space:nowrap}
-.withdraw-oos-replace:disabled{opacity:.45;cursor:not-allowed}
-.withdraw-oos-dismiss{width:100%;margin-top:11px;padding:11px;border-radius:11px;border:1px solid rgba(255,255,255,.08);color:#eee;background:rgba(255,255,255,.055);font-size:10px;font-weight:900;cursor:pointer}
+.withdraw-oos-sub{margin-top:8px;color:#cbbddd;font-size:10px;line-height:1.5}
+.withdraw-oos-list{display:grid;gap:12px;margin-top:13px}
+.withdraw-oos-source{padding:10px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.075)}
+.withdraw-oos-source-top{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:10px}
+.withdraw-oos-source-top img{width:58px;height:58px;object-fit:contain}
+.withdraw-oos-name{font-size:11px;font-weight:1000;line-height:1.25}
+.withdraw-oos-value{margin-top:4px;color:#facc15;font-size:9px;font-weight:900}
+.withdraw-oos-caption{margin-top:10px;color:#a99ab9;font-size:9px;font-weight:800}
+.withdraw-oos-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}
+.withdraw-oos-option{
+    min-width:0;display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:7px;text-align:left;
+    padding:8px;border-radius:12px;border:1px solid rgba(168,85,247,.23);color:#fff!important;
+    background:rgba(124,58,237,.105)!important;box-shadow:none!important;cursor:pointer;
+}
+.withdraw-oos-option:active{transform:scale(.985)}
+.withdraw-oos-option img{width:42px;height:42px;object-fit:contain}
+.withdraw-oos-option-name{font-size:8.5px;font-weight:1000;line-height:1.15;overflow-wrap:anywhere}
+.withdraw-oos-option-result{margin-top:3px;color:#d8b4fe;font-size:8px;font-weight:900}
+.withdraw-oos-no-options{padding:10px;border-radius:11px;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.13);color:#fca5a5;font-size:9px;line-height:1.4}
+.withdraw-oos-dismiss{width:100%;margin-top:12px;padding:11px;border-radius:11px;border:1px solid rgba(255,255,255,.08);color:#eee;background:rgba(255,255,255,.055);font-size:10px;font-weight:900;cursor:pointer}
+@media(max-width:430px){.withdraw-oos-options{grid-template-columns:1fr}.withdraw-oos-card{max-height:86vh}}
 </style>
 
-<div id="withdrawOutOfStockOverlay" class="withdraw-oos-overlay" onclick="if(event.target===this)closeWithdrawOutOfStockPopup()">
+<div id="withdrawOutOfStockOverlay" class="withdraw-oos-overlay">
   <div class="withdraw-oos-card" onclick="event.stopPropagation()">
     <div class="withdraw-oos-head">
-      <span>📦 Brainrot нет в наличии</span>
+      <span>📦 Вашего Brainrot сейчас нет в наличии</span>
       <button class="withdraw-oos-close" type="button" onclick="closeWithdrawOutOfStockPopup()">✕</button>
     </div>
-    <div id="withdrawOutOfStockSub" class="withdraw-oos-sub">Можно заменить Brainrot на доступный вариант.</div>
+    <div id="withdrawOutOfStockSub" class="withdraw-oos-sub">Замените его на один из доступных Brainrot ниже.</div>
     <div id="withdrawOutOfStockList" class="withdraw-oos-list"></div>
     <button class="withdraw-oos-dismiss" type="button" onclick="closeWithdrawOutOfStockPopup()">ЗАКРЫТЬ</button>
   </div>
@@ -24726,54 +24695,37 @@ window.addEventListener("focus",restoreDepositTradeOnReturn);
 let withdrawOutOfStockPollTimer = null;
 let withdrawOutOfStockPollBusy = false;
 let activeWithdrawOutOfStockRequest = null;
+let withdrawOutOfStockReplacementCatalog = [];
+const withdrawOutOfStockSessionDismissed = new Set();
 
-function withdrawStorageUserId(){
-    return String(Number(playerProfile?.telegram_id || tg?.initDataUnsafe?.user?.id || 0) || "current");
-}
-function withdrawTrackedStorageKey(){
-    return `brainroterx_withdraw_tracked_${withdrawStorageUserId()}`;
-}
-function withdrawSeenStorageKey(){
-    return `brainroterx_withdraw_oos_seen_${withdrawStorageUserId()}`;
-}
-function readWithdrawIdSet(key){
-    try{
-        const raw=JSON.parse(localStorage.getItem(key)||"[]");
-        return new Set((Array.isArray(raw)?raw:[]).map(Number).filter(id=>Number.isInteger(id)&&id>0));
-    }catch(_){ return new Set(); }
-}
-function writeWithdrawIdSet(key,set){
-    try{
-        const ids=[...set].map(Number).filter(id=>Number.isInteger(id)&&id>0).slice(-40);
-        localStorage.setItem(key,JSON.stringify(ids));
-    }catch(_){ }
-}
-function rememberPendingWithdrawRequestIds(requests){
-    const set=readWithdrawIdSet(withdrawTrackedStorageKey());
-    (Array.isArray(requests)?requests:[]).forEach(req=>{
-        const id=Number(req?.id||0);
-        if(Number.isInteger(id)&&id>0) set.add(id);
-    });
-    writeWithdrawIdSet(withdrawTrackedStorageKey(),set);
-}
-function markWithdrawOutOfStockSeen(id){
-    const set=readWithdrawIdSet(withdrawSeenStorageKey());
-    const n=Number(id||0);
-    if(Number.isInteger(n)&&n>0) set.add(n);
-    writeWithdrawIdSet(withdrawSeenStorageKey(),set);
-}
-function closeWithdrawOutOfStockPopup(){
-    document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
-    activeWithdrawOutOfStockRequest=null;
-}
+// Старые вызовы из основной логики оставлены совместимыми, но localStorage больше не нужен:
+// серверный status=out_of_stock является источником истины и переживает перезаход/другое устройство.
+function rememberPendingWithdrawRequestIds(){ }
+
 function withdrawOutOfStockItems(request){
-    if(Array.isArray(request?.items)&&request.items.length) return request.items;
+    if(Array.isArray(request?.items) && request.items.length) return request.items;
     return [{
         inventory_id:request?.inventory_id,
         brainrot_id:request?.brainrot_id,
         brainrot_name:request?.brainrot_name,
         value:request?.value
     }];
+}
+function closeWithdrawOutOfStockPopup(){
+    const id=Number(activeWithdrawOutOfStockRequest?.id||0);
+    if(id>0) withdrawOutOfStockSessionDismissed.add(id);
+    document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
+    activeWithdrawOutOfStockRequest=null;
+}
+function replacementOptionsFor(entry){
+    const sourceValue=Number(entry?.value||0);
+    const sourceBrainrotId=Number(entry?.brainrot_id||0);
+    return (Array.isArray(withdrawOutOfStockReplacementCatalog)?withdrawOutOfStockReplacementCatalog:[])
+        .filter(item=>{
+            const value=Number(item?.value||0);
+            return value>0 && value<=sourceValue && Number(item?.brainrot_id||0)!==sourceBrainrotId;
+        })
+        .sort((a,b)=>Number(b?.value||0)-Number(a?.value||0));
 }
 function showWithdrawOutOfStockPopup(request){
     if(!request) return;
@@ -24784,99 +24736,154 @@ function showWithdrawOutOfStockPopup(request){
     const root=document.getElementById("withdrawOutOfStockList");
     if(!overlay||!root) return;
 
-    const requestItems=withdrawOutOfStockItems(request);
-    const unlockedIds=new Set(requestItems.map(x=>Number(x?.inventory_id||0)).filter(Boolean));
-    inventory.forEach(item=>{
-        if(unlockedIds.has(Number(item.id))){
-            item.locked=false;
-            item.withdraw_pending=false;
-        }
-    });
-    pendingWithdrawRequests=(Array.isArray(pendingWithdrawRequests)?pendingWithdrawRequests:[])
-        .filter(req=>Number(req?.id)!==requestId);
-
     if(sub){
-        sub.textContent=`Заявка #${requestId}. Один или несколько Brainrot сейчас нет в наличии. Выбери замену.`;
+        sub.textContent=`Заявка #${requestId}. Вашего Brainrot на данный момент нет в наличии. Замените его на доступный вариант ниже.`;
     }
     root.innerHTML="";
+
+    const requestItems=withdrawOutOfStockItems(request);
     requestItems.forEach(entry=>{
         const inventoryId=Number(entry?.inventory_id||0);
-        const name=String(entry?.brainrot_name||"Brainrot");
-        const value=Number(entry?.value||0);
-        const row=document.createElement("div");
-        row.className="withdraw-oos-row";
+        const sourceName=String(entry?.brainrot_name||"Brainrot");
+        const sourceValue=Number(entry?.value||0);
+        const source=document.createElement("div");
+        source.className="withdraw-oos-source";
 
-        const img=document.createElement("img");
-        img.src=getImage(name); img.alt="";
-        const info=document.createElement("div");
-        const title=document.createElement("div");
-        title.className="withdraw-oos-name"; title.textContent=name;
-        const price=document.createElement("div");
-        price.className="withdraw-oos-value"; price.textContent=`${value} X`;
-        info.appendChild(title); info.appendChild(price);
+        const top=document.createElement("div");
+        top.className="withdraw-oos-source-top";
+        const sourceImg=document.createElement("img");
+        sourceImg.src=getImage(sourceName); sourceImg.alt="";
+        const sourceInfo=document.createElement("div");
+        const sourceTitle=document.createElement("div");
+        sourceTitle.className="withdraw-oos-name"; sourceTitle.textContent=sourceName;
+        const sourcePrice=document.createElement("div");
+        sourcePrice.className="withdraw-oos-value"; sourcePrice.textContent=`${sourceValue} X · НЕТ В НАЛИЧИИ`;
+        sourceInfo.appendChild(sourceTitle); sourceInfo.appendChild(sourcePrice);
+        top.appendChild(sourceImg); top.appendChild(sourceInfo);
+        source.appendChild(top);
 
-        const button=document.createElement("button");
-        button.type="button";
-        button.className="withdraw-oos-replace";
-        button.textContent="ЗАМЕНИТЬ";
-        button.disabled=!inventoryId;
-        button.onclick=()=>openWithdrawReplacementFromNotification(inventoryId);
+        const caption=document.createElement("div");
+        caption.className="withdraw-oos-caption";
+        caption.textContent="Доступные варианты замены:";
+        source.appendChild(caption);
 
-        row.appendChild(img); row.appendChild(info); row.appendChild(button);
-        root.appendChild(row);
+        const optionsRoot=document.createElement("div");
+        optionsRoot.className="withdraw-oos-options";
+        const options=replacementOptionsFor(entry);
+        if(!options.length){
+            const empty=document.createElement("div");
+            empty.className="withdraw-oos-no-options";
+            empty.textContent="Сейчас нет доступной замены подходящей стоимости. Табличка останется активной и обновится, когда появится вариант.";
+            optionsRoot.appendChild(empty);
+        }else{
+            options.forEach(target=>{
+                const targetValue=Number(target.value||0);
+                const quantity=Math.min(5,Math.floor(sourceValue/targetValue));
+                const remainder=Math.max(0,sourceValue-quantity*targetValue);
+                const button=document.createElement("button");
+                button.type="button";
+                button.className="withdraw-oos-option";
+                const img=document.createElement("img");
+                img.src=getImage(target.name); img.alt="";
+                const info=document.createElement("div");
+                const name=document.createElement("div");
+                name.className="withdraw-oos-option-name"; name.textContent=String(target.name||"");
+                const result=document.createElement("div");
+                result.className="withdraw-oos-option-result";
+                result.textContent=`${quantity}×${remainder>0?` + ${remainder} X`:""}`;
+                info.appendChild(name); info.appendChild(result);
+                button.appendChild(img); button.appendChild(info);
+                button.onclick=()=>replaceWithdrawOutOfStockItem(requestId,inventoryId,target);
+                optionsRoot.appendChild(button);
+            });
+        }
+        source.appendChild(optionsRoot);
+        root.appendChild(source);
     });
 
-    renderInventory();
-    renderSourceGrid();
-    renderTargetGrid();
     overlay.classList.add("active");
-    markWithdrawOutOfStockSeen(requestId);
 }
-async function openWithdrawReplacementFromNotification(inventoryId){
-    const id=Number(inventoryId||0);
-    if(!id) return;
-    let item=(Array.isArray(inventory)?inventory:[]).find(x=>Number(x.id)===id);
-    if(!item && typeof silentSync==="function"){
-        await silentSync();
-        item=(Array.isArray(inventory)?inventory:[]).find(x=>Number(x.id)===id);
+async function replaceWithdrawOutOfStockItem(requestId,inventoryId,target){
+    const sourceEntry=withdrawOutOfStockItems(activeWithdrawOutOfStockRequest)
+        .find(x=>Number(x?.inventory_id||0)===Number(inventoryId));
+    if(!sourceEntry || !target) return;
+    const sourceValue=Number(sourceEntry.value||0);
+    const targetValue=Number(target.value||0);
+    const quantity=Math.min(5,Math.floor(sourceValue/targetValue));
+    const remainder=Math.max(0,sourceValue-quantity*targetValue);
+    const ok=await askActionConfirm({
+        type:"exchange",
+        header:"🔄 Замена вывода",
+        title:`Заменить ${String(sourceEntry.brainrot_name||"Brainrot")}?`,
+        text:`Получить ${quantity}× ${target.name}${remainder>0?` + ${remainder} X на баланс`:""}?`,
+        image:getImage(target.name),
+        confirmText:"Заменить"
+    });
+    if(!ok) return;
+    try{
+        const data=await apiRequest({
+            action:"exchange_item",
+            inventory_id:Number(inventoryId),
+            target_brainrot_id:Number(target.brainrot_id),
+            withdraw_request_id:Number(requestId)
+        });
+        if(!data?.ok) throw new Error(data?.error||"Не удалось выполнить замену");
+
+        inventory=(Array.isArray(inventory)?inventory:[]).filter(x=>Number(x.id)!==Number(inventoryId));
+        if(Array.isArray(data.added_items)) inventory.unshift(...data.added_items);
+        if(Number.isFinite(Number(data.coins))) coins=Number(data.coins);
+        updateBalance();
+        renderInventory();
+        renderSourceGrid();
+        renderTargetGrid();
+        showToast(`✅ Замена: ${data.target_quantity}× ${data.target_item?.name||target.name}`,"success");
+
+        withdrawOutOfStockSessionDismissed.delete(Number(requestId));
+        document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
+        activeWithdrawOutOfStockRequest=null;
+        await pollWithdrawOutOfStockNotifications(true);
+    }catch(error){
+        showToast("❌ "+String(error?.message||"Ошибка замены"),"error");
     }
-    if(!item){
-        showToast("Этот Brainrot уже отсутствует в инвентаре","error");
-        return;
-    }
-    exchangeReplacementAllowedId=id;
-    closeWithdrawOutOfStockPopup();
-    openExchange(id);
 }
-async function pollWithdrawOutOfStockNotifications(){
+async function pollWithdrawOutOfStockNotifications(force=false){
     if(withdrawOutOfStockPollBusy || !tg?.initData) return;
-    if(document.getElementById("withdrawOutOfStockOverlay")?.classList.contains("active")) return;
     withdrawOutOfStockPollBusy=true;
     try{
         const data=await apiRequest({action:"get_withdraw_out_of_stock_notifications"});
         if(!data?.ok || !Array.isArray(data.requests)) return;
-        const tracked=readWithdrawIdSet(withdrawTrackedStorageKey());
-        const seen=readWithdrawIdSet(withdrawSeenStorageKey());
+        const oldCatalogSignature=JSON.stringify(withdrawOutOfStockReplacementCatalog);
+        withdrawOutOfStockReplacementCatalog=Array.isArray(data.replacement_options)?data.replacement_options:[];
         const candidate=data.requests.find(req=>{
             const id=Number(req?.id||0);
-            return id>0 && tracked.has(id) && !seen.has(id);
+            return id>0 && !withdrawOutOfStockSessionDismissed.has(id);
         });
-        if(candidate) showWithdrawOutOfStockPopup(candidate);
+        if(candidate){
+            const activeId=Number(activeWithdrawOutOfStockRequest?.id||0);
+            const overlayActive=document.getElementById("withdrawOutOfStockOverlay")?.classList.contains("active");
+            const catalogChanged=oldCatalogSignature!==JSON.stringify(withdrawOutOfStockReplacementCatalog);
+            if(force || !overlayActive || activeId!==Number(candidate.id||0) || catalogChanged){
+                showWithdrawOutOfStockPopup(candidate);
+            }
+        }else if(force || activeWithdrawOutOfStockRequest){
+            document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
+            activeWithdrawOutOfStockRequest=null;
+        }
     }catch(_){ }
     finally{ withdrawOutOfStockPollBusy=false; }
 }
 function startWithdrawOutOfStockWatch(){
     if(withdrawOutOfStockPollTimer) return;
     pollWithdrawOutOfStockNotifications();
-    withdrawOutOfStockPollTimer=setInterval(pollWithdrawOutOfStockNotifications,2500);
+    withdrawOutOfStockPollTimer=setInterval(()=>pollWithdrawOutOfStockNotifications(),2500);
 }
 if(document.readyState==="loading"){
     document.addEventListener("DOMContentLoaded",()=>setTimeout(startWithdrawOutOfStockWatch,700),{once:true});
 }else{
     setTimeout(startWithdrawOutOfStockWatch,700);
 }
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden) pollWithdrawOutOfStockNotifications(); });
-window.addEventListener("focus",pollWithdrawOutOfStockNotifications);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ withdrawOutOfStockSessionDismissed.clear(); pollWithdrawOutOfStockNotifications(true); } });
+window.addEventListener("focus",()=>pollWithdrawOutOfStockNotifications());
 </script>
 
 </body>
