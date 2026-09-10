@@ -668,7 +668,7 @@ async def set_channel(update, channel, enabled):
     if not result.get("ok"):
         await update.message.reply_text("❌ "+result.get("error","Ошибка"))
         return
-    name="ГРН" if channel=="uah" else "Brainrot + Герсы"
+    name="ГРН" if channel=="uah" else "Brainrot + Гирсы"
     await update.message.reply_text(
         ("✅ " if enabled else "⛔ ")+name+
         (" включено" if enabled else " отключено")
@@ -710,10 +710,9 @@ async def deposit_trade_bot_handler(update: Update, context: ContextTypes.DEFAUL
 
     data = query.data or ""
     # Supported formats:
-    # deposit_bot_<index>_<request_id>
-    # deposit_trade_bot_<index>_<request_id>
-    # trade_bot_<index>_<request_id>
-    prefixes = ("deposit_bot_", "deposit_trade_bot_", "trade_bot_")
+    # deposit_bot_<index>_<request_id> / trade_bot_<...> — Brainrot
+    # gear_bot_<index>_<request_id> — Гирсы
+    prefixes = ("deposit_bot_", "deposit_trade_bot_", "trade_bot_", "gear_bot_")
     prefix = next((p for p in prefixes if data.startswith(p)), None)
     if not prefix:
         await query.answer("❌ Неверная кнопка бота", show_alert=True)
@@ -736,8 +735,13 @@ async def deposit_trade_bot_handler(update: Update, context: ContextTypes.DEFAUL
         return
 
     bot_username = TRADE_BOTS[bot_index]
+    server_action = (
+        "admin_assign_gear_deposit_trade_bot"
+        if prefix == "gear_bot_"
+        else "admin_assign_deposit_trade_bot"
+    )
     result = call_server(
-        "admin_assign_deposit_trade_bot",
+        server_action,
         request_id=request_id,
         bot_username=bot_username,
     )
@@ -829,7 +833,7 @@ async def button_handler(
         text=("⚙️ СТАТУС ПОПОЛНЕНИЙ\n\n"
               f"Общее: {'✅ ВКЛ' if result.get('deposit_enabled',True) else '⛔ ВЫКЛ'}\n"
               f"ГРН: {'✅ ВКЛ' if result.get('uah_enabled',True) else '⛔ ВЫКЛ'}\n"
-              f"Brainrot + Герсы: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
+              f"Brainrot + Гирсы: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
         await query.answer()
         await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
         return
@@ -969,7 +973,7 @@ async def button_handler(
 
 
     # =================================================
-    # ГЕРСЫ — ПОДТВЕРДИТЬ
+    # ГИРСЫ — ПОДТВЕРДИТЬ
     # =================================================
 
     if data.startswith(
@@ -1017,7 +1021,7 @@ async def button_handler(
         await query.edit_message_text(
             old_text
             + "\n\n"
-            + "✅ ГЕРСЫ ПОДТВЕРЖДЕНЫ"
+            + "✅ ГИРСЫ ПОДТВЕРЖДЕНЫ"
             + "\n"
             + f"💰 Начислено: {result.get('added_coins', 0)} монет"
             + "\n"
@@ -1028,7 +1032,7 @@ async def button_handler(
 
 
     # =================================================
-    # ГЕРСЫ — ОТКЛОНИТЬ
+    # ГИРСЫ — ОТКЛОНИТЬ
     # =================================================
 
     if data.startswith(
@@ -1076,7 +1080,7 @@ async def button_handler(
         await query.edit_message_text(
             old_text
             + "\n\n"
-            + "❌ ГЕРСЫ ОТКЛОНЕНЫ"
+            + "❌ ГИРСЫ ОТКЛОНЕНЫ"
         )
 
         return
@@ -2093,7 +2097,7 @@ def main():
     app.add_handler(
         CallbackQueryHandler(
             deposit_trade_bot_handler,
-            pattern=r"^(deposit_bot_|deposit_trade_bot_|trade_bot_)"
+            pattern=r"^(deposit_bot_|deposit_trade_bot_|trade_bot_|gear_bot_)"
         )
     )
 

@@ -9040,6 +9040,71 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 .deposit-approved-title{font-size:12px;font-weight:1000;color:#dcfce7;letter-spacing:.02em;}
 .deposit-approved-coins{margin-top:7px;font-family:"Unbounded","Manrope",sans-serif;font-size:27px;font-weight:1000;color:#4ade80;}
 .deposit-approved-note{margin-top:7px;font-size:9px;font-weight:800;color:#9bc7ad;}
+
+/* Three independent deposit status cards share one top-right stack. */
+.deposit-floating-stack{
+    position:fixed;
+    z-index:99990;
+    top:calc(env(safe-area-inset-top,0px) + 72px);
+    right:max(9px,env(safe-area-inset-right,0px));
+    width:min(245px,calc(100vw - 18px));
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    pointer-events:none;
+}
+.deposit-floating-stack .deposit-trade-floating{
+    position:relative !important;
+    z-index:auto !important;
+    top:auto !important;
+    right:auto !important;
+    width:100% !important;
+    pointer-events:auto;
+}
+.gear-deposit-floating{border-color:rgba(96,165,250,.20) !important;}
+.gear-deposit-floating .deposit-trade-floating-icon{background:rgba(96,165,250,.13);}
+.uah-deposit-floating{border-color:rgba(74,222,128,.20) !important;}
+.uah-deposit-floating .deposit-trade-floating-icon{background:rgba(74,222,128,.13);color:#86efac;font-weight:1000;}
+#gearDepositTradeTimer{
+    font-family:"Unbounded","Manrope",sans-serif;
+    font-size:22px;
+    color:#93c5fd;
+    letter-spacing:-.03em;
+}
+.deposit-live-info-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid rgba(255,255,255,.055);
+    color:#a9a1b5;
+    font-size:9px;
+    font-weight:850;
+}
+.deposit-live-info-row:last-of-type{border-bottom:0;}
+.deposit-live-info-row b{
+    min-width:0;
+    max-width:66%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#fff;
+    font-size:10px;
+    text-align:right;
+}
+.deposit-rejected-result{
+    margin-top:14px !important;
+    padding:19px 14px !important;
+    text-align:center;
+    border:1px solid rgba(248,113,113,.22) !important;
+    background:linear-gradient(145deg,rgba(52,16,25,.94),rgba(27,10,16,.98)) !important;
+}
+.deposit-final-status-icon{font-size:28px;font-weight:1000;color:#fb7185;}
+.deposit-final-status-title{margin-top:7px;font-size:12px;font-weight:1000;color:#ffe4e6;}
+@media (max-width:480px){
+    .deposit-floating-stack{width:min(230px,calc(100vw - 18px));gap:6px;}
+}
 </style>
 
 
@@ -10395,7 +10460,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
                 class="deposit-tab-btn"
                 onclick="setDepositTab('gears')"
             >
-                ⚙️ ГЕРСЫ
+                ⚙️ ГИРСЫ
             </button>
 
             <button
@@ -10580,7 +10645,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
                 >
 
                 <div class="uah-card-hint">
-                    После создания заявки бот пришлёт тестовые реквизиты и сумму заявки.
+                    После создания заявки реквизиты, сумма и статус появятся в отдельной таблице на сайте.
                 </div>
 
                 <button
@@ -12502,6 +12567,7 @@ async function loadPlayer(){
         pendingWithdrawRequests = Array.isArray(data.pending_withdraw_requests)
             ? data.pending_withdraw_requests
             : [];
+        rememberPendingWithdrawRequestIds(pendingWithdrawRequests);
 
         brainrots =
             data.brainrots
@@ -12710,6 +12776,16 @@ async function loadPlayer(){
         startHourlyDepositPromoTimer();
 
         updateUpgradeUI();
+
+        // Restore all three own deposit status cards after a full Mini App reload.
+        if(!window.__brainroterxDepositRestoreBooted){
+            window.__brainroterxDepositRestoreBooted = true;
+            setTimeout(() => {
+                try{ restoreActiveDepositTradeRequest(); }catch(_){ }
+                try{ restoreActiveGearDepositRequest(); }catch(_){ }
+                try{ restoreActiveUahDepositRequest(); }catch(_){ }
+            }, 250);
+        }
 
     }
     catch(
@@ -19257,7 +19333,7 @@ function setDepositTab(
         !brainrotDepositEnabled
     ){
         showToast(
-            "⚙️ Пополнение Герсами временно недоступно",
+            "⚙️ Пополнение Гирсами временно недоступно",
             "error"
         );
         return;
@@ -19443,10 +19519,10 @@ async function submitUahDeposit(){
             +
             `ⓧ После подтверждения: ${data.credited_coins || data.coins} ⓧ`
             +
-            referralText
-            +
-            `\n\n📩 Инструкция отправлена тебе в Telegram-бота.`;
+            referralText;
 
+        closeDeposit();
+        startUahDepositTracking(data, true);
         showToast(
             `₴ Заявка #${data.request_id} создана`,
             "info"
@@ -20412,6 +20488,12 @@ function changeGearsDeposit(
     delta
 ){
 
+    const gearItem = GEARS_DEPOSIT_ITEMS.find(item => item.id === id);
+    if(delta > 0 && gearItem && adminAvailabilityLoaded && !adminDepositEnabledIds.has(Number(gearItem.brainrot_id))){
+        showToast("Этот Гирс сейчас недоступен для пополнения","error");
+        return;
+    }
+
     const current =
         Number(
             gearsDepositSelection[
@@ -20427,7 +20509,7 @@ function changeGearsDeposit(
         getGearsDepositCount() >= 10
     ){
         alert(
-            "Максимум 10 Герсов"
+            "Максимум 10 Гирсов"
         );
         return;
     }
@@ -20464,6 +20546,7 @@ function renderGearsDepositGrid(){
     root.innerHTML = "";
 
     GEARS_DEPOSIT_ITEMS
+    .filter(item => !adminAvailabilityLoaded || adminDepositEnabledIds.has(Number(item.brainrot_id)))
     .forEach(
         item => {
 
@@ -20637,7 +20720,7 @@ async function submitGearsDeposit(){
     if(!items.length){
         if(result){
             result.innerText =
-                "❌ Выбери Герс";
+                "❌ Выбери Гирс";
         }
         return;
     }
@@ -20692,13 +20775,13 @@ async function submitGearsDeposit(){
             result.innerText =
                 `✅ Заявка #${data.request_id} создана.${bonusText}\n`
                 +
-                `💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ\n\n`
-                +
-                `⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
+                `💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ`;
         }
 
+        closeDeposit();
+        startGearDepositTracking(data, Array.isArray(data.items) ? data.items : [], true);
         showToast(
-            `⚙️ Заявка Герсы #${data.request_id} создана`,
+            `⚙️ Заявка Гирсами #${data.request_id} создана`,
             "info"
         );
 
@@ -20965,6 +21048,248 @@ async function restoreActiveDepositTradeRequest(){
         // Если заявку обработали, пока Mini App был закрыт, покажем результат при возвращении.
         activeDepositTradeRequest = restored;
         stopDepositTradeTracking(data.status || "rejected", Boolean(data.expired));
+    }catch(_){ }
+}
+
+
+
+/* =====================================================
+   GEARS DEPOSIT — SAME LIVE TABLE, OWN REQUEST
+===================================================== */
+let activeGearDepositRequest = null;
+let gearDepositCountdownTimer = null;
+let gearDepositPollTimer = null;
+
+function closeGearDepositReceipt(event){
+    if(event) event.stopPropagation();
+    document.getElementById("gearDepositReceiptOverlay")?.classList.remove("active");
+}
+function gearDepositRemainingSeconds(){
+    if(!activeGearDepositRequest) return 0;
+    const createdMs=new Date(activeGearDepositRequest.created_at||Date.now()).getTime();
+    return Number.isFinite(createdMs)
+        ? Math.max(0,Math.ceil((createdMs+DEPOSIT_TRADE_SECONDS*1000-Date.now())/1000))
+        : DEPOSIT_TRADE_SECONDS;
+}
+function renderGearDepositStatus(){
+    const req=activeGearDepositRequest;
+    const floating=document.getElementById("gearDepositFloating");
+    if(!req){ floating?.classList.remove("active"); return; }
+    const timerText=formatDepositTradeTime(gearDepositRemainingSeconds());
+    const botText=req.trade_bot_username?`@${String(req.trade_bot_username).replace(/^@/,"")}`:"Ожидаем выбора бота…";
+    const timer=document.getElementById("gearDepositTradeTimer");
+    const bot=document.getElementById("gearDepositTradeBot");
+    const state=document.getElementById("gearDepositTradeStateText");
+    if(timer) timer.textContent=timerText;
+    if(bot) bot.textContent=botText;
+    if(state) state.textContent=req.trade_bot_username
+        ? "Зайди в Roblox и прими трейд Гирсов от выбранного бота."
+        : "Администратор выбирает бота для трейда Гирсов…";
+    const title=document.getElementById("gearDepositFloatingTitle");
+    const meta=document.getElementById("gearDepositFloatingMeta");
+    if(title) title.textContent=`Гирсы #${req.request_id} · ${timerText}`;
+    if(meta) meta.textContent=botText;
+    floating?.classList.add("active");
+}
+function resetGearDepositReceiptPendingState(){
+    const title=document.getElementById("gearDepositReceiptTitle");
+    const box=document.getElementById("gearDepositTradeBox");
+    const total=document.getElementById("gearDepositReceiptTotal");
+    const btn=document.getElementById("gearDepositReceiptDoneButton");
+    if(title) title.textContent="⚙️ Заявка на пополнение Гирсами";
+    if(box) box.style.display="";
+    if(total) total.classList.remove("deposit-approved-result","deposit-rejected-result");
+    if(btn) btn.textContent="СКРЫТЬ";
+}
+function showGearDepositFinalReceipt(request,status,expired=false){
+    const overlay=document.getElementById("gearDepositReceiptOverlay");
+    const title=document.getElementById("gearDepositReceiptTitle");
+    const sub=document.getElementById("gearDepositReceiptSub");
+    const box=document.getElementById("gearDepositTradeBox");
+    const items=document.getElementById("gearDepositReceiptItems");
+    const total=document.getElementById("gearDepositReceiptTotal");
+    const btn=document.getElementById("gearDepositReceiptDoneButton");
+    if(!overlay||!sub||!items||!total) return;
+    const id=Number(request?.request_id||0);
+    const credited=Math.max(0,Number(request?.credited_value||request?.total_value||0));
+    if(box) box.style.display="none";
+    items.innerHTML="";
+    if(status==="approved"){
+        if(title) title.textContent="✅ Гирсы подтверждены";
+        sub.textContent=`Заявка #${id} успешно подтверждена`;
+        total.className="deposit-receipt-total deposit-approved-result";
+        total.innerHTML=`<div class="deposit-approved-check">✓</div><div class="deposit-approved-title">ЗАЯВКА ПОДТВЕРЖДЕНА</div><div class="deposit-approved-coins">+${credited} X</div><div class="deposit-approved-note">Монеты уже зачислены на баланс</div>`;
+    }else{
+        if(title) title.textContent=expired?"⌛ Время заявки истекло":"❌ Заявка отклонена";
+        sub.textContent=`Заявка Гирсами #${id}`;
+        total.className="deposit-receipt-total deposit-rejected-result";
+        total.innerHTML=`<div class="deposit-final-status-icon">${expired?"⌛":"✕"}</div><div class="deposit-final-status-title">${expired?"ВРЕМЯ ИСТЕКЛО":"ЗАЯВКА ОТКЛОНЕНА"}</div>`;
+    }
+    if(btn) btn.textContent="ЗАКРЫТЬ";
+    overlay.classList.add("active");
+}
+function stopGearDepositTracking(status,expired=false){
+    if(gearDepositCountdownTimer){clearInterval(gearDepositCountdownTimer);gearDepositCountdownTimer=null;}
+    if(gearDepositPollTimer){clearInterval(gearDepositPollTimer);gearDepositPollTimer=null;}
+    try{localStorage.removeItem("brainroterx_active_gear_deposit_request");}catch(_){ }
+    const finished=activeGearDepositRequest?{...activeGearDepositRequest}:null;
+    activeGearDepositRequest=null;
+    document.getElementById("gearDepositFloating")?.classList.remove("active");
+    if(finished && status!=="none") showGearDepositFinalReceipt(finished,status,expired);
+    if(status==="approved" && typeof silentSync==="function") silentSync();
+}
+async function pollGearDepositStatus(){
+    const requestId=Number(activeGearDepositRequest?.request_id||0);
+    try{
+        const data=await apiRequest({action:"get_gear_deposit_trade_status",...(requestId?{request_id:requestId}:{})});
+        if(!data?.ok) return;
+        if(!data.request_id){ if(activeGearDepositRequest) stopGearDepositTracking(data.status||"none"); return; }
+        activeGearDepositRequest={
+            ...(activeGearDepositRequest||{}),
+            request_id:Number(data.request_id),created_at:data.created_at||activeGearDepositRequest?.created_at||new Date().toISOString(),
+            trade_bot_username:data.trade_bot_username||null,status:data.status||"pending",
+            total_value:Number(data.total_value||activeGearDepositRequest?.total_value||0),
+            referral_bonus:Number(data.referral_bonus||activeGearDepositRequest?.referral_bonus||0),
+            credited_value:Number(data.credited_value||activeGearDepositRequest?.credited_value||data.total_value||0),
+            items:Array.isArray(data.items)?data.items:(activeGearDepositRequest?.items||[])
+        };
+        renderGearDepositStatus();
+        if(data.status && data.status!=="pending") stopGearDepositTracking(data.status,Boolean(data.expired));
+    }catch(_){ }
+}
+function openActiveGearDepositModal(){
+    if(!activeGearDepositRequest) return;
+    resetGearDepositReceiptPendingState();
+    const data=activeGearDepositRequest;
+    const overlay=document.getElementById("gearDepositReceiptOverlay");
+    const sub=document.getElementById("gearDepositReceiptSub");
+    const root=document.getElementById("gearDepositReceiptItems");
+    const total=document.getElementById("gearDepositReceiptTotal");
+    if(!overlay||!sub||!root||!total) return;
+    sub.textContent=`Номер заявки: #${data.request_id}`;
+    root.innerHTML="";
+    (Array.isArray(data.items)?data.items:[]).forEach(item=>{
+        const row=document.createElement("div");row.className="deposit-receipt-row";
+        const name=String(item.name||item.brainrot_name||"Гирс");
+        const value=Number(item.value_each||item.value||0),q=Number(item.quantity||1);
+        row.innerHTML=`<img src="${getImage(name)}" alt=""><div><div class="deposit-receipt-row-name">${name}</div><div class="deposit-receipt-row-meta">${value} ⓧ × ${q}</div></div>`;
+        root.appendChild(row);
+    });
+    const base=Number(data.total_value||0),bonus=Number(data.referral_bonus||0),credited=Number(data.credited_value||base+bonus);
+    total.className="deposit-receipt-total";
+    total.innerHTML=`💰 Стоимость: <b>${base} ⓧ</b><br>🎁 Реф. бонус: <b>+${bonus} ⓧ</b><br>✅ Будет начислено: <b>${credited} ⓧ</b>`;
+    renderGearDepositStatus();
+    overlay.classList.add("active");
+}
+function startGearDepositTracking(data,items,openModal=true){
+    activeGearDepositRequest={
+        request_id:Number(data.request_id),created_at:data.created_at||new Date().toISOString(),trade_bot_username:data.trade_bot_username||null,
+        status:data.status||"pending",total_value:Number(data.total_value||0),referral_bonus:Number(data.referral_bonus||0),
+        credited_value:Number(data.credited_value||data.total_value||0),items:Array.isArray(items)?items:(Array.isArray(data.items)?data.items:[])
+    };
+    try{localStorage.setItem("brainroterx_active_gear_deposit_request",String(activeGearDepositRequest.request_id));}catch(_){ }
+    if(gearDepositCountdownTimer) clearInterval(gearDepositCountdownTimer);
+    if(gearDepositPollTimer) clearInterval(gearDepositPollTimer);
+    gearDepositCountdownTimer=setInterval(renderGearDepositStatus,1000);
+    gearDepositPollTimer=setInterval(pollGearDepositStatus,2200);
+    renderGearDepositStatus();
+    if(openModal) openActiveGearDepositModal();
+    pollGearDepositStatus();
+}
+async function restoreActiveGearDepositRequest(){
+    try{
+        let id=0;try{id=Number(localStorage.getItem("brainroterx_active_gear_deposit_request")||0);}catch(_){ }
+        let data=await apiRequest({action:"get_gear_deposit_trade_status",...(id?{request_id:id}:{})});
+        if((!data?.ok||!data?.request_id)&&id) data=await apiRequest({action:"get_gear_deposit_trade_status"});
+        if(!data?.ok||!data?.request_id){try{localStorage.removeItem("brainroterx_active_gear_deposit_request");}catch(_){ }return;}
+        const restored={...data,request_id:Number(data.request_id),items:Array.isArray(data.items)?data.items:[]};
+        if(data.status==="pending"&&data.active){startGearDepositTracking(restored,restored.items,false);return;}
+        activeGearDepositRequest=restored;stopGearDepositTracking(data.status||"rejected",Boolean(data.expired));
+    }catch(_){ }
+}
+
+/* =====================================================
+   UAH DEPOSIT — OWN LIVE TABLE
+===================================================== */
+let activeUahDepositRequest=null;
+let uahDepositPollTimer=null;
+function closeUahDepositReceipt(event){if(event)event.stopPropagation();document.getElementById("uahDepositReceiptOverlay")?.classList.remove("active");}
+function renderUahDepositStatus(){
+    const req=activeUahDepositRequest, floating=document.getElementById("uahDepositFloating");
+    if(!req){floating?.classList.remove("active");return;}
+    const title=document.getElementById("uahDepositFloatingTitle"),meta=document.getElementById("uahDepositFloatingMeta");
+    if(title) title.textContent=`ГРН #${req.request_id} · ${Number(req.amount_uah||0)} грн`;
+    if(meta) meta.textContent="Ожидает подтверждения";
+    floating?.classList.add("active");
+}
+function showUahDepositFinalReceipt(req,status){
+    const overlay=document.getElementById("uahDepositReceiptOverlay"),title=document.getElementById("uahDepositReceiptTitle"),sub=document.getElementById("uahDepositReceiptSub"),box=document.getElementById("uahDepositLiveBox"),total=document.getElementById("uahDepositReceiptTotal"),btn=document.getElementById("uahDepositReceiptDoneButton");
+    if(!overlay||!sub||!total)return;
+    const id=Number(req?.request_id||0),credited=Math.max(0,Number(req?.credited_coins||req?.coins||0));
+    if(box) box.style.display="none";
+    if(status==="approved"){
+        if(title)title.textContent="✅ грн подтверждены";
+        sub.textContent=`Заявка #${id} успешно подтверждена`;
+        total.className="deposit-receipt-total deposit-approved-result";
+        total.innerHTML=`<div class="deposit-approved-check">✓</div><div class="deposit-approved-title">ЗАЯВКА ПОДТВЕРЖДЕНА</div><div class="deposit-approved-coins">+${credited} X</div><div class="deposit-approved-note">Монеты уже зачислены на баланс</div>`;
+    }else{
+        if(title)title.textContent="❌ Заявка грн отклонена";
+        sub.textContent=`Заявка #${id}`;
+        total.className="deposit-receipt-total deposit-rejected-result";
+        total.innerHTML=`<div class="deposit-final-status-icon">✕</div><div class="deposit-final-status-title">ЗАЯВКА ОТКЛОНЕНА</div>`;
+    }
+    if(btn)btn.textContent="ЗАКРЫТЬ";
+    overlay.classList.add("active");
+}
+function stopUahDepositTracking(status){
+    if(uahDepositPollTimer){clearInterval(uahDepositPollTimer);uahDepositPollTimer=null;}
+    try{localStorage.removeItem("brainroterx_active_uah_deposit_request");}catch(_){ }
+    const finished=activeUahDepositRequest?{...activeUahDepositRequest}:null;
+    activeUahDepositRequest=null;document.getElementById("uahDepositFloating")?.classList.remove("active");
+    if(finished&&status!=="none")showUahDepositFinalReceipt(finished,status);
+    if(status==="approved"&&typeof silentSync==="function")silentSync();
+}
+async function pollUahDepositStatus(){
+    const id=Number(activeUahDepositRequest?.request_id||0);
+    try{
+        const data=await apiRequest({action:"get_uah_deposit_request_status",...(id?{request_id:id}:{})});
+        if(!data?.ok)return;
+        if(!data.request_id){if(activeUahDepositRequest)stopUahDepositTracking(data.status||"none");return;}
+        activeUahDepositRequest={...(activeUahDepositRequest||{}),...data,request_id:Number(data.request_id)};
+        renderUahDepositStatus();
+        if(data.status&&data.status!=="pending")stopUahDepositTracking(data.status);
+    }catch(_){ }
+}
+function openActiveUahDepositModal(){
+    if(!activeUahDepositRequest)return;
+    const req=activeUahDepositRequest,overlay=document.getElementById("uahDepositReceiptOverlay"),title=document.getElementById("uahDepositReceiptTitle"),sub=document.getElementById("uahDepositReceiptSub"),box=document.getElementById("uahDepositLiveBox"),amount=document.getElementById("uahDepositReceiptAmount"),card=document.getElementById("uahDepositReceiptCard"),coinsRoot=document.getElementById("uahDepositReceiptCoins"),total=document.getElementById("uahDepositReceiptTotal"),btn=document.getElementById("uahDepositReceiptDoneButton");
+    if(!overlay||!sub||!total)return;
+    if(title)title.textContent="₴ Заявка на пополнение грн";
+    sub.textContent=`Номер заявки: #${req.request_id}`;
+    if(box)box.style.display="";
+    if(amount)amount.textContent=`${Number(req.amount_uah||0)} грн`;
+    if(card)card.textContent=String(req.card_number||"—");
+    if(coinsRoot)coinsRoot.textContent=`${Number(req.credited_coins||req.coins||0)} X`;
+    total.className="deposit-receipt-total";
+    total.innerHTML=`Статус: <b>Ожидает подтверждения администратора</b>`;
+    if(btn)btn.textContent="СКРЫТЬ";
+    renderUahDepositStatus();overlay.classList.add("active");
+}
+function startUahDepositTracking(data,openModal=true){
+    activeUahDepositRequest={...data,request_id:Number(data.request_id),status:data.status||"pending",amount_uah:Number(data.amount_uah||0),coins:Number(data.coins||0),referral_bonus:Number(data.referral_bonus||0),credited_coins:Number(data.credited_coins||data.coins||0)};
+    try{localStorage.setItem("brainroterx_active_uah_deposit_request",String(activeUahDepositRequest.request_id));}catch(_){ }
+    if(uahDepositPollTimer)clearInterval(uahDepositPollTimer);
+    uahDepositPollTimer=setInterval(pollUahDepositStatus,2500);
+    renderUahDepositStatus();if(openModal)openActiveUahDepositModal();pollUahDepositStatus();
+}
+async function restoreActiveUahDepositRequest(){
+    try{
+        let id=0;try{id=Number(localStorage.getItem("brainroterx_active_uah_deposit_request")||0);}catch(_){ }
+        let data=await apiRequest({action:"get_uah_deposit_request_status",...(id?{request_id:id}:{})});
+        if((!data?.ok||!data?.request_id)&&id)data=await apiRequest({action:"get_uah_deposit_request_status"});
+        if(!data?.ok||!data?.request_id){try{localStorage.removeItem("brainroterx_active_uah_deposit_request");}catch(_){ }return;}
+        if(data.status==="pending"&&data.active){startUahDepositTracking(data,false);return;}
+        activeUahDepositRequest={...data,request_id:Number(data.request_id)};stopUahDepositTracking(data.status||"rejected");
     }catch(_){ }
 }
 
@@ -21420,6 +21745,11 @@ async function silentSync(){
             data.inventory
             ||
             [];
+
+        pendingWithdrawRequests = Array.isArray(data.pending_withdraw_requests)
+            ? data.pending_withdraw_requests
+            : [];
+        rememberPendingWithdrawRequestIds(pendingWithdrawRequests);
 
         brainrots =
             data.brainrots
@@ -22943,6 +23273,7 @@ async function submitWithdraw(){
         items:selected.map(item=>({inventory_id:Number(item.id),brainrot_name:item.brainrot_name,value:Number(item.value||0)})),
         status:"pending"
     });
+    rememberPendingWithdrawRequestIds([pendingWithdrawRequests[0]]);
 
     /*
         Сразу перерисовываем все места,
@@ -23544,11 +23875,67 @@ loadPlayer()
   </div>
 </div>
 
-<div id="depositTradeFloating" class="deposit-trade-floating" onclick="openActiveDepositTradeModal()">
-  <div class="deposit-trade-floating-icon">🤖</div>
-  <div class="deposit-trade-floating-copy">
-    <b id="depositTradeFloatingTitle">Пополнение</b>
-    <span id="depositTradeFloatingMeta">Ожидаем выбора бота…</span>
+<div id="depositFloatingStack" class="deposit-floating-stack" aria-live="polite">
+  <div id="depositTradeFloating" class="deposit-trade-floating" onclick="openActiveDepositTradeModal()">
+    <div class="deposit-trade-floating-icon">🧠</div>
+    <div class="deposit-trade-floating-copy">
+      <b id="depositTradeFloatingTitle">Brainrot · пополнение</b>
+      <span id="depositTradeFloatingMeta">Ожидаем выбора бота…</span>
+    </div>
+  </div>
+
+  <div id="gearDepositFloating" class="deposit-trade-floating gear-deposit-floating" onclick="openActiveGearDepositModal()">
+    <div class="deposit-trade-floating-icon">⚙️</div>
+    <div class="deposit-trade-floating-copy">
+      <b id="gearDepositFloatingTitle">Гирсы · пополнение</b>
+      <span id="gearDepositFloatingMeta">Ожидаем выбора бота…</span>
+    </div>
+  </div>
+
+  <div id="uahDepositFloating" class="deposit-trade-floating uah-deposit-floating" onclick="openActiveUahDepositModal()">
+    <div class="deposit-trade-floating-icon">₴</div>
+    <div class="deposit-trade-floating-copy">
+      <b id="uahDepositFloatingTitle">грн · пополнение</b>
+      <span id="uahDepositFloatingMeta">Ожидает подтверждения</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="gearDepositReceiptOverlay" class="deposit-receipt-overlay" onclick="closeGearDepositReceipt(event)">
+  <div class="deposit-receipt-card" onclick="event.stopPropagation()">
+    <div class="deposit-receipt-head">
+      <span id="gearDepositReceiptTitle">⚙️ Заявка на пополнение Гирсами</span>
+      <span onclick="closeGearDepositReceipt()" style="cursor:pointer">✕</span>
+    </div>
+    <div id="gearDepositReceiptSub" class="deposit-receipt-sub"></div>
+    <div id="gearDepositTradeBox" class="deposit-trade-box">
+      <div class="deposit-trade-timer-row"><span>⏱ Время на трейд</span><b id="gearDepositTradeTimer">05:00</b></div>
+      <div class="deposit-trade-warning">У вас есть 5 минут, чтобы зайти в игру и принять трейд Гирсов.</div>
+      <div class="deposit-trade-bot-row"><span>Ник бота</span><b id="gearDepositTradeBot">Ожидаем выбора бота…</b></div>
+      <div id="gearDepositTradeStateText" class="deposit-trade-state-text">Администратор выбирает бота для трейда Гирсов…</div>
+    </div>
+    <div id="gearDepositReceiptItems" class="deposit-receipt-items"></div>
+    <div id="gearDepositReceiptTotal" class="deposit-receipt-total"></div>
+    <button id="gearDepositReceiptDoneButton" class="deposit-receipt-done" onclick="closeGearDepositReceipt()">СКРЫТЬ</button>
+  </div>
+</div>
+
+<div id="uahDepositReceiptOverlay" class="deposit-receipt-overlay" onclick="closeUahDepositReceipt(event)">
+  <div class="deposit-receipt-card" onclick="event.stopPropagation()">
+    <div class="deposit-receipt-head">
+      <span id="uahDepositReceiptTitle">₴ Заявка на пополнение грн</span>
+      <span onclick="closeUahDepositReceipt()" style="cursor:pointer">✕</span>
+    </div>
+    <div id="uahDepositReceiptSub" class="deposit-receipt-sub"></div>
+    <div id="uahDepositLiveBox" class="deposit-trade-box uah-deposit-live-box">
+      <div class="deposit-live-info-row"><span>₴ Сумма</span><b id="uahDepositReceiptAmount">0 грн</b></div>
+      <div class="deposit-live-info-row"><span>💳 Карта</span><b id="uahDepositReceiptCard">—</b></div>
+      <div class="deposit-live-info-row"><span>ⓧ Начисление</span><b id="uahDepositReceiptCoins">0 X</b></div>
+      <div class="deposit-trade-state-text">После подтверждения администратора статус обновится автоматически.</div>
+    </div>
+    <div id="uahDepositReceiptTotal" class="deposit-receipt-total"></div>
+    <button id="uahDepositReceiptDoneButton" class="deposit-receipt-done" onclick="closeUahDepositReceipt()">СКРЫТЬ</button>
   </div>
 </div>
 
@@ -23967,16 +24354,16 @@ body.admin-panel-page-locked{
     </div>
 
     <div id="adminSectionDeposit" class="admin-panel-section">
-      <div class="admin-box-title">Brainrot в пополнении</div>
+      <div class="admin-box-title">Brainrot и Гирсы в пополнении</div>
       <div class="admin-hint">«Добавить» может включить даже Brainrot, который раньше не показывался в пополнении.</div>
-      <div class="admin-brainrot-tools"><input id="adminDepositSearch" class="admin-brainrot-search" placeholder="Поиск Brainrot" oninput="adminRenderBrainrots('deposit')"></div>
+      <div class="admin-brainrot-tools"><input id="adminDepositSearch" class="admin-brainrot-search" placeholder="Поиск Brainrot / Гирсов" oninput="adminRenderBrainrots('deposit')"></div>
       <div id="adminDepositGrid" class="admin-brainrot-grid"></div>
     </div>
 
     <div id="adminSectionWithdraw" class="admin-panel-section">
-      <div class="admin-box-title">Наличие на вывод</div>
+      <div class="admin-box-title">Наличие Brainrot и Гирсов на вывод</div>
       <div class="admin-hint">Если поставить «Нет в наличии», игрок не сможет отправить этот Brainrot на вывод и увидит кнопку «Заменить».</div>
-      <div class="admin-brainrot-tools"><input id="adminWithdrawSearch" class="admin-brainrot-search" placeholder="Поиск Brainrot" oninput="adminRenderBrainrots('withdraw')"></div>
+      <div class="admin-brainrot-tools"><input id="adminWithdrawSearch" class="admin-brainrot-search" placeholder="Поиск Brainrot / Гирсов" oninput="adminRenderBrainrots('withdraw')"></div>
       <div id="adminWithdrawGrid" class="admin-brainrot-grid"></div>
     </div>
 
@@ -24238,6 +24625,7 @@ async function adminToggleBrainrot(type,brainrotId,enabled){
     if(adminPanelServerState){adminPanelServerState.deposit_brainrot_enabled_ids=[...adminDepositEnabledIds];adminPanelServerState.withdraw_brainrot_in_stock_ids=[...adminWithdrawInStockIds]}
     adminRenderBrainrots(type);
     renderDepositGrid();
+    renderGearsDepositGrid();
     if(document.getElementById("withdrawModal")?.classList.contains("show")){buildWithdrawGroups();renderWithdrawSelection()}
     showToast(enabled?"✅ Включено":"⛔ Отключено","success");
 }
@@ -24269,9 +24657,226 @@ const restoreDepositTradeOnReturn = () => {
     if(!activeDepositTradeRequest && typeof restoreActiveDepositTradeRequest === "function"){
         restoreActiveDepositTradeRequest();
     }
+    if(!activeGearDepositRequest && typeof restoreActiveGearDepositRequest === "function"){
+        restoreActiveGearDepositRequest();
+    }
+    if(!activeUahDepositRequest && typeof restoreActiveUahDepositRequest === "function"){
+        restoreActiveUahDepositRequest();
+    }
 };
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) restoreDepositTradeOnReturn(); });
 window.addEventListener("focus",restoreDepositTradeOnReturn);
+</script>
+
+
+
+<style id="brainroterx-withdraw-oos-popup-style">
+.withdraw-oos-overlay{
+    position:fixed;
+    inset:0;
+    z-index:4200;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(3,2,8,.72);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+}
+.withdraw-oos-overlay.active{display:flex}
+.withdraw-oos-card{
+    width:min(430px,100%);
+    max-height:min(82vh,620px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    border-radius:20px;
+    padding:14px;
+    color:#fff;
+    background:linear-gradient(160deg,rgba(28,18,45,.98),rgba(9,6,17,.99));
+    border:1px solid rgba(196,156,255,.17);
+    box-shadow:0 26px 70px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.withdraw-oos-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:1000}
+.withdraw-oos-close{border:0;background:transparent!important;box-shadow:none!important;color:#aaa!important;font-size:18px;padding:4px 6px;cursor:pointer}
+.withdraw-oos-sub{margin-top:7px;color:#b7a9c9;font-size:10px;line-height:1.45}
+.withdraw-oos-list{display:grid;gap:8px;margin-top:12px}
+.withdraw-oos-row{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)}
+.withdraw-oos-row img{width:54px;height:54px;object-fit:contain}
+.withdraw-oos-name{font-size:10px;font-weight:900;line-height:1.25}
+.withdraw-oos-value{margin-top:3px;color:#facc15;font-size:9px;font-weight:800}
+.withdraw-oos-replace{padding:9px 10px;border-radius:10px;border:1px solid rgba(168,85,247,.35);color:#fff;background:linear-gradient(135deg,#7c3aed,#9333ea);font-size:9px;font-weight:1000;cursor:pointer;white-space:nowrap}
+.withdraw-oos-replace:disabled{opacity:.45;cursor:not-allowed}
+.withdraw-oos-dismiss{width:100%;margin-top:11px;padding:11px;border-radius:11px;border:1px solid rgba(255,255,255,.08);color:#eee;background:rgba(255,255,255,.055);font-size:10px;font-weight:900;cursor:pointer}
+</style>
+
+<div id="withdrawOutOfStockOverlay" class="withdraw-oos-overlay" onclick="if(event.target===this)closeWithdrawOutOfStockPopup()">
+  <div class="withdraw-oos-card" onclick="event.stopPropagation()">
+    <div class="withdraw-oos-head">
+      <span>📦 Brainrot нет в наличии</span>
+      <button class="withdraw-oos-close" type="button" onclick="closeWithdrawOutOfStockPopup()">✕</button>
+    </div>
+    <div id="withdrawOutOfStockSub" class="withdraw-oos-sub">Можно заменить Brainrot на доступный вариант.</div>
+    <div id="withdrawOutOfStockList" class="withdraw-oos-list"></div>
+    <button class="withdraw-oos-dismiss" type="button" onclick="closeWithdrawOutOfStockPopup()">ЗАКРЫТЬ</button>
+  </div>
+</div>
+
+<script id="brainroterx-withdraw-oos-popup-script">
+let withdrawOutOfStockPollTimer = null;
+let withdrawOutOfStockPollBusy = false;
+let activeWithdrawOutOfStockRequest = null;
+
+function withdrawStorageUserId(){
+    return String(Number(playerProfile?.telegram_id || tg?.initDataUnsafe?.user?.id || 0) || "current");
+}
+function withdrawTrackedStorageKey(){
+    return `brainroterx_withdraw_tracked_${withdrawStorageUserId()}`;
+}
+function withdrawSeenStorageKey(){
+    return `brainroterx_withdraw_oos_seen_${withdrawStorageUserId()}`;
+}
+function readWithdrawIdSet(key){
+    try{
+        const raw=JSON.parse(localStorage.getItem(key)||"[]");
+        return new Set((Array.isArray(raw)?raw:[]).map(Number).filter(id=>Number.isInteger(id)&&id>0));
+    }catch(_){ return new Set(); }
+}
+function writeWithdrawIdSet(key,set){
+    try{
+        const ids=[...set].map(Number).filter(id=>Number.isInteger(id)&&id>0).slice(-40);
+        localStorage.setItem(key,JSON.stringify(ids));
+    }catch(_){ }
+}
+function rememberPendingWithdrawRequestIds(requests){
+    const set=readWithdrawIdSet(withdrawTrackedStorageKey());
+    (Array.isArray(requests)?requests:[]).forEach(req=>{
+        const id=Number(req?.id||0);
+        if(Number.isInteger(id)&&id>0) set.add(id);
+    });
+    writeWithdrawIdSet(withdrawTrackedStorageKey(),set);
+}
+function markWithdrawOutOfStockSeen(id){
+    const set=readWithdrawIdSet(withdrawSeenStorageKey());
+    const n=Number(id||0);
+    if(Number.isInteger(n)&&n>0) set.add(n);
+    writeWithdrawIdSet(withdrawSeenStorageKey(),set);
+}
+function closeWithdrawOutOfStockPopup(){
+    document.getElementById("withdrawOutOfStockOverlay")?.classList.remove("active");
+    activeWithdrawOutOfStockRequest=null;
+}
+function withdrawOutOfStockItems(request){
+    if(Array.isArray(request?.items)&&request.items.length) return request.items;
+    return [{
+        inventory_id:request?.inventory_id,
+        brainrot_id:request?.brainrot_id,
+        brainrot_name:request?.brainrot_name,
+        value:request?.value
+    }];
+}
+function showWithdrawOutOfStockPopup(request){
+    if(!request) return;
+    activeWithdrawOutOfStockRequest=request;
+    const requestId=Number(request.id||0);
+    const overlay=document.getElementById("withdrawOutOfStockOverlay");
+    const sub=document.getElementById("withdrawOutOfStockSub");
+    const root=document.getElementById("withdrawOutOfStockList");
+    if(!overlay||!root) return;
+
+    const requestItems=withdrawOutOfStockItems(request);
+    const unlockedIds=new Set(requestItems.map(x=>Number(x?.inventory_id||0)).filter(Boolean));
+    inventory.forEach(item=>{
+        if(unlockedIds.has(Number(item.id))){
+            item.locked=false;
+            item.withdraw_pending=false;
+        }
+    });
+    pendingWithdrawRequests=(Array.isArray(pendingWithdrawRequests)?pendingWithdrawRequests:[])
+        .filter(req=>Number(req?.id)!==requestId);
+
+    if(sub){
+        sub.textContent=`Заявка #${requestId}. Один или несколько Brainrot сейчас нет в наличии. Выбери замену.`;
+    }
+    root.innerHTML="";
+    requestItems.forEach(entry=>{
+        const inventoryId=Number(entry?.inventory_id||0);
+        const name=String(entry?.brainrot_name||"Brainrot");
+        const value=Number(entry?.value||0);
+        const row=document.createElement("div");
+        row.className="withdraw-oos-row";
+
+        const img=document.createElement("img");
+        img.src=getImage(name); img.alt="";
+        const info=document.createElement("div");
+        const title=document.createElement("div");
+        title.className="withdraw-oos-name"; title.textContent=name;
+        const price=document.createElement("div");
+        price.className="withdraw-oos-value"; price.textContent=`${value} X`;
+        info.appendChild(title); info.appendChild(price);
+
+        const button=document.createElement("button");
+        button.type="button";
+        button.className="withdraw-oos-replace";
+        button.textContent="ЗАМЕНИТЬ";
+        button.disabled=!inventoryId;
+        button.onclick=()=>openWithdrawReplacementFromNotification(inventoryId);
+
+        row.appendChild(img); row.appendChild(info); row.appendChild(button);
+        root.appendChild(row);
+    });
+
+    renderInventory();
+    renderSourceGrid();
+    renderTargetGrid();
+    overlay.classList.add("active");
+    markWithdrawOutOfStockSeen(requestId);
+}
+async function openWithdrawReplacementFromNotification(inventoryId){
+    const id=Number(inventoryId||0);
+    if(!id) return;
+    let item=(Array.isArray(inventory)?inventory:[]).find(x=>Number(x.id)===id);
+    if(!item && typeof silentSync==="function"){
+        await silentSync();
+        item=(Array.isArray(inventory)?inventory:[]).find(x=>Number(x.id)===id);
+    }
+    if(!item){
+        showToast("Этот Brainrot уже отсутствует в инвентаре","error");
+        return;
+    }
+    exchangeReplacementAllowedId=id;
+    closeWithdrawOutOfStockPopup();
+    openExchange(id);
+}
+async function pollWithdrawOutOfStockNotifications(){
+    if(withdrawOutOfStockPollBusy || !tg?.initData) return;
+    if(document.getElementById("withdrawOutOfStockOverlay")?.classList.contains("active")) return;
+    withdrawOutOfStockPollBusy=true;
+    try{
+        const data=await apiRequest({action:"get_withdraw_out_of_stock_notifications"});
+        if(!data?.ok || !Array.isArray(data.requests)) return;
+        const tracked=readWithdrawIdSet(withdrawTrackedStorageKey());
+        const seen=readWithdrawIdSet(withdrawSeenStorageKey());
+        const candidate=data.requests.find(req=>{
+            const id=Number(req?.id||0);
+            return id>0 && tracked.has(id) && !seen.has(id);
+        });
+        if(candidate) showWithdrawOutOfStockPopup(candidate);
+    }catch(_){ }
+    finally{ withdrawOutOfStockPollBusy=false; }
+}
+function startWithdrawOutOfStockWatch(){
+    if(withdrawOutOfStockPollTimer) return;
+    pollWithdrawOutOfStockNotifications();
+    withdrawOutOfStockPollTimer=setInterval(pollWithdrawOutOfStockNotifications,2500);
+}
+if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",()=>setTimeout(startWithdrawOutOfStockWatch,700),{once:true});
+}else{
+    setTimeout(startWithdrawOutOfStockWatch,700);
+}
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) pollWithdrawOutOfStockNotifications(); });
+window.addEventListener("focus",pollWithdrawOutOfStockNotifications);
 </script>
 
 </body>
