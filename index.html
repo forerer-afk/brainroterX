@@ -15267,68 +15267,39 @@ async function animateCase(
 
 
 function renderRecentCaseWinners(){
+    const result = document.getElementById("caseResult");
+    const quick = document.getElementById("quickSellArea");
 
-    const result =
-        document.getElementById(
-            "caseResult"
-        );
-
-    const quick =
-        document.getElementById(
-            "quickSellArea"
-        );
-
-    if(
-        lastCaseWinners.length <= 1
-    ){
+    if(lastCaseWinners.length <= 1){
         return;
     }
 
-    result.innerHTML =
-        `<div class="multi-win-grid">`
-        +
-        lastCaseWinners
-            .map(
-                item =>
-                    `
-                    <div class="multi-win-card" data-win-id="${item.id}">
-                        <img src="${getImage(item.brainrot_name)}">
-                        <div class="multi-win-name">
-                            ${item.brainrot_name}
-                        </div>
-                        <div class="multi-win-price">
-                            <span class="xcoin xcoin-tiny">X</span> ${item.value}
-                        </div>
-                        <button
-                            class="multi-sell-one"
-                            onclick="sellRecentCaseWinner(${item.id})"
-                        >
-                            Продать
-                        </button>
-                    </div>
-                    `
-            )
-            .join("")
-        +
-        `</div>`;
+    result.innerHTML = `<div class="multi-win-grid">` +
+        lastCaseWinners.map(item => {
+            const isCoins = String(item?.reward_type || "") === "coins" || !item?.id;
+            const visual = isCoins
+                ? `<div class="xcoin" style="font-size:40px;margin:9px auto">X</div>`
+                : `<img src="${getImage(item.brainrot_name)}">`;
+            const action = isCoins
+                ? `<div class="multi-sell-one" style="pointer-events:none;opacity:.72">Начислено</div>`
+                : `<button class="multi-sell-one" onclick="sellRecentCaseWinner(${item.id})">Продать</button>`;
+            return `
+                <div class="multi-win-card" ${item?.id ? `data-win-id="${item.id}"` : ""}>
+                    ${visual}
+                    <div class="multi-win-name">${item.brainrot_name}</div>
+                    <div class="multi-win-price"><span class="xcoin xcoin-tiny">X</span> ${item.value}</div>
+                    ${action}
+                </div>`;
+        }).join("") + `</div>`;
 
-    const totalValue =
-        lastCaseWinners.reduce(
-            (sum,item) =>
-                sum + Number(item.value || 0),
-            0
-        );
+    const sellable = lastCaseWinners.filter(item => item?.id && String(item?.reward_type || "") !== "coins");
+    const totalValue = sellable.reduce((sum,item) => sum + Number(item.value || 0), 0);
 
-    quick.innerHTML =
-        `
-        <button
-            class="quick-sell-btn sell-all-wins"
-            onclick="sellAllRecentCaseWinners()"
-        >
-            ПРОДАТЬ ВСЁ — <span class="xcoin xcoin-tiny">X</span> ${totalValue}
-        </button>
-        `;
-
+    quick.innerHTML = sellable.length
+        ? `<button class="quick-sell-btn sell-all-wins" onclick="sellAllRecentCaseWinners()">
+               ПРОДАТЬ ВСЁ — <span class="xcoin xcoin-tiny">X</span> ${totalValue}
+           </button>`
+        : "";
 }
 
 
@@ -15416,9 +15387,9 @@ async function sellAllRecentCaseWinners(){
     }
 
     const ids =
-        lastCaseWinners.map(
-            item => item.id
-        );
+        lastCaseWinners
+            .filter(item => item?.id && String(item?.reward_type || "") !== "coins")
+            .map(item => item.id);
 
     for(
         const id of ids
@@ -16175,262 +16146,166 @@ async function handleCaseSpin(){
 
 
 async function openSelectedCase(){
-    if(
-        activeCaseIsDaily
-    ){
+    if(activeCaseIsDaily){
         await openDailyWithRoulette();
         return;
     }
 
-
-    if(
-        !selectedCase
-        ||
-        caseSpinning
-    ){
+    if(!selectedCase || caseSpinning){
         return;
     }
 
-    const openCount =
-        Number(
-            caseOpenCount
-        );
+    const openCount = Number(caseOpenCount);
+    const total = Number(selectedCase.price) * openCount;
+    const result = document.getElementById("caseResult");
+    const quick = document.getElementById("quickSellArea");
 
-    const total =
-        Number(selectedCase.price)
-        *
-        openCount;
-
-    const result =
-        document.getElementById(
-            "caseResult"
-        );
-
-    const quick =
-        document.getElementById(
-            "quickSellArea"
-        );
-
-    if(
-        coins < total
-    ){
-        result.innerHTML =
-            `<span class="error">❌ Не хватает ${total - coins} X Coin</span>`;
+    if(coins < total){
+        result.innerHTML = `<span class="error">❌ Не хватает ${total - coins} X Coin</span>`;
         return;
     }
 
-    caseAnimationSkipRequested =
-        false;
-
+    caseAnimationSkipRequested = false;
     caseSpinning = true;
     lastCaseWinners = [];
 
-    document.getElementById(
-        "spinButton"
-    ).disabled = true;
-
-    result.innerText =
-        `🎰 Открываем ×${openCount}...`;
-
+    document.getElementById("spinButton").disabled = true;
+    result.innerText = openCount === 1 ? "🎰 Открываем..." : `⚡ Открываем ×${openCount}...`;
     quick.innerHTML = "";
 
-    [1,3,5].forEach(
-        value => {
-            const button =
-                document.getElementById(
-                    "count" + value
-                );
-            if(button){
-                button.disabled = true;
-            }
-        }
-    );
-
-    const winners = [];
+    [1,3,5].forEach(value => {
+        const button = document.getElementById("count" + value);
+        if(button) button.disabled = true;
+    });
 
     try{
-
-        for(
-            let i = 0;
-            i < openCount;
-            i++
-        ){
-
-            const data =
-                await apiRequest({
-                    action:"open_case",
-                    case_id:selectedCase.id
-                });
-
-            if(
-                !data.ok
-            ){
-                throw new Error(
-                    `Прокрутка ${i + 1}/${openCount}: ${
-                        data.error
-                        ||
-                        "Ошибка кейса"
-                    }`
-                );
-            }
-
-            coins =
-                Number(data.coins);
-
-            playerProfile.cases_opened =
-                Number(
-                    data.cases_opened
-                    ??
-                    playerProfile.cases_opened
-                );
-
-            playerProfile.wager_required =
-                Number(
-                    data.wager_required
-                    ??
-                    playerProfile.wager_required
-                    ??
-                    0
-                );
-
-            playerProfile.wager_progress =
-                Number(
-                    data.wager_progress
-                    ??
-                    playerProfile.wager_progress
-                    ??
-                    0
-                );
-
-            playerProfile.can_withdraw =
-                Boolean(
-                    playerProfile.has_deposited
-                )
-                &&
-                playerProfile.wager_progress
-                >=
-                playerProfile.wager_required;
-
-            winners.push(
-                data.item
-            );
-
-            inventory.unshift(
-                data.item
-            );
-
-            if(
-                openCount > 1
-                &&
-                i < openCount - 1
-            ){
-                await sleep(120);
-            }
-
-        }
-
         /*
-        x1 — длинная рулетка.
-        x3/x5 — каждый выигрыш тоже проходит через рулетку,
-        но быстрее, чтобы открытие не длилось слишком долго.
+          x3/x5 use one server request. The server rolls every case separately,
+          but loads the case only once, updates balance once and inserts drops
+          in one batch. No artificial per-case sleeps or roulette queue.
         */
-        if(
-            winners.length === 1
-        ){
-            await animateCase(
-                winners[0],
-                4200
-            );
+        if(openCount > 1){
+            const data = await apiRequest({
+                action:"open_case",
+                case_id:selectedCase.id,
+                count:openCount
+            });
+
+            if(!data.ok){
+                throw new Error(data.error || "Ошибка кейса");
+            }
+
+            coins = Number(data.coins);
+            playerProfile.cases_opened = Number(data.cases_opened ?? playerProfile.cases_opened);
+            playerProfile.wager_required = Number(data.wager_required ?? playerProfile.wager_required ?? 0);
+            playerProfile.wager_progress = Number(data.wager_progress ?? playerProfile.wager_progress ?? 0);
+            playerProfile.can_withdraw = Boolean(playerProfile.has_deposited)
+                && playerProfile.wager_progress >= playerProfile.wager_required;
+
+            const addedItems = Array.isArray(data.items) ? data.items : [];
+            if(addedItems.length){
+                inventory.unshift(...addedItems);
+            }
+
+            const displayWinners = [];
+            let brainrotIndex = 0;
+            const batchResults = Array.isArray(data.results) ? data.results : [];
+
+            batchResults.forEach(entry => {
+                if(String(entry?.reward_type || "") === "coins"){
+                    const amount = Number(entry?.reward_amount || 0);
+                    displayWinners.push({
+                        id:null,
+                        reward_type:"coins",
+                        brainrot_name:`${amount} X`,
+                        value:amount
+                    });
+                }else{
+                    const item = entry?.item || addedItems[brainrotIndex++] || null;
+                    if(item) displayWinners.push(item);
+                }
+            });
+
+            /* Fallback for older server response during a rolling deploy. */
+            if(!displayWinners.length && addedItems.length){
+                displayWinners.push(...addedItems);
+            }
+
+            updateBalance();
+            renderProfile();
+            renderInventory();
+            renderSourceGrid();
+            updateCaseCost();
+
+            lastCaseWinners = [...displayWinners];
+            renderRecentCaseWinners();
+            playSound(caseDropSound);
         }
         else{
-            for(
-                let i = 0;
-                i < winners.length;
-                i++
-            ){
-                result.innerText =
-                    `🎰 Результат ${i + 1} из ${winners.length}`;
+            const data = await apiRequest({
+                action:"open_case",
+                case_id:selectedCase.id,
+                count:1
+            });
 
-                await animateCase(
-                    winners[i],
-                    1450
-                );
+            if(!data.ok){
+                throw new Error(data.error || "Ошибка кейса");
+            }
+
+            coins = Number(data.coins);
+            playerProfile.cases_opened = Number(data.cases_opened ?? playerProfile.cases_opened);
+            playerProfile.wager_required = Number(data.wager_required ?? playerProfile.wager_required ?? 0);
+            playerProfile.wager_progress = Number(data.wager_progress ?? playerProfile.wager_progress ?? 0);
+            playerProfile.can_withdraw = Boolean(playerProfile.has_deposited)
+                && playerProfile.wager_progress >= playerProfile.wager_required;
+
+            const winner = data.item;
+            if(winner){
+                inventory.unshift(winner);
+                await animateCase(winner, 4200);
+            }
+
+            updateBalance();
+            renderProfile();
+            renderInventory();
+            renderSourceGrid();
+            updateCaseCost();
+
+            if(winner){
+                lastCaseWinners = [winner];
+                quick.innerHTML = `
+                    <button class="quick-sell-btn" onclick="sellRecentCaseWinner(${winner.id})">
+                        ПРОДАТЬ ЗА <span class="xcoin xcoin-tiny">X</span> ${winner.value}
+                    </button>`;
+                result.innerHTML = `
+                    <div class="single-win-result">
+                        <b>${winner.brainrot_name}</b>
+                        <span><span class="xcoin xcoin-tiny">X</span> ${winner.value}</span>
+                    </div>`;
+            }else if(String(data.reward_type || "") === "coins"){
+                const amount = Number(data.reward_amount || 0);
+                result.innerHTML = `
+                    <div class="single-win-result">
+                        <b>${amount} X</b>
+                        <span>Начислено на баланс</span>
+                    </div>`;
+                quick.innerHTML = "";
             }
         }
-
-        updateBalance();
-        renderProfile();
-        renderInventory();
-        renderSourceGrid();
-        updateCaseCost();
-
-        lastCaseWinners =
-            [...winners];
-
-        if(
-            winners.length === 1
-        ){
-
-            const item =
-                winners[0];
-
-            quick.innerHTML =
-                `
-                <button
-                    class="quick-sell-btn"
-                    onclick="sellRecentCaseWinner(${item.id})"
-                >
-                    ПРОДАТЬ ЗА <span class="xcoin xcoin-tiny">X</span> ${item.value}
-                </button>
-                `;
-
-            result.innerHTML =
-                `
-                <div class="single-win-result">
-                    <b>${item.brainrot_name}</b>
-                    <span><span class="xcoin xcoin-tiny">X</span> ${item.value}</span>
-                </div>
-                `;
-
-        }
-        else{
-            renderRecentCaseWinners();
-        }
-
     }
     catch(error){
-
-        result.innerText =
-            "❌ "
-            +
-            (
-                error.message
-                ||
-                "Ошибка"
-            );
-
+        result.innerText = "❌ " + (error.message || "Ошибка");
         await loadPlayer();
     }
 
     caseSpinning = false;
     caseAnimationSkipRequested = false;
+    document.getElementById("spinButton").disabled = false;
 
-    document.getElementById(
-        "spinButton"
-    ).disabled = false;
-
-    [1,3,5].forEach(
-        value => {
-            const button =
-                document.getElementById(
-                    "count" + value
-                );
-            if(button){
-                button.disabled = false;
-            }
-        }
-    );
-
+    [1,3,5].forEach(value => {
+        const button = document.getElementById("count" + value);
+        if(button) button.disabled = false;
+    });
 }
 
 
