@@ -21184,17 +21184,33 @@ async function restoreActiveGearDepositRequest(){
    UAH DEPOSIT — OWN LIVE TABLE
 ===================================================== */
 let activeUahDepositRequest=null;
+let uahDepositCountdownTimer=null;
 let uahDepositPollTimer=null;
+const UAH_DEPOSIT_SECONDS=10*60;
 function closeUahDepositReceipt(event){if(event)event.stopPropagation();document.getElementById("uahDepositReceiptOverlay")?.classList.remove("active");}
+function uahDepositRemainingSeconds(){
+    if(!activeUahDepositRequest) return 0;
+    const createdMs=new Date(activeUahDepositRequest.created_at||Date.now()).getTime();
+    return Number.isFinite(createdMs)
+        ? Math.max(0,Math.ceil((createdMs+UAH_DEPOSIT_SECONDS*1000-Date.now())/1000))
+        : UAH_DEPOSIT_SECONDS;
+}
 function renderUahDepositStatus(){
     const req=activeUahDepositRequest, floating=document.getElementById("uahDepositFloating");
     if(!req){floating?.classList.remove("active");return;}
+    const timerText=formatDepositTradeTime(uahDepositRemainingSeconds());
+    const timer=document.getElementById("uahDepositTradeTimer");
+    const card=document.getElementById("uahDepositReceiptCard");
+    const state=document.getElementById("uahDepositTradeStateText");
+    if(timer) timer.textContent=timerText;
+    if(card) card.textContent=String(req.card_number||"—");
+    if(state) state.textContent="Переведи указанную сумму на карту. Статус обновится автоматически после подтверждения администратора.";
     const title=document.getElementById("uahDepositFloatingTitle"),meta=document.getElementById("uahDepositFloatingMeta");
-    if(title) title.textContent=`ГРН #${req.request_id} · ${Number(req.amount_uah||0)} грн`;
-    if(meta) meta.textContent="Ожидает подтверждения";
+    if(title) title.textContent=`грн #${req.request_id} · ${timerText}`;
+    if(meta) meta.textContent=`${Number(req.amount_uah||0)} грн · ожидает оплаты`;
     floating?.classList.add("active");
 }
-function showUahDepositFinalReceipt(req,status){
+function showUahDepositFinalReceipt(req,status,expired=false){
     const overlay=document.getElementById("uahDepositReceiptOverlay"),title=document.getElementById("uahDepositReceiptTitle"),sub=document.getElementById("uahDepositReceiptSub"),box=document.getElementById("uahDepositLiveBox"),total=document.getElementById("uahDepositReceiptTotal"),btn=document.getElementById("uahDepositReceiptDoneButton");
     if(!overlay||!sub||!total)return;
     const id=Number(req?.request_id||0),credited=Math.max(0,Number(req?.credited_coins||req?.coins||0));
@@ -21205,20 +21221,21 @@ function showUahDepositFinalReceipt(req,status){
         total.className="deposit-receipt-total deposit-approved-result";
         total.innerHTML=`<div class="deposit-approved-check">✓</div><div class="deposit-approved-title">ЗАЯВКА ПОДТВЕРЖДЕНА</div><div class="deposit-approved-coins">+${credited} X</div><div class="deposit-approved-note">Монеты уже зачислены на баланс</div>`;
     }else{
-        if(title)title.textContent="❌ Заявка грн отклонена";
+        if(title)title.textContent=expired||status==="expired"?"⌛ Время заявки истекло":"❌ Заявка грн отклонена";
         sub.textContent=`Заявка #${id}`;
         total.className="deposit-receipt-total deposit-rejected-result";
-        total.innerHTML=`<div class="deposit-final-status-icon">✕</div><div class="deposit-final-status-title">ЗАЯВКА ОТКЛОНЕНА</div>`;
+        total.innerHTML=`<div class="deposit-final-status-icon">${expired||status==="expired"?"⌛":"✕"}</div><div class="deposit-final-status-title">${expired||status==="expired"?"ВРЕМЯ ИСТЕКЛО":"ЗАЯВКА ОТКЛОНЕНА"}</div>`;
     }
     if(btn)btn.textContent="ЗАКРЫТЬ";
     overlay.classList.add("active");
 }
-function stopUahDepositTracking(status){
+function stopUahDepositTracking(status,expired=false){
+    if(uahDepositCountdownTimer){clearInterval(uahDepositCountdownTimer);uahDepositCountdownTimer=null;}
     if(uahDepositPollTimer){clearInterval(uahDepositPollTimer);uahDepositPollTimer=null;}
     try{localStorage.removeItem("brainroterx_active_uah_deposit_request");}catch(_){ }
     const finished=activeUahDepositRequest?{...activeUahDepositRequest}:null;
     activeUahDepositRequest=null;document.getElementById("uahDepositFloating")?.classList.remove("active");
-    if(finished&&status!=="none")showUahDepositFinalReceipt(finished,status);
+    if(finished&&status!=="none")showUahDepositFinalReceipt(finished,status,expired);
     if(status==="approved"&&typeof silentSync==="function")silentSync();
 }
 async function pollUahDepositStatus(){
@@ -21226,10 +21243,10 @@ async function pollUahDepositStatus(){
     try{
         const data=await apiRequest({action:"get_uah_deposit_request_status",...(id?{request_id:id}:{})});
         if(!data?.ok)return;
-        if(!data.request_id){if(activeUahDepositRequest)stopUahDepositTracking(data.status||"none");return;}
+        if(!data.request_id){if(activeUahDepositRequest)stopUahDepositTracking(data.status||"none",Boolean(data.expired));return;}
         activeUahDepositRequest={...(activeUahDepositRequest||{}),...data,request_id:Number(data.request_id)};
         renderUahDepositStatus();
-        if(data.status&&data.status!=="pending")stopUahDepositTracking(data.status);
+        if(data.status&&data.status!=="pending")stopUahDepositTracking(data.status,Boolean(data.expired));
     }catch(_){ }
 }
 function openActiveUahDepositModal(){
@@ -21250,7 +21267,9 @@ function openActiveUahDepositModal(){
 function startUahDepositTracking(data,openModal=true){
     activeUahDepositRequest={...data,request_id:Number(data.request_id),status:data.status||"pending",amount_uah:Number(data.amount_uah||0),coins:Number(data.coins||0),referral_bonus:Number(data.referral_bonus||0),credited_coins:Number(data.credited_coins||data.coins||0)};
     try{localStorage.setItem("brainroterx_active_uah_deposit_request",String(activeUahDepositRequest.request_id));}catch(_){ }
+    if(uahDepositCountdownTimer)clearInterval(uahDepositCountdownTimer);
     if(uahDepositPollTimer)clearInterval(uahDepositPollTimer);
+    uahDepositCountdownTimer=setInterval(renderUahDepositStatus,1000);
     uahDepositPollTimer=setInterval(pollUahDepositStatus,2500);
     renderUahDepositStatus();if(openModal)openActiveUahDepositModal();pollUahDepositStatus();
 }
@@ -21261,7 +21280,7 @@ async function restoreActiveUahDepositRequest(){
         if((!data?.ok||!data?.request_id)&&id)data=await apiRequest({action:"get_uah_deposit_request_status"});
         if(!data?.ok||!data?.request_id){try{localStorage.removeItem("brainroterx_active_uah_deposit_request");}catch(_){ }return;}
         if(data.status==="pending"&&data.active){startUahDepositTracking(data,false);return;}
-        activeUahDepositRequest={...data,request_id:Number(data.request_id)};stopUahDepositTracking(data.status||"rejected");
+        activeUahDepositRequest={...data,request_id:Number(data.request_id)};stopUahDepositTracking(data.status||"rejected",Boolean(data.expired));
     }catch(_){ }
 }
 
@@ -23901,10 +23920,12 @@ loadPlayer()
     </div>
     <div id="uahDepositReceiptSub" class="deposit-receipt-sub"></div>
     <div id="uahDepositLiveBox" class="deposit-trade-box uah-deposit-live-box">
+      <div class="deposit-trade-timer-row"><span>⏱ Время на оплату</span><b id="uahDepositTradeTimer">10:00</b></div>
+      <div class="deposit-trade-warning">У вас есть 10 минут, чтобы перевести указанную сумму на карту.</div>
+      <div class="deposit-trade-bot-row"><span>Номер карты</span><b id="uahDepositReceiptCard">—</b></div>
       <div class="deposit-live-info-row"><span>₴ Сумма</span><b id="uahDepositReceiptAmount">0 грн</b></div>
-      <div class="deposit-live-info-row"><span>💳 Карта</span><b id="uahDepositReceiptCard">—</b></div>
       <div class="deposit-live-info-row"><span>ⓧ Начисление</span><b id="uahDepositReceiptCoins">0 X</b></div>
-      <div class="deposit-trade-state-text">После подтверждения администратора статус обновится автоматически.</div>
+      <div id="uahDepositTradeStateText" class="deposit-trade-state-text">Переведи сумму на карту. После подтверждения администратора статус обновится автоматически.</div>
     </div>
     <div id="uahDepositReceiptTotal" class="deposit-receipt-total"></div>
     <button id="uahDepositReceiptDoneButton" class="deposit-receipt-done" onclick="closeUahDepositReceipt()">СКРЫТЬ</button>
@@ -24350,8 +24371,8 @@ body.admin-panel-page-locked{
         <button class="admin-action-btn" onclick="adminLoadTestAccount()">ЗАГРУЗИТЬ TEST</button>
         <div id="adminTestStatus" class="result">Укажи ID и нажми «Загрузить TEST».</div>
         <div id="adminTestLastRoll" class="result" style="margin-top:7px;display:none"></div>
-        <div class="admin-hint" style="margin-top:9px">×1.00 = обычный шанс · меньше 1 = Unluck · больше 1 = Luck · ×0 = 0% реального выигрыша. Максимальный итоговый шанс всё равно 70%. TEST имеет приоритет над старыми MEM/LUCK.</div>
-        <input id="adminTestMultiplier" class="admin-range" type="range" min="0" max="500" step="5" value="100" oninput="adminRenderTestChanceMultiplier()">
+        <div class="admin-hint" style="margin-top:9px">×1.00 = обычный шанс · меньше 1 = Unluck · больше 1 = Luck · ×0 = 0% реального выигрыша · максимум ×60.00. Итоговый шанс апгрейда всё равно ограничен 70%. TEST имеет приоритет над старыми MEM/LUCK.</div>
+        <input id="adminTestMultiplier" class="admin-range" type="range" min="0" max="6000" step="5" value="100" oninput="adminRenderTestChanceMultiplier()">
         <div id="adminTestMultiplierText" class="admin-delta">×1.00</div>
         <div class="admin-coin-actions">
           <button class="admin-action-btn add" onclick="adminSetTestAccount(true)">ВКЛЮЧИТЬ TEST</button>
