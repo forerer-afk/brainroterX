@@ -1,4 +1,5 @@
 import os
+import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -41,6 +42,12 @@ FUNCTION_URL = (
     "functions/v1/telegram-player"
 )
 
+# Ограничиваем количество одновременных запросов к Edge Function,
+# чтобы всплеск callback/команд не создавал сотни блокирующих соединений.
+SERVER_MAX_CONCURRENCY = max(2, min(32, int(os.getenv("SERVER_MAX_CONCURRENCY", "12"))))
+SERVER_HTTP_TIMEOUT = max(3.0, min(20.0, float(os.getenv("SERVER_HTTP_TIMEOUT", "8"))))
+SERVER_REQUEST_SEMAPHORE = asyncio.Semaphore(SERVER_MAX_CONCURRENCY)
+
 if not ADMIN_BOT_TOKEN:
     raise RuntimeError(
         "В Railway Variables не найден ADMIN_BOT_TOKEN"
@@ -78,7 +85,7 @@ def call_server(action, **kwargs):
     try:
         with urllib.request.urlopen(
             request,
-            timeout=20
+            timeout=SERVER_HTTP_TIMEOUT
         ) as response:
 
             text = (
@@ -113,6 +120,28 @@ def call_server(action, **kwargs):
         }
 
 
+async def call_server_async(action, **kwargs):
+    """Не блокирует Telegram event loop медленным HTTP-запросом к Supabase."""
+    async with SERVER_REQUEST_SEMAPHORE:
+        try:
+            return await asyncio.wait_for(
+                asyncio.to_thread(call_server, action, **kwargs),
+                timeout=SERVER_HTTP_TIMEOUT + 2.0,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("Server request timeout: action=%s", action)
+            return {
+                "ok": False,
+                "error": "Сервер не ответил вовремя. Попробуй ещё раз.",
+            }
+        except Exception as error:
+            logger.exception("Server request failed: action=%s", action)
+            return {
+                "ok": False,
+                "error": str(error),
+            }
+
+
 # =====================================================
 # ПРОВЕРКА АДМИНА
 # =====================================================
@@ -131,8 +160,8 @@ def is_owner(update: Update):
     return is_admin(update)
 
 
-def get_promo_access(telegram_id: int):
-    return call_server(
+async def get_promo_access(telegram_id: int):
+    return await call_server_async(
         "admin_get_promo_delegate",
         actor_telegram_id=telegram_id,
     )
@@ -150,7 +179,7 @@ def promo_access_text(access: dict) -> str:
     )
 
 
-def check_promo_access_for_user(user_id: int) -> dict:
+async def check_promo_access_for_user(user_id: int) -> dict:
     """Единая проверка owner/delegate. Всегда возвращает dict и не падает молча."""
     if int(user_id) == ADMIN_TELEGRAM_ID:
         return {
@@ -161,7 +190,7 @@ def check_promo_access_for_user(user_id: int) -> dict:
             "max_uses_per_promo": 1000000,
             "max_reward_coins": 1000000,
         }
-    result = get_promo_access(int(user_id))
+    result = await get_promo_access(int(user_id))
     if not isinstance(result, dict):
         return {"ok": False, "allowed": False, "error": "Сервер не вернул ответ"}
     return result
@@ -211,7 +240,7 @@ async def start_command(
         )
         return
 
-    access = check_promo_access_for_user(user.id)
+    access = await check_promo_access_for_user(user.id)
     if not access.get("ok"):
         await update.message.reply_text(
             "❌ Не удалось проверить promo-доступ.\n" + str(access.get("error", "Ошибка сервера"))
@@ -241,7 +270,7 @@ async def promo_command(
     if not user:
         return
 
-    access = check_promo_access_for_user(user.id)
+    access = await check_promo_access_for_user(user.id)
     if not access.get("ok"):
         await update.message.reply_text(
             "❌ Не удалось проверить promo-доступ.\n" + str(access.get("error", "Ошибка сервера"))
@@ -304,7 +333,7 @@ async def promo_command(
         "⏳ Создаю промокод..."
     )
 
-    result = call_server(
+    result = await call_server_async(
         "admin_create_promo",
         actor_telegram_id=user.id,
         actor_username=(user.username or ""),
@@ -364,7 +393,7 @@ async def promoadd_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if amount < 1:
         await update.message.reply_text("❌ Количество должно быть минимум 1")
         return
-    result = call_server(
+    result = await call_server_async(
         "admin_adjust_promo_delegate",
         actor_telegram_id=ADMIN_TELEGRAM_ID,
         target_telegram_id=target_id,
@@ -421,7 +450,7 @@ async def promotake_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if amount < 1:
         await update.message.reply_text("❌ Количество должно быть минимум 1")
         return
-    result = call_server(
+    result = await call_server_async(
         "admin_adjust_promo_delegate",
         actor_telegram_id=ADMIN_TELEGRAM_ID,
         target_telegram_id=target_id,
@@ -448,7 +477,7 @@ async def promoblock_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
     except ValueError:
         await update.message.reply_text("❌ Telegram ID должен быть числом")
         return
-    result = call_server(
+    result = await call_server_async(
         "admin_block_promo_delegate",
         actor_telegram_id=ADMIN_TELEGRAM_ID,
         target_telegram_id=target_id,
@@ -471,7 +500,7 @@ async def promoinfo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
         await update.message.reply_text("❌ Telegram ID должен быть числом")
         return
-    result = call_server(
+    result = await call_server_async(
         "admin_get_promo_delegate",
         actor_telegram_id=target_id,
     )
@@ -521,7 +550,7 @@ async def promoff_command(
         "⏳ Отключаю промокод..."
     )
 
-    result = call_server(
+    result = await call_server_async(
         "admin_disable_promo",
         code=code,
     )
@@ -557,7 +586,7 @@ async def set_deposit_state(
         await update.message.reply_text("❌ Нет доступа")
         return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_deposit_enabled",
         enabled=enabled,
     )
@@ -644,7 +673,7 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    access = check_promo_access_for_user(user.id)
+    access = await check_promo_access_for_user(user.id)
     if not access.get("ok"):
         await update.message.reply_text(
             "❌ Не удалось проверить promo-доступ.\n" + str(access.get("error", "Ошибка сервера"))
@@ -660,7 +689,7 @@ async def set_channel(update, channel, enabled):
     if not is_admin(update):
         await update.message.reply_text("❌ Нет доступа")
         return
-    result=call_server(
+    result=await call_server_async(
         "admin_set_deposit_channel_enabled",
         channel=channel,
         enabled=enabled
@@ -740,7 +769,7 @@ async def deposit_trade_bot_handler(update: Update, context: ContextTypes.DEFAUL
         if prefix == "gear_bot_"
         else "admin_assign_deposit_trade_bot"
     )
-    result = call_server(
+    result = await call_server_async(
         server_action,
         request_id=request_id,
         bot_username=bot_username,
@@ -808,7 +837,7 @@ async def button_handler(
             break
 
     if data in ("menu_mem","menu_luck"):
-        result=call_server("admin_get_mode_lists")
+        result=await call_server_async("admin_get_mode_lists")
         if not result.get("ok"):
             await query.answer("❌ "+result.get("error","Ошибка"),show_alert=True)
             return
@@ -826,7 +855,7 @@ async def button_handler(
         return
 
     if data=="menu_deposits":
-        result=call_server("admin_get_deposit_channels")
+        result=await call_server_async("admin_get_deposit_channels")
         if not result.get("ok"):
             await query.answer("❌ "+result.get("error","Ошибка"),show_alert=True)
             return
@@ -872,7 +901,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_approve_uah_test_deposit",
             request_id=request_id,
         )
@@ -936,7 +965,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_reject_uah_test_deposit",
             request_id=request_id,
         )
@@ -994,7 +1023,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_approve_gear_deposit_request",
             request_id=request_id,
         )
@@ -1053,7 +1082,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_reject_gear_deposit_request",
             request_id=request_id,
         )
@@ -1118,7 +1147,7 @@ async def button_handler(
 
         bot_username = trade_bots[bot_index]
 
-        result = call_server(
+        result = await call_server_async(
             "admin_assign_deposit_trade_bot",
             request_id=request_id,
             bot_username=bot_username,
@@ -1185,7 +1214,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_approve_balance_request",
             request_id=request_id,
         )
@@ -1242,7 +1271,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_reject_balance_request",
             request_id=request_id,
         )
@@ -1295,7 +1324,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_approve_withdraw_request",
             request_id=request_id,
         )
@@ -1350,7 +1379,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_reject_withdraw_request",
             request_id=request_id,
         )
@@ -1405,7 +1434,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_out_of_stock_withdraw_request",
             request_id=request_id,
         )
@@ -1462,7 +1491,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_cancel_withdraw_request",
             request_id=request_id,
             cancel_reason="player_offline",
@@ -1509,7 +1538,7 @@ async def button_handler(
             )
             return
 
-        result = call_server(
+        result = await call_server_async(
             "admin_cancel_withdraw_request",
             request_id=request_id,
             cancel_reason="invalid_username",
@@ -1586,7 +1615,7 @@ async def mem_plus_command(
 
         return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_visual_prank",
         target_telegram_id=target_telegram_id,
         enabled=True,
@@ -1653,7 +1682,7 @@ async def mem_minus_command(
 
         return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_visual_prank",
         target_telegram_id=target_telegram_id,
         enabled=False,
@@ -1716,7 +1745,7 @@ async def luck_plus_command(
         )
         return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_luck_mode",
         target_telegram_id=target_telegram_id,
         enabled=True,
@@ -1772,7 +1801,7 @@ async def luck_minus_command(
         )
         return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_luck_mode",
         target_telegram_id=target_telegram_id,
         enabled=False,
@@ -1896,7 +1925,7 @@ async def admin_panel_grant_command(update: Update, context: ContextTypes.DEFAUL
             await update.message.reply_text("Использование: /admin TELEGRAM_ID\nИли: админ TELEGRAM_ID")
             return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_panel_access",
         target_telegram_id=target_id,
         enabled=True,
@@ -1932,7 +1961,7 @@ async def admin_panel_revoke_command(update: Update, context: ContextTypes.DEFAU
             await update.message.reply_text("Неверный Telegram ID")
             return
 
-    result = call_server(
+    result = await call_server_async(
         "admin_set_panel_access",
         target_telegram_id=target_id,
         enabled=False,
@@ -1976,7 +2005,7 @@ async def on_startup(application):
         logger.warning("Active webhook detected and removed: %s", webhook.url)
 
     # Всегда очищаем webhook, чтобы getUpdates/polling работал стабильно.
-    await application.bot.delete_webhook(drop_pending_updates=False)
+    await application.bot.delete_webhook(drop_pending_updates=True)
 
 
 async def on_error(update, context):
@@ -2002,6 +2031,7 @@ def main():
     app = (
         ApplicationBuilder()
         .token(ADMIN_BOT_TOKEN)
+        .concurrent_updates(16)
         .post_init(on_startup)
         .build()
     )
@@ -2110,7 +2140,8 @@ def main():
     logger.info("Starting long polling; only one Railway instance may use this token.")
     app.run_polling(
         allowed_updates=Update.ALL_TYPES,
-        drop_pending_updates=False,
+        drop_pending_updates=True,
+        bootstrap_retries=-1,
     )
 
 
