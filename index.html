@@ -11158,6 +11158,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
             </button>
 
             <button
+                id="sellAllConfirmButton"
                 class="danger-btn"
                 onclick="confirmSellAll()"
             >
@@ -16790,7 +16791,36 @@ async function sellItem(id){
     }
 }
 
+let sellAllSubmitting = false;
+
+function setSellAllBusy(busy){
+    sellAllSubmitting = Boolean(busy);
+
+    const confirmButton =
+        document.getElementById("sellAllConfirmButton");
+
+    if(confirmButton){
+        confirmButton.disabled = sellAllSubmitting;
+        confirmButton.innerText =
+            sellAllSubmitting
+                ? "Продажа..."
+                : "Продать";
+    }
+}
+
 function openSellAll(){
+
+    // Не даём повторными тапами создавать несколько параллельных продаж.
+    if(sellAllSubmitting){
+        return;
+    }
+
+    const modal =
+        document.getElementById("sellAllModal");
+
+    if(modal?.classList.contains("show")){
+        return;
+    }
 
     const available =
         inventory.filter(
@@ -16805,18 +16835,18 @@ function openSellAll(){
                 item
             ) =>
                 sum
-                +
-                Number(
-                    item.value
-                ),
+                    +
+                    Number(
+                        item.value
+                    ),
             0
         );
 
-    document
-        .getElementById(
-            "sellAllInfo"
-        )
-        .innerHTML =
+    const info =
+        document.getElementById("sellAllInfo");
+
+    if(info){
+        info.innerHTML =
             `
             🧠 Предметов:
             <b>${available.length}</b>
@@ -16831,33 +16861,31 @@ function openSellAll(){
             Предметы, ожидающие вывод,
             проданы не будут.
             `;
+    }
 
-    document
-        .getElementById(
-            "sellAllResult"
-        )
-        .innerText =
-            "";
+    const result =
+        document.getElementById("sellAllResult");
 
-    document
-        .getElementById(
-            "sellAllModal"
-        )
-        .classList
-        .add(
-            "show"
-        );
+    if(result){
+        result.innerText = "";
+    }
 
+    setSellAllBusy(false);
+    modal?.classList.add("show");
 }
 
 
 function closeSellAll(){
 
+    if(sellAllSubmitting){
+        return;
+    }
+
     document
         .getElementById(
             "sellAllModal"
         )
-        .classList
+        ?.classList
         .remove(
             "show"
         );
@@ -16867,79 +16895,127 @@ function closeSellAll(){
 
 async function confirmSellAll(){
 
+    // Главный фикс двойных/многократных нажатий.
+    if(sellAllSubmitting){
+        return;
+    }
+
     const result =
         document
             .getElementById(
                 "sellAllResult"
             );
 
-    result.innerText =
-        "⏳ Продажа...";
-
-    const data =
-        await apiRequest({
-            action:
-                "sell_all"
-        });
-
-    if(
-        !data.ok
-    ){
-
-        result.innerText =
-            "❌ "
-            +
-            data.error;
-
-        document
-            .getElementById(
-                "depositModal"
-            )
-            ?.classList.add(
-                "show"
-            );
-
-        showToast(
-            data.error || "Ошибка отправки заявки",
-            "error"
+    const available =
+        inventory.filter(
+            item => !item.locked
         );
 
+    if(available.length === 0){
+        if(result){
+            result.innerText =
+                "ℹ️ Нет доступных Brainrot для продажи";
+        }
         return;
-
     }
 
-    coins =
-        Number(
-            data.coins
+    setSellAllBusy(true);
+
+    if(result){
+        result.innerText =
+            "⏳ Продажа...";
+    }
+
+    try{
+        const data =
+            await apiRequest({
+                action:
+                    "sell_all"
+            });
+
+        if(
+            !data?.ok
+        ){
+            const message =
+                data?.error
+                ||
+                "Не удалось продать Brainrot";
+
+            if(result){
+                result.innerText =
+                    "❌ "
+                    +
+                    message;
+            }
+
+            // Раньше здесь по ошибке открывалось меню пополнения.
+            // Теперь ошибка продажи остаётся только внутри окна продажи.
+            showToast(
+                message,
+                "error"
+            );
+
+            return;
+        }
+
+        coins =
+            Number(
+                data.coins
+            );
+
+        inventory =
+            inventory.filter(
+                item =>
+                    item.locked
+            );
+
+        selectedSourceId =
+            null;
+
+        updateBalance();
+        renderInventory();
+        renderSourceGrid();
+        renderTargetGrid();
+        updateUpgradeUI();
+
+        if(result){
+            result.innerText =
+                `✅ Продано: ${data.sold_count}\n+${data.added_coins} ⓧ`;
+        }
+
+        setTimeout(
+            () => {
+                setSellAllBusy(false);
+                closeSellAll();
+            },
+            500
         );
 
-    inventory =
-        inventory.filter(
-            item =>
-                item.locked
+    }
+    catch(error){
+        const message =
+            error?.message
+            ||
+            "Ошибка продажи";
+
+        if(result){
+            result.innerText =
+                "❌ "
+                +
+                message;
+        }
+
+        showToast(
+            message,
+            "error"
         );
-
-    selectedSourceId =
-        null;
-
-    updateBalance();
-
-    renderInventory();
-
-    renderSourceGrid();
-
-    renderTargetGrid();
-
-    updateUpgradeUI();
-
-    result.innerText =
-        `✅ Продано: ${data.sold_count}\n+${data.added_coins} ⓧ`;
-
-    setTimeout(
-        closeSellAll,
-        500
-    );
-
+    }
+    finally{
+        // При успехе кнопка разблокируется чуть позже перед закрытием окна.
+        if(result && !String(result.innerText || "").startsWith("✅")){
+            setSellAllBusy(false);
+        }
+    }
 }
 
 
@@ -18693,10 +18769,12 @@ async function spinNeedle(
 
     }
 
+    // 7–10 полных оборотов: в начале стрелка идёт быстро,
+    // затем плавно теряет скорость и точно останавливается на target.
     const fullTurns =
-        4 +
+        7 +
         Math.floor(
-            Math.random() * 2
+            Math.random() * 4
         );
 
     needleRotation =
@@ -18704,11 +18782,11 @@ async function spinNeedle(
         target;
 
     const time =
-        4000 /
+        4400 /
         upgradeSpeed;
 
     rotor.style.transition =
-        `transform ${time}ms cubic-bezier(.12,.75,.12,1)`;
+        `transform ${time}ms cubic-bezier(.06,.82,.12,1)`;
 
     rotor.style.transform =
         `rotate(${needleRotation}deg)`;
@@ -25006,6 +25084,91 @@ document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ pollWit
 window.addEventListener("focus",()=>pollWithdrawOutOfStockNotifications());
 </script>
 
+
+<style id="brainroterx-targeted-upgrader-case-fix">
+/* =====================================================
+   2026-09-12 TARGETED FIX
+   - green upgrader fill
+   - cleaner upgrader needle
+   - case roulette keeps only the center line
+===================================================== */
+
+/* Зелёный сектор вместо оранжевого. */
+.upgrade-wheel{
+    background:
+        conic-gradient(
+            from var(--zone-start, 180deg),
+            #22c55e 0deg var(--zone-angle, 0deg),
+            #0b0b0b var(--zone-angle, 0deg) 360deg
+        ) !important;
+
+    box-shadow:
+        inset 0 0 28px rgba(0,0,0,.72),
+        inset 0 0 0 3px rgba(34,197,94,.10),
+        0 0 22px rgba(34,197,94,.14) !important;
+}
+
+.upgrade-wheel::before{
+    border-color:rgba(255,255,255,.08) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(34,197,94,.10),
+        0 0 18px rgba(0,0,0,.35) !important;
+}
+
+.upgrade-wheel::after{
+    border-color:rgba(34,197,94,.28) !important;
+    box-shadow:
+        inset 0 0 25px rgba(0,0,0,.75),
+        0 0 16px rgba(34,197,94,.12) !important;
+}
+
+/* Более аккуратный маркер апгрейдера: короткая зелёная стрелка внутрь круга. */
+.upgrade-needle{
+    top:-7px !important;
+    left:50% !important;
+    width:18px !important;
+    height:25px !important;
+    transform:translateX(-50%) !important;
+
+    border:0 !important;
+    border-left:0 !important;
+    border-right:0 !important;
+    border-bottom:0 !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #dcfce7 0%,
+            #4ade80 36%,
+            #22c55e 68%,
+            #15803d 100%
+        ) !important;
+
+    clip-path:polygon(0 0,100% 0,50% 100%) !important;
+
+    filter:
+        drop-shadow(0 0 3px rgba(220,252,231,.8))
+        drop-shadow(0 0 7px rgba(34,197,94,.65)) !important;
+}
+
+.upgrade-needle::after{
+    content:"" !important;
+    position:absolute !important;
+    left:50% !important;
+    top:4px !important;
+    width:4px !important;
+    height:10px !important;
+    transform:translateX(-50%) !important;
+    border-radius:999px !important;
+    background:rgba(255,255,255,.72) !important;
+    clip-path:none !important;
+}
+
+/* В кейсе оставляем только центральную линию, без стрелки сверху. */
+.roulette-pointer{
+    display:none !important;
+}
+</style>
 </body>
 
 </html>
