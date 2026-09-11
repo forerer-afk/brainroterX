@@ -10619,6 +10619,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         </div>
 
         <button
+            id="depositSubmitButton"
             class="submit-btn"
             onclick="submitDeposit()"
         >
@@ -21382,157 +21383,116 @@ function showDepositReceipt(data,items){
 async function submitDeposit(){
 
     const username =
-        document
-            .getElementById(
-                "depositRoblox"
-            )
-            .value
-            .trim();
+        String(
+            document.getElementById("depositRoblox")?.value || ""
+        ).trim();
 
     const referralCode =
-        document
-            .getElementById(
-                "depositReferral"
-            )
-            .value
-            .trim()
-            .toUpperCase();
+        String(
+            document.getElementById("depositReferral")?.value || ""
+        )
+        .trim()
+        .toUpperCase();
 
     const result =
-        document
-            .getElementById(
-                "depositResult"
-            );
+        document.getElementById("depositResult");
+
+    const button =
+        document.getElementById("depositSubmitButton");
 
     const items =
-        Object
-        .entries(
-            depositSelection
-        )
-        .filter(
-            (
-                [
-                    ,
-                    quantity
-                ]
-            ) =>
-                Number(
-                    quantity
-                )
-                >
-                0
-        )
-        .map(
-            (
-                [
-                    id,
-                    quantity
-                ]
-            ) => ({
+        Object.entries(depositSelection)
+        .filter(([, quantity]) => Number(quantity) > 0)
+        .map(([id, quantity]) => ({
+            brainrot_id: Number(id),
+            quantity: Number(quantity)
+        }));
 
-                brainrot_id:
-                    Number(
-                        id
-                    ),
+    if(!result) return;
 
-                quantity:
-                    Number(
-                        quantity
-                    )
-
-            })
-        );
-
-    if(
-        !items.length
-    ){
-
-        result.innerText =
-            "❌ Выбери Brainrot";
-
+    if(!items.length){
+        result.innerText = "❌ Выбери Brainrot";
         return;
-
     }
 
-    if(
-        username.length
-        <
-        3
-    ){
-
-        result.innerText =
-            "❌ Введи Roblox ник";
-
+    if(username.length < 3){
+        result.innerText = "❌ Введи Roblox ник";
         return;
-
     }
 
-    result.innerText =
-        "⏳ Отправляем...";
+    if(button){
+        button.disabled = true;
+        button.innerText = "ОТПРАВЛЯЕМ...";
+    }
 
-    // После нажатия "ОТПРАВИТЬ ЗАЯВКУ" сразу закрываем
-    // окно пополнения, чтобы оно не висело во время запроса.
-    closeDeposit();
+    result.innerText = "⏳ Отправляем заявку...";
 
-    const data =
-        await apiRequest({
-
-            action:
-                "create_balance_request",
-
-            roblox_username:
-                username,
-
-            referral_code:
-                referralCode,
-
-            items:
-                items
-
+    try{
+        const data = await apiRequest({
+            action: "create_balance_request",
+            roblox_username: username,
+            referral_code: referralCode,
+            items
         });
 
-    if(
-        !data.ok
-    ){
+        if(!data?.ok){
+            throw new Error(
+                data?.error || "Не удалось создать заявку"
+            );
+        }
+
+        const bonusText =
+            Number(data.referral_bonus || 0) > 0
+                ? `\n🎁 Реферальный бонус: +${data.referral_bonus} ⓧ`
+                : "";
 
         result.innerText =
-            "❌ "
-            +
-            data.error;
+            `✅ Заявка #${data.request_id} создана.${bonusText}\n` +
+            `💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ\n\n` +
+            `⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
 
-        return;
+        const receiptItems =
+            Object.entries(depositSelection)
+            .filter(([,q]) => Number(q) > 0)
+            .map(([id,q]) => {
+                const item = brainrots.find(
+                    x => Number(x.brainrot_id) === Number(id)
+                );
+                return item
+                    ? {
+                        name: item.name,
+                        value: getBrainrotDepositValue(item),
+                        quantity: Number(q)
+                    }
+                    : null;
+            })
+            .filter(Boolean);
 
+        showToast(
+            `💰 Заявка на пополнение #${data.request_id} создана`,
+            "success"
+        );
+
+        // Закрываем меню только после реально успешного создания заявки.
+        closeDeposit();
+        showDepositReceipt(data, receiptItems);
     }
+    catch(error){
+        const message = String(
+            error?.message || "Ошибка создания заявки"
+        );
 
-    const bonusText =
-        Number(
-            data.referral_bonus ||
-            0
-        ) > 0
-            ?
-            `\n🎁 Реферальный бонус: +${data.referral_bonus} ⓧ`
-            :
-            "";
-
-    result.innerText =
-        `✅ Заявка #${data.request_id} создана.${bonusText}\n💰 После подтверждения: ${data.credited_value || data.total_value} ⓧ\n\n⏳ У вас есть 5 минут, чтобы зайти в игру и принять трейд.`;
-
-    showToast(
-        `💰 Заявка на пополнение #${data.request_id} создана`,
-        "info"
-    );
-
-
-    const receiptItems = Object.entries(depositSelection)
-        .filter(([,q])=>Number(q)>0)
-        .map(([id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));return item?{name:item.name,value:getBrainrotDepositValue(item),quantity:Number(q)}:null;})
-        .filter(Boolean);
-
-    closeDeposit();
-    showDepositReceipt(data, receiptItems);
-
+        // Окно остаётся открытым, поэтому игрок сразу видит причину.
+        result.innerText = "❌ " + message;
+        showToast("❌ " + message, "error");
+    }
+    finally{
+        if(button){
+            button.disabled = false;
+            button.innerText = "ОТПРАВИТЬ ЗАЯВКУ";
+        }
+    }
 }
-
 
 
 /* =====================================================
