@@ -9218,6 +9218,39 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 }
 </style>
 
+
+<style id="brainroterx-real-case-images">
+/* Real PNG art for all case cards. Keeps existing card layout and mechanics. */
+#casesPage #caseList .case-image-art{
+    display:block !important;
+    width:132px !important;
+    height:108px !important;
+    max-width:96% !important;
+    margin:0 auto 3px !important;
+    object-fit:contain !important;
+    object-position:center !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+    filter:none !important;
+    opacity:1 !important;
+    transform:none !important;
+    pointer-events:none !important;
+    user-select:none !important;
+    -webkit-user-select:none !important;
+    -webkit-user-drag:none !important;
+}
+#casesPage #caseList .case-image-art.case-image-missing{
+    opacity:.18 !important;
+}
+@media (max-width:420px){
+    #casesPage #caseList .case-image-art{
+        width:120px !important;
+        height:100px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -13383,6 +13416,47 @@ const CASE_VISUALS = {
 };
 
 
+/* =====================================================
+   REAL CASE IMAGES — GitHub /cases folder
+===================================================== */
+const CASE_IMAGE_VERSION = "20260914-1";
+
+const CASE_IMAGES = {
+    "free case":"./cases/free-case.png",
+    "daily case":"./cases/free-case.png",
+    "ежедневный кейс":"./cases/free-case.png",
+    "ежедневний кейс":"./cases/free-case.png",
+
+    "noob case":"./cases/noobini-case.png",
+    "noobini case":"./cases/noobini-case.png",
+
+    "lucky case":"./cases/lucky-case.png",
+    "toxic case":"./cases/toxic-case.png",
+    "chaos case":"./cases/chaos-case.png",
+    "neon case":"./cases/neon-case.png",
+    "lavaka case":"./cases/lavaka-case.png",
+    "mystery case":"./cases/mystery-case.png",
+    "secret case":"./cases/secret-case.png",
+    "elite case":"./cases/elite-case.png",
+    "pro case":"./cases/pro-case.png",
+    "crazy case":"./cases/crazy-case.png",
+    "666 case":"./cases/666-case.png",
+    "moon case":"./cases/moon-case.png",
+    "random case":"./cases/random-case.png",
+    "randomo case":"./cases/random-case.png",
+    "overdrive case":"./cases/overdrive-case.png",
+    "dragon case":"./cases/dragon-case.png",
+    "meteor case":"./cases/meteor-case.png",
+    "phantom case":"./cases/phantom-case.png"
+};
+
+function caseImageFor(gameCase){
+    const key = normalizeName(gameCase?.name || "");
+    const path = CASE_IMAGES[key];
+    return path ? `${path}?v=${CASE_IMAGE_VERSION}` : "";
+}
+
+
 function caseVisualFor(
     gameCase
 ){
@@ -14106,16 +14180,15 @@ function buildCaseCard(gameCase){
         `
         ${isNew ? '<div class="case-new-badge">NEW</div>' : ''}
 
-        <div class="code-case-art" aria-hidden="true">
-            <div class="code-case-glow"></div>
-            <div class="code-case-lid"></div>
-            <div class="code-case-shell">
-                <span class="code-case-symbol">
-                    ${visual.symbol}
-                </span>
-            </div>
-            <div class="code-case-feet"></div>
-        </div>
+        <img
+            class="case-image-art"
+            src="${escapeHtml(caseImageFor(gameCase))}"
+            alt="${escapeHtml(gameCase.name)}"
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            onerror="this.classList.add('case-image-missing')"
+        >
 
         <div class="case-name">
             ${escapeHtml(gameCase.name)}
@@ -14151,14 +14224,15 @@ function buildDailyCaseCard(){
 
     dailyCard.innerHTML =
         `
-        <div class="code-case-art" aria-hidden="true">
-            <div class="code-case-glow"></div>
-            <div class="code-case-lid"></div>
-            <div class="code-case-shell">
-                <span class="code-case-symbol">🎁</span>
-            </div>
-            <div class="code-case-feet"></div>
-        </div>
+        <img
+            class="case-image-art"
+            src="./cases/free-case.png?v=${CASE_IMAGE_VERSION}"
+            alt="FREE CASE"
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            onerror="this.classList.add('case-image-missing')"
+        >
 
         <div class="case-name">
             Ежедневный кейс
