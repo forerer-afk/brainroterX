@@ -25680,6 +25680,324 @@ body.streamer-mode #settingsModal *{
 })();
 </script>
 
+
+
+<script id="brainroterx-high-online-optimizer-v1">
+/* =====================================================
+   BRAINROTER X — HIGH ONLINE OPTIMIZER 2026-09-14
+   Frontend-only load reduction. Gameplay/server odds unchanged.
+   - big wins: 5s -> ~15-20s, no boot burst
+   - withdraw OOS: ~30s idle / ~12-16s when relevant
+   - active deposit status: ~5-7s
+   - no background network polling while Mini App is hidden
+   - duplicate background calls are collapsed/throttled
+   - restore lookups without local request IDs are delayed+jittered
+===================================================== */
+(() => {
+    const isVisible = () => document.visibilityState === "visible" && !document.hidden;
+    const jitter = (base, spread) => base + Math.floor(Math.random() * Math.max(1, spread));
+
+    const BIG_WINS_INTERVAL = jitter(15000, 5000);
+    const OOS_INTERVAL = jitter(12000, 4000);
+    const DEPOSIT_INTERVAL = jitter(5000, 1400);
+    const GEAR_DEPOSIT_INTERVAL = jitter(5000, 1400);
+    const UAH_DEPOSIT_INTERVAL = jitter(5500, 1500);
+
+    /* ---------- silent sync: suppress duplicate focus/tab bursts ---------- */
+    if(typeof silentSync === "function"){
+        const originalSilentSync = silentSync;
+        let silentRunningPromise = null;
+        let lastSilentStartedAt = 0;
+
+        silentSync = function(...args){
+            if(!isVisible()) return Promise.resolve();
+            if(silentRunningPromise) return silentRunningPromise;
+
+            const now = Date.now();
+            if(now - lastSilentStartedAt < 1500){
+                return Promise.resolve();
+            }
+            lastSilentStartedAt = now;
+
+            silentRunningPromise = Promise.resolve(
+                originalSilentSync.apply(this, args)
+            ).finally(() => {
+                silentRunningPromise = null;
+            });
+
+            return silentRunningPromise;
+        };
+    }
+
+    /* ---------- big wins ---------- */
+    if(typeof refreshBigWins === "function"){
+        const originalRefreshBigWins = refreshBigWins;
+        let lastBigWinsAt = 0;
+        let bigWinsPromise = null;
+
+        refreshBigWins = function(force = false){
+            if(!isVisible()) return Promise.resolve();
+            if(bigWinsPromise) return bigWinsPromise;
+
+            const now = Date.now();
+            if(!force && now - lastBigWinsAt < 12000){
+                return Promise.resolve();
+            }
+            if(force && now - lastBigWinsAt < 1200){
+                return Promise.resolve();
+            }
+            lastBigWinsAt = now;
+
+            bigWinsPromise = Promise.resolve(
+                originalRefreshBigWins()
+            ).finally(() => {
+                bigWinsPromise = null;
+            });
+            return bigWinsPromise;
+        };
+
+        startBigWinsLive = function(){
+            if(bigWinsTimer){
+                clearInterval(bigWinsTimer);
+                clearTimeout(bigWinsTimer);
+            }
+            /* get_player already brings big_wins on normal boot.
+               Do not fire another identical request immediately for every user. */
+            bigWinsTimer = setInterval(
+                () => refreshBigWins(false),
+                BIG_WINS_INTERVAL
+            );
+        };
+
+        /* Replace the old 5-second timer created earlier in the page. */
+        startBigWinsLive();
+    }
+
+    /* ---------- live deposit polling: only for an active request ---------- */
+    if(typeof pollDepositTradeStatus === "function"){
+        const originalPollDeposit = pollDepositTradeStatus;
+        let depositPollBusy = false;
+        pollDepositTradeStatus = async function(){
+            if(!isVisible() || !activeDepositTradeRequest || depositPollBusy) return;
+            depositPollBusy = true;
+            try{
+                return await originalPollDeposit();
+            }finally{
+                depositPollBusy = false;
+            }
+        };
+    }
+
+    if(typeof startDepositTradeTracking === "function"){
+        const originalStartDeposit = startDepositTradeTracking;
+        startDepositTradeTracking = function(...args){
+            const result = originalStartDeposit.apply(this, args);
+            if(depositTradePollTimer) clearInterval(depositTradePollTimer);
+            depositTradePollTimer = setInterval(
+                () => pollDepositTradeStatus(),
+                DEPOSIT_INTERVAL
+            );
+            return result;
+        };
+        if(activeDepositTradeRequest){
+            if(depositTradePollTimer) clearInterval(depositTradePollTimer);
+            depositTradePollTimer = setInterval(() => pollDepositTradeStatus(), DEPOSIT_INTERVAL);
+        }
+    }
+
+    if(typeof pollGearDepositStatus === "function"){
+        const originalPollGear = pollGearDepositStatus;
+        let gearPollBusy = false;
+        pollGearDepositStatus = async function(){
+            if(!isVisible() || !activeGearDepositRequest || gearPollBusy) return;
+            gearPollBusy = true;
+            try{
+                return await originalPollGear();
+            }finally{
+                gearPollBusy = false;
+            }
+        };
+    }
+
+    if(typeof startGearDepositTracking === "function"){
+        const originalStartGear = startGearDepositTracking;
+        startGearDepositTracking = function(...args){
+            const result = originalStartGear.apply(this, args);
+            if(gearDepositPollTimer) clearInterval(gearDepositPollTimer);
+            gearDepositPollTimer = setInterval(
+                () => pollGearDepositStatus(),
+                GEAR_DEPOSIT_INTERVAL
+            );
+            return result;
+        };
+        if(activeGearDepositRequest){
+            if(gearDepositPollTimer) clearInterval(gearDepositPollTimer);
+            gearDepositPollTimer = setInterval(() => pollGearDepositStatus(), GEAR_DEPOSIT_INTERVAL);
+        }
+    }
+
+    if(typeof pollUahDepositStatus === "function"){
+        const originalPollUah = pollUahDepositStatus;
+        let uahPollBusy = false;
+        pollUahDepositStatus = async function(){
+            if(!isVisible() || !activeUahDepositRequest || uahPollBusy) return;
+            uahPollBusy = true;
+            try{
+                return await originalPollUah();
+            }finally{
+                uahPollBusy = false;
+            }
+        };
+    }
+
+    if(typeof startUahDepositTracking === "function"){
+        const originalStartUah = startUahDepositTracking;
+        startUahDepositTracking = function(...args){
+            const result = originalStartUah.apply(this, args);
+            if(uahDepositPollTimer) clearInterval(uahDepositPollTimer);
+            uahDepositPollTimer = setInterval(
+                () => pollUahDepositStatus(),
+                UAH_DEPOSIT_INTERVAL
+            );
+            return result;
+        };
+        if(activeUahDepositRequest){
+            if(uahDepositPollTimer) clearInterval(uahDepositPollTimer);
+            uahDepositPollTimer = setInterval(() => pollUahDepositStatus(), UAH_DEPOSIT_INTERVAL);
+        }
+    }
+
+    /* ---------- restore checks ----------
+       With no local request ID the old code queried Supabase on every focus.
+       Keep cross-device recovery, but delay/stagger and limit it to once/minute. */
+    const wrapRestore = (fnName, storageKey) => {
+        const original = window[fnName];
+        if(typeof original !== "function") return;
+
+        let lastServerDiscoveryAt = 0;
+        let discoveryScheduled = false;
+        let runningPromise = null;
+
+        window[fnName] = function(...args){
+            if(!isVisible()) return Promise.resolve();
+            if(runningPromise) return runningPromise;
+
+            let localId = 0;
+            try{ localId = Number(localStorage.getItem(storageKey) || 0); }catch(_){ }
+
+            if(localId > 0){
+                runningPromise = Promise.resolve(original.apply(this, args)).finally(() => {
+                    runningPromise = null;
+                });
+                return runningPromise;
+            }
+
+            const now = Date.now();
+            if(now - lastServerDiscoveryAt < 60000 || discoveryScheduled){
+                return Promise.resolve();
+            }
+
+            discoveryScheduled = true;
+            setTimeout(() => {
+                discoveryScheduled = false;
+                if(!isVisible()) return;
+                if(Date.now() - lastServerDiscoveryAt < 60000) return;
+                lastServerDiscoveryAt = Date.now();
+                runningPromise = Promise.resolve(original()).finally(() => {
+                    runningPromise = null;
+                });
+            }, jitter(4500, 4500));
+
+            return Promise.resolve();
+        };
+    };
+
+    wrapRestore("restoreActiveDepositTradeRequest", "brainroterx_active_deposit_request");
+    wrapRestore("restoreActiveGearDepositRequest", "brainroterx_active_gear_deposit_request");
+    wrapRestore("restoreActiveUahDepositRequest", "brainroterx_active_uah_deposit_request");
+
+    /* ---------- withdraw out-of-stock notifications ---------- */
+    if(typeof pollWithdrawOutOfStockNotifications === "function"){
+        const originalPollOos = pollWithdrawOutOfStockNotifications;
+        let lastOosAt = 0;
+        let oosPromise = null;
+
+        pollWithdrawOutOfStockNotifications = function(force = false){
+            if(!isVisible() || oosPromise) return Promise.resolve();
+
+            const hasRelevantRequest = Boolean(
+                activeWithdrawOutOfStockRequest ||
+                (Array.isArray(pendingWithdrawRequests) && pendingWithdrawRequests.length)
+            );
+            const minGap = hasRelevantRequest ? 10000 : 28000;
+            const now = Date.now();
+
+            if(!force && now - lastOosAt < minGap) return Promise.resolve();
+            if(force && now - lastOosAt < 1500) return Promise.resolve();
+            lastOosAt = now;
+
+            oosPromise = Promise.resolve(
+                originalPollOos(force)
+            ).finally(() => {
+                oosPromise = null;
+            });
+            return oosPromise;
+        };
+
+        startWithdrawOutOfStockWatch = function(){
+            if(withdrawOutOfStockPollTimer){
+                clearInterval(withdrawOutOfStockPollTimer);
+                clearTimeout(withdrawOutOfStockPollTimer);
+            }
+            /* Stagger users so a mass Telegram-channel click does not hit Supabase at once. */
+            setTimeout(
+                () => pollWithdrawOutOfStockNotifications(false),
+                jitter(2500, 3500)
+            );
+            withdrawOutOfStockPollTimer = setInterval(
+                () => pollWithdrawOutOfStockNotifications(false),
+                OOS_INTERVAL
+            );
+        };
+
+        /* If the old 2.5-second watcher already exists, replace it. */
+        if(withdrawOutOfStockPollTimer){
+            clearInterval(withdrawOutOfStockPollTimer);
+            withdrawOutOfStockPollTimer = null;
+            startWithdrawOutOfStockWatch();
+        }
+    }
+
+    /* ---------- resume ---------- */
+    let resumeTimer = null;
+    const resumeBackgroundWork = () => {
+        if(!isVisible()) return;
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(() => {
+            if(!isVisible()) return;
+            if(typeof refreshBigWins === "function") refreshBigWins(true);
+            if(activeDepositTradeRequest && typeof pollDepositTradeStatus === "function") pollDepositTradeStatus();
+            if(activeGearDepositRequest && typeof pollGearDepositStatus === "function") pollGearDepositStatus();
+            if(activeUahDepositRequest && typeof pollUahDepositStatus === "function") pollUahDepositStatus();
+            if(typeof pollWithdrawOutOfStockNotifications === "function") pollWithdrawOutOfStockNotifications(true);
+        }, jitter(250, 500));
+    };
+
+    document.addEventListener("visibilitychange", () => {
+        if(isVisible()) resumeBackgroundWork();
+    });
+    window.addEventListener("focus", resumeBackgroundWork);
+
+    console.log("BrainroterX HIGH ONLINE optimizer active", {
+        bigWinsMs: BIG_WINS_INTERVAL,
+        withdrawWatchMs: OOS_INTERVAL,
+        depositMs: DEPOSIT_INTERVAL,
+        gearDepositMs: GEAR_DEPOSIT_INTERVAL,
+        uahDepositMs: UAH_DEPOSIT_INTERVAL
+    });
+})();
+</script>
+
 </body>
 
 </html>
