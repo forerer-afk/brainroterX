@@ -12483,6 +12483,8 @@ let depositEnabled = true;
 let uahDepositEnabled = true;
 let brainrotDepositEnabled = true;
 let rubDepositEnabled = true;
+let withdrawEnabled = true;
+let withdrawStatusChecking = false;
 
 /* ADMIN PANEL / LIVE AVAILABILITY */
 let adminPanelAccess = false;
@@ -13184,6 +13186,9 @@ async function loadPlayer(){
 
         rubDepositEnabled =
             data.rub_deposit_enabled !== false;
+
+        withdrawEnabled =
+            data.withdraw_enabled !== false;
 
         adminPanelAccess =
             Boolean(data.can_admin_panel);
@@ -23411,12 +23416,42 @@ function replaceUnavailableWithdraw(id){
 }
 
 
-function openWithdraw(
+async function openWithdraw(
     id
 ){
 
-    // Глобальный /- в админ-боте выключает и пополнение, и вывод.
-    if(!depositEnabled){
+    // Всегда проверяем вывод на сервере прямо при нажатии.
+    // Поэтому /v- срабатывает даже у игрока, который не перезагружал Mini App.
+    if(withdrawStatusChecking){
+        return;
+    }
+
+    withdrawStatusChecking = true;
+
+    try{
+        const status =
+            await apiRequest({
+                action:
+                    "get_withdraw_status"
+            });
+
+        if(status && status.ok){
+            withdrawEnabled =
+                status.withdraw_enabled !== false;
+        }
+        else{
+            withdrawEnabled = false;
+        }
+    }
+    catch(_){
+        // Если статус не удалось проверить, форму вывода не открываем.
+        withdrawEnabled = false;
+    }
+    finally{
+        withdrawStatusChecking = false;
+    }
+
+    if(!withdrawEnabled){
         showToast(
             "Вывод временно недоступен",
             "error"
