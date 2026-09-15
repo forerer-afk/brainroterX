@@ -9474,6 +9474,75 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     }
 }
 </style>
+
+<style id="brainroterx-case-hotfix-petrosyan-new-v3">
+/* =====================================================
+   CASE HOTFIX V3
+   - compact NEW badge
+   - later legacy CSS must not move it into document flow
+   - Petrosyan transparent art stays clean and same-size
+===================================================== */
+#casesPage #caseList .case-card{
+    position:relative !important;
+}
+
+#casesPage #caseList .case-new-badge{
+    position:absolute !important;
+    top:7px !important;
+    right:7px !important;
+    left:auto !important;
+    bottom:auto !important;
+    z-index:12 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:17px !important;
+    min-height:17px !important;
+    margin:0 !important;
+    padding:0 6px !important;
+    border-radius:6px !important;
+    border:1px solid rgba(255,224,145,.46) !important;
+    background:linear-gradient(135deg,#ffd76a,#e9a827) !important;
+    color:#211503 !important;
+    font-family:"Manrope","Arial",sans-serif !important;
+    font-size:6.5px !important;
+    line-height:1 !important;
+    font-weight:1000 !important;
+    letter-spacing:.35px !important;
+    white-space:nowrap !important;
+    box-sizing:border-box !important;
+    box-shadow:0 2px 7px rgba(0,0,0,.22) !important;
+    transform:none !important;
+    pointer-events:none !important;
+}
+
+#casesPage #caseList .partner-case-card .case-image-art,
+#casesPage #caseList .partner-case-image{
+    background:transparent !important;
+    object-fit:contain !important;
+    box-shadow:none !important;
+    filter:none !important;
+}
+
+#casesPage #caseList .partner-case-card{
+    overflow:hidden !important;
+}
+
+@media(max-width:390px){
+    #casesPage #caseList .case-new-badge{
+        top:6px !important;
+        right:6px !important;
+        height:16px !important;
+        min-height:16px !important;
+        padding:0 5px !important;
+        font-size:6px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -14464,7 +14533,7 @@ function buildCaseCard(gameCase){
 
     card.innerHTML =
         `
-        ${isNew ? '<div class="case-new-badge">NEW</div>' : ''}
+        ${isNew ? '<div class="case-new-badge">НОВЫЙ</div>' : ''}
 
         <div class="case-stars" aria-hidden="true">
             <span></span><span></span><span></span><span></span>
@@ -14787,7 +14856,7 @@ function renderCases(){
         );
 
     const newCases =
-        shopCases
+        filteredCases
         .filter(
             isNewCase
         )
@@ -14837,6 +14906,16 @@ function renderCases(){
         :
         shopCases;
 
+    const visiblePartnerCases =
+        newCasesFirst
+        ?
+        partnerCases.filter(
+            gameCase =>
+                !isNewCase(gameCase)
+        )
+        :
+        partnerCases;
+
     const byPrice =
         (category) =>
             regularCases
@@ -14875,10 +14954,22 @@ function renderCases(){
         items:byPrice("premium")
     });
 
-    appendPartnerCaseSection(
-        root,
-        partnerCases
-    );
+    /*
+      When "New cases" is enabled, a new partner case is shown in
+      the common New section and must not be duplicated below.
+      If the real partner case is not loaded at all, keep the
+      placeholder so the Partners block does not disappear.
+    */
+    if(
+        !newCasesFirst
+        || visiblePartnerCases.length
+        || !partnerCases.length
+    ){
+        appendPartnerCaseSection(
+            root,
+            visiblePartnerCases
+        );
+    }
 
     renderDailyCard();
 
