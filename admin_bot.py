@@ -771,7 +771,9 @@ def commands_text():
         "/r- — отключить только РУБ / FunPay\n"
         "/r+ — включить только РУБ / FunPay\n"
         "/b- — отключить только Brainrot\n"
-        "/b+ — включить только Brainrot\n\n"
+        "/b+ — включить только Brainrot\n"
+        "/v- — отключить вывод\n"
+        "/v+ — включить вывод\n\n"
         "/mem+ TELEGRAM_ID — включить MEM\n"
         "/mem- TELEGRAM_ID — выключить MEM\n"
         "/luck+ TELEGRAM_ID — включить LUCK\n"
@@ -830,6 +832,24 @@ async def r_minus_command(update, context): await set_channel(update,"rub",False
 async def r_plus_command(update, context): await set_channel(update,"rub",True)
 async def b_minus_command(update, context): await set_channel(update,"brainrot",False)
 async def b_plus_command(update, context): await set_channel(update,"brainrot",True)
+
+async def set_withdraw_state(update, enabled):
+    if not is_admin(update):
+        await update.message.reply_text("❌ Нет доступа")
+        return
+    result = await call_server_async(
+        "admin_set_withdraw_enabled",
+        enabled=enabled
+    )
+    if not result.get("ok"):
+        await update.message.reply_text("❌ " + result.get("error", "Ошибка"))
+        return
+    await update.message.reply_text(
+        "✅ Вывод включён" if enabled else "⛔ Вывод отключён"
+    )
+
+async def v_minus_command(update, context): await set_withdraw_state(update, False)
+async def v_plus_command(update, context): await set_withdraw_state(update, True)
 
 
 # =====================================================
@@ -986,7 +1006,8 @@ async def button_handler(
               f"Общее: {'✅ ВКЛ' if result.get('deposit_enabled',True) else '⛔ ВЫКЛ'}\n"
               f"ГРН: {'✅ ВКЛ' if result.get('uah_enabled',True) else '⛔ ВЫКЛ'}\n"
               f"РУБ / FunPay: {'✅ ВКЛ' if result.get('rub_enabled',True) else '⛔ ВЫКЛ'}\n"
-              f"Brainrot + Гирсы: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
+              f"Brainrot + Гирсы: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}\n"
+              f"Вывод: {'✅ ВКЛ' if result.get('withdraw_enabled',True) else '⛔ ВЫКЛ'}")
         await query.answer()
         await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
         return
@@ -2247,6 +2268,8 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r"^/r\+(@[A-Za-z0-9_]+)?\s*$"), r_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b-(@[A-Za-z0-9_]+)?\s*$"), b_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b\+(@[A-Za-z0-9_]+)?\s*$"), b_plus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/v-(@[A-Za-z0-9_]+)?\s*$"), v_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/v\+(@[A-Za-z0-9_]+)?\s*$"), v_plus_command))
 
     app.add_handler(
         MessageHandler(
