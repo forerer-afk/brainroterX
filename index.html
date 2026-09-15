@@ -9421,6 +9421,37 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     }
 }
 </style>
+
+<style id="brainroterx-new-badge-button-fix">
+/* NEW badge must stay a small, straight corner label.
+   This late override fixes an older generic rule that made it relative. */
+#casesPage #caseList .case-new-badge{
+    position:absolute !important;
+    top:6px !important;
+    right:6px !important;
+    left:auto !important;
+    bottom:auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:2px 4px !important;
+    border-radius:5px !important;
+    font-size:5.5px !important;
+    line-height:1 !important;
+    letter-spacing:.25px !important;
+    transform:none !important;
+    rotate:none !important;
+    box-shadow:none !important;
+    white-space:nowrap !important;
+}
+#casesPage #caseList .partner-case-card .case-new-badge{
+    top:5px !important;
+    right:5px !important;
+    padding:2px 4px !important;
+    font-size:5px !important;
+}
+</style>
 </head>
 
 <body>
@@ -13589,7 +13620,7 @@ const CASE_VISUALS = {
 /* =====================================================
    REAL CASE IMAGES — GitHub /cases folder
 ===================================================== */
-const CASE_IMAGE_VERSION = "20260915-petrosyan-1";
+const CASE_IMAGE_VERSION = "20260914-1";
 
 const CASE_IMAGES = {
     "free case":"./cases/free-case.png",
@@ -14676,7 +14707,7 @@ function renderCases(){
         );
 
     const newCases =
-        shopCases
+        filteredCases
         .filter(
             isNewCase
         )
