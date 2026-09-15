@@ -9356,6 +9356,71 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 }
 </style>
 
+
+<style id="brainroterx-partner-cases">
+/* PARTNERS — always the last case section. */
+#casesPage #caseList .case-section-partners{
+    margin-top:20px !important;
+    padding-top:3px !important;
+}
+#casesPage #caseList .case-section-partners .case-section-title-wrap{
+    border-bottom-color:rgba(250,204,21,.12) !important;
+}
+#casesPage #caseList .case-section-partners .case-section-title{
+    color:#f7e7a7 !important;
+}
+#casesPage #caseList .case-section-partners .case-section-count{
+    color:#f7e7a7 !important;
+    border-color:rgba(250,204,21,.12) !important;
+    background:rgba(250,204,21,.04) !important;
+}
+#casesPage #caseList .partner-case-card{
+    border-top-color:rgba(250,204,21,.42) !important;
+}
+#casesPage #caseList .partner-case-placeholder{
+    cursor:pointer !important;
+}
+#casesPage #caseList .partner-case-art-shell{
+    position:relative;
+    width:166px;
+    height:138px;
+    max-width:104%;
+    margin:0 auto 3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+#casesPage #caseList .partner-case-art-shell .case-image-art{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+}
+#casesPage #caseList .partner-case-art-fallback{
+    width:82px;
+    height:82px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:24px;
+    color:rgba(255,255,255,.78);
+    background:linear-gradient(145deg,rgba(32,28,20,.96),rgba(4,4,4,.99));
+    border:1px solid rgba(250,204,21,.15);
+    font-family:"Unbounded","Manrope",sans-serif;
+    font-size:35px;
+    font-weight:900;
+    box-shadow:0 10px 24px rgba(0,0,0,.20);
+}
+@media(max-width:420px){
+    #casesPage #caseList .partner-case-art-shell{
+        width:154px;
+        height:128px;
+        max-width:106%;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -13524,7 +13589,7 @@ const CASE_VISUALS = {
 /* =====================================================
    REAL CASE IMAGES — GitHub /cases folder
 ===================================================== */
-const CASE_IMAGE_VERSION = "20260914-1";
+const CASE_IMAGE_VERSION = "20260915-petrosyan-1";
 
 const CASE_IMAGES = {
     "free case":"./cases/free-case.png",
@@ -13552,7 +13617,12 @@ const CASE_IMAGES = {
     "overdrive case":"./cases/overdrive-case.png",
     "dragon case":"./cases/dragon-case.png",
     "meteor case":"./cases/meteor-case.png",
-    "phantom case":"./cases/phantom-case.png"
+    "phantom case":"./cases/phantom-case.png",
+
+    "петросян":"./cases/petrosyan.png",
+    "петросян кейс":"./cases/petrosyan.png",
+    "petrosyan":"./cases/petrosyan.png",
+    "petrosyan case":"./cases/petrosyan.png"
 };
 
 function caseImageFor(gameCase){
@@ -14456,6 +14526,102 @@ function appendCaseSection({
 }
 
 
+const PARTNER_CASE_NAMES = new Set([
+    "петросян",
+    "петросян кейс",
+    "petrosyan",
+    "petrosyan case"
+]);
+
+function isPartnerCase(gameCase){
+    return PARTNER_CASE_NAMES.has(
+        normalizeName(gameCase?.name || "")
+    );
+}
+
+function partnerCaseDisplayName(gameCase){
+    const key = normalizeName(gameCase?.name || "");
+    if(PARTNER_CASE_NAMES.has(key)){
+        return "Петросян";
+    }
+    return String(gameCase?.name || "");
+}
+
+function buildPartnerPlaceholderCard(){
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "case-card partner-case-card partner-case-placeholder";
+    card.setAttribute("aria-label", "Петросян");
+
+    card.innerHTML = `
+        <div class="case-stars" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="partner-case-art-shell" aria-hidden="true">
+            <div class="partner-case-art-fallback">P</div>
+            <img
+                class="case-image-art partner-case-image"
+                src="./cases/petrosyan.png?v=${CASE_IMAGE_VERSION}"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                onload="this.previousElementSibling.style.display='none'"
+                onerror="this.style.display='none'"
+            >
+        </div>
+
+        <div class="case-name">Петросян</div>
+    `;
+
+    card.onclick = () => {
+        showToast("Петросян пока настраивается", "info");
+    };
+
+    return card;
+}
+
+function appendPartnerCaseSection(root, items){
+    const section = document.createElement("section");
+    section.className = "case-section case-section-partners";
+
+    const realItems = Array.isArray(items) ? items : [];
+    const totalCount = realItems.length || 1;
+
+    section.innerHTML = `
+        <div class="case-section-head">
+            <div class="case-section-title-wrap">
+                <div class="case-section-title">🤝 Партнёры</div>
+                <div class="case-section-subtitle">Кейсы партнёров</div>
+            </div>
+            <div class="case-section-count">${totalCount}</div>
+        </div>
+    `;
+
+    const list = document.createElement("div");
+    list.className = "case-list partner-case-list";
+
+    if(realItems.length){
+        realItems.forEach(gameCase => {
+            const card = buildCaseCard(gameCase);
+            const name = card.querySelector(".case-name");
+            if(name){
+                name.textContent = partnerCaseDisplayName(gameCase);
+            }
+            card.classList.add("partner-case-card");
+            list.appendChild(card);
+        });
+    }else{
+        list.appendChild(buildPartnerPlaceholderCard());
+    }
+
+    section.appendChild(list);
+    root.appendChild(section);
+}
+
+
 function renderCases(){
 
     const root =
@@ -14496,8 +14662,21 @@ function renderCases(){
             }
         );
 
-    const newCases =
+    const partnerCases =
         filteredCases
+        .filter(
+            isPartnerCase
+        );
+
+    const shopCases =
+        filteredCases
+        .filter(
+            gameCase =>
+                !isPartnerCase(gameCase)
+        );
+
+    const newCases =
+        shopCases
         .filter(
             isNewCase
         )
@@ -14540,12 +14719,12 @@ function renderCases(){
     const regularCases =
         newCasesFirst
         ?
-        filteredCases.filter(
+        shopCases.filter(
             gameCase =>
                 !isNewCase(gameCase)
         )
         :
-        filteredCases;
+        shopCases;
 
     const byPrice =
         (category) =>
@@ -14584,6 +14763,11 @@ function renderCases(){
         subtitle:"1001–3000 ⓧ",
         items:byPrice("premium")
     });
+
+    appendPartnerCaseSection(
+        root,
+        partnerCases
+    );
 
     renderDailyCard();
 
