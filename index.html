@@ -1736,6 +1736,18 @@ img{
     font-size:11px;
     font-weight:900;
 }
+
+.rub-funpay-box{
+    margin-top:12px;
+    padding:14px;
+    border-radius:14px;
+    background:linear-gradient(180deg,rgba(18,14,28,.98),rgba(10,8,18,.99));
+    border:1px solid rgba(168,85,247,.16);
+}
+.rub-funpay-title{font-size:15px;font-weight:950;color:#fff;margin-bottom:8px;}
+.rub-funpay-link{word-break:break-all;font-size:11px;color:#c4b5fd;line-height:1.45;}
+.rub-funpay-steps{margin:12px 0 0;padding-left:20px;color:#d7d2df;font-size:11px;line-height:1.65;}
+.rub-funpay-note{margin-top:12px;padding:10px;border-radius:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.14);color:#c8f7d4;font-size:10px;line-height:1.5;}
 .uah-preview{
     margin-top:7px;
     padding:9px 10px;
@@ -9421,37 +9433,6 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     }
 }
 </style>
-
-<style id="brainroterx-new-badge-button-fix">
-/* NEW badge must stay a small, straight corner label.
-   This late override fixes an older generic rule that made it relative. */
-#casesPage #caseList .case-new-badge{
-    position:absolute !important;
-    top:6px !important;
-    right:6px !important;
-    left:auto !important;
-    bottom:auto !important;
-    width:auto !important;
-    min-width:0 !important;
-    height:auto !important;
-    margin:0 !important;
-    padding:2px 4px !important;
-    border-radius:5px !important;
-    font-size:5.5px !important;
-    line-height:1 !important;
-    letter-spacing:.25px !important;
-    transform:none !important;
-    rotate:none !important;
-    box-shadow:none !important;
-    white-space:nowrap !important;
-}
-#casesPage #caseList .partner-case-card .case-new-badge{
-    top:5px !important;
-    right:5px !important;
-    padding:2px 4px !important;
-    font-size:5px !important;
-}
-</style>
 </head>
 
 <body>
@@ -10801,6 +10782,14 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
             >
                 ₴ ГРН
             </button>
+
+            <button
+                id="depositTabRubBtn"
+                class="deposit-tab-btn"
+                onclick="setDepositTab('rub')"
+            >
+                ₽ РУБЛИ
+            </button>
         </div>
 
         <div
@@ -10993,6 +10982,37 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
                     class="result"
                 ></div>
 
+            </div>
+        </div>
+
+        <div
+            id="depositRubTab"
+            class="deposit-tab-panel"
+        >
+            <div class="rub-funpay-box">
+                <div class="rub-funpay-title">₽ Пополнение через FunPay</div>
+                <div class="rub-funpay-link">https://funpay.com/users/16781029/</div>
+
+                <ol class="rub-funpay-steps">
+                    <li>Открой FunPay по кнопке ниже.</li>
+                    <li>Купи нужный тебе лот.</li>
+                    <li>Получи промокод после покупки.</li>
+                    <li>Открой Профиль → «Промокод» и активируй полученный код.</li>
+                    <li>После успешной активации подтверди заказ на FunPay.</li>
+                </ol>
+
+                <div class="rub-funpay-note">
+                    🎯 Монеты из такого промокода получают отыгрыш ×1.2. После выполнения отыгрыша вывод становится доступен.
+                </div>
+
+                <button
+                    type="button"
+                    class="submit-btn"
+                    style="margin-top:12px"
+                    onclick="openFunpayRubProfile()"
+                >
+                    ОТКРЫТЬ FUNPAY
+                </button>
             </div>
         </div>
 
@@ -12337,6 +12357,7 @@ let silentSyncRunning = false;
 let depositEnabled = true;
 let uahDepositEnabled = true;
 let brainrotDepositEnabled = true;
+let rubDepositEnabled = true;
 
 /* ADMIN PANEL / LIVE AVAILABILITY */
 let adminPanelAccess = false;
@@ -13035,6 +13056,9 @@ async function loadPlayer(){
 
         brainrotDepositEnabled =
             data.brainrot_deposit_enabled !== false;
+
+        rubDepositEnabled =
+            data.rub_deposit_enabled !== false;
 
         adminPanelAccess =
             Boolean(data.can_admin_panel);
@@ -14707,7 +14731,7 @@ function renderCases(){
         );
 
     const newCases =
-        filteredCases
+        shopCases
         .filter(
             isNewCase
         )
@@ -19777,14 +19801,35 @@ async function redeemPromo(){
 
         updateBalance();
 
+        if(
+            data.wager_required !== undefined
+        ){
+            playerProfile.wager_required =
+                Number(data.wager_required || 0);
+            playerProfile.wager_progress =
+                Number(data.wager_progress || 0);
+            playerProfile.has_deposited =
+                Boolean(data.has_deposited);
+            playerProfile.can_withdraw =
+                playerProfile.has_deposited
+                &&
+                playerProfile.wager_progress >=
+                playerProfile.wager_required;
+            renderProfile();
+        }
+
         input.value =
             "";
 
         result.innerText =
-            `✅ Промокод активирован: +${data.reward_coins} ⓧ`;
+            Number(data.wager_added || 0) > 0
+                ? `✅ Промокод активирован: +${data.reward_coins} ⓧ\n🎯 Отыгрыш: ${Number(data.wager_progress || 0)} / ${Number(data.wager_required || 0)} ⓧ`
+                : `✅ Промокод активирован: +${data.reward_coins} ⓧ`;
 
         showToast(
-            `🎟 Промокод: +${data.reward_coins} X`,
+            Number(data.wager_added || 0) > 0
+                ? `🎟 +${data.reward_coins} X · отыгрыш ×${Number(data.wager_multiplier || 1.2)}`
+                : `🎟 Промокод: +${data.reward_coins} X`,
             "success"
         );
 
@@ -19906,12 +19951,16 @@ function setDepositTab(
 ){
 
     const requestedTab =
-        tab === "uah"
-            ? "uah"
+        tab === "rub"
+            ? "rub"
             : (
-                tab === "gears"
-                    ? "gears"
-                    : "brainrot"
+                tab === "uah"
+                    ? "uah"
+                    : (
+                        tab === "gears"
+                            ? "gears"
+                            : "brainrot"
+                    )
             );
 
     if(
@@ -19921,6 +19970,18 @@ function setDepositTab(
     ){
         showToast(
             "₴ Пополнение через ГРН временно отключено",
+            "error"
+        );
+        return;
+    }
+
+    if(
+        requestedTab === "rub"
+        &&
+        !rubDepositEnabled
+    ){
+        showToast(
+            "₽ Пополнение через FunPay временно отключено",
             "error"
         );
         return;
@@ -19956,13 +20017,15 @@ function setDepositTab(
     const panels = {
         brainrot: document.getElementById("depositBrainrotTab"),
         gears: document.getElementById("depositGearsTab"),
-        uah: document.getElementById("depositUahTab")
+        uah: document.getElementById("depositUahTab"),
+        rub: document.getElementById("depositRubTab")
     };
 
     const buttons = {
         brainrot: document.getElementById("depositTabBrainrotBtn"),
         gears: document.getElementById("depositTabGearsBtn"),
-        uah: document.getElementById("depositTabUahBtn")
+        uah: document.getElementById("depositTabUahBtn"),
+        rub: document.getElementById("depositTabRubBtn")
     };
 
     Object
@@ -19992,6 +20055,34 @@ function setDepositTab(
     );
 
 }
+
+function openFunpayRubProfile(){
+    const url = "https://funpay.com/users/16781029/";
+
+    try{
+        if(
+            tg
+            &&
+            typeof tg.openLink === "function"
+        ){
+            tg.openLink(url);
+            return;
+        }
+    }
+    catch(_){ }
+
+    try{
+        window.open(
+            url,
+            "_blank",
+            "noopener,noreferrer"
+        );
+    }
+    catch(_){
+        window.location.href = url;
+    }
+}
+
 
 function updateUahPreview(){
 
@@ -20461,6 +20552,11 @@ function applyDepositTabLocks(){
             "depositTabUahBtn"
         );
 
+    const rubButton =
+        document.getElementById(
+            "depositTabRubBtn"
+        );
+
     [brainrotButton, gearsButton]
     .forEach(
         button => {
@@ -20491,6 +20587,18 @@ function applyDepositTabLocks(){
         );
     }
 
+    if(rubButton){
+        rubButton.disabled = false;
+        rubButton.setAttribute(
+            "aria-disabled",
+            String(!rubDepositEnabled)
+        );
+        rubButton.classList.toggle(
+            "deposit-tab-disabled",
+            !rubDepositEnabled
+        );
+    }
+
 }
 
 
@@ -20514,6 +20622,9 @@ async function refreshDepositChannels(){
 
             brainrotDepositEnabled =
                 data.brainrot_enabled !== false;
+
+            rubDepositEnabled =
+                data.rub_enabled !== false;
 
         }
 
@@ -20564,6 +20675,8 @@ async function openDeposit(){
         !brainrotDepositEnabled
         &&
         !uahDepositEnabled
+        &&
+        !rubDepositEnabled
     ){
         if(
             tg &&
@@ -20587,9 +20700,14 @@ async function openDeposit(){
             "brainrot"
         );
     }
-    else{
+    else if(uahDepositEnabled){
         setDepositTab(
             "uah"
+        );
+    }
+    else{
+        setDepositTab(
+            "rub"
         );
     }
 
@@ -22435,6 +22553,9 @@ async function silentSync(){
 
         brainrotDepositEnabled =
             data.brainrot_deposit_enabled !== false;
+
+        rubDepositEnabled =
+            data.rub_deposit_enabled !== false;
 
         adminPanelAccess =
             Boolean(data.can_admin_panel);

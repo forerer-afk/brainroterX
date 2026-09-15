@@ -14,6 +14,7 @@ import urllib.request
 import urllib.error
 import json
 import logging
+import secrets
 
 
 
@@ -212,10 +213,11 @@ async def start_command(
     if is_owner(update):
         await update.message.reply_text(
             "🛠 ADMIN BOT\n\n"
-        "Создать промокод:\n"
+        "Создать обычный промокод:\n"
         "/promo КОД АКТИВАЦИИ МОНЕТЫ\n\n"
-        "Пример:\n"
-        "/promo lavaka676 5 5\n\n"
+        "Создать платёжные промокоды с отыгрышем x1.2:\n"
+        "/promo+ КОЛ-ВО_КОДОВ АКТИВАЦИИ МОНЕТЫ\n"
+        "Пример: /promo+ 5 100 1\n\n"
         "Отключить промокод:\n"
         "/promoff lavaka676\n\n"
         "⛔ Отключить пополнение: /-\n"
@@ -371,6 +373,122 @@ async def promo_command(
             else ""
         )
     )
+
+
+# =====================================================
+# /promo+ — ПЛАТЁЖНЫЕ ПРОМОКОДЫ FUNPAY
+# Формат: /promo+ КОЛ-ВО_КОДОВ АКТИВАЦИИ МОНЕТЫ
+# Пример: /promo+ 5 100 1
+# Каждый код получает отыгрыш x1.2 после активации.
+# =====================================================
+
+PROMO_PLUS_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+PROMO_PLUS_CODE_LENGTH = 6
+PROMO_PLUS_WAGER_MULTIPLIER = 1.2
+
+
+def generate_short_promo_code() -> str:
+    return "".join(
+        secrets.choice(PROMO_PLUS_ALPHABET)
+        for _ in range(PROMO_PLUS_CODE_LENGTH)
+    )
+
+
+async def promo_plus_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+    if not is_owner(update):
+        if update.effective_message:
+            await update.effective_message.reply_text("❌ Нет доступа")
+        return
+
+    message = update.effective_message
+    if not message or not message.text:
+        return
+
+    parts = message.text.strip().split()
+    if len(parts) != 4:
+        await message.reply_text(
+            "Использование:\n"
+            "/promo+ КОЛ-ВО_КОДОВ АКТИВАЦИИ МОНЕТЫ\n\n"
+            "Пример:\n"
+            "/promo+ 5 100 1"
+        )
+        return
+
+    try:
+        count = int(parts[1])
+        max_uses = int(parts[2])
+        reward_coins = int(parts[3])
+    except ValueError:
+        await message.reply_text("❌ Все 3 параметра после /promo+ должны быть числами")
+        return
+
+    if count < 1:
+        await message.reply_text("❌ Количество кодов должно быть минимум 1")
+        return
+    if count > 1000:
+        await message.reply_text("❌ За одну команду можно создать максимум 1000 кодов")
+        return
+    if max_uses < 1 or max_uses > 1000000:
+        await message.reply_text("❌ Неверное количество активаций")
+        return
+    if reward_coins < 1 or reward_coins > 1000000:
+        await message.reply_text("❌ Неверное количество монет")
+        return
+
+    async def create_one():
+        last_error = ""
+        for _ in range(12):
+            code = generate_short_promo_code()
+            result = await call_server_async(
+                "admin_create_promo",
+                actor_telegram_id=ADMIN_TELEGRAM_ID,
+                actor_username=(update.effective_user.username or ""),
+                actor_name=(update.effective_user.full_name or ""),
+                code=code,
+                max_uses=max_uses,
+                reward_coins=reward_coins,
+                wager_multiplier=PROMO_PLUS_WAGER_MULTIPLIER,
+            )
+            if result.get("ok"):
+                promo = result.get("promo") or {}
+                return str(promo.get("code") or code).upper()
+            last_error = str(result.get("error") or "Ошибка")
+            if "существует" not in last_error.lower():
+                break
+        raise RuntimeError(last_error or "Не удалось создать промокод")
+
+    tasks = [asyncio.create_task(create_one()) for _ in range(count)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    codes = []
+    errors = []
+    for item in results:
+        if isinstance(item, Exception):
+            errors.append(str(item))
+        else:
+            codes.append(str(item))
+
+    if codes:
+        chunk = []
+        chunk_len = 0
+        for code in codes:
+            extra = len(code) + (1 if chunk else 0)
+            if chunk and chunk_len + extra > 3500:
+                await message.reply_text("\n".join(chunk))
+                chunk = []
+                chunk_len = 0
+            chunk.append(code)
+            chunk_len += extra
+        if chunk:
+            await message.reply_text("\n".join(chunk))
+
+    if errors:
+        await message.reply_text(
+            f"❌ Создано {len(codes)} из {count}. Ошибка: {errors[0]}"
+        )
 
 
 # =====================================================
@@ -639,7 +757,8 @@ def admin_menu_markup():
 def commands_text():
     return (
         "📋 ВСЕ КОМАНДЫ\n\n"
-        "/promo КОД АКТИВАЦИИ МОНЕТЫ — создать промо\n"
+        "/promo КОД АКТИВАЦИИ МОНЕТЫ — создать обычное промо\n"
+        "/promo+ КОЛ-ВО АКТИВАЦИИ МОНЕТЫ — случайные платёжные промо, отыгрыш x1.2\n"
         "/promoff КОД — отключить промо\n"
         "/promoadd ID КОЛ-ВО — добавить право на создание промо\n"
         "/promotake ID КОЛ-ВО — убрать часть лимита\n"
@@ -649,6 +768,8 @@ def commands_text():
         "/+ — включить все пополнения\n"
         "/g- — отключить только ГРН\n"
         "/g+ — включить только ГРН\n"
+        "/r- — отключить только РУБ / FunPay\n"
+        "/r+ — включить только РУБ / FunPay\n"
         "/b- — отключить только Brainrot\n"
         "/b+ — включить только Brainrot\n\n"
         "/mem+ TELEGRAM_ID — включить MEM\n"
@@ -697,7 +818,7 @@ async def set_channel(update, channel, enabled):
     if not result.get("ok"):
         await update.message.reply_text("❌ "+result.get("error","Ошибка"))
         return
-    name="ГРН" if channel=="uah" else "Brainrot + Гирсы"
+    name=("ГРН" if channel=="uah" else ("РУБ / FunPay" if channel=="rub" else "Brainrot + Гирсы"))
     await update.message.reply_text(
         ("✅ " if enabled else "⛔ ")+name+
         (" включено" if enabled else " отключено")
@@ -705,6 +826,8 @@ async def set_channel(update, channel, enabled):
 
 async def g_minus_command(update, context): await set_channel(update,"uah",False)
 async def g_plus_command(update, context): await set_channel(update,"uah",True)
+async def r_minus_command(update, context): await set_channel(update,"rub",False)
+async def r_plus_command(update, context): await set_channel(update,"rub",True)
 async def b_minus_command(update, context): await set_channel(update,"brainrot",False)
 async def b_plus_command(update, context): await set_channel(update,"brainrot",True)
 
@@ -862,6 +985,7 @@ async def button_handler(
         text=("⚙️ СТАТУС ПОПОЛНЕНИЙ\n\n"
               f"Общее: {'✅ ВКЛ' if result.get('deposit_enabled',True) else '⛔ ВЫКЛ'}\n"
               f"ГРН: {'✅ ВКЛ' if result.get('uah_enabled',True) else '⛔ ВЫКЛ'}\n"
+              f"РУБ / FunPay: {'✅ ВКЛ' if result.get('rub_enabled',True) else '⛔ ВЫКЛ'}\n"
               f"Brainrot + Гирсы: {'✅ ВКЛ' if result.get('brainrot_enabled',True) else '⛔ ВЫКЛ'}")
         await query.answer()
         await query.edit_message_text(text,reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Назад",callback_data="menu_back")]]))
@@ -876,6 +1000,9 @@ async def button_handler(
     # при ошибке серверного запроса ниже будет показан alert,
     # а при успехе сообщение просто изменится.
 
+
+    # RUB / FunPay здесь не создаёт заявок: пользователь получает
+    # платёжный промокод после покупки и активирует его в профиле.
 
     # =================================================
     # ГРН TEST — ПОДТВЕРДИТЬ
@@ -2052,6 +2179,15 @@ def main():
         )
     )
 
+    # Символ + не входит в обычное имя Telegram bot_command,
+    # поэтому /promo+ ловим как текст до /promo.
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(r"^/promo\+(?:@[A-Za-z0-9_]+)?(?:\s|$)"),
+            promo_plus_command,
+        )
+    )
+
     app.add_handler(
         CommandHandler(
             "promo",
@@ -2107,6 +2243,8 @@ def main():
 
     app.add_handler(MessageHandler(filters.Regex(r"^/g-(@[A-Za-z0-9_]+)?\s*$"), g_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/g\+(@[A-Za-z0-9_]+)?\s*$"), g_plus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/r-(@[A-Za-z0-9_]+)?\s*$"), r_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/r\+(@[A-Za-z0-9_]+)?\s*$"), r_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b-(@[A-Za-z0-9_]+)?\s*$"), b_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b\+(@[A-Za-z0-9_]+)?\s*$"), b_plus_command))
 
