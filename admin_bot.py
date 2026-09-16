@@ -770,6 +770,8 @@ def commands_text():
         "/g+ — включить только ГРН\n"
         "/r- — отключить только РУБ / FunPay\n"
         "/r+ — включить только РУБ / FunPay\n"
+        "/f- — отключить пополнение через FunPay\n"
+        "/f+ — включить пополнение через FunPay\n"
         "/b- — отключить только Brainrot\n"
         "/b+ — включить только Brainrot\n"
         "/v- — отключить вывод\n"
@@ -830,6 +832,8 @@ async def g_minus_command(update, context): await set_channel(update,"uah",False
 async def g_plus_command(update, context): await set_channel(update,"uah",True)
 async def r_minus_command(update, context): await set_channel(update,"rub",False)
 async def r_plus_command(update, context): await set_channel(update,"rub",True)
+async def f_minus_command(update, context): await set_channel(update,"rub",False)
+async def f_plus_command(update, context): await set_channel(update,"rub",True)
 async def b_minus_command(update, context): await set_channel(update,"brainrot",False)
 async def b_plus_command(update, context): await set_channel(update,"brainrot",True)
 
@@ -2266,6 +2270,8 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r"^/g\+(@[A-Za-z0-9_]+)?\s*$"), g_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/r-(@[A-Za-z0-9_]+)?\s*$"), r_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/r\+(@[A-Za-z0-9_]+)?\s*$"), r_plus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/f-(@[A-Za-z0-9_]+)?\s*$"), f_minus_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^/f\+(@[A-Za-z0-9_]+)?\s*$"), f_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b-(@[A-Za-z0-9_]+)?\s*$"), b_minus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/b\+(@[A-Za-z0-9_]+)?\s*$"), b_plus_command))
     app.add_handler(MessageHandler(filters.Regex(r"^/v-(@[A-Za-z0-9_]+)?\s*$"), v_minus_command))
