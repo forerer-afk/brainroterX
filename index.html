@@ -10656,56 +10656,6 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     </div>
 </div>
 
-<div id="ladderPage" class="page">
-  <div class="crash-panel">
-    <div class="crash-head-v3">
-      <div class="crash-title"><span class="crash-icon">🚀</span><div><b>КРАШ</b><small>Brainrot-ставка</small></div></div>
-      <div class="crash-max">MAX ×25</div>
-    </div>
-
-    <div class="crash-history" id="crashHistory"></div>
-
-    <div class="crash-board-v3" id="crashBoard">
-      <div class="crash-space-v3"></div>
-      <div class="crash-stars-v3"></div>
-      <div class="crash-mult-v3" id="crashMultiplier">1.00x</div>
-      <div class="crash-state-v3" id="crashState"><span></span><b>РАУНД ИДЁТ</b></div>
-      <div class="crash-rocket-v3" id="crashRocket" aria-hidden="true">
-        <canvas class="crash-rocket-canvas-v10" id="crashRocketCanvas" width="240" height="240" aria-hidden="true"></canvas>
-        <div class="crash-explosion-v6" id="crashExplosion" aria-hidden="true"></div>
-      </div>
-      <div class="crash-hint-v3" id="crashHint">Следите за множителем</div>
-    </div>
-
-    <div class="crash-bet-card-v3 crash-bet-card-v9">
-      <div class="crash-bet-top-v3 crash-bet-top-v9">
-        <div><span>СТАВКА</span><b>Brainrot</b></div>
-        <button id="crashAutoToggle" class="crash-auto-toggle-v9" type="button" aria-label="Авто-вывод" aria-pressed="false">
-          <span class="crash-toggle-dot-v9"></span><span>авто-вывод</span>
-        </button>
-      </div>
-
-      <div class="crash-auto-box-v9" id="crashAutoBox">
-        <div class="crash-auto-line-v9">
-          <span>Авто-вывод</span>
-          <div class="crash-auto-input-wrap-v9">
-            <input id="crashAutoInput" class="crash-auto-input-v9" type="number" min="1.01" max="25" step="0.01" value="2.00" inputmode="decimal" aria-label="Множитель авто-вывода">
-            <b>x</b>
-          </div>
-        </div>
-      </div>
-
-      <button id="crashPlaceBet" class="crash-place-v3 crash-action-v9" type="button" disabled>🚀 ПОСТАВИТЬ</button>
-      <button id="crashCashout" class="crash-cashout-v4 crash-action-v9" type="button" hidden></button>
-      <div id="crashSelected" class="crash-selected-v3 crash-selected-v9">Выбери Brainrot из инвентаря</div>
-      <div id="crashBetStatus" class="crash-bet-status-v3">Ставка открывается после краша</div>
-
-      <button id="crashBrainrotSelect" class="crash-select-v3 crash-select-v9" type="button">🧠 ВЫБРАТЬ BRAINROT <span>⌄</span></button>
-      <div id="crashInventory" class="crash-inventory-v3" hidden></div>
-    </div>
-  </div>
-</div>
-
 <div
     id="inventoryPage"
     class="page"
@@ -10978,16 +10928,6 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         🎲
         <br>
         Дайсы
-    </button>
-
-    <button
-        id="ladderButton"
-        class="nav-btn"
-        onclick="showPage('ladder')"
-    >
-        🚀
-        <br>
-        Краш
     </button>
 
     <button
