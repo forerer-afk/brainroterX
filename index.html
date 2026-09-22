@@ -1808,6 +1808,49 @@ img{
     text-align:center;
 }
 
+.stars-deposit-box{
+    margin-top:12px;
+    padding:14px;
+    border-radius:14px;
+    background:linear-gradient(180deg,rgba(18,14,28,.98),rgba(10,8,18,.99));
+    border:1px solid rgba(168,85,247,.16);
+}
+.stars-deposit-title{
+    font-size:15px;
+    font-weight:950;
+    color:#fff;
+    margin-bottom:8px;
+}
+.stars-rate{
+    margin-bottom:9px;
+    padding:8px 10px;
+    border-radius:10px;
+    text-align:center;
+    color:#fde68a;
+    background:rgba(250,204,21,.08);
+    border:1px solid rgba(250,204,21,.14);
+    font-size:11px;
+    font-weight:900;
+}
+.stars-preview{
+    margin-top:7px;
+    padding:9px 10px;
+    border-radius:10px;
+    color:#fde68a;
+    background:rgba(250,204,21,.055);
+    border:1px solid rgba(250,204,21,.10);
+    text-align:center;
+    font-size:11px;
+    font-weight:900;
+}
+.stars-card-hint{
+    margin-top:8px;
+    color:#94a3b8;
+    font-size:9px;
+    line-height:1.45;
+    text-align:center;
+}
+
 /* =====================================================
    DEPOSIT
 ===================================================== */
@@ -10894,11 +10937,11 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
             </button>
 
             <button
-                id="depositTabRubBtn"
+                id="depositTabStarsBtn"
                 class="deposit-tab-btn"
-                onclick="setDepositTab('rub')"
+                onclick="setDepositTab('stars')"
             >
-                ₽ РУБЛИ
+                ⭐ ЗВЁЗДЫ
             </button>
         </div>
 
@@ -11096,48 +11139,71 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
         </div>
 
         <div
-            id="depositRubTab"
+            id="depositStarsTab"
             class="deposit-tab-panel"
         >
-            <div class="rub-funpay-box">
-                <div class="rub-funpay-title">₽ Пополнение через FunPay</div>
-                <div class="rub-funpay-link-row">
-                    <div class="rub-funpay-link" id="funpayRubLink">https://funpay.com/users/16781029/</div>
-                    <button
-                        type="button"
-                        class="rub-copy-btn"
-                        id="copyFunpayRubButton"
-                        onclick="copyFunpayRubLink()"
-                    >
-                        📋 <span>СКОПИРОВАТЬ</span>
-                    </button>
+            <div class="stars-deposit-box">
+
+                <div class="stars-deposit-title">
+                    ⭐ Пополнение через Telegram Stars
                 </div>
 
-                <div class="rub-funpay-note" style="margin-top:10px">
-                    💱 Курс пополнения: <b>1 ₽ = 1 X Coin</b><br>
-                    Например: 100 ₽ = 100 X Coin, 500 ₽ = 500 X Coin.
+                <div class="stars-rate">
+                    💱 1 ⭐ = 1.25 ⓧ
                 </div>
 
-                <ol class="rub-funpay-steps">
-                    <li>Открой FunPay по кнопке ниже.</li>
-                    <li>Купи нужный тебе лот.</li>
-                    <li>Получи промокод после покупки.</li>
-                    <li>Открой Профиль → «Промокод» и активируй полученный код.</li>
-                    <li>После успешной активации подтверди заказ на FunPay.</li>
-                </ol>
+                <div class="input-label">
+                    Количество звёзд
+                </div>
 
-                <div class="rub-funpay-note">
-                    🎯 Монеты из такого промокода получают отыгрыш ×1.2. После выполнения отыгрыша вывод становится доступен.
+                <input
+                    id="starsAmount"
+                    class="text-input"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    step="1"
+                    inputmode="numeric"
+                    placeholder="Например: 100"
+                    oninput="updateStarsPreview()"
+                >
+
+                <div
+                    id="starsPreview"
+                    class="stars-preview"
+                >
+                    Вы получите: 0 ⓧ
+                </div>
+
+                <div class="input-label">
+                    Реферальный или промокод
+                </div>
+
+                <input
+                    id="starsReferral"
+                    class="text-input"
+                    maxlength="40"
+                    placeholder="Необязательно"
+                    autocomplete="off"
+                >
+
+                <div class="stars-card-hint">
+                    После создания счёта Telegram откроет оплату звёздами. Монеты начисляются автоматически после успешной оплаты.
                 </div>
 
                 <button
-                    type="button"
+                    id="starsSubmitButton"
                     class="submit-btn"
-                    style="margin-top:12px"
-                    onclick="openFunpayRubProfile()"
+                    onclick="submitStarsDeposit()"
                 >
-                    ОТКРЫТЬ FUNPAY
+                    ПОЛУЧИТЬ СЧЁТ ⭐
                 </button>
+
+                <div
+                    id="starsDepositResult"
+                    class="result"
+                ></div>
+
             </div>
         </div>
 
@@ -12483,6 +12549,7 @@ let depositEnabled = true;
 let uahDepositEnabled = true;
 let brainrotDepositEnabled = true;
 let rubDepositEnabled = true;
+let starsDepositEnabled = true;
 let withdrawEnabled = true;
 let withdrawStatusChecking = false;
 
@@ -13186,6 +13253,9 @@ async function loadPlayer(){
 
         rubDepositEnabled =
             data.rub_deposit_enabled !== false;
+
+        starsDepositEnabled =
+            data.stars_deposit_enabled !== false;
 
         withdrawEnabled =
             data.withdraw_enabled !== false;
@@ -20103,8 +20173,8 @@ function setDepositTab(
 ){
 
     const requestedTab =
-        tab === "rub"
-            ? "rub"
+        tab === "stars"
+            ? "stars"
             : (
                 tab === "uah"
                     ? "uah"
@@ -20128,12 +20198,12 @@ function setDepositTab(
     }
 
     if(
-        requestedTab === "rub"
+        requestedTab === "stars"
         &&
-        !rubDepositEnabled
+        !starsDepositEnabled
     ){
         showToast(
-            "₽ Пополнение через FunPay временно отключено",
+            "⭐ Пополнение через Stars временно отключено",
             "error"
         );
         return;
@@ -20170,14 +20240,14 @@ function setDepositTab(
         brainrot: document.getElementById("depositBrainrotTab"),
         gears: document.getElementById("depositGearsTab"),
         uah: document.getElementById("depositUahTab"),
-        rub: document.getElementById("depositRubTab")
+        stars: document.getElementById("depositStarsTab")
     };
 
     const buttons = {
         brainrot: document.getElementById("depositTabBrainrotBtn"),
         gears: document.getElementById("depositTabGearsBtn"),
         uah: document.getElementById("depositTabUahBtn"),
-        rub: document.getElementById("depositTabRubBtn")
+        stars: document.getElementById("depositTabStarsBtn")
     };
 
     Object
@@ -20205,6 +20275,157 @@ function setDepositTab(
             }
         }
     );
+
+}
+
+async function updateStarsPreview(){
+
+    const input =
+        document.getElementById("starsAmount");
+
+    const preview =
+        document.getElementById("starsPreview");
+
+    if(!input || !preview){
+        return;
+    }
+
+    const stars =
+        Math.max(
+            0,
+            Math.floor(
+                Number(
+                    input.value || 0
+                )
+            )
+        );
+
+    const coins =
+        Math.floor(
+            stars * 1.25
+        );
+
+    preview.innerText =
+        `Вы получите: ${coins} ⓧ`;
+
+}
+
+async function submitStarsDeposit(){
+
+    const input =
+        document.getElementById("starsAmount");
+
+    const result =
+        document.getElementById("starsDepositResult");
+
+    const button =
+        document.getElementById("starsSubmitButton");
+
+    const referralInput =
+        document.getElementById("starsReferral");
+
+    if(!input || !result){
+        return;
+    }
+
+    const stars =
+        Math.floor(
+            Number(
+                input.value || 0
+            )
+        );
+
+    if(
+        !Number.isFinite(stars)
+        ||
+        stars < 1
+    ){
+        result.innerText =
+            "❌ Введи количество звёзд";
+        return;
+    }
+
+    if(stars > 10000){
+        result.innerText =
+            "❌ Слишком большая сумма";
+        return;
+    }
+
+    const referralCode =
+        String(
+            referralInput?.value ||
+            ""
+        )
+        .trim()
+        .toUpperCase();
+
+    if(button){
+        button.disabled = true;
+    }
+
+    result.innerText =
+        "⏳ Создаём счёт Telegram Stars...";
+
+    try{
+
+        const data =
+            await apiRequest({
+                action:
+                    "create_star_deposit_request",
+                stars:
+                    stars,
+                referral_code:
+                    referralCode
+            });
+
+        if(!data.ok){
+            throw new Error(
+                data.error ||
+                "Ошибка создания счёта"
+            );
+        }
+
+        result.innerText =
+            `✅ Счёт #${data.request_id} отправлен в Telegram.\n`
+            +
+            `⭐ К оплате: ${data.stars}\n`
+            +
+            `ⓧ После оплаты: ${data.credited_coins || data.coins} ⓧ\n\n`
+            +
+            `Открой сообщение от бота и нажми кнопку оплаты.`;
+
+        showToast(
+            `⭐ Счёт #${data.request_id} создан`,
+            "info"
+        );
+
+        input.value = "";
+
+        if(referralInput){
+            referralInput.value = "";
+        }
+
+        updateStarsPreview();
+
+    }
+    catch(error){
+
+        result.innerText =
+            "❌ "
+            +
+            (
+                error.message ||
+                "Ошибка"
+            );
+
+    }
+    finally{
+
+        if(button){
+            button.disabled = false;
+        }
+
+    }
 
 }
 
@@ -20771,18 +20992,18 @@ function applyDepositTabLocks(){
             "depositTabUahBtn"
         );
 
-    const rubButton =
+    const starsButton =
         document.getElementById(
-            "depositTabRubBtn"
+            "depositTabStarsBtn"
         );
 
-    [brainrotButton, gearsButton]
+    [
+        brainrotButton,
+        gearsButton
+    ]
     .forEach(
         button => {
             if(button){
-                // Не используем disabled: иначе onclick не сработает и
-                // игрок не увидит причину, почему способ недоступен.
-                button.disabled = false;
                 button.setAttribute(
                     "aria-disabled",
                     String(!brainrotDepositEnabled)
@@ -20797,8 +21018,10 @@ function applyDepositTabLocks(){
     );
 
     if(uahButton){
-        uahButton.disabled =
-            !uahDepositEnabled;
+        uahButton.setAttribute(
+            "aria-disabled",
+            String(!uahDepositEnabled)
+        );
 
         uahButton.classList.toggle(
             "deposit-tab-disabled",
@@ -20806,15 +21029,15 @@ function applyDepositTabLocks(){
         );
     }
 
-    if(rubButton){
-        rubButton.disabled = false;
-        rubButton.setAttribute(
+    if(starsButton){
+        starsButton.setAttribute(
             "aria-disabled",
-            String(!rubDepositEnabled)
+            String(!starsDepositEnabled)
         );
-        rubButton.classList.toggle(
+
+        starsButton.classList.toggle(
             "deposit-tab-disabled",
-            !rubDepositEnabled
+            !starsDepositEnabled
         );
     }
 
@@ -20842,8 +21065,8 @@ async function refreshDepositChannels(){
             brainrotDepositEnabled =
                 data.brainrot_enabled !== false;
 
-            rubDepositEnabled =
-                data.rub_enabled !== false;
+            starsDepositEnabled =
+                data.stars_enabled !== false;
 
         }
 
@@ -20926,7 +21149,7 @@ async function openDeposit(){
     }
     else{
         setDepositTab(
-            "rub"
+            "stars"
         );
     }
 

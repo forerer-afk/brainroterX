@@ -14,6 +14,9 @@ from telegram.ext import (
     Application,
     CommandHandler,
     ContextTypes,
+    PreCheckoutQueryHandler,
+    MessageHandler,
+    filters,
 )
 
 
@@ -26,6 +29,9 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN", "").strip()
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+ADMIN_BOT_TOKEN = os.getenv("ADMIN_BOT_TOKEN", "").strip()
+ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID", "").strip()
 
 
 # =========================================================
@@ -34,7 +40,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY", "").strip()
 # После обновления index.html меняй цифру после ?v=
 # =========================================================
 
-MINI_APP_URL = "https://forerer-afk.github.io/brainroterX/?v=502"
+MINI_APP_URL = "https://forerer-afk.github.io/brainroterX/?v=500"
 
 
 if not TOKEN:
@@ -64,6 +70,92 @@ def supabase_headers():
         "Authorization": f"Bearer {SUPABASE_KEY}",
         "Content-Type": "application/json",
     }
+
+
+def service_headers():
+
+    key = SUPABASE_SERVICE_ROLE_KEY
+
+    if not key:
+        raise RuntimeError(
+            "Для Stars добавь SUPABASE_SERVICE_ROLE_KEY в Railway Variables"
+        )
+
+    return {
+        "apikey": key,
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+    }
+
+
+def get_star_request(request_id):
+
+    url = (
+        f"{SUPABASE_URL}/rest/v1/star_deposit_requests"
+        f"?id=eq.{request_id}"
+        f"&select=*"
+        f"&limit=1"
+    )
+
+    response = requests.get(
+        url,
+        headers=service_headers(),
+        timeout=15
+    )
+
+    if not response.ok:
+        print("Stars request read error:", response.status_code, response.text)
+        return None
+
+    rows = response.json()
+    return rows[0] if rows else None
+
+
+def complete_star_request(request_id, telegram_id, payment):
+
+    url = f"{SUPABASE_URL}/rest/v1/rpc/complete_star_deposit"
+
+    payload = {
+        "p_request_id": request_id,
+        "p_telegram_id": telegram_id,
+        "p_currency": payment.currency,
+        "p_total_amount": payment.total_amount,
+        "p_telegram_payment_charge_id": payment.telegram_payment_charge_id,
+        "p_provider_payment_charge_id": payment.provider_payment_charge_id or "",
+    }
+
+    response = requests.post(
+        url,
+        headers=service_headers(),
+        json=payload,
+        timeout=20
+    )
+
+    if not response.ok:
+        raise RuntimeError(
+            f"Supabase Stars RPC: {response.status_code} {response.text}"
+        )
+
+    return response.json()
+
+
+def send_admin_star_notice(text):
+
+    if not ADMIN_BOT_TOKEN or not ADMIN_CHAT_ID:
+        print("ADMIN_BOT_TOKEN / ADMIN_CHAT_ID не настроены — уведомление Stars пропущено")
+        return
+
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{ADMIN_BOT_TOKEN}/sendMessage",
+            json={
+                "chat_id": ADMIN_CHAT_ID,
+                "text": text,
+            },
+            timeout=15
+        )
+    except Exception as error:
+        print("Ошибка уведомления админа Stars:", error)
 
 
 # =========================================================
@@ -432,6 +524,132 @@ async def post_init(
 
 
 # =========================================================
+# TELEGRAM STARS
+# =========================================================
+
+def parse_star_payload(payload):
+
+    try:
+        prefix, request_id, telegram_id = str(payload).split(":", 2)
+        if prefix != "brainroterx_stars":
+            return None
+        return int(request_id), int(telegram_id)
+    except Exception:
+        return None
+
+
+async def stars_precheckout(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    query = update.pre_checkout_query
+
+    if not query:
+        return
+
+    parsed = parse_star_payload(query.invoice_payload)
+
+    if not parsed:
+        await query.answer(
+            ok=False,
+            error_message="Неверный счёт BrainroterX."
+        )
+        return
+
+    request_id, payload_telegram_id = parsed
+
+    try:
+        request = get_star_request(request_id)
+
+        valid = (
+            request
+            and request.get("status") == "pending"
+            and int(request.get("telegram_id", 0)) == query.from_user.id
+            and payload_telegram_id == query.from_user.id
+            and query.currency == "XTR"
+            and int(request.get("stars", 0)) == query.total_amount
+        )
+
+        if not valid:
+            await query.answer(
+                ok=False,
+                error_message="Счёт устарел или сумма не совпадает. Создай новый счёт в игре."
+            )
+            return
+
+        await query.answer(ok=True)
+
+    except Exception as error:
+        print("Stars precheckout error:", error)
+        await query.answer(
+            ok=False,
+            error_message="Не удалось проверить платёж. Попробуй ещё раз."
+        )
+
+
+async def stars_successful_payment(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    message = update.effective_message
+    user = update.effective_user
+
+    if not message or not user or not message.successful_payment:
+        return
+
+    payment = message.successful_payment
+    parsed = parse_star_payload(payment.invoice_payload)
+
+    if not parsed:
+        return
+
+    request_id, payload_telegram_id = parsed
+
+    if payload_telegram_id != user.id:
+        print("Stars payment payload user mismatch")
+        return
+
+    try:
+        result = complete_star_request(
+            request_id,
+            user.id,
+            payment
+        )
+
+        added_coins = int(result.get("added_coins", 0))
+        already = bool(result.get("already_processed"))
+
+        if not already:
+            await message.reply_text(
+                f"✅ Оплата Stars прошла!\n\n"
+                f"⭐ Оплачено: {payment.total_amount}\n"
+                f"💰 Начислено: {added_coins} ⓧ\n"
+                f"🧾 Заявка: #{request_id}"
+            )
+
+            username = f"@{user.username}" if user.username else "без username"
+            send_admin_star_notice(
+                f"⭐ ПОПОЛНЕНИЕ STARS #{request_id}\n\n"
+                f"👤 {user.first_name or 'Игрок'} ({username})\n"
+                f"🆔 {user.id}\n"
+                f"⭐ Оплачено: {payment.total_amount}\n"
+                f"ⓧ Начислено: {added_coins}\n"
+                f"✅ Подтверждено автоматически"
+            )
+
+    except Exception as error:
+        print("Stars successful payment error:", error)
+        # Payment уже состоялся. Не выдаём повторно и не подтверждаем вручную.
+        # Ошибка остаётся в логах, чтобы её можно было безопасно разобрать по charge_id.
+        await message.reply_text(
+            "⚠️ Платёж Telegram получен, но возникла ошибка начисления. "
+            "Не оплачивай повторно — администратор сможет проверить платёж по операции."
+        )
+
+
+# =========================================================
 # ERROR
 # =========================================================
 
@@ -483,6 +701,20 @@ def main():
         CommandHandler(
             "help",
             help_command
+        )
+    )
+
+
+    app.add_handler(
+        PreCheckoutQueryHandler(
+            stars_precheckout
+        )
+    )
+
+    app.add_handler(
+        MessageHandler(
+            filters.SUCCESSFUL_PAYMENT,
+            stars_successful_payment
         )
     )
 
