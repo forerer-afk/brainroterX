@@ -26980,6 +26980,67 @@ try{loadSiteWithdrawnTotal();}catch(_){}
 </script>
 
 
+<style id="brainroterx-profile-actions-real">
+#inventoryPage .profile-actions-panel{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    margin:7px 0 10px !important;
+    padding:0 !important;
+    border-radius:14px !important;
+    overflow:hidden !important;
+    max-height:46vh !important;
+    overflow-y:auto !important;
+    background:rgba(8,12,22,.78) !important;
+    border:1px solid rgba(255,255,255,.07) !important;
+}
+#inventoryPage .profile-actions-content{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    padding:7px !important;
+    display:grid !important;
+    gap:6px !important;
+}
+.profile-action-card{
+    width:100%;
+    min-width:0;
+    box-sizing:border-box;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 8px;
+    border-radius:11px;
+    background:linear-gradient(135deg,rgba(25,32,49,.96),rgba(17,23,37,.96));
+    border:1px solid rgba(255,255,255,.055);
+    overflow:hidden;
+}
+.profile-action-visual{
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background:rgba(8,13,24,.95);
+    border:1px solid rgba(255,255,255,.07);
+}
+.profile-action-visual img{width:100%;height:100%;object-fit:contain;display:block;}
+.profile-action-mode-icon{font-size:22px;line-height:1;}
+.profile-action-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px;}
+.profile-action-title{font-size:10px;font-weight:950;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f8fafc;}
+.profile-action-subtitle{font-size:8px;font-weight:750;line-height:1.25;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-action-time{flex:0 0 auto;align-self:flex-start;font-size:7px;color:#64748b;margin-top:1px;}
+.profile-actions-empty,.profile-actions-loading{padding:12px;text-align:center;color:#64748b;font-size:9px;}
+@media(max-width:360px){
+    .profile-action-visual{width:38px;height:38px;flex-basis:38px;}
+    .profile-action-title{font-size:9px;}
+    .profile-action-subtitle{font-size:7.5px;}
+}
+</style>
+
 <script id="brainroterx-profile-actions-fix">
 function toggleProfileActions(){
     const panel=document.getElementById("profileActionsPanel");
@@ -26988,33 +27049,85 @@ function toggleProfileActions(){
     const opening=panel.hidden;
     panel.hidden=!opening;
     btn.setAttribute("aria-expanded", opening ? "true" : "false");
-    if(opening) loadProfileActions();
+    if(opening) renderProfileActions();
 }
-async function loadProfileActions(){
+
+function profileActionCaseData(label){
+    const raw=String(label||"").trim();
+    const key=normalizeName(raw);
+    let gameCase=null;
+    if(Array.isArray(cases)) gameCase=cases.find(c=>normalizeName(c?.name||"")===key) || cases.find(c=>normalizeName(c?.name||"").replace(/\s+case$/i,"")===key);
+    const visual=feedCaseSourceVisual(raw);
+    const image=visual?.image || (gameCase ? caseImageFor(gameCase) : "");
+    const price=gameCase ? Math.max(0,Number(gameCase.price||0)) : 0;
+    return {title:visual?.title || raw || "Кейс",image,price};
+}
+
+function profileActionFromHistory(item){
+    const source=String(item?.source||"").trim().toLowerCase();
+    const label=String(item?.source_label||"").trim();
+    const name=String(item?.brainrot_name||"").trim();
+    const value=Math.max(0,Number(item?.value||0));
+    const time=item?.created_at ? new Date(item.created_at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}) : "";
+
+    if(source==="case" || source==="daily"){
+        const caseData=profileActionCaseData(source==="daily" ? "Daily Case" : label);
+        const title=`Открыл кейс ${caseData.title}`;
+        const subtitle=[caseData.price ? `${caseData.price.toLocaleString("ru-RU")} ⓧ` : "", name ? `Выпал: ${name}` : "", value ? `${value.toLocaleString("ru-RU")} ⓧ` : ""].filter(Boolean).join(" · ");
+        return {title,subtitle,time,image:caseData.image,icon:"📦"};
+    }
+
+    if(source==="upgrade" || source==="upgrade_test"){
+        const m=label.match(/Апгрейд\s+(.+?)\s*→\s*(.+?)\s*·\s*([0-9.,]+)\s*%/i);
+        if(m){
+            const from=m[1].trim(), to=m[2].trim(), chance=m[3].replace(/,/g,".");
+            return {title:`Апгрейд ${from} → ${to}`,subtitle:`${chance}% · выигрыш${name ? ` · ${value.toLocaleString("ru-RU")} ⓧ` : ""}`,time,icon:"⚡"};
+        }
+        return {title:`Апгрейд${name ? ` → ${name}` : ""}`,subtitle:value ? `${value.toLocaleString("ru-RU")} ⓧ · выигрыш` : "Выигрыш",time,icon:"⚡"};
+    }
+
+    if(source==="upgrade_loss"){
+        const m=label.match(/Апгрейд\s+(.+?)\s*→\s*(.+?)\s*·\s*([0-9.,]+)\s*%\s*·\s*проигрыш/i);
+        if(m){
+            return {title:`Апгрейд ${m[1].trim()} → ${m[2].trim()}`,subtitle:`${m[3].replace(/,/g,".")}% · проигрыш`,time,icon:"⚡"};
+        }
+        return {title:label || "Апгрейд",subtitle:"Проигрыш",time,icon:"⚡"};
+    }
+
+    if(source==="ladder"){
+        return {title:"Лестница",subtitle:name ? `→ ${name}${value ? ` · ${value.toLocaleString("ru-RU")} ⓧ` : ""}` : (label||"Действие"),time,icon:"🪜"};
+    }
+    if(source==="dice"){
+        return {title:"Дайсы",subtitle:label || (name ? `→ ${name}` : "Действие"),time,icon:"🎲"};
+    }
+    if(source==="mystery"){
+        return {title:"Мистери",subtitle:label || (name ? `→ ${name}` : "Действие"),time,icon:"❓"};
+    }
+    return {title:label || name || "Действие",subtitle:value ? `${value.toLocaleString("ru-RU")} ⓧ` : "",time,icon:"✨"};
+}
+
+function renderProfileActions(){
     const root=document.getElementById("profileActionsContent");
     if(!root) return;
-    root.innerHTML='<div class="profile-actions-loading">Загрузка...</div>';
-    try{
-        if(typeof openDropHistory==="function"){
-            // Keep the original history source and render it inside the compact panel.
-            const before=document.querySelector("#dropHistoryModal");
-            openDropHistory();
-            setTimeout(()=>{
-                const modal=document.querySelector("#dropHistoryModal");
-                const source=modal?.querySelector(".drop-history-list, .history-list, .drop-history-content");
-                if(source && source.innerHTML.trim()){
-                    root.innerHTML=source.innerHTML;
-                    try{ modal.classList.remove("show"); }catch(_){}
-                }else{
-                    root.innerHTML='<div class="profile-actions-empty">Пока нет действий</div>';
-                }
-            },120);
-        }else{
-            root.innerHTML='<div class="profile-actions-empty">Пока нет действий</div>';
-        }
-    }catch(e){
+    const history=Array.isArray(dropHistory) ? dropHistory.slice(0,10) : [];
+    if(!history.length){
         root.innerHTML='<div class="profile-actions-empty">Пока нет действий</div>';
+        return;
     }
+    root.innerHTML=history.map(item=>{
+        const a=profileActionFromHistory(item);
+        const visual=a.image
+          ? `<img src="${escapeHtml(a.image)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">`
+          : `<span class="profile-action-mode-icon">${escapeHtml(a.icon||"✨")}</span>`;
+        return `<div class="profile-action-card">
+          <div class="profile-action-visual">${visual}</div>
+          <div class="profile-action-info">
+            <div class="profile-action-title">${escapeHtml(a.title)}</div>
+            <div class="profile-action-subtitle">${escapeHtml(a.subtitle||"")}</div>
+          </div>
+          <div class="profile-action-time">${escapeHtml(a.time||"")}</div>
+        </div>`;
+    }).join("");
 }
 </script>
 
