@@ -14225,8 +14225,12 @@ function applyFeedPublicProfileData(data,targetTelegramId){
     const actionsRoot=document.getElementById("feedProfileActions");
     if(actionsRoot){
         const actions=Array.isArray(data?.recent_actions)?data.recent_actions:[];
-        actionsRoot.innerHTML=actions.length ? actions.slice(0,6).map(action=>`<div class="feed-profile-action"><div class="feed-profile-action-icon">${escapeHtml(action.icon||"✨")}</div><div class="feed-profile-action-text">${escapeHtml(action.text||"Действие")}</div><div class="feed-profile-action-time">${escapeHtml(action.time||"")}</div></div>`).join("") : `<div class="feed-profile-value">Пока нет действий</div>`;
+        actionsRoot.innerHTML=actions.length ? actions.slice(0,10).map(action=>renderFeedProfileAction(action)).join("") : `<div class="feed-profile-value">Пока нет действий</div>`;
     }
+    const panel=document.getElementById("feedProfileActionsPanel");
+    const toggle=document.getElementById("feedProfileActionsToggle");
+    const chevron=document.getElementById("feedProfileActionsChevron");
+    if(panel && toggle){ panel.hidden=true; toggle.setAttribute("aria-expanded","false"); if(chevron) chevron.textContent="⌄"; }
 
     renderFeedPublicInventory(data,targetTelegramId);
 }
@@ -14325,7 +14329,12 @@ function openFeedPlayerProfile(itemOrId){
         </div>
         <div class="feed-profile-table">
           <div class="feed-profile-row"><div class="feed-profile-label">Лучший дроп</div><div id="feedProfileBestDrop">${bestHtml}</div></div>
-          <div class="feed-profile-row"><div class="feed-profile-label">Последние действия</div><div id="feedProfileActions" class="feed-profile-actions"><div class="feed-profile-value">Загрузка...</div></div></div>
+          <button id="feedProfileActionsToggle" class="feed-profile-actions-toggle" type="button" aria-expanded="false" onclick="toggleFeedProfileActions()">
+            <span>🕘 Последние действия</span><span id="feedProfileActionsChevron">⌄</span>
+          </button>
+          <div id="feedProfileActionsPanel" class="feed-profile-actions-panel" hidden>
+            <div id="feedProfileActions" class="feed-profile-actions"><div class="feed-profile-value">Загрузка...</div></div>
+          </div>
         </div>
       </div>
       <div class="feed-public-inventory">
@@ -27128,6 +27137,110 @@ function renderProfileActions(){
           <div class="profile-action-time">${escapeHtml(a.time||"")}</div>
         </div>`;
     }).join("");
+}
+</script>
+
+
+<style id="brainroterx-feed-profile-actions-real">
+#feedPlayerProfileModal .feed-profile-actions-toggle{
+    width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;
+    padding:10px 12px!important;border:0!important;border-top:1px solid rgba(255,255,255,.05)!important;
+    border-radius:0!important;color:#fff!important;background:rgba(255,255,255,.018)!important;
+    font-size:10px!important;font-weight:950!important;text-align:left!important;
+}
+#feedPlayerProfileModal .feed-profile-actions-toggle:active{transform:none!important;background:rgba(255,255,255,.045)!important}
+#feedPlayerProfileModal .feed-profile-actions-toggle[aria-expanded="true"]{background:rgba(124,58,237,.08)!important}
+#feedPlayerProfileModal .feed-profile-actions-panel{
+    width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+    max-height:42vh!important;overflow-y:auto!important;overflow-x:hidden!important;
+    padding:7px!important;background:rgba(7,10,18,.5)!important;border-top:1px solid rgba(255,255,255,.045)!important;
+}
+#feedPlayerProfileModal .feed-profile-actions-panel[hidden]{display:none!important}
+#feedPlayerProfileModal .feed-profile-actions{
+    width:100%!important;max-width:100%!important;display:grid!important;gap:6px!important;margin:0!important;
+}
+#feedPlayerProfileModal .feed-profile-action-card{
+    width:100%!important;min-width:0!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:8px!important;
+    padding:7px 8px!important;border-radius:11px!important;background:linear-gradient(135deg,rgba(25,32,49,.96),rgba(17,23,37,.96))!important;
+    border:1px solid rgba(255,255,255,.055)!important;overflow:hidden!important;
+}
+#feedPlayerProfileModal .feed-profile-action-visual{
+    width:42px!important;height:42px!important;flex:0 0 42px!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;
+    overflow:hidden!important;background:rgba(8,13,24,.95)!important;border:1px solid rgba(255,255,255,.07)!important;
+}
+#feedPlayerProfileModal .feed-profile-action-visual img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
+#feedPlayerProfileModal .feed-profile-action-mode-icon{font-size:22px!important;line-height:1!important}
+#feedPlayerProfileModal .feed-profile-action-info{min-width:0!important;flex:1!important;display:flex!important;flex-direction:column!important;gap:3px!important}
+#feedPlayerProfileModal .feed-profile-action-title{font-size:10px!important;font-weight:950!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#f8fafc!important}
+#feedPlayerProfileModal .feed-profile-action-subtitle{font-size:8px!important;font-weight:750!important;line-height:1.25!important;color:#94a3b8!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#feedPlayerProfileModal .feed-profile-action-time{flex:0 0 auto!important;align-self:flex-start!important;font-size:7px!important;color:#64748b!important;margin-top:1px!important}
+@media(max-width:360px){#feedPlayerProfileModal .feed-profile-action-visual{width:38px!important;height:38px!important;flex-basis:38px!important}#feedPlayerProfileModal .feed-profile-action-title{font-size:9px!important}#feedPlayerProfileModal .feed-profile-action-subtitle{font-size:7.5px!important}}
+</style>
+
+<script id="brainroterx-feed-profile-actions-real">
+function feedProfileActionCaseData(label){
+    const raw=String(label||"").trim();
+    const key=normalizeName(raw);
+    let gameCase=null;
+    if(Array.isArray(cases)) gameCase=cases.find(c=>normalizeName(c?.name||"")===key) || cases.find(c=>normalizeName(c?.name||"").replace(/\s+case$/i,"")===key);
+    const visual=feedCaseSourceVisual(raw);
+    const image=visual?.image || (gameCase ? caseImageFor(gameCase) : "");
+    const price=gameCase ? Math.max(0,Number(gameCase.price||0)) : 0;
+    return {title:visual?.title || raw || "Кейс",image,price};
+}
+
+function renderFeedProfileAction(action){
+    const source=String(action?.source||"").toLowerCase();
+    const label=String(action?.source_label||"").trim();
+    const name=String(action?.brainrot_name||"").trim();
+    const value=Math.max(0,Number(action?.value||0));
+    const time=String(action?.time||"");
+    let title="Действие",subtitle="",image="",icon=String(action?.icon||"✨");
+
+    if(source==="case" || source==="daily"){
+        const data=feedProfileActionCaseData(source==="daily" ? "Daily Case" : label);
+        title=`Открыл кейс ${data.title}`;
+        image=data.image; icon="📦";
+        subtitle=[data.price?`${data.price.toLocaleString("ru-RU")} ⓧ`:"",name?`Выпал: ${name}`:"",value?`${value.toLocaleString("ru-RU")} ⓧ`:""].filter(Boolean).join(" · ");
+    }else if(source==="upgrade" || source==="upgrade_test"){
+        const m=label.match(/Апгрейд\s+(.+?)\s*→\s*(.+?)\s*·\s*([0-9.,]+)\s*%/i);
+        title=m?`Апгрейд ${m[1].trim()} → ${m[2].trim()}`:`Апгрейд${name?` → ${name}`:""}`;
+        subtitle=m?`${m[3].replace(/,/g,".")}% · выигрыш${value?` · ${value.toLocaleString("ru-RU")} ⓧ`:""}`:(value?`${value.toLocaleString("ru-RU")} ⓧ · выигрыш`:"Выигрыш");
+        icon="⚡";
+    }else if(source==="upgrade_loss"){
+        const m=label.match(/Апгрейд\s+(.+?)\s*→\s*(.+?)\s*·\s*([0-9.,]+)\s*%\s*·\s*проигрыш/i);
+        title=m?`Апгрейд ${m[1].trim()} → ${m[2].trim()}`:(label||"Апгрейд");
+        subtitle=m?`${m[3].replace(/,/g,".")}% · проигрыш`:"Проигрыш";
+        icon="⚡";
+    }else if(source==="ladder"){
+        title="Лестница"; subtitle=name?`→ ${name}${value?` · ${value.toLocaleString("ru-RU")} ⓧ`:""}`:(label||"Действие"); icon="🪜";
+    }else if(source==="dice"){
+        title="Дайсы"; subtitle=label || (name?`→ ${name}`:"Действие"); icon="🎲";
+    }else if(source==="mystery"){
+        title="Мистери"; subtitle=label || (name?`→ ${name}`:"Действие"); icon="❓";
+    }else{
+        title=label||name||"Действие"; subtitle=value?`${value.toLocaleString("ru-RU")} ⓧ`:"";
+    }
+
+    const visual=image
+      ? `<img src="${escapeHtml(image)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">`
+      : `<span class="feed-profile-action-mode-icon">${escapeHtml(icon)}</span>`;
+    return `<div class="feed-profile-action-card">
+      <div class="feed-profile-action-visual">${visual}</div>
+      <div class="feed-profile-action-info"><div class="feed-profile-action-title">${escapeHtml(title)}</div><div class="feed-profile-action-subtitle">${escapeHtml(subtitle)}</div></div>
+      <div class="feed-profile-action-time">${escapeHtml(time)}</div>
+    </div>`;
+}
+
+function toggleFeedProfileActions(){
+    const panel=document.getElementById("feedProfileActionsPanel");
+    const button=document.getElementById("feedProfileActionsToggle");
+    const chevron=document.getElementById("feedProfileActionsChevron");
+    if(!panel||!button) return;
+    const opening=panel.hidden;
+    panel.hidden=!opening;
+    button.setAttribute("aria-expanded",opening?"true":"false");
+    if(chevron) chevron.textContent=opening?"⌃":"⌄";
 }
 </script>
 
