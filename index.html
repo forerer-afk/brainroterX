@@ -9586,6 +9586,54 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 }
 </style>
 
+<style id="feed-source-visual-v2">
+.big-win-source-card-overlay{
+    position:absolute !important;
+    left:8px !important;
+    top:8px !important;
+    z-index:6 !important;
+    width:48px !important;
+    height:48px !important;
+    padding:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border-radius:15px !important;
+    background:rgba(8,10,18,.72) !important;
+    border:1px solid rgba(255,255,255,.12) !important;
+    box-shadow:0 8px 22px rgba(0,0,0,.28), inset 0 0 18px rgba(255,255,255,.035) !important;
+    backdrop-filter:blur(8px) !important;
+    pointer-events:none !important;
+    overflow:hidden !important;
+}
+.big-win-source-card-icon{
+    width:100% !important;
+    height:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    font-size:27px !important;
+    line-height:1 !important;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.45)) !important;
+}
+.big-win-source-case-image{
+    width:42px !important;
+    height:42px !important;
+    object-fit:contain !important;
+    display:block !important;
+    filter:drop-shadow(0 5px 8px rgba(0,0,0,.45)) !important;
+}
+.big-win-source-card-icon.source-upgrader-icon{
+    font-size:31px !important;
+    text-shadow:0 0 10px rgba(168,85,247,.8),0 0 22px rgba(168,85,247,.38) !important;
+    animation:feedUpgradePulse 1.7s ease-in-out infinite !important;
+}
+@keyframes feedUpgradePulse{
+    0%,100%{transform:scale(1) rotate(-4deg);}
+    50%{transform:scale(1.12) rotate(4deg);}
+}
+</style>
+
 </head>
 
 <body>
@@ -14183,13 +14231,14 @@ function closeFeedPlayerProfile(){
 function feedCaseSourceVisual(sourceLabel){
     const key=normalizeName(sourceLabel||"");
     const visual=(typeof CASE_VISUALS !== "undefined" && CASE_VISUALS[key]) ? CASE_VISUALS[key] : null;
+    const image=(typeof CASE_IMAGES !== "undefined" && CASE_IMAGES[key]) ? CASE_IMAGES[key] : "";
     const themeColor={
         noob:"#b69264",lucky:"#42df66",chaos:"#ff6b00",neon:"#25a7ff",mystery:"#b056ff",
         elite:"#ffd21a",pro:"#f6b817",phantom:"#49e6e0",hell:"#ff2828",random:"#c839ff",
         dragon:"#ff5a1f",secret:"#45df8b",lavaka:"#ff8b3d",toxic:"#b568ff",crazy:"#ff5cc8",
         moon:"#8ba7ff",overdrive:"#b568ff",meteor:"#ff9d42"
     };
-    return {icon:visual?.symbol || "🎁",color:themeColor[visual?.theme] || "#f59e0b"};
+    return {icon:visual?.symbol || "🎁",image:image ? `${image}?v=${typeof CASE_IMAGE_VERSION !== "undefined" ? CASE_IMAGE_VERSION : ""}` : "",color:themeColor[visual?.theme] || "#f59e0b"};
 }
 
 function feedSourceInfo(item){
@@ -14278,18 +14327,39 @@ function renderBigWins(animateIds = new Set()){
         card.style.setProperty("--feed-source-color",sourceInfo.color||"#a78bfa");
         const sourceOverlay=document.createElement("div");
         sourceOverlay.className="big-win-source-card-overlay";
+
         const sourceIcon=document.createElement("div");
         sourceIcon.className="big-win-source-card-icon";
-        sourceIcon.textContent=sourceInfo.icon||"✨";
-        const sourceTitle=document.createElement("div");
-        sourceTitle.className="big-win-source-card-title";
-        sourceTitle.textContent=sourceInfo.title||"ДРОП";
-        const sourceDetail=document.createElement("div");
-        sourceDetail.className="big-win-source-card-detail";
-        sourceDetail.textContent=sourceInfo.detail||"Источник дропа";
+
+        const source=String(item?.source||"").trim().toLowerCase();
+        if(source === "case"){
+            const visual=feedCaseSourceVisual(item?.source_label||"");
+            if(visual.image){
+                const sourceImg=document.createElement("img");
+                sourceImg.className="big-win-source-case-image";
+                sourceImg.src=visual.image;
+                sourceImg.alt="";
+                sourceImg.loading="eager";
+                sourceImg.decoding="async";
+                sourceImg.onerror=()=>{ sourceImg.remove(); sourceIcon.textContent="🎁"; };
+                sourceIcon.appendChild(sourceImg);
+            }else{
+                sourceIcon.textContent="🎁";
+            }
+        }else if(source === "upgrade" || source === "upgrade_test"){
+            sourceIcon.textContent="⚡";
+            sourceIcon.classList.add("source-upgrader-icon");
+        }else if(source === "ladder"){
+            sourceIcon.textContent="🪜";
+        }else if(source === "dice"){
+            sourceIcon.textContent="🎲";
+        }else{
+            sourceIcon.textContent=sourceInfo.icon||"✨";
+        }
+
+        // В самой ленте показываем именно визуальный источник,
+        // а не дублируем его название текстом.
         sourceOverlay.appendChild(sourceIcon);
-        sourceOverlay.appendChild(sourceTitle);
-        sourceOverlay.appendChild(sourceDetail);
         card.appendChild(sourceOverlay);
 
         const img=document.createElement("img");
