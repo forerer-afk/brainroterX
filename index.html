@@ -2290,8 +2290,8 @@ img{
 .profile-best-drop{
     position:relative;
     z-index:2;
-    margin-top:9px;
-    padding:8px 10px;
+    margin-top:14px;
+    padding:12px 13px;
     border-radius:13px;
     background:linear-gradient(135deg,rgba(249,115,22,.10),rgba(250,204,21,.05));
     border:1px solid rgba(250,204,21,.14);
@@ -2309,14 +2309,14 @@ img{
 .profile-best-drop-row{
     display:flex;
     align-items:center;
-    gap:8px;
-    min-height:46px;
+    gap:10px;
+    min-height:62px;
 }
 
 .profile-best-drop-image{
-    width:46px;
-    height:46px;
-    flex:0 0 46px;
+    width:62px;
+    height:62px;
+    flex:0 0 62px;
     object-fit:contain;
     border-radius:10px;
     background:rgba(2,6,23,.55);
@@ -9586,51 +9586,84 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 }
 </style>
 
-<style id="feed-source-visual-v2">
-.big-win-source-card-overlay{
-    position:absolute !important;
-    left:8px !important;
-    top:8px !important;
-    z-index:6 !important;
-    width:48px !important;
-    height:48px !important;
-    padding:0 !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    border-radius:15px !important;
-    background:rgba(8,10,18,.72) !important;
-    border:1px solid rgba(255,255,255,.12) !important;
-    box-shadow:0 8px 22px rgba(0,0,0,.28), inset 0 0 18px rgba(255,255,255,.035) !important;
-    backdrop-filter:blur(8px) !important;
-    pointer-events:none !important;
-    overflow:hidden !important;
+<style id="brainroterx-feed-safe-patch">
+/* FEED SOURCE VISUALS — SAFE PATCH */
+.big-win-item{position:relative!important;overflow:hidden!important;}
+.big-win-source-card-overlay{position:absolute!important;inset:4px!important;z-index:5!important;border-radius:12px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;padding:5px!important;background:linear-gradient(160deg,rgba(8,14,27,.96),rgba(13,21,37,.98))!important;pointer-events:none!important;opacity:0!important;transform:scale(.97)!important;transition:opacity .16s ease,transform .16s ease!important;}
+.big-win-item:hover .big-win-source-card-overlay{opacity:1!important;transform:scale(1)!important;}
+.big-win-source-case-image{width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important;}
+.big-win-source-card-title{font-size:9px!important;font-weight:1000!important;text-transform:none!important;white-space:nowrap!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+.big-win-source-card-icon{font-size:25px!important;line-height:1!important;}
+.big-win-source-card-detail{font-size:7px!important;opacity:.7!important;text-align:center!important;}
+.feed-profile-actions{display:grid;gap:5px;margin-top:7px;}
+.feed-profile-action{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:10px;background:rgba(30,41,59,.58);border:1px solid rgba(255,255,255,.05);min-width:0;}
+.feed-profile-action-icon{width:22px;flex:0 0 22px;text-align:center;font-size:15px;}
+.feed-profile-action-text{min-width:0;font-size:9px;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.feed-profile-action-time{margin-left:auto;flex:0 0 auto;color:#64748b;font-size:7px;}
+.site-withdrawn-card{display:none;}
+</style>
+
+<style id="brainroterx-profile-stats-final">
+/* MAIN PROFILE: three identical counters */
+#inventoryPage .profile-stats{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:7px !important;
 }
-.big-win-source-card-icon{
-    width:100% !important;
-    height:100% !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    font-size:27px !important;
-    line-height:1 !important;
-    filter:drop-shadow(0 4px 8px rgba(0,0,0,.45)) !important;
+#inventoryPage .profile-stat{
+    min-width:0 !important;
+    padding:10px 4px !important;
 }
-.big-win-source-case-image{
-    width:42px !important;
-    height:42px !important;
-    object-fit:contain !important;
-    display:block !important;
-    filter:drop-shadow(0 5px 8px rgba(0,0,0,.45)) !important;
+#inventoryPage .profile-number{
+    font-size:17px !important;
+    white-space:nowrap !important;
 }
-.big-win-source-card-icon.source-upgrader-icon{
-    font-size:31px !important;
-    text-shadow:0 0 10px rgba(168,85,247,.8),0 0 22px rgba(168,85,247,.38) !important;
-    animation:feedUpgradePulse 1.7s ease-in-out infinite !important;
+#inventoryPage .profile-stat-title{
+    font-size:7.5px !important;
+    line-height:1.2 !important;
 }
-@keyframes feedUpgradePulse{
-    0%,100%{transform:scale(1) rotate(-4deg);}
-    50%{transform:scale(1.12) rotate(4deg);}
+
+/* BEST DROP: slightly larger vertically */
+#inventoryPage #profileBestDrop{
+    padding:15px 13px !important;
+    min-height:108px !important;
+}
+#inventoryPage #profileBestDrop .profile-best-drop-label{
+    margin-bottom:8px !important;
+}
+#inventoryPage #profileBestDrop .profile-best-drop-row{
+    min-height:70px !important;
+}
+#inventoryPage #profileBestDrop .profile-best-drop-image{
+    width:68px !important;
+    height:68px !important;
+    flex:0 0 68px !important;
+}
+
+/* PLAYER PROFILE OPENED FROM FEED: same three counters */
+#feedPlayerProfileModal .feed-profile-stats{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+}
+#feedPlayerProfileModal .feed-profile-stat{
+    min-width:0 !important;
+    padding:11px 4px !important;
+}
+#feedPlayerProfileModal .feed-profile-stat-value{
+    font-size:15px !important;
+    white-space:nowrap !important;
+}
+#feedPlayerProfileModal .feed-profile-stat-label{
+    font-size:8px !important;
+    line-height:1.15 !important;
+}
+
+/* Make best drop in feed-player profile a little taller too */
+#feedPlayerProfileModal #feedProfileBestDrop .feed-profile-best img{
+    width:46px !important;
+    height:46px !important;
+    flex:0 0 46px !important;
+}
+#feedPlayerProfileModal .feed-profile-row:has(#feedProfileBestDrop){
+    min-height:68px !important;
 }
 </style>
 
@@ -10204,7 +10237,7 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 #feedPlayerProfileModal .feed-profile-top{padding:14px!important;border:0!important;border-radius:0!important;background:radial-gradient(circle at 12% 0%,rgba(168,85,247,.14),transparent 42%),rgba(255,255,255,.018)!important;}
 #feedPlayerProfileModal .feed-profile-avatar,#feedPlayerProfileModal .feed-profile-avatar-fallback{width:58px!important;height:58px!important;flex-basis:58px!important;}
 #feedPlayerProfileModal .feed-profile-name{font-size:15px!important;}
-.feed-profile-stats{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.018);}
+.feed-profile-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.018);}
 .feed-profile-stat{padding:12px 8px;text-align:center;}
 .feed-profile-stat+ .feed-profile-stat{border-left:1px solid rgba(255,255,255,.06);}
 .feed-profile-stat-value{font-size:18px;font-weight:1000;color:#fff;line-height:1.1;}
@@ -10703,17 +10736,15 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
 
             <div class="profile-stat">
 
-                <div
-                    id="profileUpgrades"
-                    class="profile-number"
-                >
-                    0
-                </div>
+                <div id="profileUpgrades" class="profile-number">0</div>
 
-                <div class="profile-stat-title">
-                    ⚡ АПГРЕЙДОВ
-                </div>
+                <div class="profile-stat-title">⚡ АПГРЕЙДОВ</div>
 
+            </div>
+
+            <div class="profile-stat">
+                <div id="siteWithdrawnValue" class="profile-number">...</div>
+                <div class="profile-stat-title">💸 ВЫВЕДЕНО</div>
             </div>
 
         </div>
@@ -14101,15 +14132,20 @@ function applyFeedPublicProfileData(data,targetTelegramId){
     const upgrades=document.getElementById("feedProfileUpgradesDone");
     if(cases) cases.textContent=String(Math.max(0,Number(player.cases_opened||0)));
     if(upgrades) upgrades.textContent=String(Math.max(0,Number(player.upgrades_done||0)));
-
+    const withdrawn=document.getElementById("feedProfileWithdrawn");
+    if(withdrawn) withdrawn.textContent=`${Math.max(0,Number(player.withdrawn_coins||0)).toLocaleString("ru-RU")} ⓧ`;
     const bestRoot=document.getElementById("feedProfileBestDrop");
     if(bestRoot){
         const best=player.best_drop||null;
         const bestName=String(best?.brainrot_name||"").trim();
         const bestValue=Math.max(0,Number(best?.value||0));
-        bestRoot.innerHTML=bestName
-          ? `<div class="feed-profile-best"><img src="${escapeHtml(getImage(bestName))}" alt="" loading="eager" decoding="async"><div class="feed-profile-best-info"><div class="feed-profile-best-name">${escapeHtml(bestName)}</div><div class="feed-profile-best-price">${bestValue.toLocaleString("ru-RU")} ⓧ</div></div></div>`
-          : `<div class="feed-profile-value">—</div>`;
+        bestRoot.innerHTML=bestName ? `<div class="feed-profile-best"><img src="${escapeHtml(getImage(bestName))}" alt=""><div class="feed-profile-best-info"><div class="feed-profile-best-name">${escapeHtml(bestName)}</div><div class="feed-profile-best-price">${bestValue.toLocaleString("ru-RU")} ⓧ</div></div></div>` : `<div class="feed-profile-value">—</div>`;
+    }
+
+    const actionsRoot=document.getElementById("feedProfileActions");
+    if(actionsRoot){
+        const actions=Array.isArray(data?.recent_actions)?data.recent_actions:[];
+        actionsRoot.innerHTML=actions.length ? actions.slice(0,6).map(action=>`<div class="feed-profile-action"><div class="feed-profile-action-icon">${escapeHtml(action.icon||"✨")}</div><div class="feed-profile-action-text">${escapeHtml(action.text||"Действие")}</div><div class="feed-profile-action-time">${escapeHtml(action.time||"")}</div></div>`).join("") : `<div class="feed-profile-value">Пока нет действий</div>`;
     }
 
     renderFeedPublicInventory(data,targetTelegramId);
@@ -14147,6 +14183,18 @@ async function loadFeedPublicProfile(item){
         if(bestRoot && !cached && !String(item.player_best_drop_name||"").trim()){
             bestRoot.innerHTML='<div class="feed-profile-value">—</div>';
         }
+    }
+}
+
+async function loadSiteWithdrawnTotal(){
+    const root=document.getElementById("siteWithdrawnValue");
+    if(!root) return;
+    try{
+        const data=await apiRequest({action:"get_site_stats"});
+        if(!data?.ok) throw new Error();
+        root.textContent=`${Math.max(0,Number(data.total_withdrawn_coins||0)).toLocaleString("ru-RU")} ⓧ`;
+    }catch(_){
+        root.textContent="—";
     }
 }
 
@@ -14191,11 +14239,13 @@ function openFeedPlayerProfile(itemOrId){
           </div>
         </div>
         <div class="feed-profile-stats">
-          <div class="feed-profile-stat"><div id="feedProfileCasesOpened" class="feed-profile-stat-value">${casesOpened}</div><div class="feed-profile-stat-label">Открыто кейсов<br>за всё время</div></div>
-          <div class="feed-profile-stat"><div id="feedProfileUpgradesDone" class="feed-profile-stat-value">${upgradesDone}</div><div class="feed-profile-stat-label">Сделано апгрейдов<br>за всё время</div></div>
+          <div class="feed-profile-stat"><div id="feedProfileCasesOpened" class="feed-profile-stat-value">${casesOpened}</div><div class="feed-profile-stat-label">Открыто кейсов</div></div>
+          <div class="feed-profile-stat"><div id="feedProfileUpgradesDone" class="feed-profile-stat-value">${upgradesDone}</div><div class="feed-profile-stat-label">Апгрейдов</div></div>
+          <div class="feed-profile-stat"><div id="feedProfileWithdrawn" class="feed-profile-stat-value">...</div><div class="feed-profile-stat-label">Выведено</div></div>
         </div>
         <div class="feed-profile-table">
           <div class="feed-profile-row"><div class="feed-profile-label">Лучший дроп</div><div id="feedProfileBestDrop">${bestHtml}</div></div>
+          <div class="feed-profile-row"><div class="feed-profile-label">Последние действия</div><div id="feedProfileActions" class="feed-profile-actions"><div class="feed-profile-value">Загрузка...</div></div></div>
         </div>
       </div>
       <div class="feed-public-inventory">
@@ -14229,37 +14279,28 @@ function closeFeedPlayerProfile(){
 
 
 function feedCaseSourceVisual(sourceLabel){
-    const key=normalizeName(sourceLabel||"");
+    const raw=String(sourceLabel||"").trim();
+    const key=normalizeName(raw);
     const visual=(typeof CASE_VISUALS !== "undefined" && CASE_VISUALS[key]) ? CASE_VISUALS[key] : null;
-    const image=(typeof CASE_IMAGES !== "undefined" && CASE_IMAGES[key]) ? CASE_IMAGES[key] : "";
-    const themeColor={
-        noob:"#b69264",lucky:"#42df66",chaos:"#ff6b00",neon:"#25a7ff",mystery:"#b056ff",
-        elite:"#ffd21a",pro:"#f6b817",phantom:"#49e6e0",hell:"#ff2828",random:"#c839ff",
-        dragon:"#ff5a1f",secret:"#45df8b",lavaka:"#ff8b3d",toxic:"#b568ff",crazy:"#ff5cc8",
-        moon:"#8ba7ff",overdrive:"#b568ff",meteor:"#ff9d42"
-    };
-    return {icon:visual?.symbol || "🎁",image:image ? `${image}?v=${typeof CASE_IMAGE_VERSION !== "undefined" ? CASE_IMAGE_VERSION : ""}` : "",color:themeColor[visual?.theme] || "#f59e0b"};
+    const image=(typeof CASE_IMAGES !== "undefined" && CASE_IMAGES[key]) ? `${CASE_IMAGES[key]}?v=${CASE_IMAGE_VERSION}` : "";
+    const cleanName=raw.replace(/\s+case$/i,"").trim();
+    const themeColor={noob:"#b69264",lucky:"#42df66",chaos:"#ff6b00",neon:"#25a7ff",mystery:"#b056ff",elite:"#ffd21a",pro:"#f6b817",phantom:"#49e6e0",hell:"#ff2828",random:"#c839ff",dragon:"#ff5a1f",secret:"#45df8b",lavaka:"#ff8b3d",toxic:"#b568ff",crazy:"#ff5cc8",moon:"#8ba7ff",overdrive:"#b568ff",meteor:"#ff9d42"};
+    return {icon:visual?.symbol||"🎁",image,title:cleanName||raw||"Кейс",color:themeColor[visual?.theme]||"#f59e0b"};
 }
 
 function feedSourceInfo(item){
     const source=String(item?.source||"").trim().toLowerCase();
     const sourceLabel=String(item?.source_label||"").trim();
-    const isAdjustedUpgrade = source === "upgrade_test" || (source === "upgrade" && /test/i.test(sourceLabel));
-    if(isAdjustedUpgrade) return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд · шанс изменён админом",color:"#a855f7"};
-    if(source === "upgrade") return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Brainrot получен через апгрейд",color:"#a855f7"};
-    if(source === "daily") return {icon:"🎁",title:"ЕЖЕДНЕВНЫЙ КЕЙС",detail:"Brainrot выпал из бесплатного кейса",color:"#22c55e"};
-    if(source === "case"){
-        const visual=feedCaseSourceVisual(sourceLabel);
-        return {icon:visual.icon,title:sourceLabel || "КЕЙС",detail:"Brainrot выпал из кейса",color:visual.color};
-    }
-    if(source === "dice") return {icon:"🎲",title:"ДАЙСЫ",detail:sourceLabel || "Выигрыш в дайсах",color:"#60a5fa"};
-    if(source === "ladder") return {icon:"🪜",title:"ЛЕСТНИЦА",detail:"Выигрыш в лестнице",color:"#fb7185"};
-    return {icon:"✨",title:sourceLabel || "ДРОП",detail:"Источник выигрыша",color:"#a78bfa"};
+    if(source === "upgrade_test" || (source === "upgrade" && /test/i.test(sourceLabel))) return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Апгрейд",color:"#a855f7",kind:"icon"};
+    if(source === "upgrade") return {icon:"⚡",title:"АПГРЕЙДЕР",detail:"Апгрейд",color:"#a855f7",kind:"icon"};
+    if(source === "daily") { const v=feedCaseSourceVisual("daily case"); return {...v,title:"Ежедневный",detail:"Открыл кейс",kind:"case"}; }
+    if(source === "case") { const v=feedCaseSourceVisual(sourceLabel); return {...v,detail:"Открыл кейс",kind:"case"}; }
+    if(source === "dice") return {icon:"🎲",title:"ДАЙСЫ",detail:"Дайсы",color:"#60a5fa",kind:"icon"};
+    if(source === "ladder") return {icon:"🪜",title:"ЛЕСТНИЦА",detail:"Лестница",color:"#fb7185",kind:"icon"};
+    return {icon:"✨",title:sourceLabel||"ДРОП",detail:"Источник дропа",color:"#a78bfa",kind:"icon"};
 }
 
 function showFeedSourceFullscreen(item){
-    return;
-
     if(!window.matchMedia?.("(hover:hover) and (pointer:fine)")?.matches) return;
     const overlay=document.getElementById("feedSourceFullscreen");
     if(!overlay) return;
@@ -14274,18 +14315,13 @@ function showFeedSourceFullscreen(item){
     if(icon) icon.textContent=info.icon||"✨";
     if(title) title.textContent=info.title||"ДРОП";
     if(detail){detail.textContent=info.detail||"";detail.style.display=info.detail?"block":"none";}
-    if(brainrot){brainrot.src=getImage(item?.brainrot_name);brainrot.alt=String(item?.brainrot_name||"");}
+    if(brainrot){brainrot.src=info.kind==="case" && info.image ? info.image : getImage(item?.brainrot_name);brainrot.alt=String(info.title||item?.brainrot_name||"");}
     if(brainrotName) brainrotName.textContent=String(item?.brainrot_name||"Brainrot");
     if(brainrotPrice) brainrotPrice.textContent=`${Number(item?.value||0)} ⓧ`;
-    overlay.classList.remove("show");
-    void overlay.offsetWidth;
-    overlay.classList.add("show");
-    overlay.setAttribute("aria-hidden","false");
+    overlay.classList.remove("show"); void overlay.offsetWidth; overlay.classList.add("show"); overlay.setAttribute("aria-hidden","false");
 }
 
 function hideFeedSourceFullscreen(){
-    return;
-
     const overlay=document.getElementById("feedSourceFullscreen");
     if(!overlay) return;
     overlay.classList.remove("show");
@@ -14327,39 +14363,24 @@ function renderBigWins(animateIds = new Set()){
         card.style.setProperty("--feed-source-color",sourceInfo.color||"#a78bfa");
         const sourceOverlay=document.createElement("div");
         sourceOverlay.className="big-win-source-card-overlay";
-
-        const sourceIcon=document.createElement("div");
-        sourceIcon.className="big-win-source-card-icon";
-
-        const source=String(item?.source||"").trim().toLowerCase();
-        if(source === "case"){
-            const visual=feedCaseSourceVisual(item?.source_label||"");
-            if(visual.image){
-                const sourceImg=document.createElement("img");
-                sourceImg.className="big-win-source-case-image";
-                sourceImg.src=visual.image;
-                sourceImg.alt="";
-                sourceImg.loading="eager";
-                sourceImg.decoding="async";
-                sourceImg.onerror=()=>{ sourceImg.remove(); sourceIcon.textContent="🎁"; };
-                sourceIcon.appendChild(sourceImg);
-            }else{
-                sourceIcon.textContent="🎁";
-            }
-        }else if(source === "upgrade" || source === "upgrade_test"){
-            sourceIcon.textContent="⚡";
-            sourceIcon.classList.add("source-upgrader-icon");
-        }else if(source === "ladder"){
-            sourceIcon.textContent="🪜";
-        }else if(source === "dice"){
-            sourceIcon.textContent="🎲";
+        if(sourceInfo.kind === "case" && sourceInfo.image){
+            const caseImg=document.createElement("img");
+            caseImg.className="big-win-source-case-image";
+            caseImg.src=sourceInfo.image;
+            caseImg.alt=sourceInfo.title||"";
+            caseImg.loading="eager";
+            caseImg.decoding="async";
+            sourceOverlay.appendChild(caseImg);
         }else{
+            const sourceIcon=document.createElement("div");
+            sourceIcon.className="big-win-source-card-icon";
             sourceIcon.textContent=sourceInfo.icon||"✨";
+            sourceOverlay.appendChild(sourceIcon);
         }
-
-        // В самой ленте показываем именно визуальный источник,
-        // а не дублируем его название текстом.
-        sourceOverlay.appendChild(sourceIcon);
+        const sourceTitle=document.createElement("div");
+        sourceTitle.className="big-win-source-card-title";
+        sourceTitle.textContent=sourceInfo.title||"ДРОП";
+        sourceOverlay.appendChild(sourceTitle);
         card.appendChild(sourceOverlay);
 
         const img=document.createElement("img");
@@ -26874,6 +26895,8 @@ body.streamer-mode #settingsModal *{
         uahDepositMs: UAH_DEPOSIT_INTERVAL
     });
 })();
+
+try{loadSiteWithdrawnTotal();}catch(_){}
 </script>
 
 </body>
