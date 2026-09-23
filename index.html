@@ -27201,10 +27201,14 @@ function feedProfileActionCaseData(label){
 }
 
 function renderFeedProfileAction(action){
+    /* Backend versions before the detailed-actions update returned only {icon,text,time}.
+       Keep a compatibility fallback so an older deployed backend can never show a blank
+       generic "Действие" when the real action text is already available. */
     const source=String(action?.source||"").toLowerCase();
     const label=String(action?.source_label||"").trim();
     const name=String(action?.brainrot_name||"").trim();
     const value=Math.max(0,Number(action?.value||0));
+    const legacyText=String(action?.text||"").trim();
     const time=String(action?.time||"");
     let title="Действие",subtitle="",image="",icon=String(action?.icon||"✨");
 
@@ -27230,7 +27234,28 @@ function renderFeedProfileAction(action){
     }else if(source==="mystery"){
         title="Мистери"; subtitle=label || (name?`→ ${name}`:"Действие"); icon="❓";
     }else{
-        title=label||name||"Действие"; subtitle=value?`${value.toLocaleString("ru-RU")} ⓧ`:"";
+        /* If the API only returned the old text field, show that actual action. */
+        title=label||name||legacyText||"Действие";
+        subtitle=value?`${value.toLocaleString("ru-RU")} ⓧ`:"";
+    }
+
+    /* Compatibility with the old backend's text-only response. */
+    if(!source && legacyText){
+        const caseMatch=legacyText.match(/^Открыл\s+кейс\s+(.+?)(?:\s+→\s+(.+?))?(?:\s+·\s+([0-9.,]+)\s*ⓧ)?$/i);
+        if(caseMatch){
+            const cd=profileActionCaseData(caseMatch[1]);
+            title=`Открыл кейс ${cd.title}`;
+            image=cd.image||image;
+            icon="📦";
+            subtitle=[cd.price?`${cd.price.toLocaleString("ru-RU")} ⓧ`:"",caseMatch[2]?`Выпал: ${caseMatch[2]}`:"",caseMatch[3]?`${caseMatch[3]} ⓧ`:""].filter(Boolean).join(" · ");
+        }else{
+            title=legacyText;
+            subtitle=value?`${value.toLocaleString("ru-RU")} ⓧ`:"";
+            if(/^Апгрейд/i.test(legacyText)) icon="⚡";
+            else if(/^Лестница/i.test(legacyText)) icon="🪜";
+            else if(/^Дайсы/i.test(legacyText)) icon="🎲";
+            else if(/^Мистери/i.test(legacyText)) icon="❓";
+        }
     }
 
     const visual=image
