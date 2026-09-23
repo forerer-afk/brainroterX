@@ -12562,6 +12562,8 @@ let playerProfile = {
 
     upgrades_done:0,
 
+    withdrawn_coins:0,
+
     has_deposited:false,
 
     wager_required:0,
@@ -13370,6 +13372,13 @@ async function loadPlayer(){
                     0
                 ),
 
+            withdrawn_coins:
+                Number(
+                    data.withdrawn_coins
+                    ||
+                    0
+                ),
+
             has_deposited:
                 Boolean(
                     data.has_deposited
@@ -13654,6 +13663,11 @@ function renderProfile(){
         )
         .innerText =
             playerProfile.upgrades_done;
+
+    const personalWithdrawnRoot = document.getElementById("siteWithdrawnValue");
+    if(personalWithdrawnRoot){
+        personalWithdrawnRoot.innerText = `${Math.max(0,Number(playerProfile.withdrawn_coins||0)).toLocaleString("ru-RU")} ⓧ`;
+    }
 
     const wagerRequired =
         Number(
@@ -14270,16 +14284,13 @@ async function loadFeedPublicProfile(item){
     }
 }
 
-async function loadSiteWithdrawnTotal(){
+function loadSiteWithdrawnTotal(){
+    // This counter belongs to the currently opened player's profile.
+    // Never load the global site withdrawal total here.
     const root=document.getElementById("siteWithdrawnValue");
     if(!root) return;
-    try{
-        const data=await apiRequest({action:"get_site_stats"});
-        if(!data?.ok) throw new Error();
-        root.textContent=`${Math.max(0,Number(data.total_withdrawn_coins||0)).toLocaleString("ru-RU")} ⓧ`;
-    }catch(_){
-        root.textContent="—";
-    }
+    const value=Math.max(0,Number(playerProfile?.withdrawn_coins||0));
+    root.textContent=`${value.toLocaleString("ru-RU")} ⓧ`;
 }
 
 function openFeedPlayerProfile(itemOrId){
