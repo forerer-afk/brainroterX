@@ -9405,31 +9405,60 @@ input:focus,select:focus,textarea:focus,.promo-input:focus,.ladder-input:focus{
     width:1px !important;
     height:7px !important;
     border-radius:999px !important;
-    background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.025)) !important;
-    box-shadow:0 0 3px rgba(255,255,255,.06) !important;
-    opacity:.30 !important;
-    transform:rotate(18deg) translate3d(0,0,0) !important;
-    transition:transform 1.35s cubic-bezier(.2,.7,.2,1),opacity 1.35s ease !important;
-    will-change:auto !important;
+    background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.035)) !important;
+    box-shadow:0 0 3px rgba(255,255,255,.07) !important;
+    opacity:.22 !important;
+    transform:rotate(18deg) translate3d(0,-10px,0) !important;
+    animation:brainroterxCaseStarFall 5.8s linear infinite !important;
+    will-change:transform,opacity !important;
 }
-#casesPage #caseList .case-stars span:nth-child(1){left:8%;top:19%;height:6px;opacity:.22!important}
-#casesPage #caseList .case-stars span:nth-child(2){left:22%;top:8%;height:4px;opacity:.16!important}
-#casesPage #caseList .case-stars span:nth-child(3){left:39%;top:24%;height:7px;opacity:.20!important}
-#casesPage #caseList .case-stars span:nth-child(4){left:58%;top:11%;height:5px;opacity:.15!important}
-#casesPage #caseList .case-stars span:nth-child(5){left:73%;top:29%;height:8px;opacity:.22!important}
-#casesPage #caseList .case-stars span:nth-child(6){left:88%;top:15%;height:5px;opacity:.18!important}
-#casesPage #caseList .case-stars span:nth-child(7){left:16%;top:49%;height:5px;opacity:.14!important}
-#casesPage #caseList .case-stars span:nth-child(8){left:82%;top:54%;height:6px;opacity:.13!important}
+#casesPage #caseList .case-stars span:nth-child(1){left:8%;top:7%;height:6px;opacity:.19!important;animation-duration:6.4s!important;animation-delay:-1.2s!important}
+#casesPage #caseList .case-stars span:nth-child(2){left:22%;top:2%;height:4px;opacity:.14!important;animation-duration:5.3s!important;animation-delay:-3.8s!important}
+#casesPage #caseList .case-stars span:nth-child(3){left:39%;top:15%;height:7px;opacity:.18!important;animation-duration:6.1s!important;animation-delay:-2.1s!important}
+#casesPage #caseList .case-stars span:nth-child(4){left:58%;top:5%;height:5px;opacity:.13!important;animation-duration:5.6s!important;animation-delay:-4.4s!important}
+#casesPage #caseList .case-stars span:nth-child(5){left:73%;top:20%;height:8px;opacity:.19!important;animation-duration:6.7s!important;animation-delay:-.7s!important}
+#casesPage #caseList .case-stars span:nth-child(6){left:88%;top:9%;height:5px;opacity:.15!important;animation-duration:5.8s!important;animation-delay:-2.9s!important}
+#casesPage #caseList .case-stars span:nth-child(7){left:16%;top:39%;height:5px;opacity:.12!important;animation-duration:6.5s!important;animation-delay:-5.1s!important}
+#casesPage #caseList .case-stars span:nth-child(8){left:82%;top:43%;height:6px;opacity:.11!important;animation-duration:5.9s!important;animation-delay:-1.9s!important}
+
+@keyframes brainroterxCaseStarFall{
+    0%{
+        transform:rotate(18deg) translate3d(0,-14px,0) !important;
+        opacity:.04 !important;
+    }
+    14%{
+        opacity:.22 !important;
+    }
+    72%{
+        opacity:.22 !important;
+    }
+    100%{
+        transform:rotate(18deg) translate3d(5px,112px,0) !important;
+        opacity:.02 !important;
+    }
+}
 
 @media (hover:hover) and (pointer:fine){
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(1){transform:rotate(18deg) translate3d(2px,7px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(2){transform:rotate(18deg) translate3d(1px,4px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(3){transform:rotate(18deg) translate3d(3px,8px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(4){transform:rotate(18deg) translate3d(1px,5px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(5){transform:rotate(18deg) translate3d(3px,9px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(6){transform:rotate(18deg) translate3d(2px,6px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(7){transform:rotate(18deg) translate3d(1px,5px,0)!important}
-    #casesPage #caseList .case-card:hover .case-stars span:nth-child(8){transform:rotate(18deg) translate3d(2px,7px,0)!important}
+    #casesPage #caseList .case-card:hover .case-stars span{
+        animation-duration:3.15s !important;
+        opacity:.34 !important;
+        filter:brightness(1.25) !important;
+    }
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(1){animation-duration:3.45s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(2){animation-duration:2.85s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(3){animation-duration:3.25s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(4){animation-duration:3.05s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(5){animation-duration:3.55s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(6){animation-duration:3.1s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(7){animation-duration:3.4s!important}
+    #casesPage #caseList .case-card:hover .case-stars span:nth-child(8){animation-duration:3.0s!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+    #casesPage #caseList .case-stars span{
+        animation:none !important;
+        transform:rotate(18deg) !important;
+    }
 }
 
 @media (max-width:420px){
@@ -13565,18 +13594,22 @@ async function loadPlayer(){
         adminPanelAccess =
             Boolean(data.can_admin_panel);
 
-        if(Array.isArray(data.deposit_brainrot_enabled_ids)){
+        if(Array.isArray(data.deposit_brainrot_enabled_ids) && data.deposit_brainrot_enabled_ids.length > 0){
             adminDepositEnabledIds = new Set(
                 data.deposit_brainrot_enabled_ids.map(Number)
             );
             adminAvailabilityLoaded = true;
+        } else {
+            adminDepositEnabledIds = new Set();
         }
 
-        if(Array.isArray(data.withdraw_brainrot_in_stock_ids)){
+        if(Array.isArray(data.withdraw_brainrot_in_stock_ids) && data.withdraw_brainrot_in_stock_ids.length > 0){
             adminWithdrawInStockIds = new Set(
                 data.withdraw_brainrot_in_stock_ids.map(Number)
             );
             adminAvailabilityLoaded = true;
+        } else {
+            adminWithdrawInStockIds = new Set();
         }
 
         const runtimeMultiplier = Number(
