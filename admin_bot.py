@@ -86,7 +86,7 @@ def call_server(action, **kwargs):
     try:
         with urllib.request.urlopen(
             request,
-            timeout=SERVER_HTTP_TIMEOUT
+            timeout=(55 if action == "admin_process_withdraw_notifications" else SERVER_HTTP_TIMEOUT)
         ) as response:
 
             text = (
@@ -127,7 +127,7 @@ async def call_server_async(action, **kwargs):
         try:
             return await asyncio.wait_for(
                 asyncio.to_thread(call_server, action, **kwargs),
-                timeout=SERVER_HTTP_TIMEOUT + 2.0,
+                timeout=(60.0 if action == "admin_process_withdraw_notifications" else SERVER_HTTP_TIMEOUT + 2.0),
             )
         except asyncio.TimeoutError:
             logger.warning("Server request timeout: action=%s", action)
@@ -2142,6 +2142,33 @@ async def admin_panel_text_router(update: Update, context: ContextTypes.DEFAULT_
 # STARTUP / POLLING DIAGNOSTICS
 # =====================================================
 
+async def withdrawal_notification_loop():
+    """Supabase stores all due times and delivery state; restarting is safe."""
+    interval = max(10, int(os.getenv("WITHDRAW_REMINDER_INTERVAL_SECONDS", "30")))
+    while True:
+        try:
+            result = await call_server_async("admin_process_withdraw_notifications")
+            if not result.get("ok"):
+                logger.error("Withdrawal notification worker failed: %s", result.get("error", "unknown"))
+            elif result.get("failed") or result.get("uncertain"):
+                logger.warning("Withdrawal notifications need review: failed=%s uncertain=%s", result.get("failed", 0), result.get("uncertain", 0))
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logger.exception("Withdrawal notification worker failed")
+        await asyncio.sleep(interval)
+
+
+async def on_shutdown(application):
+    task = application.bot_data.pop("withdrawal_notification_task", None)
+    if task:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+
 async def on_startup(application):
     """Проверяем токен и гарантируем polling без сообщений админу при каждом рестарте."""
     me = await application.bot.get_me()
@@ -2158,6 +2185,9 @@ async def on_startup(application):
 
     # Всегда очищаем webhook, чтобы getUpdates/polling работал стабильно.
     await application.bot.delete_webhook(drop_pending_updates=True)
+    application.bot_data["withdrawal_notification_task"] = asyncio.create_task(
+        withdrawal_notification_loop(), name="withdrawal-notification-worker"
+    )
 
 
 async def on_error(update, context):
@@ -2185,6 +2215,7 @@ def main():
         .token(ADMIN_BOT_TOKEN)
         .concurrent_updates(16)
         .post_init(on_startup)
+        .post_shutdown(on_shutdown)
         .build()
     )
 
