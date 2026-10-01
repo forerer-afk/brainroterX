@@ -746,8 +746,85 @@ async def deposit_plus(
 # ADMIN MENU + CHANNEL CONTROLS
 # =====================================================
 
+# Owner-only partner commands. +/- commands are text handlers, not BotCommand names.
+async def partner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.effective_message.reply_text("❌ Нет доступа")
+        return
+    import re
+    parts = (update.effective_message.text or "").split()
+    command = parts[0].split("@")[0].lower()
+    try:
+        if len(parts) < 2 or not re.fullmatch(r"[1-9][0-9]{0,15}", parts[1]):
+            raise ValueError("Укажи Telegram ID")
+        target = int(parts[1])
+        operations = {"/p+": "grant", "/p-": "revoke", "/ref+": "set_code", "/ref-": "remove_code"}
+        payload = {"telegram_id": target, "operation": operations[command], "actor_telegram_id": update.effective_user.id}
+        expected = 3 if command in ("/p+", "/ref+") else 2
+        if len(parts) != expected:
+            raise ValueError("Формат: /p+ ID 1|2|3 · /p- ID · /ref+ ID КОД · /ref- ID")
+        if command == "/p+":
+            if parts[2] not in ("1", "2", "3"):
+                raise ValueError("Уровень: 1, 2 или 3")
+            payload["level"] = int(parts[2])
+        if command == "/ref+":
+            payload["code"] = parts[2].upper()
+        result = await call_server_async("admin_partner_manage", **payload)
+        await update.effective_message.reply_text(f"✅ Изменения для {target} сохранены" if result.get("ok") else "❌ " + str(result.get("error", "Ошибка сервера")))
+    except (ValueError, KeyError) as error:
+        await update.effective_message.reply_text("❌ " + str(error))
+
+
+async def partner_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        if update.callback_query:
+            await update.callback_query.answer("Нет доступа", show_alert=True)
+        return
+    query = update.callback_query
+    offset = int(query.data.rsplit("_", 1)[1]) if query and query.data.startswith("partner_list_") else 0
+    if query:
+        await query.answer()
+    result = await call_server_async("admin_partner_list", offset=offset)
+    if not result.get("ok"):
+        await update.effective_message.reply_text("❌ " + str(result.get("error", "Ошибка сервера")))
+        return
+    rows = result.get("codes", [])
+    lines = ["👥 ПАРТНЁРСКИЕ РЕФЕРАЛЬНЫЕ КОДЫ", ""]
+    for row in rows:
+        state = "активен" if row.get("granted") else "партнёрка снята"
+        lines.append(f"{row['telegram_id']} — {row['code']} · ур. {row.get('level', '?')} · {state}")
+    if not rows:
+        lines.append("Кодов нет")
+    buttons = []
+    if offset:
+        buttons.append(InlineKeyboardButton("Назад", callback_data=f"partner_list_{max(0, offset-30)}"))
+    if result.get("more"):
+        buttons.append(InlineKeyboardButton("Далее", callback_data=f"partner_list_{offset+30}"))
+    markup = InlineKeyboardMarkup([buttons]) if buttons else None
+    if query:
+        await query.edit_message_text("\n".join(lines), reply_markup=markup)
+    else:
+        await update.effective_message.reply_text("\n".join(lines), reply_markup=markup)
+
+
+async def partner_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not is_owner(update):
+        await query.answer("Нет доступа", show_alert=True)
+        return
+    await query.answer()
+    _, decision, request_id = query.data.split("_")
+    result = await call_server_async("admin_partner_decide", request_id=int(request_id), status="approved" if decision == "approve" else "rejected")
+    if result.get("ok"):
+        status = "выдано" if result.get("status") == "approved" else "отклонено, предметы возвращены"
+        await query.edit_message_text((query.message.text or "") + "\n\n✅ " + status)
+    else:
+        await query.message.reply_text("❌ " + str(result.get("error", "Ошибка сервера")))
+
+
 def admin_menu_markup():
     return InlineKeyboardMarkup([
+        [InlineKeyboardButton("👥 Партнёрские коды", callback_data="partner_list_0")],
         [InlineKeyboardButton("😈 MEM включён", callback_data="menu_mem"),
          InlineKeyboardButton("🍀 LUCK включён", callback_data="menu_luck")],
         [InlineKeyboardButton("📋 Все команды", callback_data="menu_commands")],
@@ -757,6 +834,11 @@ def admin_menu_markup():
 def commands_text():
     return (
         "📋 ВСЕ КОМАНДЫ\n\n"
+        "/p+ ID 1|2|3 — выдать уровень партнёра\n"
+        "/p- ID — снять партнёрку\n"
+        "/ref+ ID КОД — назначить партнёрский код\n"
+        "/ref- ID — отключить партнёрский код\n"
+        "/refs — список партнёрских кодов\n\n"
         "/promo КОД АКТИВАЦИИ МОНЕТЫ — создать обычное промо\n"
         "/promo+ КОЛ-ВО АКТИВАЦИИ МОНЕТЫ — случайные платёжные промо, отыгрыш x1.2\n"
         "/promoff КОД — отключить промо\n"
@@ -2220,6 +2302,11 @@ def main():
     )
 
     app.add_error_handler(on_error)
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^/(?:p|ref)[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"), partner_command))
+    app.add_handler(CommandHandler("refs", partner_list))
+    app.add_handler(CallbackQueryHandler(partner_list, pattern=r"^partner_list_\d+$"))
+    app.add_handler(CallbackQueryHandler(partner_decision, pattern=r"^partner_(?:approve|reject)_\d+$"))
+
 
     app.add_handler(
         CommandHandler(
