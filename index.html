@@ -14247,28 +14247,18 @@ function showPage(
 ){
 
     /*
-      Если пользователь нажал Апгрейдер / Лестницу / Профиль
-      во время прокрутки кейса — не показываем сообщение.
-      Просто скипаем анимацию. Выигрыш уже выдан сервером.
+      Во время прокрутки кейса разрешаем свободно переходить
+      по нижнему меню. Сам кейс продолжает крутиться в фоне,
+      выбранный кейс и результат не сбрасываются.
     */
     if(
         selectedCase
         &&
-        (
+        !(
             caseSpinning
             ||
             dailyOpening
         )
-    ){
-        caseAnimationSkipRequested =
-            true;
-
-        closeCase(
-            true
-        );
-    }
-    else if(
-        selectedCase
     ){
         closeCase(
             false
@@ -17585,7 +17575,8 @@ function cinemaOpen(name,count){
     const state={root,busy:true,selling:false,winners:[],revealed:0,sold:new Set(),focus:document.activeElement,background:[],lanes:[]};
     caseCinema=state;
     for(let i=0;i<count;i++){const lane=cinemaLane();cinemaFillIdle(lane,i);root.querySelector('.cinema-drops').appendChild(lane);state.lanes.push(lane);}
-    document.querySelectorAll('.topbar,.bottom-menu,#activeCase > .back-btn,#activeCase > .panel > :not(#casePresentationStage)').forEach(node=>{state.background.push([node,node.inert]);node.inert=true;});
+    document.querySelectorAll('.topbar,#activeCase > .back-btn,#activeCase > .panel > :not(#casePresentationStage)').forEach(node=>{state.background.push([node,node.inert]);node.inert=true;});
+    const bottomMenu=document.querySelector('.bottom-menu');if(bottomMenu)bottomMenu.inert=false;
     const idle=document.getElementById('caseIdleReels');if(idle)idle.hidden=true;
     root.querySelector('.cinema-close').onclick=cinemaClose;
     root.querySelector('.cinema-done').onclick=cinemaOpenAgain;
