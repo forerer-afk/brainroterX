@@ -13588,6 +13588,7 @@ async function partnerRun(action,payload={},message='Готово'){
         partnerOperationIds.delete(key);
         if(caseCinema&&!caseCinema.busy&&!caseCinema.selling)cinemaClose();
         await loadPlayer();await partnerRefresh();
+        if(action==='partner_mode')await refreshBigWins(true);
         result.textContent=data.promo_code?`Промокод ${data.promo_code} создан. Списано ${data.reward_coins} монет. Осталось: ${data.remaining}.`:data.converted?`Обменяно: ${data.converted}. Осталось монет: ${data.remaining}.`:data.request_id?`Заявка #${data.request_id} отправлена администратору без очереди.`:message;
     }catch(error){result.textContent=error.message||'Ошибка связи. Повтори действие.';showToast(result.textContent,'error');}
     finally{partnerBusy=false;partnerApply(partnerProfile);try{await partnerRefresh();}catch(_){} }
@@ -13900,9 +13901,9 @@ async function loadPlayer(){
 
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
-        bigWins = hydrateFeedProfilesFromCache(
-            Array.isArray(data.big_wins) ? data.big_wins : []
-        );
+        if(Array.isArray(data.big_wins)){
+            bigWins = hydrateFeedProfilesFromCache(data.big_wins);
+        }
         rememberFeedProfiles(bigWins);
         preloadFeedAvatars(bigWins);
         ladderSession = data.ladder_session || null;
@@ -14826,7 +14827,7 @@ function renderBigWins(animateIds = new Set()){
     if(!items.length){
         const empty=document.createElement("div");
         empty.className="big-wins-empty";
-        empty.innerText="Пока нет крупных выигрышей";
+        empty.innerText=bigWins.length?"Новые выигрыши появятся через несколько секунд":"Пока нет крупных выигрышей";
         root.appendChild(empty);
         return;
     }
@@ -27093,9 +27094,6 @@ body.streamer-mode #settingsModal *{
 
             const now = Date.now();
             if(!force && now - lastBigWinsAt < 12000){
-                return Promise.resolve();
-            }
-            if(force && now - lastBigWinsAt < 1200){
                 return Promise.resolve();
             }
             lastBigWinsAt = now;
