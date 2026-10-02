@@ -11221,20 +11221,16 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
                 ⓧ Продать всё
             </button>
 
-            <button
-                id="inventorySortButton"
-                class="ui-select inventory-price-sort-btn"
-                onclick="toggleInventorySort()"
-            >
-                Цена ↑
-            </button>
+
 
         </div>
 
     </div>
 
+<div id="comfortControls"><div class="comfort-search-row"><input id="comfortSearch" type="search" placeholder="Найти Brainrot…" aria-label="Поиск по инвентарю"><select id="comfortSort" aria-label="Сортировка"><option value="new">Сначала новые</option><option value="desc">Дороже → дешевле</option><option value="asc">Дешевле → дороже</option><option value="name">По названию</option></select></div><div class="comfort-filter-row"><button id="comfortFavorites" aria-pressed="false" onclick="comfortOnlyFavorites=!comfortOnlyFavorites;renderInventory()">★ Избранное</button><button onclick="comfortSelectVisible()">Выбрать видимые</button></div><div class="comfort-selection-row"><span id="comfortSelection">Выбери предметы для продажи</span><button id="comfortSellSelected" disabled onclick="comfortSell([...comfortSelected])">Продать выбранное</button></div><small>★ защищает предмет от продажи. Избранное сохраняется на этом устройстве отдельно для каждого аккаунта и режима.</small></div>
     <div class="inventory-tabs">
         <button id="inventoryMineTab" class="inventory-tab active" onclick="setInventoryTab('mine')">🎒 Мои Brainrot</button>
+        <button class="comfort-history-button" onclick="comfortHistory()">История вывода</button>
         <button id="inventoryWithdrawTab" class="inventory-tab" onclick="setInventoryTab('withdraw')">📤 На выводе</button>
     </div>
 
@@ -13575,7 +13571,7 @@ async function openPartnerMenu(){
     try{await partnerRefresh();}catch(error){document.getElementById('partnerResult').textContent=error.message;}
 }
 async function partnerToggle(){
-    if(partnerBusy||caseSpinning||dailyOpening||upgrading||diceRolling){showToast('Сначала дождись окончания игры','error');return;}
+    if(comfortBulkBusy||partnerBusy||caseSpinning||dailyOpening||upgrading||diceRolling){showToast('Сначала дождись окончания игры','error');return;}
     await partnerRun('partner_mode',{enabled:!partnerActive()},'Режим переключён.');
 }
 async function partnerRun(action,payload={},message='Готово'){
@@ -15794,6 +15790,7 @@ async function selectCase(
         return;
     }
 
+    if(caseCinema&&!caseCinema.busy&&!caseCinema.selling)cinemaClose();
     resetCaseSession();
     updateCaseCost();
 
@@ -16395,52 +16392,7 @@ function rouletteCard(
 
 
 function createIdleRoulette(){
-
-    const track =
-        document
-            .getElementById(
-                "rouletteTrack"
-            );
-
-    const items =
-        getCaseItems();
-
-    track.innerHTML =
-        "";
-
-    track.style.transition =
-        "none";
-
-    track.style.transform =
-        "translateX(0)";
-
-    if(
-        !items.length
-    ){
-
-        return;
-
-    }
-
-    for(
-        let i = 0;
-        i < 12;
-        i++
-    ){
-
-        track
-            .appendChild(
-                rouletteCard(
-                    items[
-                        i
-                        %
-                        items.length
-                    ]
-                )
-            );
-
-    }
-
+    cinemaRenderIdle();
 }
 
 
@@ -16924,6 +16876,7 @@ function getDailyCaseItems(){
 
 
 function openDailyCase(){
+    if(caseCinema&&!caseCinema.busy&&!caseCinema.selling)cinemaClose();
 
     const bigWinsSection =
         document.getElementById(
@@ -17538,6 +17491,9 @@ function cinemaStage(){
         stage=document.createElement('div');stage.id='casePresentationStage';
         document.getElementById('rouletteContainer').before(stage);
     }
+    const anchor=document.getElementById('rouletteContainer');
+    if(anchor&&stage.parentElement!==anchor.parentElement)anchor.before(stage);
+    stage.hidden=false;stage.style.removeProperty('display');
     return stage;
 }
 function cinemaLane(){
@@ -17557,6 +17513,7 @@ function cinemaFillIdle(lane,index){
     track.classList.add('cinema-idle-track');
 }
 function cinemaRenderIdle(){
+    if(caseCinema&&!caseCinema.root?.isConnected){caseCinema.resizeObserver?.disconnect();cinemaReleaseBackground(caseCinema);caseCinema=null;}
     if(caseCinema || (!selectedCase && !activeCaseIsDaily))return;
     const stage=cinemaStage();
     let idle=document.getElementById('caseIdleReels');
@@ -17564,7 +17521,7 @@ function cinemaRenderIdle(){
     idle.hidden=false;
     const count=activeCaseIsDaily?1:Number(caseOpenCount)||1;
     const key=`${activeCaseIsDaily?'daily':selectedCase?.id}:${count}:${getCaseItems().length}`;
-    if(idle.dataset.key===key)return;
+    if(idle.dataset.key===key&&idle.children.length===count&&idle.querySelector('.cinema-reel-item'))return;
     idle.dataset.key=key;idle.replaceChildren();
     for(let i=0;i<count;i++){const lane=cinemaLane();cinemaFillIdle(lane,i);idle.appendChild(lane);}
 }
@@ -17783,6 +17740,7 @@ async function openSelectedCase(){
 
 
 function renderCaseContent(){
+    if(typeof comfortWarmCase==="function")setTimeout(()=>{try{comfortWarmCase();}catch(error){console.warn("Case image preload skipped",error);}},0);
 
     const root =
         document
@@ -17983,7 +17941,9 @@ function renderInventory(){
    SELL ITEM
 ===================================================== */
 
-async function sellItem(id){
+async function sellItem(id, batchConfirmed=false){
+    if(comfortIsFavorite(id)){showToast("Предмет в избранном. Сначала сними звёздочку.","error");return false;}
+    if(comfortBulkBusy&&!batchConfirmed)return false;
     const soldItem = (Array.isArray(inventory) ? inventory : []).find(
         item => Number(item.id) === Number(id)
     );
@@ -17998,7 +17958,7 @@ async function sellItem(id){
         return false;
     }
 
-    const sellConfirmed = await askActionConfirm({
+    const sellConfirmed = batchConfirmed || await askActionConfirm({
         type:"sell",
         header:"ⓧ Продажа",
         title:`Продать ${soldItem.brainrot_name}?`,
@@ -29130,6 +29090,118 @@ body #partnerModal #partnerRefItems{max-height:none;overflow:visible;}
 #partnerPromoList{display:grid;gap:10px;}.partner-promo-entry{display:grid;gap:7px;padding:10px;background:#101422;border-radius:10px;min-width:0;}
 .partner-promo-entry input{min-width:0;width:100%;box-sizing:border-box;background:transparent;color:#e3d2ff;border:0;font:12px monospace;}
 </style>
+<div id="comfortHistoryModal" class="overlay"><div class="modal"><div class="modal-header"><div class="modal-title">История вывода</div><button class="close" aria-label="Закрыть историю" onclick="comfortHistoryToken++;document.getElementById('comfortHistoryModal').classList.remove('show')">×</button></div><p class="comfort-date">Дата передачи указана по киевскому времени. Статус обновляется по данным администратора.</p><button class="comfort-history-button" onclick="comfortHistory()">Обновить</button><div id="comfortHistoryList" role="status"></div></div></div>
+<style>/* Shared spacing, surfaces and interaction states. */
+:root{--comfort-surface:#191927;--comfort-line:rgba(195,181,235,.16);--comfort-muted:#aaa5bf;--comfort-accent:#c2a8f4;}
+body .modal{border:1px solid var(--comfort-line)!important;border-radius:22px!important;box-shadow:0 24px 70px #0006!important;}
+body .modal-header{gap:12px;margin-bottom:18px;align-items:center;}
+body .modal-title{font-size:18px!important;font-weight:800;letter-spacing:-.3px;}
+body .modal .close{width:34px!important;height:34px!important;min-width:34px;border-radius:11px!important;display:grid;place-items:center;padding:0!important;}
+body .overlay.show>.modal{animation:comfort-enter .18s ease-out;}
+body button{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,opacity .16s ease;}
+body button:focus-visible,body input:focus-visible,body select:focus-visible{outline:2px solid var(--comfort-accent)!important;outline-offset:3px;}
+body button:disabled{cursor:default;}
+#comfortControls{display:grid;gap:12px;margin:18px 0;padding:16px;border:1px solid var(--comfort-line);border-radius:18px;background:linear-gradient(135deg,#252136,#171a27);}
+#comfortControls[hidden]{display:none!important;}.comfort-search-row{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:10px;}
+#comfortControls input[type=search],#comfortSort{width:100%;box-sizing:border-box;min-width:0;padding:12px 13px;color:#f3efff;background:#121320;border:1px solid var(--comfort-line);border-radius:12px;font-size:14px;}
+.comfort-filter-row,.comfort-selection-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+#comfortControls button,.comfort-history-button{padding:10px 13px;border:1px solid var(--comfort-line);border-radius:11px;background:#242335;color:#e7def7;font-weight:700;font-size:12px;}
+#comfortFavorites[aria-pressed=true]{background:#55436b;color:#fff;}#comfortSellSelected{background:#c2a8f4!important;color:#231b30!important;margin-left:auto;}#comfortSellSelected:disabled{opacity:.4;}
+#comfortSelection{font-size:12px;color:#d8cde8;}#comfortControls small{font-size:10px;color:var(--comfort-muted);line-height:1.5;}
+body #inventory .comfort-card{position:relative;border:1px solid var(--comfort-line)!important;border-radius:18px!important;padding:12px!important;background:linear-gradient(155deg,#242131,#171a25)!important;overflow:hidden;}
+body #inventory .comfort-card.is-selected{border-color:#c2a8f4!important;box-shadow:0 0 0 1px #c2a8f4!important;}
+body #inventory .comfort-card.is-favorite{border-color:#d9bb7655!important;}
+.comfort-card-tools{display:flex;justify-content:space-between;align-items:center;height:28px;}.comfort-card-tools input{width:19px;height:19px;accent-color:#c2a8f4;cursor:pointer;}.comfort-star{width:32px;height:30px;border:0;background:transparent;color:#e5c487;font-size:24px;line-height:1;}
+body #inventory .inventory-img{display:block;width:100%;height:130px!important;object-fit:contain;aspect-ratio:8/7;margin:6px 0;}
+body #inventory .inventory-name{min-height:34px;line-height:1.35;font-size:12px;overflow-wrap:anywhere;}
+body #inventory .inventory-action{width:100%;border-radius:10px;padding:10px;margin-top:5px;}
+.comfort-empty{grid-column:1/-1;text-align:center;padding:35px 20px;color:var(--comfort-muted);line-height:1.6;border:1px dashed var(--comfort-line);border-radius:16px;}
+.comfort-status{display:inline-block;font-size:11px;font-weight:700;color:#d4bffa;background:#b39bdf18;border-radius:7px;padding:5px 8px;}.comfort-date{font-size:12px;line-height:1.5;color:#c3bbd3;margin:8px 0;}
+#comfortHistoryModal{padding:14px!important;}#comfortHistoryModal>.modal{width:min(540px,100%);box-sizing:border-box;max-height:calc(100dvh - 28px)!important;overflow-y:auto!important;}
+#comfortHistoryList{display:grid;gap:12px;margin-top:14px;}.comfort-history-card{display:grid;gap:7px;border:1px solid var(--comfort-line);padding:15px;border-radius:15px;background:#171a27;}.comfort-history-card strong{font-size:14px;}.comfort-history-card .comfort-status{justify-self:start;}.comfort-history-card p{font-size:12px;line-height:1.5;margin:0;color:#bdb5ce;overflow-wrap:anywhere;}.comfort-stages{border-top:1px solid var(--comfort-line);padding-top:10px;margin-top:5px;font-size:11px;color:#bba4df;}
+body .case-card img{aspect-ratio:1;object-fit:contain;}body .cinema-reel-item img{object-fit:contain;}
+@keyframes comfort-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){.comfort-search-row{grid-template-columns:1fr;}#comfortControls input[type=search],#comfortSort{font-size:16px;}#comfortControls{padding:12px;}body #inventory .inventory-img{height:108px!important;}.comfort-selection-row{align-items:flex-start;}#comfortSellSelected{margin-left:0;width:100%;}}
+@media(prefers-reduced-motion:reduce){body .overlay.show>.modal{animation:none;}body button{transition:none;}}
+
+body #inventory.inventory-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))!important;gap:12px!important;}
+body #inventory .comfort-card{width:auto!important;min-width:0!important;}
+</style>
+<script>/* Inventory controls, protected favorites and withdrawal history. */
+let comfortSelected=new Set(),comfortBulkBusy=false,comfortOnlyFavorites=false,comfortRealm='',comfortHistoryToken=0;
+function comfortKey(){return 'brx-favorites-v1:'+String(tg?.initDataUnsafe?.user?.id||'local')+':'+(partnerActive()?'stream':'normal');}
+function comfortFavorites(){try{return new Set(JSON.parse(localStorage.getItem(comfortKey())||'[]').map(String));}catch(_){return new Set();}}
+function comfortIsFavorite(id){return comfortFavorites().has(String(id));}
+function comfortFavorite(id){if(comfortBulkBusy)return;const favorites=comfortFavorites(),key=String(id);favorites.has(key)?favorites.delete(key):favorites.add(key);try{localStorage.setItem(comfortKey(),JSON.stringify([...favorites]));}catch(_){showToast('Не удалось сохранить избранное','error');return;}comfortSelected.delete(Number(id));renderInventory();}
+function comfortToggleSelected(id){if(comfortBulkBusy)return;id=Number(id);comfortSelected.has(id)?comfortSelected.delete(id):comfortSelected.add(id);renderInventory();}
+function comfortVisibleItems(){const query=(document.getElementById('comfortSearch')?.value||'').trim().toLocaleLowerCase();let items=inventory.filter(item=>!item.locked&&String(item.brainrot_name||'').toLocaleLowerCase().includes(query)&&(!comfortOnlyFavorites||comfortIsFavorite(item.id)));const sort=document.getElementById('comfortSort')?.value||'new';return items.sort((a,b)=>sort==='asc'?Number(a.value)-Number(b.value):sort==='desc'?Number(b.value)-Number(a.value):sort==='name'?String(a.brainrot_name).localeCompare(String(b.brainrot_name),'ru'):Number(b.id)-Number(a.id));}
+function comfortSelectVisible(){if(comfortBulkBusy)return;const items=comfortVisibleItems().filter(x=>!comfortIsFavorite(x.id));const all=items.length&&items.every(x=>comfortSelected.has(Number(x.id)));items.forEach(x=>all?comfortSelected.delete(Number(x.id)):comfortSelected.add(Number(x.id)));renderInventory();}
+function comfortText(tag,className,text){const el=document.createElement(tag);el.className=className;el.textContent=text;return el;}
+const comfortOriginalInventory=renderInventory;
+renderInventory=function(){
+ const key=comfortKey();if(comfortRealm!==key){comfortRealm=key;comfortSelected.clear();}
+ const controls=document.getElementById('comfortControls');if(controls)controls.hidden=inventoryTabMode!=='mine';
+ if(inventoryTabMode==='withdraw'){comfortOriginalInventory();comfortRenderPending();return;}
+ const root=document.getElementById('inventory');if(!root)return;
+ const availableIds=new Set(inventory.filter(x=>!x.locked&&!comfortIsFavorite(x.id)).map(x=>Number(x.id)));comfortSelected=new Set([...comfortSelected].filter(id=>availableIds.has(id)));
+ const total=document.getElementById('inventoryTotalValue');if(total)total.textContent=new Intl.NumberFormat('ru-RU').format(inventory.reduce((n,x)=>n+Number(x.value||0),0))+' ⓧ';
+ root.replaceChildren();root.style.display='grid';const items=comfortVisibleItems();
+ if(!items.length){root.append(comfortText('div','comfort-empty',inventory.length?'Ничего не найдено. Попробуй другое название или выключи фильтр.':'Здесь появятся твои предметы из кейсов.'));}
+ for(const item of items){
+  const id=Number(item.id),favorite=comfortIsFavorite(id),selected=comfortSelected.has(id),card=document.createElement('div');card.className='inventory-card comfort-card'+(selected?' is-selected':'')+(favorite?' is-favorite':'');
+  const top=document.createElement('div');top.className='comfort-card-tools';
+  const check=document.createElement('input');check.type='checkbox';check.checked=selected;check.disabled=favorite||comfortBulkBusy;check.setAttribute('aria-label','Выбрать '+item.brainrot_name);check.onchange=()=>comfortToggleSelected(id);
+  const star=document.createElement('button');star.className='comfort-star';star.textContent=favorite?'★':'☆';star.title=favorite?'Убрать защиту от продажи':'Защитить от продажи';star.setAttribute('aria-label',star.title);star.setAttribute('aria-pressed',String(favorite));star.disabled=comfortBulkBusy;star.onclick=()=>comfortFavorite(id);top.append(check,star);
+  const img=document.createElement('img');img.className='inventory-img';img.src=getImage(item.brainrot_name);img.alt=item.brainrot_name;img.width=160;img.height=140;img.loading='lazy';img.decoding='async';
+  const sell=document.createElement('button');sell.className='inventory-action sell-one';sell.textContent=favorite?'Защищён':'Продать';sell.disabled=favorite||comfortBulkBusy;sell.onclick=()=>sellItem(id);
+  const actions=document.createElement('div');actions.className='inventory-actions';actions.append(sell);
+  card.append(top,img,comfortText('div','inventory-name',item.brainrot_name),comfortText('div','inventory-value',item.value+' ⓧ'),actions);root.append(card);
+ }
+ const sum=inventory.filter(x=>comfortSelected.has(Number(x.id))).reduce((n,x)=>n+Number(x.value||0),0);
+ document.getElementById('comfortSelection').textContent=comfortSelected.size?`Выбрано ${comfortSelected.size} · ${new Intl.NumberFormat('ru-RU').format(sum)} ⓧ`:'Выбери предметы для продажи';
+ document.getElementById('comfortSellSelected').disabled=!comfortSelected.size||comfortBulkBusy;
+ document.getElementById('comfortFavorites').setAttribute('aria-pressed',String(comfortOnlyFavorites));
+};
+async function comfortSell(ids){
+ if(comfortBulkBusy)return;const wanted=new Set(ids.map(Number));const items=inventory.filter(x=>wanted.has(Number(x.id))&&!x.locked&&!comfortIsFavorite(x.id));if(!items.length){showToast('Нет доступных предметов. Избранное защищено.','error');return;}
+ comfortBulkBusy=true;renderInventory();
+ try{const total=items.reduce((s,x)=>s+Number(x.value||0),0);const yes=await askActionConfirm({type:'sell',header:'Продажа предметов',title:`Продать ${items.length} предметов?`,text:`Получишь ${total} ⓧ. Избранные предметы останутся.`,confirmText:'Продать'});if(!yes)return;
+ let sold=0;for(const item of items){if(comfortIsFavorite(item.id))continue;if(!await sellItem(item.id,true))break;comfortSelected.delete(Number(item.id));sold++;}
+ showToast(`Продано ${sold} из ${items.length} предметов`,sold?'success':'error');
+ }finally{comfortBulkBusy=false;renderInventory();}
+}
+openSellAll=function(){return comfortSell(inventory.map(x=>Number(x.id)));};
+confirmSellAll=function(){closeSellAll();return openSellAll();};
+function comfortDate(value){const date=new Date(value);return value&&Number.isFinite(date.getTime())?new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Kyiv'}).format(date)+' · Киев':'Дата пока не назначена';}
+const comfortStatuses={pending:'Ожидает передачи',approved:'Выдано',completed:'Выдано',rejected:'Отклонено',cancelled:'Отменено',canceled:'Отменено',out_of_stock:'Нет в наличии'};
+function comfortRenderPending(){document.querySelectorAll('#inventory .inventory-pending-card').forEach((card,i)=>{const requestId=Number(card.querySelector('.inventory-request-id')?.textContent.match(/#(\d+)/)?.[1]);const req=pendingWithdrawRequests.find(x=>Number(x.id)===requestId);if(!req)return;card.append(comfortText('div','comfort-status',comfortStatuses[req.status]||'Обрабатывается'),comfortText('div','comfort-date',comfortDate(req.requested_time)));});}
+async function comfortHistory(){
+ document.getElementById('comfortHistoryModal').classList.add('show');const root=document.getElementById('comfortHistoryList');root.textContent='Загружаем заявки…';const token=++comfortHistoryToken;
+ try{const data=await apiRequest({action:'get_withdraw_history'});if(!data.ok)throw new Error(data.error||'Не удалось загрузить историю');if(token!==comfortHistoryToken)return;root.replaceChildren();
+ if(!data.requests?.length){root.append(comfortText('div','comfort-empty','Заявок пока нет. После оформления здесь появятся дата и статус вывода.'));return;}
+ for(const req of data.requests){const card=document.createElement('article');card.className='comfort-history-card';card.append(comfortText('strong','',`Заявка #${req.id}${req.kind==='partner'?' · Партнёрская':''}`),comfortText('span','comfort-status',comfortStatuses[req.status]||'Обрабатывается'),comfortText('div','comfort-date',req.kind==='partner'?'Без очереди · передача администратором':comfortDate(req.requested_time)));
+ const items=Array.isArray(req.items)?req.items:[];const names=items.map(x=>x.brainrot_name||x.name||(x.kind==='garam'?'Garama And Madundung':x.kind==='dragon'?'Dragon Cannelloni':'Предмет')).join(', ');if(names||req.brainrot_name)card.append(comfortText('p','',names||req.brainrot_name));
+ const stages=document.createElement('div');stages.className='comfort-stages';stages.textContent=['approved','completed'].includes(req.status)?'Принята → Выдано':req.status==='pending'?'Принята → Ожидает передачи':'Принята → '+(comfortStatuses[req.status]||'Обрабатывается');card.append(stages);root.append(card);}
+ }catch(error){if(token===comfortHistoryToken)root.textContent=error.message+' — нажми «Обновить», чтобы повторить.';}
+}
+// Decode assets without blocking input. Only visible images and current case contents are warmed.
+const comfortWarmed=new Set();
+function comfortWarmCase(){let list=[];try{list=getCaseItems();}catch(_){};for(const item of list.slice(0,24)){const url=getImage(item.brainrot_name||item.name);if(!url||comfortWarmed.has(url))continue;comfortWarmed.add(url);const img=new Image();img.decoding='async';img.src=url;}}
+function comfortPrepareImages(root){const imgs=[...(root.matches?.('img')?[root]:[]),...root.querySelectorAll?.('img')||[]];for(const img of imgs){if(img.dataset.comfortPrepared)continue;img.dataset.comfortPrepared='1';img.decoding='async';if(img.closest('.case-card,#inventory')&&!img.closest('.cinema-track'))img.loading='lazy';}}
+comfortPrepareImages(document.body);
+new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)comfortPrepareImages(node);}).observe(document.body,{childList:true,subtree:true});
+document.getElementById('comfortSearch').addEventListener('input',()=>renderInventory());
+document.getElementById('comfortSort').addEventListener('change',()=>renderInventory());
+</script>
+<script>
+(function(){
+ const active=document.getElementById('activeCase');
+ if(!active)return;
+ const restore=()=>{if(active.style.display!=='none'&&(selectedCase||activeCaseIsDaily)){cinemaRenderIdle();}};
+ new MutationObserver(restore).observe(active,{attributes:true,attributeFilter:['style']});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)restore();});
+})();
+</script>
 </body>
 
 </html>
