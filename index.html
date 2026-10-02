@@ -10035,7 +10035,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
 </div>
 
 
-<div id="partnerBalanceBadge" hidden style="display:none!important"></div>
+
 
 <div id="appLoader">
     <div class="loader-box">
@@ -11647,6 +11647,10 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
  <div class="partner-card"><div>Партнёрский реферальный код</div><strong id="partnerCode"></strong><div id="partnerRates"></div><small>Работает и при выключенном стример-моде.</small></div>
  <div class="partner-card"><button id="partnerTopup" data-mutation onclick="partnerRun('partner_topup',{},'Стримерский баланс пополнен до 1500.')">ПОПОЛНИТЬ ДО 1500</button><small>Доступно при стримерском балансе меньше 100. Выигрыши с этих монет вывести нельзя.</small></div>
  <div class="partner-card"><strong id="partnerEarned"></strong><div class="partner-buttons"><button id="partnerConvertGaram" data-mutation onclick="partnerConvert('garam')">ОБМЕНЯТЬ НА ГАРАМОВ · 60 / ШТ.</button><button id="partnerConvertDragon" data-mutation onclick="partnerConvert('dragon')">ОБМЕНЯТЬ НА ДРАКОНОВ · 1000 / ШТ.</button></div><small>Обменивается максимум целых предметов. Гарамы — от 3 за раз, драконы — от 1. Остаток монет сохраняется.</small></div>
+ <div class="partner-card"><strong>Создать промокод</strong><small id="partnerPromoLimits"></small>
+ <div class="partner-promo-fields"><label>Монет за активацию<input id="partnerPromoCoins" type="number" min="1" step="1" value="1" inputmode="numeric" oninput="partnerPromoUpdate()"></label><label>Количество активаций<input id="partnerPromoUses" type="number" min="1" step="1" value="1" inputmode="numeric" oninput="partnerPromoUpdate()"></label></div>
+ <small id="partnerPromoCost"></small><button id="partnerPromoCreate" data-mutation onclick="partnerCreatePromo()">СОЗДАТЬ ПРОМОКОД</button>
+ <div id="partnerPromoList"></div></div>
  <div class="partner-card"><strong>Предметы из реферального обмена</strong><div id="partnerRefItems"></div><input id="partnerRoblox" placeholder="Твой Roblox ник" maxlength="20" autocomplete="off"><button id="partnerWithdrawButton" data-mutation onclick="partnerWithdraw()">ВЫВЕСТИ ВЫБРАННОЕ БЕЗ ОЧЕРЕДИ</button><small>Можно выбрать даже одного гарама. Администратор получит заявку сразу; предметы передаёт он.</small></div>
  <div id="partnerResult" class="result" role="status"></div>
 </div></div>
@@ -13537,13 +13541,12 @@ function partnerApply(profile){
     toggle.setAttribute('aria-checked',String(partnerActive()));toggle.classList.toggle('on',partnerActive());
     toggle.disabled=partnerBusy;
     document.getElementById('partnerModeNote').textContent=partnerActive()?'Стримерский баланс. Обычные монеты и инвентарь сохранены отдельно.':'Обычный аккаунт. Партнёрский код продолжает работать.';
-    document.getElementById('partnerBalanceBadge').hidden=!partnerActive();
 }
 async function partnerRefresh(){
     const data=await apiRequest({action:'partner_state'});if(!data.ok)throw new Error(data.error||'Не удалось загрузить партнёрку');
-    partnerApply(data.partner);partnerRender(data.items||[]);return data;
+    partnerApply(data.partner);partnerRender(data.items||[],data.promos||[]);return data;
 }
-function partnerRender(items){
+function partnerRender(items,promos=[]){
     const p=partnerProfile;if(!p?.granted)return;
     document.getElementById('partnerTitle').textContent=`Партнёр · уровень ${p.level}`;
     document.getElementById('partnerCode').textContent=p.code||'Код не назначен';
@@ -13555,6 +13558,7 @@ function partnerRender(items){
     document.getElementById('partnerConvertDragon').disabled=partnerBusy||!partnerActive()||Number(p.referral_balance)<1000;
     document.getElementById('partnerWithdrawButton').disabled=partnerBusy||!partnerActive();
     document.getElementById('partnerOffNote').hidden=partnerActive();
+    partnerPromoUpdate();partnerRenderPromos(promos);
     const root=document.getElementById('partnerRefItems');root.replaceChildren();
     if(!items.length){root.textContent='Предметов из реферального обмена пока нет.';return;}
     for(const item of items){
@@ -13588,10 +13592,34 @@ async function partnerRun(action,payload={},message='Готово'){
         partnerOperationIds.delete(key);
         if(caseCinema&&!caseCinema.busy&&!caseCinema.selling)cinemaClose();
         await loadPlayer();await partnerRefresh();
-        result.textContent=data.converted?`Обменяно: ${data.converted}. Осталось монет: ${data.remaining}.`:data.request_id?`Заявка #${data.request_id} отправлена администратору без очереди.`:message;
+        result.textContent=data.promo_code?`Промокод ${data.promo_code} создан. Списано ${data.reward_coins} монет. Осталось: ${data.remaining}.`:data.converted?`Обменяно: ${data.converted}. Осталось монет: ${data.remaining}.`:data.request_id?`Заявка #${data.request_id} отправлена администратору без очереди.`:message;
     }catch(error){result.textContent=error.message||'Ошибка связи. Повтори действие.';showToast(result.textContent,'error');}
     finally{partnerBusy=false;partnerApply(partnerProfile);try{await partnerRefresh();}catch(_){} }
 }
+function partnerPromoUpdate(){
+    const cap=Math.max(1,Number(partnerProfile?.level)||1)*5;
+    const amount=document.getElementById('partnerPromoCoins'),uses=document.getElementById('partnerPromoUses');
+    amount.max=uses.max=String(cap);
+    const reward=Number(amount.value),count=Number(uses.value);
+    document.getElementById('partnerPromoLimits').textContent=`До ${cap} монет за активацию и до ${cap} активаций. Код создаётся автоматически.`;
+    document.getElementById('partnerPromoCost').textContent=`Стоимость: ${Number.isInteger(reward)&&reward>0?reward:0} реферальных монет за весь промокод. Число активаций не увеличивает стоимость.`;
+    document.getElementById('partnerPromoCreate').disabled=partnerBusy||!partnerActive()||!Number.isInteger(reward)||!Number.isInteger(count)||reward<1||reward>cap||count<1||count>cap||reward>Number(partnerProfile?.referral_balance||0);
+}
+function partnerCreatePromo(){
+    partnerPromoUpdate();if(document.getElementById('partnerPromoCreate').disabled)return;
+    return partnerRun('partner_create_promo',{reward_coins:Number(document.getElementById('partnerPromoCoins').value),max_uses:Number(document.getElementById('partnerPromoUses').value)});
+}
+function partnerRenderPromos(promos){
+    const root=document.getElementById('partnerPromoList');root.replaceChildren();
+    for(const promo of promos){
+        const row=document.createElement('div');row.className='partner-promo-entry';
+        const code=document.createElement('input');code.readOnly=true;code.value=promo.code;code.setAttribute('aria-label','Промокод');code.onclick=()=>code.select();
+        const info=document.createElement('small');info.textContent=`${promo.reward_coins} монет · лимит ${promo.max_uses} активаций`;
+        const copy=document.createElement('button');copy.type='button';copy.textContent='КОПИРОВАТЬ';copy.onclick=async()=>{try{await navigator.clipboard.writeText(promo.code);copy.textContent='СКОПИРОВАНО';}catch(_){code.focus();code.select();document.getElementById('partnerResult').textContent='Код выделен — скопируй его.';}};
+        row.append(code,info,copy);root.appendChild(row);
+    }
+}
+
 function partnerConvert(kind){
     const price=kind==='garam'?60:1000;
     const quantity=Math.min(1000,Math.floor(Number(partnerProfile?.referral_balance||0)/price));
@@ -17642,7 +17670,9 @@ function cinemaProgress(t){t=Math.min(1,Math.max(0,t));return t<=0.25?2*t:1-0.5*
 async function cinemaAnimate(state){
     if(!state.winners.length)return;
     const pool=getCaseItems();
-    const duration=state.winners.length<=1?8000:state.winners.length<=3?12000:16000;
+    const fast=Number(caseSpeed)>1;
+    const totalDuration=fast?1500:(state.winners.length<=1?4000:state.winners.length<=3?7000:10000);
+    const duration=totalDuration-Math.max(0,state.winners.length-1)*50;
     const reels=state.winners.map((winner,index)=>{
         const lane=state.lanes[index],track=lane.querySelector('.cinema-track'),viewport=lane.querySelector('.cinema-window');
         track.replaceChildren();track.classList.remove('cinema-idle-track','cinema-single-result');
@@ -29089,6 +29119,17 @@ body.case-cinema-open #caseCoverPreview{filter:none!important;}
 body.case-cinema-open #caseCoverPreview > img{filter:blur(5px)!important;}
 </style>
 
+
+<style id="partner-menu-scroll-fix">
+body #partnerModal,body #settingsModal{padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px))!important;min-height:0;overflow:hidden;overscroll-behavior:contain;}
+body #partnerModal>.modal,body #settingsModal>.modal{box-sizing:border-box;min-height:0;max-height:calc(100vh - 24px - env(safe-area-inset-bottom,0px))!important;max-height:calc(100dvh - 24px - env(safe-area-inset-bottom,0px))!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;scrollbar-width:thin;}
+body #partnerModal #partnerRefItems{max-height:none;overflow:visible;}
+.partner-promo-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0;}
+.partner-promo-fields label{font-size:11px;display:grid;gap:7px;min-width:0;}
+.partner-promo-fields input{width:100%;min-width:0;box-sizing:border-box;padding:12px;border:1px solid #ffffff25;border-radius:10px;background:#101422;color:white;font-size:16px;}
+#partnerPromoList{display:grid;gap:10px;}.partner-promo-entry{display:grid;gap:7px;padding:10px;background:#101422;border-radius:10px;min-width:0;}
+.partner-promo-entry input{min-width:0;width:100%;box-sizing:border-box;background:transparent;color:#e3d2ff;border:0;font:12px monospace;}
+</style>
 </body>
 
 </html>
