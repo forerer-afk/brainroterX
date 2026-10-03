@@ -11200,7 +11200,6 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
             </h3>
 
             <div class="inventory-total-card" aria-label="Общая стоимость инвентаря">
-                <span class="inventory-total-label">Общая стоимость</span>
                 <strong id="inventoryTotalValue">0 ⓧ</strong>
             </div>
         </div>
@@ -29210,7 +29209,7 @@ body.case-cinema-open #caseCoverPreview img,body.case-cinema-open #activeCase,bo
 
 <style id="sharp-final-theme">/* Sharp graphite surfaces and restrained blue accents. */
 html body#sharp-app{background:#080b10!important;color:#edf3fb!important;}
-html body#sharp-app :is(*,#sharp-edges),html body#sharp-app :is(*,#sharp-edges)::before,html body#sharp-app :is(*,#sharp-edges)::after{border-radius:0!important;}
+html body#sharp-app :is(*,#sharp-edges):not(.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *),html body#sharp-app :is(*,#sharp-edges):not(.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::before,html body#sharp-app :is(*,#sharp-edges):not(.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::after{border-radius:0!important;}
 body#sharp-app .topbar,body#sharp-app .bottom-menu{background:#0c111a!important;border-color:#233044!important;box-shadow:none!important;backdrop-filter:blur(12px);}
 body#sharp-app .panel,body#sharp-app .modal,body#sharp-app .profile-card,body#sharp-app .profile-extra-card,body#sharp-app .profile-best-drop,body#sharp-app .profile-stats,body#sharp-app .inventory-toolbar,body#sharp-app .inventory-tabs,body#sharp-app .partner-card{background:#0c1017!important;border:1px solid #232c39!important;box-shadow:none!important;}
 body#sharp-app .profile-glow{display:none!important;}
@@ -29280,4 +29279,13 @@ body#sharp-app #comfortHistoryModal{z-index:100001!important;}
 body#sharp-app #inventoryPage .profile-top{padding-top:48px!important;}
 body#sharp-app #inventoryPage .settings-fab,body#sharp-app #inventoryPage .referral-fab{top:12px!important;width:32px!important;height:32px!important;min-width:32px!important;background:#182337!important;border:1px solid #33445f!important;box-shadow:none!important;}
 body#sharp-app #inventoryPage .settings-fab{right:54px!important;}body#sharp-app #inventoryPage .referral-fab{right:12px!important;}
+</style>
+<style id="brand-coin-avatar-repair">
+html body#sharp-app #profileAvatar{width:96px!important;height:96px!important;min-width:96px!important;flex:0 0 96px!important;border-radius:50%!important;overflow:hidden!important;font-size:38px!important;}
+html body#sharp-app #profileAvatar img{display:block;width:100%!important;height:100%!important;object-fit:cover;border-radius:50%!important;}
+html body#sharp-app .xcoin,html body#sharp-app .coin{border-radius:50%!important;}
+html body#sharp-app .brand-case-lid{border-radius:5px 5px 2px 2px!important;}
+html body#sharp-app .brand-case-body{border-radius:3px 3px 6px 6px!important;}
+@media(max-width:500px){html body#sharp-app #profileAvatar{width:80px!important;height:80px!important;min-width:80px!important;flex-basis:80px!important;font-size:32px!important;}}
+@media(max-width:360px){html body#sharp-app #inventoryPage .profile-top{flex-wrap:wrap;}html body#sharp-app .sharp-profile-balance{margin-left:90px;text-align:left;}}
 </style>
