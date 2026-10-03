@@ -13633,7 +13633,7 @@ async function apiRequest(data){
  const controller=new AbortController();
  const timeout=data.action==='get_big_wins'?setTimeout(()=>controller.abort(),12000):null;
  try{
-  const response=await fetch(FUNCTION_URL,{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,partner_mode:partnerActive(),initData:tg.initData})});
+  const response=await fetch(FUNCTION_URL,{method:'POST',cache:data.action==='get_big_wins'?'no-store':'default',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,partner_mode:partnerActive(),initData:tg.initData})});
   if(!response.ok)throw new Error('Сервер временно недоступен ('+response.status+')');
   const payload=await response.json();
   if(payload.ok&&Object.prototype.hasOwnProperty.call(payload,'partner'))partnerApply(payload.partner);
@@ -14797,11 +14797,7 @@ function renderBigWins(animateIds = new Set()){
     const root=document.getElementById("bigWinsTrack");
     if(!root) return;
     root.innerHTML="";
-    const now=Date.now();
-    const items=Array.isArray(bigWins)?bigWins.filter(item=>{
-        const created=new Date(item.created_at).getTime();
-        return !Number.isFinite(created) || now-created>=5000;
-    }).slice(0,15):[];
+    const items=Array.isArray(bigWins)?bigWins.slice(0,15):[];
     if(!items.length){
         const empty=document.createElement("div");
         empty.className="big-wins-empty";
@@ -14902,53 +14898,10 @@ async function refreshBigWins(){
                     "get_big_wins"
             });
 
-        if(
-            !data.ok
-            ||
-            !Array.isArray(
-                data.big_wins
-            )
-        ){
-            return;
-        }
+        if(!data.ok||!Array.isArray(data.big_wins))throw new Error(data.error||'Лента временно недоступна');
+        feedConnectionStatus(true);
 
-        /*
-          Не показываем совсем свежий дроп сразу.
-          Лента получает его только спустя 5 секунд после created_at.
-          Это убирает спойлер результата кейса.
-        */
-        const now =
-            Date.now();
-
-        const nextWins =
-            data.big_wins
-            .filter(
-                item => {
-
-                    const created =
-                        new Date(
-                            item.created_at
-                        ).getTime();
-
-                    if(
-                        !Number.isFinite(
-                            created
-                        )
-                    ){
-                        return true;
-                    }
-
-                    return (
-                        now - created
-                        >=
-                        5000
-                    );
-                }
-            )
-            .slice(
-                0,
-                15
-            );
+        const nextWins = data.big_wins.slice(0,15);
 
         const newIds =
             new Set();
@@ -15035,10 +14988,8 @@ async function refreshBigWins(){
         error
     ){
 
-        console.log(
-            "Big wins refresh:",
-            error
-        );
+        feedConnectionStatus(false);
+        console.log('Big wins refresh:',error);
 
     }
     finally{
@@ -29209,7 +29160,7 @@ body.case-cinema-open #caseCoverPreview img,body.case-cinema-open #activeCase,bo
 
 <style id="sharp-final-theme">/* Sharp graphite surfaces and restrained blue accents. */
 html body#sharp-app{background:#080b10!important;color:#edf3fb!important;}
-html body#sharp-app :is(*,#sharp-edges):not(.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *),html body#sharp-app :is(*,#sharp-edges):not(.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::before,html body#sharp-app :is(*,#sharp-edges):not(.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::after{border-radius:0!important;}
+html body#sharp-app :is(*,#sharp-edges):not(#upgraderPage,#upgraderPage *,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *),html body#sharp-app :is(*,#sharp-edges):not(#upgraderPage,#upgraderPage *,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::before,html body#sharp-app :is(*,#sharp-edges):not(#upgraderPage,#upgraderPage *,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::after{border-radius:0!important;}
 body#sharp-app .topbar,body#sharp-app .bottom-menu{background:#0c111a!important;border-color:#233044!important;box-shadow:none!important;backdrop-filter:blur(12px);}
 body#sharp-app .panel,body#sharp-app .modal,body#sharp-app .profile-card,body#sharp-app .profile-extra-card,body#sharp-app .profile-best-drop,body#sharp-app .profile-stats,body#sharp-app .inventory-toolbar,body#sharp-app .inventory-tabs,body#sharp-app .partner-card{background:#0c1017!important;border:1px solid #232c39!important;box-shadow:none!important;}
 body#sharp-app .profile-glow{display:none!important;}
@@ -29289,3 +29240,16 @@ html body#sharp-app .brand-case-body{border-radius:3px 3px 6px 6px!important;}
 @media(max-width:500px){html body#sharp-app #profileAvatar{width:80px!important;height:80px!important;min-width:80px!important;flex-basis:80px!important;font-size:32px!important;}}
 @media(max-width:360px){html body#sharp-app #inventoryPage .profile-top{flex-wrap:wrap;}html body#sharp-app .sharp-profile-balance{margin-left:90px;text-align:left;}}
 </style>
+
+<style id="restore-upgrader">
+html body#sharp-app #upgraderPage .upgrade-wheel,html body#sharp-app #upgraderPage .upgrade-wheel::before,html body#sharp-app #upgraderPage .upgrade-wheel::after,html body#sharp-app #upgraderPage .wheel-text{border-radius:50%!important;}
+html body#sharp-app #upgraderPage>.panel{background:linear-gradient(145deg,#201b30,#10111d)!important;border:1px solid #b39cfa33!important;border-radius:20px!important;}
+html body#sharp-app #upgraderPage .upgrade-main-btn{background:linear-gradient(135deg,#bfa1f3,#8e6acb)!important;border:1px solid #c5a9ef55!important;border-radius:14px!important;color:#21162f!important;}
+html body#sharp-app #upgraderPage .speed-btn{border-radius:12px!important;background:#262039!important;border-color:#bc9ee333!important;}
+#feedConnectionButton{border:1px solid #435375;background:#172333;color:#aed3fd;font-size:9px;padding:5px 8px;cursor:pointer;white-space:nowrap;}
+#feedConnectionButton[data-error=true]{color:#f5c47d;border-color:#785634;}
+</style>
+<script>
+function feedConnectionStatus(ok){const button=document.getElementById('feedConnectionButton');if(!button)return;button.dataset.error=String(!ok);button.textContent=ok?'LIVE · Обновить':'Нет связи · Повторить';}
+(function(){const track=document.getElementById('bigWinsTrack');if(!track)return;const button=document.createElement('button');button.id='feedConnectionButton';button.type='button';button.textContent='Обновить ленту';button.onclick=()=>refreshBigWins(true);const section=document.getElementById('bigWinsSection');const heading=section.querySelector('.big-wins-header')||section;heading.append(button);refreshBigWins(true);})();
+</script>
