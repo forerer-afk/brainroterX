@@ -11199,9 +11199,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
                 🎒 Инвентарь
             </h3>
 
-            <div class="inventory-total-card" aria-label="Общая стоимость инвентаря">
-                <strong id="inventoryTotalValue">0 ⓧ</strong>
-            </div>
+
         </div>
 
         <div class="inventory-tools">
@@ -11674,7 +11672,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
             <div class="streamer-setting-copy">
                 <div class="streamer-setting-title">🎥 Скрытие данных на экране</div>
                 <div class="streamer-setting-desc">
-                    Размывает только надписи «Пополнение», «Ставка», «Вывод» и баланс. Остальной интерфейс не меняется.
+                    Скрывает баланс, цены и надписи о кейсах, продаже, пополнении и выводе. Кнопки продолжают работать.
                 </div>
             </div>
 
@@ -13570,7 +13568,7 @@ async function openPartnerMenu(){
     try{await partnerRefresh();}catch(error){document.getElementById('partnerResult').textContent=error.message;}
 }
 async function partnerToggle(){
-    if(comfortBulkBusy||partnerBusy||caseSpinning||dailyOpening||upgrading||diceRolling){showToast('Сначала дождись окончания игры','error');return;}
+    if(sellAllSubmitting||comfortBulkBusy||partnerBusy||caseSpinning||dailyOpening||upgrading||diceRolling){showToast('Сначала дождись окончания игры','error');return;}
     await partnerRun('partner_mode',{enabled:!partnerActive()},'Режим переключён.');
 }
 async function partnerRun(action,payload={},message='Готово'){
@@ -17873,7 +17871,7 @@ function renderInventory(){
 
 async function sellItem(id, batchConfirmed=false){
     if(comfortIsFavorite(id)){showToast("Предмет в избранном. Сначала сними звёздочку.","error");return false;}
-    if(comfortBulkBusy&&!batchConfirmed)return false;
+    if(sellAllSubmitting||(comfortBulkBusy&&!batchConfirmed))return false;
     const soldItem = (Array.isArray(inventory) ? inventory : []).find(
         item => Number(item.id) === Number(id)
     );
@@ -18128,6 +18126,7 @@ async function confirmSellAll(){
             result.innerText =
                 `✅ Продано: ${data.sold_count}\n+${data.added_coins} ⓧ`;
         }
+        showToast(`Продано: ${data.sold_count} · +${data.added_coins} ⓧ`,"success");
 
         setTimeout(
             () => {
@@ -26814,7 +26813,7 @@ body.streamer-mode #settingsModal *{
 (function(){
     const STORAGE_KEY = "brainroterx_streamer_mode";
     const BLUR_CLASS = "streamer-text-blur";
-    const KEYWORD_SOURCE = "пополн\\p{L}*|ставк\\p{L}*|вывод\\p{L}*|вывест\\p{L}*";
+    const KEYWORD_SOURCE = "пополн\\p{L}*|ставк\\p{L}*|вывод\\p{L}*|вывест\\p{L}*|кейс\\p{L}*|продать|продан\\p{L}*|продаж\\p{L}*|баланс\\p{L}*|коин\\p{L}*|цен[аыуе]\\p{L}*";
     let streamerModeEnabled = false;
     let refreshQueued = false;
     let observer = null;
@@ -29078,16 +29077,6 @@ renderInventory=function(){
   card.append(img,comfortText('div','inventory-name',item.brainrot_name),comfortText('div','inventory-value',item.value+' ⓧ'),sell);root.append(card);
  }
 };
-async function comfortSell(ids){
- if(comfortBulkBusy)return;const wanted=new Set(ids.map(Number));const items=inventory.filter(x=>wanted.has(Number(x.id))&&!x.locked&&!comfortIsFavorite(x.id));if(!items.length){showToast('Нет доступных предметов.','error');return;}
- comfortBulkBusy=true;renderInventory();
- try{const total=items.reduce((s,x)=>s+Number(x.value||0),0);const yes=await askActionConfirm({type:'sell',header:'Продажа предметов',title:`Продать ${items.length} предметов?`,text:`Получишь ${total} ⓧ. `,confirmText:'Продать'});if(!yes)return;
- let sold=0;for(const item of items){if(comfortIsFavorite(item.id))continue;if(!await sellItem(item.id,true))break;comfortSelected.delete(Number(item.id));sold++;}
- showToast(`Продано ${sold} из ${items.length} предметов`,sold?'success':'error');
- }finally{comfortBulkBusy=false;renderInventory();}
-}
-openSellAll=function(){return comfortSell(inventory.map(x=>Number(x.id)));};
-confirmSellAll=function(){closeSellAll();return openSellAll();};
 function comfortDate(value){const date=new Date(value);return value&&Number.isFinite(date.getTime())?new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Kyiv'}).format(date)+' · Киев':'Дата пока не назначена';}
 const comfortStatuses={pending:'Ожидает передачи',approved:'Выдано',completed:'Выдано',rejected:'Отклонено',cancelled:'Отменено',canceled:'Отменено',out_of_stock:'Нет в наличии'};
 function comfortRenderPending(){document.querySelectorAll('#inventory .inventory-pending-card').forEach((card,i)=>{const requestId=Number(card.querySelector('.inventory-request-id')?.textContent.match(/#(\d+)/)?.[1]);const req=pendingWithdrawRequests.find(x=>Number(x.id)===requestId);if(!req)return;card.append(comfortText('div','comfort-status',comfortStatuses[req.status]||'Обрабатывается'),comfortText('div','comfort-date',comfortDate(req.requested_time)));});}
@@ -29253,3 +29242,15 @@ html body#sharp-app #upgraderPage .speed-btn{border-radius:12px!important;backgr
 function feedConnectionStatus(ok){const button=document.getElementById('feedConnectionButton');if(!button)return;button.dataset.error=String(!ok);button.textContent=ok?'LIVE · Обновить':'Нет связи · Повторить';}
 (function(){const track=document.getElementById('bigWinsTrack');if(!track)return;const button=document.createElement('button');button.id='feedConnectionButton';button.type='button';button.textContent='Обновить ленту';button.onclick=()=>refreshBigWins(true);const section=document.getElementById('bigWinsSection');const heading=section.querySelector('.big-wins-header')||section;heading.append(button);refreshBigWins(true);})();
 </script>
+
+<style id="streamer-privacy-complete">
+html body#sharp-app.streamer-mode .balance-box,
+html body#sharp-app.streamer-mode #sharpBalance,
+html body#sharp-app.streamer-mode .sharp-profile-balance,
+html body#sharp-app.streamer-mode .inventory-value,
+html body#sharp-app.streamer-mode .case-price,
+html body#sharp-app.streamer-mode #activeCasePrice,
+html body#sharp-app.streamer-mode .big-win-price,
+html body#sharp-app.streamer-mode .profile-best-drop-price,
+html body#sharp-app.streamer-mode .streamer-text-blur{filter:blur(5px)!important;user-select:none!important;}
+</style>
