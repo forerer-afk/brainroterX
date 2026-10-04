@@ -13629,8 +13629,15 @@ async function apiRequest(data){
  const timeout=data.action==='get_big_wins'?setTimeout(()=>controller.abort(),12000):null;
  try{
   const response=await fetch(FUNCTION_URL,{method:'POST',cache:data.action==='get_big_wins'?'no-store':'default',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,partner_mode:partnerActive(),initData:tg.initData})});
-  if(!response.ok)throw new Error('Сервер временно недоступен ('+response.status+')');
-  const payload=await response.json();
+  let payload;
+  try{payload=await response.json();}catch(_){
+   throw new Error(response.ok?'Сервер вернул некорректный ответ. Обнови страницу.':'Не удалось получить ответ сервера ('+response.status+').');
+  }
+  if(!response.ok){
+   const message=typeof payload?.error==='string'?payload.error:(typeof payload?.message==='string'?payload.message:'');
+   throw new Error(message || (response.status>=500?'Сервер временно недоступен ('+response.status+').':response.status===401||response.status===403?'Открой сайт заново через Telegram-бота.':'Запрос отклонён сервером ('+response.status+').'));
+  }
+  if(!payload || typeof payload!=='object' || Array.isArray(payload))throw new Error('Сервер вернул некорректный ответ.');
   if(payload.ok&&Object.prototype.hasOwnProperty.call(payload,'partner'))partnerApply(payload.partner);
   return payload;
  }finally{if(timeout!==null)clearTimeout(timeout);}
@@ -20403,7 +20410,9 @@ async function upgradeItem(){
    PROMO CODE
 ===================================================== */
 
+let promoSubmitting = false;
 async function redeemPromo(){
+    if(promoSubmitting) return;
 
     const input =
         document
@@ -20434,6 +20443,9 @@ async function redeemPromo(){
         return;
     }
 
+    promoSubmitting = true;
+    const submitButton = document.querySelector('#profilePromoCard button[onclick="redeemPromo()"]');
+    if(submitButton) submitButton.disabled = true;
     result.innerText =
         "⏳ Активируем...";
 
@@ -20513,6 +20525,11 @@ async function redeemPromo(){
                 "Ошибка"
             );
 
+    }
+
+    finally{
+        promoSubmitting = false;
+        if(submitButton) submitButton.disabled = false;
     }
 
 }
