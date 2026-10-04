@@ -28962,7 +28962,7 @@ body #caseCinema .cinema-actions{margin-bottom:12px!important;}
 body #casePresentationStage > #caseCoverPreview{grid-area:1/1;align-self:start;margin:0!important;width:100%;height:218px;}
 body #casePresentationStage > #caseCinema{grid-area:1/1;align-self:start;position:relative!important;width:100%!important;margin:0!important;z-index:2!important;}
 body #casePresentationStage #caseCinema .cinema-dialog{display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-rows:218px auto auto;justify-items:center;}
-body #casePresentationStage #caseCinema .cinema-window{grid-row:1;align-self:center;width:min(720px,100%)!important;height:169px!important;background:rgba(12,15,28,.22)!important;}
+body #casePresentationStage #caseCinema .cinema-window{grid-row:1;align-self:center;width:100%!important;height:169px!important;background:rgba(12,15,28,.22)!important;}
 body #casePresentationStage #caseCinema .cinema-status{position:absolute;top:0;left:0;right:0;margin:0!important;font-size:11px;pointer-events:none;}
 body #casePresentationStage #caseCinema .cinema-drops{grid-row:2;width:min(720px,100%)!important;margin:10px 0 0!important;}
 body #casePresentationStage #caseCinema .cinema-actions{grid-row:3;width:min(720px,100%)!important;margin:12px 0!important;}
@@ -29341,3 +29341,9 @@ html body#sharp-app #profilePromoCard .promo-input{min-width:0!important;padding
 })();
 
 </script>
+
+<style id="responsive-reel-width">
+html body#sharp-app #casePresentationStage,
+html body#sharp-app #casePresentationStage :is(#caseCinema,#caseIdleReels,.cinema-dialog,.cinema-drops,.cinema-drop,.cinema-window){min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
+html body#sharp-app #casePresentationStage #caseCinema .cinema-window{width:100%!important;}
+</style>
