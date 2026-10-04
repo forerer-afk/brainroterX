@@ -10242,10 +10242,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
                 🔥 Последние крупные выигрыши
             </div>
 
-            <div class="big-wins-live">
-                <span class="big-wins-live-dot"></span>
-                LIVE
-            </div>
+
 
         </div>
 
@@ -14246,6 +14243,13 @@ function resetUpgradeView(){
 function showPage(
     page
 ){
+    const requestedPage = document.getElementById(page + "Page");
+    if(!requestedPage || !document.getElementById(page + "Button")) return;
+    if(requestedPage.classList.contains("active")){
+        if(selectedCase && !(caseSpinning || dailyOpening)) closeCase(false);
+        return;
+    }
+
 
     /*
       Во время прокрутки кейса разрешаем свободно переходить
@@ -25311,6 +25315,7 @@ function sleep(
             !target
             ||
             target.disabled
+            || target.closest(".bottom-menu")
         ){
             return null;
         }
@@ -28613,25 +28618,6 @@ button.deposit-top,
     const start = () => {
         const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
-        const rippleTargets = "button,.case-card,.nav-btn,.dice-color,.ladder-tab";
-        document.addEventListener("pointerdown",event => {
-            if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches || event.pointerType === "mouse" && event.button !== 0) return;
-            const target = event.target.closest?.(rippleTargets);
-            if(!target || target.disabled || target.dataset.noRipple === "true") return;
-            if(getComputedStyle(target).position === "static") target.style.position = "relative";
-            if(getComputedStyle(target).overflow === "visible") target.style.overflow = "hidden";
-            const rect = target.getBoundingClientRect();
-            const ripple = document.createElement("span");
-            ripple.className = "brx-ripple";
-            ripple.style.left = `${event.clientX - rect.left}px`;
-            ripple.style.top = `${event.clientY - rect.top}px`;
-            target.appendChild(ripple);
-            const cleanupRipple = () => { ripple.remove(); clearTimeout(rippleTimer); };
-            const rippleTimer = setTimeout(cleanupRipple, 700);
-            ripple.addEventListener("animationend",cleanupRipple,{once:true});
-            ripple.addEventListener("animationcancel",cleanupRipple,{once:true});
-        },{passive:true});
-
         /* Observe dynamic case/inventory markup too, not just the initial skeleton. */
         if(reduceMotion || !("IntersectionObserver" in window)){
             return;
@@ -29107,6 +29093,18 @@ new MutationObserver(records=>{for(const record of records)for(const node of rec
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)restore();});
 })();
 </script>
+
+<style id="stable-tap-feedback">
+html body#sharp-app .bottom-menu .nav-btn,
+html body#sharp-app .bottom-menu .nav-btn:active,
+html body#sharp-app .bottom-menu .nav-btn:hover{
+    transform:none!important;
+    filter:none!important;
+    animation:none!important;
+    transition:color .16s ease,background-color .16s ease!important;
+    will-change:auto!important;
+}
+</style>
 </body>
 
 </html>
@@ -29149,7 +29147,7 @@ body.case-cinema-open #caseCoverPreview img,body.case-cinema-open #activeCase,bo
 
 <style id="sharp-final-theme">/* Sharp graphite surfaces and restrained blue accents. */
 html body#sharp-app{background:#080b10!important;color:#edf3fb!important;}
-html body#sharp-app :is(*,#sharp-edges):not(#upgraderPage,#upgraderPage *,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *),html body#sharp-app :is(*,#sharp-edges):not(#upgraderPage,#upgraderPage *,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::before,html body#sharp-app :is(*,#sharp-edges):not(#upgraderPage,#upgraderPage *,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::after{border-radius:0!important;}
+html body#sharp-app :is(*,#sharp-edges):not(.upgrade-wheel,.wheel-text,.loader-orbit,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *),html body#sharp-app :is(*,#sharp-edges):not(.upgrade-wheel,.wheel-text,.loader-orbit,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::before,html body#sharp-app :is(*,#sharp-edges):not(.upgrade-wheel,.wheel-text,.loader-orbit,.brand-home,.brand-mark,.brand-mark *,.xcoin,.coin,.profile-avatar,.profile-avatar *)::after{border-radius:0!important;}
 body#sharp-app .topbar,body#sharp-app .bottom-menu{background:#0c111a!important;border-color:#233044!important;box-shadow:none!important;backdrop-filter:blur(12px);}
 body#sharp-app .panel,body#sharp-app .modal,body#sharp-app .profile-card,body#sharp-app .profile-extra-card,body#sharp-app .profile-best-drop,body#sharp-app .profile-stats,body#sharp-app .inventory-toolbar,body#sharp-app .inventory-tabs,body#sharp-app .partner-card{background:#0c1017!important;border:1px solid #232c39!important;box-shadow:none!important;}
 body#sharp-app .profile-glow{display:none!important;}
@@ -29203,7 +29201,7 @@ body#sharp-app #comfortHistoryModal{z-index:100001!important;}
   const balance=document.createElement('div');balance.className='sharp-profile-balance';balance.innerHTML='<small>Текущий баланс</small><strong id="sharpBalance"></strong>';top.append(balance);
   const wager=document.getElementById('profileWagerCard'),best=document.getElementById('profileBestDrop'),stats=profile.querySelector('.profile-stats');
   if(wager)top.after(wager);if(best&&wager)wager.after(best);if(stats&&best)best.after(stats);
-  const labels=stats?.querySelectorAll('.profile-stat-title');if(labels){if(labels[0])labels[0].textContent='КЕЙСОВ ОТКРЫТО';if(labels[1])labels[1].textContent='АПГРЕЙДОВ';if(labels[2])labels[2].textContent='ВЫВЕДЕНО НА САЙТЕ';}
+  const labels=stats?.querySelectorAll('.profile-stat-title');if(labels){if(labels[0])labels[0].textContent='КЕЙСОВ ОТКРЫТО';if(labels[1])labels[1].textContent='АПГРЕЙДОВ';if(labels[2])labels[2].textContent='ВЫВЕДЕНО';}
   const titleWager=wager?.querySelector('.profile-extra-title');if(titleWager)titleWager.textContent='ОТЫГРЫШ';const titleBest=best?.querySelector('.profile-best-drop-label');if(titleBest)titleBest.textContent='ЛУЧШИЙ ДРОП';
   const originalBalance=updateBalance;updateBalance=function(...args){const result=originalBalance.apply(this,args);document.getElementById('sharpBalance').textContent=new Intl.NumberFormat('ru-RU').format(Number(coins)||0)+' ⓧ';return result;};updateBalance();
  }
@@ -29232,15 +29230,10 @@ html body#sharp-app .brand-case-body{border-radius:3px 3px 6px 6px!important;}
 
 <style id="restore-upgrader">
 html body#sharp-app #upgraderPage .upgrade-wheel,html body#sharp-app #upgraderPage .upgrade-wheel::before,html body#sharp-app #upgraderPage .upgrade-wheel::after,html body#sharp-app #upgraderPage .wheel-text{border-radius:50%!important;}
-html body#sharp-app #upgraderPage>.panel{background:linear-gradient(145deg,#201b30,#10111d)!important;border:1px solid #b39cfa33!important;border-radius:20px!important;}
-html body#sharp-app #upgraderPage .upgrade-main-btn{background:linear-gradient(135deg,#bfa1f3,#8e6acb)!important;border:1px solid #c5a9ef55!important;border-radius:14px!important;color:#21162f!important;}
-html body#sharp-app #upgraderPage .speed-btn{border-radius:12px!important;background:#262039!important;border-color:#bc9ee333!important;}
-#feedConnectionButton{border:1px solid #435375;background:#172333;color:#aed3fd;font-size:9px;padding:5px 8px;cursor:pointer;white-space:nowrap;}
-#feedConnectionButton[data-error=true]{color:#f5c47d;border-color:#785634;}
 </style>
 <script>
-function feedConnectionStatus(ok){const button=document.getElementById('feedConnectionButton');if(!button)return;button.dataset.error=String(!ok);button.textContent=ok?'LIVE · Обновить':'Нет связи · Повторить';}
-(function(){const track=document.getElementById('bigWinsTrack');if(!track)return;const button=document.createElement('button');button.id='feedConnectionButton';button.type='button';button.textContent='Обновить ленту';button.onclick=()=>refreshBigWins(true);const section=document.getElementById('bigWinsSection');const heading=section.querySelector('.big-wins-header')||section;heading.append(button);refreshBigWins(true);})();
+function feedConnectionStatus(ok){/* Automatic feed refresh continues without status labels. */}
+refreshBigWins(true);
 </script>
 
 <style id="streamer-privacy-complete">
@@ -29254,3 +29247,51 @@ html body#sharp-app.streamer-mode .big-win-price,
 html body#sharp-app.streamer-mode .profile-best-drop-price,
 html body#sharp-app.streamer-mode .streamer-text-blur{filter:blur(5px)!important;user-select:none!important;}
 </style>
+<style id="round-loader-fix">
+html body#sharp-app .loader-orbit::before,html body#sharp-app .loader-orbit::after{border-radius:50%!important;}
+</style>
+
+<style id="profile-unified-summary">
+html body#sharp-app #inventoryPage .profile-top{display:grid!important;grid-template-columns:96px minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;gap:16px 20px!important;padding:48px 0 14px!important;}
+html body#sharp-app #inventoryPage .profile-top #profileAvatar{grid-column:1;grid-row:1 / 3;}
+html body#sharp-app #inventoryPage .profile-top .profile-info{grid-column:2;grid-row:1;}
+html body#sharp-app #inventoryPage .profile-top .sharp-profile-balance{grid-column:3;grid-row:1;margin-left:0!important;}
+html body#sharp-app #inventoryPage .profile-top .profile-stats{grid-column:2 / 4;grid-row:2;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;padding:12px 0 0!important;background:transparent!important;border:0!important;border-top:1px solid #263244!important;box-shadow:none!important;}
+html body#sharp-app #inventoryPage .profile-top .profile-stat-title{font-size:9px!important;letter-spacing:.3px!important;}
+html body#sharp-app #inventoryPage .profile-top .profile-number{font-size:17px!important;}
+@media(max-width:500px){html body#sharp-app #inventoryPage .profile-top{grid-template-columns:80px minmax(0,1fr);gap:12px!important;}html body#sharp-app #inventoryPage .profile-top #profileAvatar{grid-row:1 / 3;}html body#sharp-app #inventoryPage .profile-top .sharp-profile-balance{grid-column:2;grid-row:2;text-align:left;}html body#sharp-app #inventoryPage .profile-top .sharp-profile-balance small{margin-bottom:3px;}html body#sharp-app #inventoryPage .profile-top .profile-stats{grid-column:1 / 3;grid-row:3;}}
+</style>
+<script>
+(function(){const top=document.querySelector('#inventoryPage .profile-top');const stats=document.querySelector('#inventoryPage .profile-stats');if(top&&stats)top.append(stats);})();
+</script>
+
+<style id="promo-button-width-fix">
+html body#sharp-app #profilePromoCard .promo-row{grid-template-columns:minmax(0,1fr) minmax(132px,1.12fr)!important;gap:8px!important;}
+html body#sharp-app #profilePromoCard .promo-btn{width:100%!important;min-width:0!important;max-width:none!important;padding:10px 8px!important;white-space:nowrap!important;font-size:11px!important;letter-spacing:0!important;overflow:visible!important;}
+html body#sharp-app #profilePromoCard .promo-input{min-width:0!important;padding:10px 8px!important;}
+</style>
+
+<script id="transient-feedback-reset">
+(function(){
+ const messageIds=['promoResult','referralResult','depositResult','gearsDepositResult','uahDepositResult','starsDepositResult','withdrawResult','sellAllResult','exchangeResultText','partnerResult','caseResult','upgradeResult','adminCoinResult','adminChanceResult'];
+ const entries=messageIds.map(id=>({id,node:document.getElementById(id),revision:0})).filter(x=>x.node);
+ const byId=new Map(entries.map(x=>[x.id,x]));
+ const clear=entry=>{if(entry.node.textContent)entry.node.replaceChildren();};
+ const visible=entry=>{for(let el=entry.node;el;el=el.parentElement){if(el.hidden)return false;if(el.classList.contains('page')&&!el.classList.contains('active'))return false;if(el.classList.contains('overlay')&&!el.classList.contains('show'))return false;}return true;};
+ const invalidate=entry=>{entry.revision++;clear(entry);};
+ const originalShowPage=showPage;
+ showPage=function(...args){const previous=document.querySelector('.page.active');const result=originalShowPage.apply(this,args);if(previous!==document.querySelector('.page.active')){entries.forEach(invalidate);document.getElementById('toastStack')?.replaceChildren();}return result;};
+ // Closing a modal invalidates its feedback, including a response still in flight.
+ for(const entry of entries){
+  const overlay=entry.node.closest('.overlay');
+  if(overlay){let wasOpen=overlay.classList.contains('show');new MutationObserver(()=>{const open=overlay.classList.contains('show');if(open!==wasOpen){wasOpen=open;invalidate(entry);}}).observe(overlay,{attributes:true,attributeFilter:['class']});}
+  new MutationObserver(()=>{if(!visible(entry))clear(entry);}).observe(entry.node,{childList:true,characterData:true,subtree:true});
+ }
+ const handlers={redeemPromo:'promoResult',claimReferral:'referralResult',submitDeposit:'depositResult',submitGearsDeposit:'gearsDepositResult',submitUahDeposit:'uahDepositResult',submitStarsDeposit:'starsDepositResult',exchangeItem:'exchangeResultText',adminApplyCoins:'adminCoinResult',adminApplyChanceMultiplier:'adminChanceResult',partnerRun:'partnerResult',confirmSellAll:'sellAllResult',submitWithdraw:'withdrawResult',submitWithdrawInternal:'withdrawResult'};
+ for(const [name,id] of Object.entries(handlers)){
+  const original=window[name],entry=byId.get(id);if(typeof original!=='function'||!entry)continue;
+  window[name]=async function(...args){const revision=entry.revision;try{return await original.apply(this,args);}finally{if(revision!==entry.revision||!visible(entry))clear(entry);}};
+ }
+})();
+
+</script>
