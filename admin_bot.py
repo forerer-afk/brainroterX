@@ -253,7 +253,8 @@ def operator_stats_markup(telegram_id: int):
     ])
 
 
-def operator_request_markup(request_id: int, allowed_indexes, selected_index=None):
+def operator_request_markup(request_id: int, request_kind: str, allowed_indexes, selected_index=None):
+    kind = "gear" if str(request_kind).lower() == "gear" else "brainrot"
     indexes = [int(i) for i in allowed_indexes]
     rows = []
     current = []
@@ -266,7 +267,7 @@ def operator_request_markup(request_id: int, allowed_indexes, selected_index=Non
         current.append(
             InlineKeyboardButton(
                 label,
-                callback_data=f"po_bot_{index}_{int(request_id)}",
+                callback_data=f"po_bot_{kind}_{index}_{int(request_id)}",
             )
         )
         if len(current) == 2:
@@ -275,8 +276,8 @@ def operator_request_markup(request_id: int, allowed_indexes, selected_index=Non
     if current:
         rows.append(current)
     rows.append([
-        InlineKeyboardButton("✅ Подтвердить", callback_data=f"po_approve_{int(request_id)}"),
-        InlineKeyboardButton("❌ Отменить", callback_data=f"po_reject_{int(request_id)}"),
+        InlineKeyboardButton("✅ Подтвердить", callback_data=f"po_approve_{kind}_{int(request_id)}"),
+        InlineKeyboardButton("❌ Отменить", callback_data=f"po_reject_{kind}_{int(request_id)}"),
     ])
     return InlineKeyboardMarkup(rows)
 
@@ -324,9 +325,9 @@ async def deposit_operator_command(update: Update, context: ContextTypes.DEFAULT
             await context.bot.send_message(
                 chat_id=target_id,
                 text=(
-                    "✅ Тебе выдан доступ к заявкам на пополнение BrainroterX.\n\n"
+                    "✅ Тебе выдан доступ к заявкам Brainrot и Гирсов BrainroterX.\n\n"
                     f"👤 Твой ник: {display_name}\n"
-                    f"📏 Будут приходить заявки до {max_amount} X включительно.\n"
+                    f"📏 Будут приходить только Brainrot / Гирсы заявки до {max_amount} X включительно. Заявки в грн тебе не приходят.\n"
                     "📥 Сначала нажимай «Взять заявку».\n"
                     "🤖 Для трейда тебе доступны только @brainroterXbot2 и @brainroterXbot3.\n\n"
                     "Если заявку уже взял другой человек, бот не даст забрать её себе."
@@ -337,7 +338,7 @@ async def deposit_operator_command(update: Update, context: ContextTypes.DEFAULT
             logger.info("Could not notify deposit operator %s: %r", target_id, exc)
 
         await message.reply_text(
-            f"✅ Доступ к заявкам выдан\n"
+            f"✅ Доступ к Brainrot / Гирсы заявкам выдан\n"
             f"🆔 {target_id}\n"
             f"👤 {display_name}\n"
             f"📏 До {max_amount} X\n\n"
@@ -409,16 +410,27 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
     actor_id = int(query.from_user.id)
     actor_name = (query.from_user.full_name or query.from_user.username or str(actor_id))[:80]
 
+    def parse_kind_and_id(prefix: str):
+        tail = data[len(prefix):]
+        parts = tail.split("_")
+        if len(parts) == 1:
+            # Backward compatibility with old Brainrot buttons.
+            return "brainrot", int(parts[0])
+        if len(parts) == 2 and parts[0] in ("brainrot", "gear"):
+            return parts[0], int(parts[1])
+        raise ValueError("Неверные данные заявки")
+
     if data.startswith("po_take_"):
         try:
-            request_id = int(data.rsplit("_", 1)[1])
-        except ValueError:
+            request_kind, request_id = parse_kind_and_id("po_take_")
+        except (ValueError, IndexError):
             await query.answer("❌ Неверная заявка", show_alert=True)
             return
 
         result = await call_server_async(
             "admin_claim_deposit_request",
             request_id=request_id,
+            request_kind=request_kind,
             actor_telegram_id=actor_id,
             actor_name=actor_name,
         )
@@ -426,6 +438,7 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
             await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
             return
 
+        request_kind = str(result.get("request_kind") or request_kind)
         allowed = result.get("allowed_bot_indexes") or (
             list(range(len(TRADE_BOTS))) if result.get("is_owner") else list(OPERATOR_ALLOWED_BOT_INDEXES)
         )
@@ -434,19 +447,25 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
             old_text += f"\n\n📥 Взял: {result.get('claimant_name', actor_name)}"
         await query.edit_message_text(
             old_text,
-            reply_markup=operator_request_markup(request_id, allowed),
+            reply_markup=operator_request_markup(request_id, request_kind, allowed),
         )
         await query.answer("✅ Заявка закреплена за тобой")
         return
 
     if data.startswith("po_bot_"):
-        parts = data.split("_")
-        if len(parts) != 4:
-            await query.answer("❌ Неверная кнопка", show_alert=True)
-            return
+        tail = data[len("po_bot_"):]
+        parts = tail.split("_")
         try:
-            bot_index = int(parts[2])
-            request_id = int(parts[3])
+            if len(parts) == 2:  # old Brainrot format: index_id
+                request_kind = "brainrot"
+                bot_index = int(parts[0])
+                request_id = int(parts[1])
+            elif len(parts) == 3 and parts[0] in ("brainrot", "gear"):
+                request_kind = parts[0]
+                bot_index = int(parts[1])
+                request_id = int(parts[2])
+            else:
+                raise ValueError
         except ValueError:
             await query.answer("❌ Неверные данные", show_alert=True)
             return
@@ -457,6 +476,7 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
         result = await call_server_async(
             "admin_operator_assign_deposit_bot",
             request_id=request_id,
+            request_kind=request_kind,
             actor_telegram_id=actor_id,
             bot_username=TRADE_BOTS[bot_index],
         )
@@ -464,23 +484,30 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
             await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
             return
 
+        request_kind = str(result.get("request_kind") or request_kind)
         allowed = result.get("allowed_bot_indexes") or (
             list(range(len(TRADE_BOTS))) if result.get("is_owner") else list(OPERATOR_ALLOWED_BOT_INDEXES)
         )
         await query.edit_message_reply_markup(
-            reply_markup=operator_request_markup(request_id, allowed, selected_index=bot_index)
+            reply_markup=operator_request_markup(request_id, request_kind, allowed, selected_index=bot_index)
         )
         await query.answer(f"✅ Выбран @{TRADE_BOTS[bot_index]}")
         return
 
     if data.startswith("po_approve_"):
         try:
-            request_id = int(data.rsplit("_", 1)[1])
-        except ValueError:
+            request_kind, request_id = parse_kind_and_id("po_approve_")
+        except (ValueError, IndexError):
             await query.answer("❌ Неверная заявка", show_alert=True)
             return
+
+        server_action = (
+            "admin_approve_gear_deposit_request"
+            if request_kind == "gear"
+            else "admin_approve_balance_request"
+        )
         result = await call_server_async(
-            "admin_approve_balance_request",
+            server_action,
             request_id=request_id,
             actor_telegram_id=actor_id,
         )
@@ -489,7 +516,7 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
             return
         old_text = query.message.text or ""
         extra = (
-            f"\n\n✅ ПОПОЛНЕНИЕ ПОДТВЕРЖДЕНО"
+            f"\n\n✅ {'ГИРСЫ' if request_kind == 'gear' else 'ПОПОЛНЕНИЕ'} ПОДТВЕРЖДЕНЫ"
             f"\n💰 Начислено игроку: {result.get('added_coins', 0)} X"
         )
         if actor_id != ADMIN_TELEGRAM_ID:
@@ -500,12 +527,18 @@ async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAUL
 
     if data.startswith("po_reject_"):
         try:
-            request_id = int(data.rsplit("_", 1)[1])
-        except ValueError:
+            request_kind, request_id = parse_kind_and_id("po_reject_")
+        except (ValueError, IndexError):
             await query.answer("❌ Неверная заявка", show_alert=True)
             return
+
+        server_action = (
+            "admin_reject_gear_deposit_request"
+            if request_kind == "gear"
+            else "admin_reject_balance_request"
+        )
         result = await call_server_async(
-            "admin_reject_balance_request",
+            server_action,
             request_id=request_id,
             actor_telegram_id=actor_id,
         )
@@ -584,7 +617,7 @@ async def start_command(
         "/promoblock ID — полностью забрать доступ\n"
         "/promoinfo ID — посмотреть лимит\n\n"
         "💼 Операторы пополнений:\n"
-        "/po+ ID ЛИМИТ НИК — выдать доступ к заявкам\n"
+        "/po+ ID ЛИМИТ НИК — выдать доступ к Brainrot / Гирсы заявкам\n"
         "/po- ID — снять доступ\n"
         "/smo ID — статистика и баланс оператора"
         )
@@ -1210,7 +1243,7 @@ def commands_text():
         "/promotake ID КОЛ-ВО — убрать часть лимита\n"
         "/promoblock ID — забрать доступ\n"
         "/promoinfo ID — посмотреть остаток\n\n"
-        "/po+ ID ЛИМИТ НИК — выдать приём заявок\n"
+        "/po+ ID ЛИМИТ НИК — выдать приём Brainrot / Гирсы заявок\n"
         "/po- ID — снять приём заявок\n"
         "/smo ID — статистика оператора / 30% / вчера\n\n"
         "/- — отключить все пополнения\n"
