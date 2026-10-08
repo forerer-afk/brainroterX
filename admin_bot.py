@@ -198,6 +198,350 @@ async def check_promo_access_for_user(user_id: int) -> dict:
 
 
 # =====================================================
+# DEPOSIT OPERATORS / PO
+# =====================================================
+
+OPERATOR_ALLOWED_BOT_INDEXES = (2, 3)
+
+
+def operator_payout_label(coins) -> str:
+    amount = max(0, int(float(coins or 0)))
+    garamas, remainder = divmod(amount, 60)
+    if garamas and remainder:
+        return f"{garamas}x Garama + {remainder} X"
+    if garamas:
+        return f"{garamas}x Garama"
+    return f"{amount} X"
+
+
+def operator_stats_text(result: dict) -> str:
+    operator = result.get("operator") or {}
+    active = bool(operator.get("active"))
+    current_due = max(0, int(float(result.get("current_due", 0) or 0)))
+    today_commission = max(0, int(float(result.get("today_commission", 0) or 0)))
+    yesterday_commission = max(0, int(float(result.get("yesterday_commission", 0) or 0)))
+    lifetime_commission = max(0, int(float(result.get("lifetime_commission", 0) or 0)))
+    return (
+        "📊 СТАТИСТИКА ОПЕРАТОРА\n\n"
+        f"👤 Ник: {operator.get('display_name', '—')}\n"
+        f"🆔 ID: {operator.get('telegram_id', '—')}\n"
+        f"🔌 Доступ: {'✅ включён' if active else '⛔ отключён'}\n"
+        f"📏 Лимит заявки: до {int(float(operator.get('max_amount', 0) or 0))} X\n\n"
+        f"📅 СЕГОДНЯ ({result.get('today_key', '—')})\n"
+        f"✅ Подтверждено заявок: {int(result.get('today_count', 0) or 0)}\n"
+        f"💰 Сумма заявок: {int(float(result.get('today_value', 0) or 0))} X\n"
+        f"💵 30% заработано: {today_commission} X\n"
+        f"🧾 Осталось выплатить: {current_due} X\n"
+        f"🎁 Выплата: {operator_payout_label(current_due)}\n\n"
+        f"🕘 ВЧЕРА ({result.get('yesterday_key', '—')})\n"
+        f"✅ Заявок: {int(result.get('yesterday_count', 0) or 0)}\n"
+        f"💰 Сумма: {int(float(result.get('yesterday_value', 0) or 0))} X\n"
+        f"💵 Баланс: {yesterday_commission} X = {operator_payout_label(yesterday_commission)}\n\n"
+        f"🏆 ЗА ВСЁ ВРЕМЯ\n"
+        f"✅ Подтверждено заявок: {int(result.get('lifetime_count', 0) or 0)}\n"
+        f"💰 Общая сумма: {int(float(result.get('lifetime_value', 0) or 0))} X\n"
+        f"💵 30% всего: {lifetime_commission} X"
+    )
+
+
+def operator_stats_markup(telegram_id: int):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton(
+            "🧹 Обнулить текущий баланс",
+            callback_data=f"po_reset_{int(telegram_id)}",
+        )]
+    ])
+
+
+def operator_request_markup(request_id: int, allowed_indexes, selected_index=None):
+    indexes = [int(i) for i in allowed_indexes]
+    rows = []
+    current = []
+    for index in indexes:
+        if index < 0 or index >= len(TRADE_BOTS):
+            continue
+        label = f"@{TRADE_BOTS[index]}"
+        if selected_index is not None and int(selected_index) == index:
+            label = "✅ " + label
+        current.append(
+            InlineKeyboardButton(
+                label,
+                callback_data=f"po_bot_{index}_{int(request_id)}",
+            )
+        )
+        if len(current) == 2:
+            rows.append(current)
+            current = []
+    if current:
+        rows.append(current)
+    rows.append([
+        InlineKeyboardButton("✅ Подтвердить", callback_data=f"po_approve_{int(request_id)}"),
+        InlineKeyboardButton("❌ Отменить", callback_data=f"po_reject_{int(request_id)}"),
+    ])
+    return InlineKeyboardMarkup(rows)
+
+
+async def deposit_operator_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.effective_message.reply_text("❌ Нет доступа")
+        return
+
+    message = update.effective_message
+    parts = (message.text or "").strip().split()
+    command = parts[0].split("@", 1)[0].lower() if parts else ""
+
+    if command == "/po+":
+        if len(parts) < 4:
+            await message.reply_text(
+                "Использование:\n/po+ TELEGRAM_ID ЛИМИТ НИК\n\n"
+                "Пример:\n/po+ 123456789 500 PETYA"
+            )
+            return
+        try:
+            target_id = int(parts[1])
+            max_amount = int(parts[2])
+        except ValueError:
+            await message.reply_text("❌ Telegram ID и лимит должны быть числами")
+            return
+        display_name = " ".join(parts[3:]).strip()[:80]
+        if target_id <= 0 or max_amount <= 0 or not display_name:
+            await message.reply_text("❌ Проверь ID, лимит и ник")
+            return
+
+        result = await call_server_async(
+            "admin_upsert_deposit_operator",
+            actor_telegram_id=ADMIN_TELEGRAM_ID,
+            target_telegram_id=target_id,
+            max_amount=max_amount,
+            display_name=display_name,
+        )
+        if not result.get("ok"):
+            await message.reply_text("❌ " + str(result.get("error", "Ошибка сервера")))
+            return
+
+        notified = True
+        try:
+            await context.bot.send_message(
+                chat_id=target_id,
+                text=(
+                    "✅ Тебе выдан доступ к заявкам на пополнение BrainroterX.\n\n"
+                    f"👤 Твой ник: {display_name}\n"
+                    f"📏 Будут приходить заявки до {max_amount} X включительно.\n"
+                    "📥 Сначала нажимай «Взять заявку».\n"
+                    "🤖 Для трейда тебе доступны только @brainroterXbot2 и @brainroterXbot3.\n\n"
+                    "Если заявку уже взял другой человек, бот не даст забрать её себе."
+                ),
+            )
+        except Exception as exc:
+            notified = False
+            logger.info("Could not notify deposit operator %s: %r", target_id, exc)
+
+        await message.reply_text(
+            f"✅ Доступ к заявкам выдан\n"
+            f"🆔 {target_id}\n"
+            f"👤 {display_name}\n"
+            f"📏 До {max_amount} X\n\n"
+            + ("📨 Пользователь уведомлён." if notified else "⚠️ Не смог написать пользователю. Пусть он сначала нажмёт /start в админ-боте.")
+        )
+        return
+
+    if command == "/po-":
+        if len(parts) != 2:
+            await message.reply_text("Использование:\n/po- TELEGRAM_ID")
+            return
+        try:
+            target_id = int(parts[1])
+        except ValueError:
+            await message.reply_text("❌ Telegram ID должен быть числом")
+            return
+        result = await call_server_async(
+            "admin_revoke_deposit_operator",
+            actor_telegram_id=ADMIN_TELEGRAM_ID,
+            target_telegram_id=target_id,
+        )
+        if not result.get("ok"):
+            await message.reply_text("❌ " + str(result.get("error", "Ошибка сервера")))
+            return
+        try:
+            await context.bot.send_message(
+                chat_id=target_id,
+                text="⛔ Доступ к заявкам на пополнение отключён.",
+            )
+        except Exception:
+            pass
+        await message.reply_text(f"⛔ Доступ снят у ID {target_id}")
+
+
+async def smo_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.effective_message.reply_text("❌ Нет доступа")
+        return
+    if len(context.args) != 1:
+        await update.effective_message.reply_text("Использование:\n/smo TELEGRAM_ID")
+        return
+    try:
+        target_id = int(context.args[0])
+    except ValueError:
+        await update.effective_message.reply_text("❌ Telegram ID должен быть числом")
+        return
+
+    result = await call_server_async(
+        "admin_get_deposit_operator_stats",
+        actor_telegram_id=ADMIN_TELEGRAM_ID,
+        target_telegram_id=target_id,
+    )
+    if not result.get("ok"):
+        await update.effective_message.reply_text("❌ " + str(result.get("error", "Ошибка сервера")))
+        return
+
+    await update.effective_message.reply_text(
+        operator_stats_text(result),
+        reply_markup=operator_stats_markup(target_id),
+    )
+
+
+async def deposit_operator_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    data = query.data or ""
+    actor_id = int(query.from_user.id)
+    actor_name = (query.from_user.full_name or query.from_user.username or str(actor_id))[:80]
+
+    if data.startswith("po_take_"):
+        try:
+            request_id = int(data.rsplit("_", 1)[1])
+        except ValueError:
+            await query.answer("❌ Неверная заявка", show_alert=True)
+            return
+
+        result = await call_server_async(
+            "admin_claim_deposit_request",
+            request_id=request_id,
+            actor_telegram_id=actor_id,
+            actor_name=actor_name,
+        )
+        if not result.get("ok"):
+            await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
+            return
+
+        allowed = result.get("allowed_bot_indexes") or (
+            list(range(len(TRADE_BOTS))) if result.get("is_owner") else list(OPERATOR_ALLOWED_BOT_INDEXES)
+        )
+        old_text = query.message.text or ""
+        if "\n\n📥 Взял:" not in old_text:
+            old_text += f"\n\n📥 Взял: {result.get('claimant_name', actor_name)}"
+        await query.edit_message_text(
+            old_text,
+            reply_markup=operator_request_markup(request_id, allowed),
+        )
+        await query.answer("✅ Заявка закреплена за тобой")
+        return
+
+    if data.startswith("po_bot_"):
+        parts = data.split("_")
+        if len(parts) != 4:
+            await query.answer("❌ Неверная кнопка", show_alert=True)
+            return
+        try:
+            bot_index = int(parts[2])
+            request_id = int(parts[3])
+        except ValueError:
+            await query.answer("❌ Неверные данные", show_alert=True)
+            return
+        if bot_index < 0 or bot_index >= len(TRADE_BOTS):
+            await query.answer("❌ Неизвестный бот", show_alert=True)
+            return
+
+        result = await call_server_async(
+            "admin_operator_assign_deposit_bot",
+            request_id=request_id,
+            actor_telegram_id=actor_id,
+            bot_username=TRADE_BOTS[bot_index],
+        )
+        if not result.get("ok"):
+            await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
+            return
+
+        allowed = result.get("allowed_bot_indexes") or (
+            list(range(len(TRADE_BOTS))) if result.get("is_owner") else list(OPERATOR_ALLOWED_BOT_INDEXES)
+        )
+        await query.edit_message_reply_markup(
+            reply_markup=operator_request_markup(request_id, allowed, selected_index=bot_index)
+        )
+        await query.answer(f"✅ Выбран @{TRADE_BOTS[bot_index]}")
+        return
+
+    if data.startswith("po_approve_"):
+        try:
+            request_id = int(data.rsplit("_", 1)[1])
+        except ValueError:
+            await query.answer("❌ Неверная заявка", show_alert=True)
+            return
+        result = await call_server_async(
+            "admin_approve_balance_request",
+            request_id=request_id,
+            actor_telegram_id=actor_id,
+        )
+        if not result.get("ok"):
+            await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
+            return
+        old_text = query.message.text or ""
+        extra = (
+            f"\n\n✅ ПОПОЛНЕНИЕ ПОДТВЕРЖДЕНО"
+            f"\n💰 Начислено игроку: {result.get('added_coins', 0)} X"
+        )
+        if actor_id != ADMIN_TELEGRAM_ID:
+            extra += f"\n💵 Твои 30%: {result.get('operator_commission', 0)} X"
+        await query.edit_message_text(old_text + extra)
+        await query.answer("✅ Готово")
+        return
+
+    if data.startswith("po_reject_"):
+        try:
+            request_id = int(data.rsplit("_", 1)[1])
+        except ValueError:
+            await query.answer("❌ Неверная заявка", show_alert=True)
+            return
+        result = await call_server_async(
+            "admin_reject_balance_request",
+            request_id=request_id,
+            actor_telegram_id=actor_id,
+        )
+        if not result.get("ok"):
+            await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
+            return
+        await query.edit_message_text((query.message.text or "") + "\n\n❌ ЗАЯВКА ОТМЕНЕНА")
+        await query.answer("✅ Заявка отменена")
+        return
+
+    if data.startswith("po_reset_"):
+        if actor_id != ADMIN_TELEGRAM_ID:
+            await query.answer("❌ Нет доступа", show_alert=True)
+            return
+        try:
+            target_id = int(data.rsplit("_", 1)[1])
+        except ValueError:
+            await query.answer("❌ Неверный ID", show_alert=True)
+            return
+        result = await call_server_async(
+            "admin_reset_deposit_operator_balance",
+            actor_telegram_id=ADMIN_TELEGRAM_ID,
+            target_telegram_id=target_id,
+        )
+        if not result.get("ok"):
+            await query.answer("❌ " + str(result.get("error", "Ошибка")), show_alert=True)
+            return
+        await query.edit_message_text(
+            operator_stats_text(result),
+            reply_markup=operator_stats_markup(target_id),
+        )
+        await query.answer("✅ Текущий баланс обнулён")
+        return
+
+
+# =====================================================
 # /START
 # =====================================================
 
@@ -238,7 +582,27 @@ async def start_command(
         "/promoadd ID КОЛ-ВО — выдать/добавить лимит\n"
         "/promotake ID КОЛ-ВО — убрать лимит\n"
         "/promoblock ID — полностью забрать доступ\n"
-        "/promoinfo ID — посмотреть лимит"
+        "/promoinfo ID — посмотреть лимит\n\n"
+        "💼 Операторы пополнений:\n"
+        "/po+ ID ЛИМИТ НИК — выдать доступ к заявкам\n"
+        "/po- ID — снять доступ\n"
+        "/smo ID — статистика и баланс оператора"
+        )
+        return
+
+    operator_access = await call_server_async(
+        "admin_get_deposit_operator_stats",
+        actor_telegram_id=user.id,
+        target_telegram_id=user.id,
+    )
+    if operator_access.get("ok") and (operator_access.get("operator") or {}).get("active"):
+        operator = operator_access.get("operator") or {}
+        await update.message.reply_text(
+            "💼 ДОСТУП К ЗАЯВКАМ АКТИВЕН\n\n"
+            f"👤 Ник: {operator.get('display_name', '—')}\n"
+            f"📏 Лимит: до {int(float(operator.get('max_amount', 0) or 0))} X\n"
+            "🤖 Доступные трейд-боты: @brainroterXbot2 и @brainroterXbot3\n\n"
+            "Новые подходящие заявки будут приходить сюда с кнопкой «Взять заявку»."
         )
         return
 
@@ -846,6 +1210,9 @@ def commands_text():
         "/promotake ID КОЛ-ВО — убрать часть лимита\n"
         "/promoblock ID — забрать доступ\n"
         "/promoinfo ID — посмотреть остаток\n\n"
+        "/po+ ID ЛИМИТ НИК — выдать приём заявок\n"
+        "/po- ID — снять приём заявок\n"
+        "/smo ID — статистика оператора / 30% / вчера\n\n"
         "/- — отключить все пополнения\n"
         "/+ — включить все пополнения\n"
         "/g- — отключить только ГРН\n"
@@ -877,6 +1244,21 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "🛠 ADMIN MENU\n\nВыбери раздел:",
             reply_markup=admin_menu_markup()
+        )
+        return
+
+    operator_access = await call_server_async(
+        "admin_get_deposit_operator_stats",
+        actor_telegram_id=user.id,
+        target_telegram_id=user.id,
+    )
+    if operator_access.get("ok") and (operator_access.get("operator") or {}).get("active"):
+        operator = operator_access.get("operator") or {}
+        await update.message.reply_text(
+            "💼 ОПЕРАТОР ПОПОЛНЕНИЙ\n\n"
+            f"👤 {operator.get('display_name', '—')}\n"
+            f"📏 Заявки до {int(float(operator.get('max_amount', 0) or 0))} X\n"
+            "Ожидай новые заявки в этом чате."
         )
         return
 
@@ -2302,6 +2684,13 @@ def main():
     )
 
     app.add_error_handler(on_error)
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(r"^/po[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"),
+            deposit_operator_command,
+        )
+    )
+    app.add_handler(CommandHandler("smo", smo_command))
     app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^/(?:p|ref)[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"), partner_command))
     app.add_handler(CommandHandler("refs", partner_list))
     app.add_handler(CallbackQueryHandler(partner_list, pattern=r"^partner_list_\d+$"))
@@ -2406,6 +2795,13 @@ def main():
         MessageHandler(
             filters.Regex(r"^/(?:mem|luck)[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"),
             mem_text_router
+        )
+    )
+
+    app.add_handler(
+        CallbackQueryHandler(
+            deposit_operator_callback,
+            pattern=r"^po_(?:take|bot|approve|reject|reset)_"
         )
     )
 
