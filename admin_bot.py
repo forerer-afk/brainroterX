@@ -206,12 +206,35 @@ OPERATOR_ALLOWED_BOT_INDEXES = (2, 3)
 
 def operator_payout_label(coins) -> str:
     amount = max(0, int(float(coins or 0)))
-    garamas, remainder = divmod(amount, 60)
+    garamas, remainder = divmod(amount, 50)
     if garamas and remainder:
         return f"{garamas}x Garama + {remainder} X"
     if garamas:
         return f"{garamas}x Garama"
     return f"{amount} X"
+
+
+def operator_items_text(items) -> str:
+    rows = items if isinstance(items, list) else []
+    if not rows:
+        return "• нет предметов"
+    lines = []
+    total_items = 0
+    for row in rows:
+        name = str((row or {}).get("name") or "Предмет").strip() or "Предмет"
+        quantity = max(0, int(float((row or {}).get("quantity", 0) or 0)))
+        if quantity <= 0:
+            continue
+        total_items += quantity
+        lines.append(f"• {name} — {quantity}x")
+    if not lines:
+        return "• нет предметов"
+    return "\n".join(lines)
+
+
+def operator_items_total(items) -> int:
+    rows = items if isinstance(items, list) else []
+    return sum(max(0, int(float((row or {}).get("quantity", 0) or 0))) for row in rows)
 
 
 def operator_stats_text(result: dict) -> str:
@@ -221,6 +244,8 @@ def operator_stats_text(result: dict) -> str:
     today_commission = max(0, int(float(result.get("today_commission", 0) or 0)))
     yesterday_commission = max(0, int(float(result.get("yesterday_commission", 0) or 0)))
     lifetime_commission = max(0, int(float(result.get("lifetime_commission", 0) or 0)))
+    today_items = result.get("today_items") or []
+    lifetime_items = result.get("lifetime_items") or []
     return (
         "📊 СТАТИСТИКА ОПЕРАТОРА\n\n"
         f"👤 Ник: {operator.get('display_name', '—')}\n"
@@ -229,18 +254,24 @@ def operator_stats_text(result: dict) -> str:
         f"📏 Лимит заявки: до {int(float(operator.get('max_amount', 0) or 0))} X\n\n"
         f"📅 СЕГОДНЯ ({result.get('today_key', '—')})\n"
         f"✅ Подтверждено заявок: {int(result.get('today_count', 0) or 0)}\n"
+        f"📦 Принято предметов: {operator_items_total(today_items)}\n"
+        f"{operator_items_text(today_items)}\n"
         f"💰 Сумма заявок: {int(float(result.get('today_value', 0) or 0))} X\n"
-        f"💵 30% заработано: {today_commission} X\n"
+        f"💵 30% за сегодня: {today_commission} X\n"
         f"🧾 Осталось выплатить: {current_due} X\n"
-        f"🎁 Выплата: {operator_payout_label(current_due)}\n\n"
+        f"🎁 Тебе нужно заплатить: {operator_payout_label(current_due)}\n"
+        f"   1 Garama = 50 X\n\n"
         f"🕘 ВЧЕРА ({result.get('yesterday_key', '—')})\n"
         f"✅ Заявок: {int(result.get('yesterday_count', 0) or 0)}\n"
         f"💰 Сумма: {int(float(result.get('yesterday_value', 0) or 0))} X\n"
-        f"💵 Баланс: {yesterday_commission} X = {operator_payout_label(yesterday_commission)}\n\n"
+        f"💵 30%: {yesterday_commission} X = {operator_payout_label(yesterday_commission)}\n\n"
         f"🏆 ЗА ВСЁ ВРЕМЯ\n"
         f"✅ Подтверждено заявок: {int(result.get('lifetime_count', 0) or 0)}\n"
-        f"💰 Общая сумма: {int(float(result.get('lifetime_value', 0) or 0))} X\n"
-        f"💵 30% всего: {lifetime_commission} X"
+        f"📦 Принято предметов: {operator_items_total(lifetime_items)}\n"
+        f"{operator_items_text(lifetime_items)}\n"
+        f"💰 Общая сумма заявок: {int(float(result.get('lifetime_value', 0) or 0))} X\n"
+        f"💵 30% всего: {lifetime_commission} X\n"
+        f"🎁 Эквивалент за всё время: {operator_payout_label(lifetime_commission)}"
     )
 
 
