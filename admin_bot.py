@@ -650,7 +650,10 @@ async def start_command(
         "💼 Операторы пополнений:\n"
         "/po+ ID ЛИМИТ НИК — выдать доступ к Brainrot / Гирсы заявкам\n"
         "/po- ID — снять доступ\n"
-        "/smo ID — статистика и баланс оператора"
+        "/smo ID — статистика и баланс оператора\n\n"
+        "🤝 Делегирование партнёрки:\n"
+        "/pp+ ID — разрешить игроку выдавать и снимать партнёрку через /p+ и /p-\n"
+        "/pp- ID — забрать это право"
         )
         return
 
@@ -667,6 +670,15 @@ async def start_command(
             f"📏 Лимит: до {int(float(operator.get('max_amount', 0) or 0))} X\n"
             "🤖 Доступные трейд-боты: @brainroterXbot2 и @brainroterXbot3\n\n"
             "Новые подходящие заявки будут приходить сюда с кнопкой «Взять заявку»."
+        )
+        return
+
+    partner_grant_access = await get_partner_grant_access(user.id)
+    if partner_grant_access.get("ok") and partner_grant_access.get("allowed"):
+        await update.message.reply_text(
+            "🤝 ДОСТУП К ВЫДАЧЕ ПАРТНЁРКИ\n\n"
+            "Команда:\n/p+ TELEGRAM_ID 1|2|3\n\n"
+            "Можно только выдавать партнёрку. Владелец получает уведомление о каждой выдаче."
         )
         return
 
@@ -1175,32 +1187,139 @@ async def deposit_plus(
 # =====================================================
 
 # Owner-only partner commands. +/- commands are text handlers, not BotCommand names.
-async def partner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_partner_grant_access(telegram_id: int) -> dict:
+    result = await call_server_async(
+        "admin_get_partner_grant_delegate",
+        actor_telegram_id=int(telegram_id),
+        target_telegram_id=int(telegram_id),
+    )
+    return result if isinstance(result, dict) else {"ok": False, "allowed": False}
+
+
+async def partner_permission_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_owner(update):
         await update.effective_message.reply_text("❌ Нет доступа")
         return
+
+    message = update.effective_message
+    parts = (message.text or "").strip().split()
+    command = parts[0].split("@", 1)[0].lower() if parts else ""
+
+    if command not in ("/pp+", "/pp-") or len(parts) != 2:
+        await message.reply_text(
+            "Использование:\n"
+            "/pp+ TELEGRAM_ID\n"
+            "/pp- TELEGRAM_ID"
+        )
+        return
+
+    try:
+        target_id = int(parts[1])
+    except ValueError:
+        await message.reply_text("❌ Telegram ID должен быть числом")
+        return
+
+    if target_id <= 0:
+        await message.reply_text("❌ Неверный Telegram ID")
+        return
+
+    enabled = command == "/pp+"
+    result = await call_server_async(
+        "admin_set_partner_grant_delegate",
+        actor_telegram_id=ADMIN_TELEGRAM_ID,
+        target_telegram_id=target_id,
+        enabled=enabled,
+    )
+
+    if not result.get("ok"):
+        await message.reply_text("❌ " + str(result.get("error", "Ошибка сервера")))
+        return
+
+    try:
+        await context.bot.send_message(
+            chat_id=target_id,
+            text=(
+                "✅ Тебе выдано право выдавать и снимать партнёрку BrainroterX.\n\n"
+                "Используй:\n"
+                "/p+ TELEGRAM_ID 1|2|3\n"
+                "/p- TELEGRAM_ID\n\n"
+                "Ты можешь выдавать и снимать партнёрку. Менять реферальные коды нельзя.\n"
+                "Владелец получает уведомление о каждой выданной или снятой тобой партнёрке."
+                if enabled else
+                "⛔ Право выдавать и снимать партнёрку BrainroterX у тебя отключено."
+            ),
+        )
+    except Exception:
+        pass
+
+    await message.reply_text(
+        ("✅ Право выдавать и снимать партнёрку выдано" if enabled else "⛔ Право выдавать и снимать партнёрку снято")
+        + f"\n🆔 {target_id}"
+    )
+
+
+async def partner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.effective_message
+    user = update.effective_user
+    if not message or not user:
+        return
+
     import re
-    parts = (update.effective_message.text or "").split()
-    command = parts[0].split("@")[0].lower()
+    parts = (message.text or "").split()
+    command = parts[0].split("@")[0].lower() if parts else ""
+    owner = is_owner(update)
+
+    if not owner:
+        if command not in ("/p+", "/p-"):
+            await message.reply_text("❌ Делегату доступны только /p+ ID 1|2|3 и /p- ID")
+            return
+        access = await get_partner_grant_access(user.id)
+        if not access.get("ok") or not access.get("allowed"):
+            await message.reply_text("❌ Нет права выдавать или снимать партнёрку")
+            return
+
     try:
         if len(parts) < 2 or not re.fullmatch(r"[1-9][0-9]{0,15}", parts[1]):
             raise ValueError("Укажи Telegram ID")
+
         target = int(parts[1])
-        operations = {"/p+": "grant", "/p-": "revoke", "/ref+": "set_code", "/ref-": "remove_code"}
-        payload = {"telegram_id": target, "operation": operations[command], "actor_telegram_id": update.effective_user.id}
+        operations = {
+            "/p+": "grant",
+            "/p-": "revoke",
+            "/ref+": "set_code",
+            "/ref-": "remove_code",
+        }
+        if command not in operations:
+            raise ValueError("Неизвестная команда")
+
+        payload = {
+            "telegram_id": target,
+            "operation": operations[command],
+            "actor_telegram_id": user.id,
+            "actor_username": (user.username or ""),
+            "actor_name": (user.full_name or ""),
+        }
+
         expected = 3 if command in ("/p+", "/ref+") else 2
         if len(parts) != expected:
             raise ValueError("Формат: /p+ ID 1|2|3 · /p- ID · /ref+ ID КОД · /ref- ID")
+
         if command == "/p+":
             if parts[2] not in ("1", "2", "3"):
                 raise ValueError("Уровень: 1, 2 или 3")
             payload["level"] = int(parts[2])
+
         if command == "/ref+":
             payload["code"] = parts[2].upper()
+
         result = await call_server_async("admin_partner_manage", **payload)
-        await update.effective_message.reply_text(f"✅ Изменения для {target} сохранены" if result.get("ok") else "❌ " + str(result.get("error", "Ошибка сервера")))
+        await message.reply_text(
+            f"✅ Изменения для {target} сохранены"
+            if result.get("ok")
+            else "❌ " + str(result.get("error", "Ошибка сервера"))
+        )
     except (ValueError, KeyError) as error:
-        await update.effective_message.reply_text("❌ " + str(error))
+        await message.reply_text("❌ " + str(error))
 
 
 async def partner_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -1266,7 +1385,9 @@ def commands_text():
         "/p- ID — снять партнёрку\n"
         "/ref+ ID КОД — назначить партнёрский код\n"
         "/ref- ID — отключить партнёрский код\n"
-        "/refs — список партнёрских кодов\n\n"
+        "/refs — список партнёрских кодов\n"
+        "/pp+ ID — разрешить игроку выдавать и снимать партнёрку через /p+ и /p-\n"
+        "/pp- ID — забрать право выдавать и снимать партнёрку\n\n"
         "/promo КОД АКТИВАЦИИ МОНЕТЫ — создать обычное промо\n"
         "/promo+ КОЛ-ВО АКТИВАЦИИ МОНЕТЫ — случайные платёжные промо, отыгрыш x1.2\n"
         "/promoff КОД — отключить промо\n"
@@ -1323,6 +1444,15 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"👤 {operator.get('display_name', '—')}\n"
             f"📏 Заявки до {int(float(operator.get('max_amount', 0) or 0))} X\n"
             "Ожидай новые заявки в этом чате."
+        )
+        return
+
+    partner_grant_access = await get_partner_grant_access(user.id)
+    if partner_grant_access.get("ok") and partner_grant_access.get("allowed"):
+        await update.message.reply_text(
+            "🤝 ДОСТУП К ВЫДАЧЕ ПАРТНЁРКИ\n\n"
+            "Команда:\n/p+ TELEGRAM_ID 1|2|3\n\n"
+            "Можно только выдавать партнёрку. Владелец получает уведомление о каждой выдаче."
         )
         return
 
@@ -2755,6 +2885,7 @@ def main():
         )
     )
     app.add_handler(CommandHandler("smo", smo_command))
+    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^/pp[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"), partner_permission_command))
     app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^/(?:p|ref)[+-](?:@[A-Za-z0-9_]+)?(?:\s|$)"), partner_command))
     app.add_handler(CommandHandler("refs", partner_list))
     app.add_handler(CallbackQueryHandler(partner_list, pattern=r"^partner_list_\d+$"))

@@ -10011,6 +10011,44 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
 @media(prefers-reduced-motion:reduce){.rx-emblem,body .page.active{animation:none!important}body #casesPage .case-card{transition:none!important}body #casesPage .case-card:hover{transform:none!important}}
 
 </style>
+
+<style id="brainroterx-quests-ui">
+#ladderPage .quest-shell{display:flex;flex-direction:column;gap:12px}
+#ladderPage .quest-header-minimal{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:22px;background:linear-gradient(145deg,rgba(23,18,37,.96),rgba(10,11,20,.98));border:1px solid rgba(255,255,255,.05);box-shadow:0 16px 36px rgba(0,0,0,.24)}
+#ladderPage .quest-header-logo{position:relative;width:58px;height:58px;flex:0 0 58px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#181328,#0c0d16);border:1px solid rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 24px rgba(0,0,0,.26)}
+#ladderPage .quest-header-logo-core{position:relative;z-index:2;font-size:28px;filter:drop-shadow(0 0 12px rgba(236,72,153,.22))}
+#ladderPage .quest-header-logo-glow{position:absolute;inset:auto auto -12px -8px;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.42) 0%,rgba(168,85,247,.08) 50%,transparent 72%)}
+#ladderPage .quest-header-text h2{margin:0;font-size:23px;line-height:1;font-weight:1000;color:#fff}
+#ladderPage .quest-header-text p{margin:5px 0 0;color:#a8a0bb;font-size:10px;line-height:1.4;font-weight:800}
+#ladderPage .quest-group{padding:12px;border-radius:22px;background:linear-gradient(155deg,rgba(20,18,35,.96),rgba(11,11,21,.98));border:1px solid rgba(255,255,255,.055)}
+#ladderPage .quest-group-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
+#ladderPage .quest-group-head span{display:block;color:#9f97b6;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+#ladderPage .quest-group-head h3{margin:3px 0 0;font-size:16px;font-weight:950;color:#fff}
+#ladderPage .quest-group-head b{min-width:46px;padding:7px 9px;border-radius:12px;text-align:center;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.18);color:#ddd6fe;font-size:10px;font-weight:1000}
+#ladderPage .quest-grid{display:grid;gap:9px}
+#ladderPage .quest-card{position:relative;overflow:hidden;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(33,25,50,.96),rgba(16,13,28,.98));border:1px solid rgba(255,255,255,.055)}
+#ladderPage .quest-card::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)}
+#ladderPage .quest-top{display:flex;align-items:center;gap:10px}
+#ladderPage .quest-reward-thumb{width:54px;height:54px;flex:0 0 54px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.06);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+#ladderPage .quest-reward-thumb img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
+#ladderPage .quest-reward-thumb .quest-fallback-icon{position:relative;width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;background:linear-gradient(145deg,#9f67ff,#5b35db);box-shadow:0 10px 18px rgba(91,53,219,.26),inset 0 1px 0 rgba(255,255,255,.18)}
+#ladderPage .quest-reward-thumb .quest-fallback-icon::after{content:"";position:absolute;inset:auto -4px -8px auto;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 72%)}
+#ladderPage .quest-copy{min-width:0;flex:1}
+#ladderPage .quest-title{margin-top:0;color:#fff;font-size:13px;font-weight:950;line-height:1.28}
+#ladderPage .quest-reward{margin-top:4px;color:#f5d167;font-size:10px;font-weight:900}
+#ladderPage .quest-progress-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;color:#b5adc6;font-size:9px;font-weight:900}
+#ladderPage .quest-progress-bar{height:8px;margin-top:6px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+#ladderPage .quest-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#8b5cf6,#ec4899);box-shadow:0 0 15px rgba(168,85,247,.3)}
+#ladderPage .quest-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:11px}
+#ladderPage .quest-status{font-size:9px;font-weight:1000;color:#a1a1aa}
+#ladderPage .quest-btn{padding:10px 12px;border:none;border-radius:12px;color:#fff;font-size:10px;font-weight:1000;background:linear-gradient(135deg,#7c3aed,#a855f7);box-shadow:0 10px 18px rgba(124,58,237,.18)}
+#ladderPage .quest-btn.claim{background:linear-gradient(135deg,#16a34a,#22c55e)}
+#ladderPage .quest-btn.done{background:rgba(255,255,255,.07);color:#a1a1aa;box-shadow:none}
+#ladderPage .quest-ticket-bar{display:flex;flex-wrap:wrap;gap:7px;padding:10px 12px;border-radius:18px;background:linear-gradient(145deg,rgba(17,24,39,.95),rgba(15,12,25,.95));border:1px solid rgba(255,255,255,.05)}
+#ladderPage .quest-ticket-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);color:#e9e5f7;font-size:9px;font-weight:950}
+#ladderPage .quest-ticket-chip img{width:18px;height:18px;object-fit:contain}
+@media(max-width:420px){#ladderPage .quest-group-head h3{font-size:15px}}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -10960,45 +10998,53 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
 </div>
 
 <div id="ladderPage" class="page">
-    <div class="ladder-panel">
-        <div class="ladder-title">
-            <div class="ladder-title-main">
-                <span class="ladder-title-icon">🪜</span>
-                <h2>Лесенка</h2>
+    <div class="quest-shell">
+        <div class="quest-header-minimal">
+            <div class="quest-header-logo" aria-hidden="true">
+                <svg viewBox="0 0 48 48" class="quest-logo-svg">
+                    <path class="quest-logo-ring" d="M24 5.5a18.5 18.5 0 1 0 0 37 18.5 18.5 0 0 0 0-37Z"/>
+                    <path class="quest-logo-bolt" d="M27.4 10.5 16.8 25h7.1l-3.2 12.5L31.8 22h-7.2l2.8-11.5Z"/>
+                </svg>
+                <span class="quest-header-logo-glow"></span>
             </div>
-            <div class="ladder-max">MAX ×15</div>
+            <div class="quest-header-text">
+                <h2>Квесты</h2>
+            </div>
         </div>
 
-        <div id="ladderBoard" class="ladder-board"></div>
+        <div id="questTicketBar" class="quest-ticket-bar" hidden></div>
 
-        <div id="ladderStakeVisual" class="ladder-stake-visual">
-            <div class="ladder-big-coin">ⓧ</div>
-            <div class="ladder-stake-name">Выбери ставку</div>
+        <div class="quest-group">
+            <div class="quest-group-head">
+                <div class="quest-group-name"><span class="quest-section-mark">H</span><h3>Часовые</h3></div>
+                <b id="questHourCount">0/3</b>
+            </div>
+            <div id="hourlyQuests" class="quest-grid"></div>
         </div>
 
-        <div id="ladderSetup">
-            <div class="ladder-tabs">
-                <button id="ladderCoinTab" class="ladder-tab active" onclick="setLadderStakeMode('coins')">ⓧ Монеты</button>
-                <button id="ladderBrainrotTab" class="ladder-tab" onclick="setLadderStakeMode('brainrot')">🧠 Brainrot</button>
+        <div class="quest-group">
+            <div class="quest-group-head">
+                <div class="quest-group-name"><span class="quest-section-mark">D</span><h3>Дневные</h3></div>
+                <b id="questDayCount">0/3</b>
             </div>
-
-            <div id="ladderCoinsSetup">
-                <input id="ladderCoinAmount" class="ladder-input" inputmode="numeric" type="number" min="30" placeholder="Ставка от 30 ⓧ" oninput="renderLadderStakeVisual()">
-            </div>
-
-            <div id="ladderBrainrotSetup" style="display:none">
-                <div id="ladderInventory" class="ladder-inventory"></div>
-            </div>
-
-            <button class="ladder-start" onclick="startLadder()">ИГРАТЬ</button>
+            <div id="dailyQuestGrid" class="quest-grid"></div>
         </div>
 
-        <div id="ladderActions" class="ladder-actions" style="display:none">
-            <button class="ladder-cash" onclick="cashoutLadder()">ЗАБРАТЬ</button>
-            <button class="ladder-next" onclick="stepLadder()">РИСКНУТЬ</button>
+        <div class="quest-group">
+            <div class="quest-group-head">
+                <div class="quest-group-name"><span class="quest-section-mark">W</span><h3>Недельный</h3></div>
+                <b id="questWeekCount">0/1</b>
+            </div>
+            <div id="weeklyQuestGrid" class="quest-grid"></div>
         </div>
 
-        <div id="ladderStatus" class="ladder-status"></div>
+        <div class="quest-group">
+            <div class="quest-group-head">
+                <div class="quest-group-name"><span class="quest-section-mark">∞</span><h3>Постоянный</h3></div>
+                <b id="questPermanentCount">0/1</b>
+            </div>
+            <div id="permanentQuestGrid" class="quest-grid"></div>
+        </div>
     </div>
 </div>
 
@@ -11280,9 +11326,9 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
         class="nav-btn"
         onclick="showPage('ladder')"
     >
-        🪜
+        🎯
         <br>
-        Лестница
+        Квесты
     </button>
 
     <button
@@ -11380,7 +11426,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
                 0
             </b>
 
-            / 10
+            / 5
 
             <br><br>
 
@@ -14335,8 +14381,7 @@ function showPage(
     if(
         page === "ladder"
     ){
-        renderLadder();
-        renderLadderInventory();
+        if(typeof renderQuestPage === "function") renderQuestPage();
     }
 
     if(
@@ -14805,22 +14850,29 @@ function renderBigWins(animateIds = new Set()){
     hideFeedSourceFullscreen();
     const root=document.getElementById("bigWinsTrack");
     if(!root) return;
-    root.innerHTML="";
+    const oldCards=new Map([...root.querySelectorAll('.big-win-item')].map(el=>[el.dataset.feedId,el]));
+    const oldPositions=new Map([...oldCards].map(([id,el])=>[id,el.getBoundingClientRect().left]));
+    const fragment=document.createDocumentFragment();
     const items=Array.isArray(bigWins)?bigWins.slice(0,15):[];
     if(!items.length){
         const empty=document.createElement("div");
         empty.className="big-wins-empty";
         empty.innerText=bigWins.length?"Новые выигрыши появятся через несколько секунд":"Пока нет крупных выигрышей";
-        root.appendChild(empty);
+        root.replaceChildren(empty);
         return;
     }
     items.forEach(item=>{
+        const key=String(item.id??'');
+        const signature=JSON.stringify(item);
+        const existing=oldCards.get(key);
+        if(existing&&existing.dataset.feedSignature===signature){fragment.appendChild(existing);return;}
         const card=document.createElement("button");
         card.type="button";
+        card.dataset.feedId=key;card.dataset.feedSignature=signature;
         const itemId=String(item.id ?? "");
         card.className="big-win-item";
         if(Number(item.value||0)>=100) card.classList.add("big-win-gold");
-        if(animateIds.has(itemId)) card.classList.add("big-win-new");
+
         card.title=String(item.brainrot_name||"");
         card.onclick=(event)=>{
             event.preventDefault();
@@ -14884,8 +14936,19 @@ function renderBigWins(animateIds = new Set()){
         price.textContent=`${Number(item.value||0)} ⓧ`;
         meta.appendChild(price);
         card.appendChild(meta);
-        root.appendChild(card);
+        fragment.appendChild(card);
     });
+    root.replaceChildren(fragment);
+    if(oldCards.size && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+        const positions=[...root.children].map(el=>[el,el.getBoundingClientRect().left]);
+        positions.forEach(([el,left])=>{
+            const old=oldPositions.get(el.dataset.feedId);
+            el.getAnimations().forEach(animation=>animation.cancel());
+            const dx=old===undefined?-(el.offsetWidth+10):old-left;
+            if(Math.abs(dx)>.5)el.animate([{transform:`translateX(${dx}px)`,opacity:old===undefined?0:1},{transform:'translateX(0)',opacity:1}],{duration:550,easing:'cubic-bezier(.22,1,.36,1)'});
+        });
+    }
+
 }
 
 async function refreshBigWins(){
@@ -17646,6 +17709,7 @@ async function openSelectedCase(){
         playerProfile.wager_progress=Number(data.wager_progress??playerProfile.wager_progress??0);
         playerProfile.can_withdraw=Boolean(playerProfile.has_deposited)&&playerProfile.wager_progress>=playerProfile.wager_required;
         state.winners=cinemaWinners(data);
+        if(typeof trackQuestCaseOpen === 'function') trackQuestCaseOpen(chosen.name,count);
         const added=[...(Array.isArray(data.items)?data.items:[]),...(data.item?[data.item]:[]),...state.winners.filter(item=>!cinemaIsCoins(item))];
         const known=new Set(inventory.map(item=>Number(item.id)));
         added.forEach(item=>{if(item?.id&&!known.has(Number(item.id))){inventory.unshift(item);known.add(Number(item.id));}});
@@ -19949,7 +20013,7 @@ async function spinNeedle(
     startUpgradeSpinSound(soundRate);
 
     rotor.style.transition =
-        `transform ${time}ms cubic-bezier(.06,.82,.12,1)`;
+        `transform ${time}ms cubic-bezier(.16,.65,.22,1)`;
 
     rotor.style.transform =
         `rotate(${needleRotation}deg)`;
@@ -20278,6 +20342,10 @@ async function upgradeItem(){
                 ??
                 playerProfile.upgrades_done
             );
+
+        if(typeof trackQuestUpgrade === 'function'){
+            trackQuestUpgrade(Number(source?.value || 0));
+        }
 
         if(
             data.win
@@ -21756,11 +21824,11 @@ function changeDeposit(
         &&
         getDepositCount()
         >=
-        10
+        5
     ){
 
         alert(
-            "Максимум 10 Brainrot"
+            "Максимум 5 Brainrot"
         );
 
         return;
@@ -22293,7 +22361,7 @@ function updateGearsDepositSummary(){
 }
 
 
-async function submitGearsDeposit(){
+async function submitGearsDeposit(resultId='gearsDepositResult'){
 
     const username =
         String(
@@ -22317,7 +22385,7 @@ async function submitGearsDeposit(){
 
     const result =
         document.getElementById(
-            "gearsDepositResult"
+            resultId
         );
 
     const button =
@@ -22342,10 +22410,12 @@ async function submitGearsDeposit(){
             })
         );
 
+    items.push(...Object.entries(depositSelection).filter(([,q])=>Number(q)>0).map(([id,q])=>({brainrot_id:Number(id),quantity:Number(q)})));
+    if(getDepositCount()>5)throw new Error('Максимум 5 Brainrot');
     if(!items.length){
         if(result){
             result.innerText =
-                "❌ Выбери Гирс";
+                "❌ Выбери Brainrot или Гирс";
         }
         return;
     }
@@ -22406,7 +22476,7 @@ async function submitGearsDeposit(){
         closeDeposit();
         startGearDepositTracking(data, Array.isArray(data.items) ? data.items : [], true);
         showToast(
-            `⚙️ Заявка Гирсами #${data.request_id} создана`,
+            `⚙️ Заявка на пополнение #${data.request_id} создана`,
             "info"
         );
 
@@ -22542,6 +22612,7 @@ function stopDepositTradeTracking(finalStatus, expired=false){
     document.getElementById("depositTradeFloating")?.classList.remove("active");
 
     if(finalStatus === "approved"){
+        if(typeof trackQuestDeposit === "function") trackQuestDeposit(Number(finishedRequest?.credited_value || finishedRequest?.total_value || 0));
         showDepositApprovedReceipt(finishedRequest);
         showToast(`✅ Пополнение #${requestId || ""} подтверждено`,"success");
         if(typeof silentSync === "function") silentSync();
@@ -22708,11 +22779,11 @@ function renderGearDepositStatus(){
     if(timer) timer.textContent=timerText;
     if(bot) bot.textContent=botText;
     if(state) state.textContent=req.trade_bot_username
-        ? "Зайди в Roblox и прими трейд Гирсов от выбранного бота."
-        : "Администратор выбирает бота для трейда Гирсов…";
+        ? "Зайди в Roblox и прими трейд предметов от выбранного бота."
+        : "Администратор выбирает бота для трейда предметов…";
     const title=document.getElementById("gearDepositFloatingTitle");
     const meta=document.getElementById("gearDepositFloatingMeta");
-    if(title) title.textContent=`Гирсы #${req.request_id} · ${timerText}`;
+    if(title) title.textContent=`Пополнение #${req.request_id} · ${timerText}`;
     if(meta) meta.textContent=botText;
     floating?.classList.add("active");
 }
@@ -22721,7 +22792,7 @@ function resetGearDepositReceiptPendingState(){
     const box=document.getElementById("gearDepositTradeBox");
     const total=document.getElementById("gearDepositReceiptTotal");
     const btn=document.getElementById("gearDepositReceiptDoneButton");
-    if(title) title.textContent="⚙️ Заявка на пополнение Гирсами";
+    if(title) title.textContent="⚙️ Заявка на пополнение";
     if(box) box.style.display="";
     if(total) total.classList.remove("deposit-approved-result","deposit-rejected-result");
     if(btn) btn.textContent="СКРЫТЬ";
@@ -22740,13 +22811,13 @@ function showGearDepositFinalReceipt(request,status,expired=false){
     if(box) box.style.display="none";
     items.innerHTML="";
     if(status==="approved"){
-        if(title) title.textContent="✅ Гирсы подтверждены";
+        if(title) title.textContent="✅ Пополнение подтверждено";
         sub.textContent=`Заявка #${id} успешно подтверждена`;
         total.className="deposit-receipt-total deposit-approved-result";
         total.innerHTML=`<div class="deposit-approved-check">✓</div><div class="deposit-approved-title">ЗАЯВКА ПОДТВЕРЖДЕНА</div><div class="deposit-approved-coins">+${credited} X</div><div class="deposit-approved-note">Монеты уже зачислены на баланс</div>`;
     }else{
         if(title) title.textContent=expired?"⌛ Время заявки истекло":"❌ Заявка отклонена";
-        sub.textContent=`Заявка Гирсами #${id}`;
+        sub.textContent=`Заявка на пополнение #${id}`;
         total.className="deposit-receipt-total deposit-rejected-result";
         total.innerHTML=`<div class="deposit-final-status-icon">${expired?"⌛":"✕"}</div><div class="deposit-final-status-title">${expired?"ВРЕМЯ ИСТЕКЛО":"ЗАЯВКА ОТКЛОНЕНА"}</div>`;
     }
@@ -22761,7 +22832,10 @@ function stopGearDepositTracking(status,expired=false){
     activeGearDepositRequest=null;
     document.getElementById("gearDepositFloating")?.classList.remove("active");
     if(finished && status!=="none") showGearDepositFinalReceipt(finished,status,expired);
-    if(status==="approved" && typeof silentSync==="function") silentSync();
+    if(status==="approved"){
+        if(typeof trackQuestDeposit === "function") trackQuestDeposit(Number(finished?.credited_value || finished?.total_value || 0));
+        if(typeof silentSync==="function") silentSync();
+    }
 }
 async function pollGearDepositStatus(){
     const requestId=Number(activeGearDepositRequest?.request_id||0);
@@ -22889,7 +22963,10 @@ function stopUahDepositTracking(status,expired=false){
     const finished=activeUahDepositRequest?{...activeUahDepositRequest}:null;
     activeUahDepositRequest=null;document.getElementById("uahDepositFloating")?.classList.remove("active");
     if(finished&&status!=="none")showUahDepositFinalReceipt(finished,status,expired);
-    if(status==="approved"&&typeof silentSync==="function")silentSync();
+    if(status==="approved"){
+        if(typeof trackQuestDeposit === "function") trackQuestDeposit(Number(finished?.credited_coins || finished?.coins || 0));
+        if(typeof silentSync==="function")silentSync();
+    }
 }
 async function pollUahDepositStatus(){
     const id=Number(activeUahDepositRequest?.request_id||0);
@@ -25586,7 +25663,7 @@ loadPlayer()
 <div id="gearDepositReceiptOverlay" class="deposit-receipt-overlay" onclick="closeGearDepositReceipt(event)">
   <div class="deposit-receipt-card" onclick="event.stopPropagation()">
     <div class="deposit-receipt-head">
-      <span id="gearDepositReceiptTitle">⚙️ Заявка на пополнение Гирсами</span>
+      <span id="gearDepositReceiptTitle">⚙️ Заявка на пополнение</span>
       <span onclick="closeGearDepositReceipt()" style="cursor:pointer">✕</span>
     </div>
     <div id="gearDepositReceiptSub" class="deposit-receipt-sub"></div>
@@ -25594,7 +25671,7 @@ loadPlayer()
       <div class="deposit-trade-timer-row"><span>⏱ Время на трейд</span><b id="gearDepositTradeTimer">05:00</b></div>
       <div class="deposit-trade-warning">У вас есть 5 минут, чтобы зайти в игру и принять трейд Гирсов.</div>
       <div class="deposit-trade-bot-row"><span>Ник бота</span><b id="gearDepositTradeBot">Ожидаем выбора бота…</b></div>
-      <div id="gearDepositTradeStateText" class="deposit-trade-state-text">Администратор выбирает бота для трейда Гирсов…</div>
+      <div id="gearDepositTradeStateText" class="deposit-trade-state-text">Администратор выбирает бота для трейда предметов…</div>
     </div>
     <div id="gearDepositReceiptItems" class="deposit-receipt-items"></div>
     <div id="gearDepositReceiptTotal" class="deposit-receipt-total"></div>
@@ -28757,7 +28834,7 @@ body #dicePage .dice-item.selected::after{content:""!important;background:url("d
 (() => {
     "use strict";
     const symbols = {"🎁": "case", "🎰": "case", "⚡": "bolt", "🎲": "dice", "🪜": "ladder", "👤": "user", "👥": "users", "⚙": "gear", "🛠": "gear", "🧠": "brain", "💰": "wallet", "🪙": "coin", "💸": "withdraw", "📤": "withdraw", "➕": "add", "✨": "spark", "🎉": "spark", "🔥": "flame", "💎": "gem", "📦": "box", "🎟": "ticket", "🎒": "bag", "🏆": "cup", "💬": "chat", "🕘": "clock", "✅": "check", "✓": "check", "✕": "cross", "❌": "error", "⚠": "warning", "❓": "question", "🔊": "sound", "🔇": "mute", "⭐": "star", "🔄": "swap", "💱": "swap", "📣": "megaphone", "🎯": "target", "🎥": "video", "🔎": "search", "🤝": "handshake", "🧪": "flask", "🎭": "mask", "🍀": "clover", "☾": "moon", "☄": "comet", "⌛": "hourglass", "💥": "burst", "⛔": "error", "🟡": "clock", "☣": "shield"};
-    const labels = {"case": "Кейс", "bolt": "Апгрейд", "dice": "Дайсы", "ladder": "Лестница", "user": "Профиль", "users": "Рефералы", "gear": "Настройки", "brain": "Brainrot", "coin": "Монеты", "wallet": "Баланс", "withdraw": "Вывод", "add": "Пополнение", "spark": "Новое", "flame": "Крупные выигрыши", "gem": "Мистери", "box": "Предметы", "ticket": "Промокод", "bag": "Инвентарь", "cup": "Лучший дроп", "chat": "Поддержка", "clock": "История", "check": "Успешно", "cross": "Закрыть", "error": "Ошибка", "warning": "Внимание", "question": "Мистери", "sound": "Звук включён", "mute": "Звук выключен", "star": "Звёзды", "swap": "Обмен", "megaphone": "Канал", "target": "Отыгрыш", "video": "Стример", "search": "Поиск", "handshake": "Партнёры", "flask": "Тест", "mask": "Режим", "clover": "Удача", "moon": "Луна", "comet": "Метеор", "hourglass": "Ожидание", "burst": "Результат", "shield": "Защита"};
+    const labels = {"case": "Кейс", "bolt": "Апгрейд", "dice": "Дайсы", "ladder": "Квесты", "user": "Профиль", "users": "Рефералы", "gear": "Настройки", "brain": "Brainrot", "coin": "Монеты", "wallet": "Баланс", "withdraw": "Вывод", "add": "Пополнение", "spark": "Новое", "flame": "Крупные выигрыши", "gem": "Мистери", "box": "Предметы", "ticket": "Промокод", "bag": "Инвентарь", "cup": "Лучший дроп", "chat": "Поддержка", "clock": "История", "check": "Успешно", "cross": "Закрыть", "error": "Ошибка", "warning": "Внимание", "question": "Мистери", "sound": "Звук включён", "mute": "Звук выключен", "star": "Звёзды", "swap": "Обмен", "megaphone": "Канал", "target": "Отыгрыш", "video": "Стример", "search": "Поиск", "handshake": "Партнёры", "flask": "Тест", "mask": "Режим", "clover": "Удача", "moon": "Луна", "comet": "Метеор", "hourglass": "Ожидание", "burst": "Результат", "shield": "Защита"};
     const pattern = new RegExp("(" + Object.keys(symbols).join("|") + ")\\uFE0F?", "gu");
     const excluded = "script,style,textarea,input,select,option,svg,canvas,[contenteditable],.brx-symbol";
     const decorate = node => {
@@ -29151,6 +29228,168 @@ html body#sharp-app #casePresentationStage .cinema-sell-one{min-height:30px!impo
  html body#sharp-app #casePresentationStage .cinema-reel-item img{height:46px!important;width:66px!important;}
 }
 </style>
+
+
+<style id="brainroterx-quests-polish-v2">
+html body#sharp-app #ladderPage{max-width:620px;margin-inline:auto}
+html body#sharp-app #ladderPage .quest-shell{gap:10px!important}
+html body#sharp-app #ladderPage .quest-header-minimal{min-height:66px;padding:10px 12px!important;border-radius:18px!important;background:linear-gradient(145deg,rgba(21,25,37,.98),rgba(11,13,21,.99))!important;border:1px solid rgba(138,169,214,.13)!important;box-shadow:0 10px 26px rgba(0,0,0,.2)!important}
+html body#sharp-app #ladderPage .quest-header-logo{width:46px!important;height:46px!important;flex:0 0 46px!important;border-radius:14px!important;background:linear-gradient(145deg,rgba(89,127,190,.22),rgba(49,75,118,.12))!important;border:1px solid rgba(153,188,238,.2)!important}
+html body#sharp-app #ladderPage .quest-logo-svg{position:relative;z-index:2;width:31px;height:31px;overflow:visible}
+html body#sharp-app #ladderPage .quest-logo-ring{fill:none;stroke:#8db6f3;stroke-width:2.2;opacity:.55}
+html body#sharp-app #ladderPage .quest-logo-bolt{fill:#b9d5ff;filter:drop-shadow(0 0 6px rgba(134,178,245,.35))}
+html body#sharp-app #ladderPage .quest-header-logo-glow{width:52px!important;height:52px!important;left:-9px!important;bottom:-18px!important;background:radial-gradient(circle,rgba(97,151,230,.35),transparent 68%)!important}
+html body#sharp-app #ladderPage .quest-header-text h2{font-family:"Unbounded","Manrope",sans-serif!important;font-size:18px!important;letter-spacing:-.02em!important}
+html body#sharp-app #ladderPage .quest-group{padding:10px!important;border-radius:18px!important;background:linear-gradient(160deg,rgba(18,22,32,.97),rgba(11,13,20,.99))!important;border:1px solid rgba(255,255,255,.045)!important;box-shadow:0 8px 20px rgba(0,0,0,.15)!important}
+html body#sharp-app #ladderPage .quest-group-head{align-items:center!important;margin-bottom:8px!important}
+html body#sharp-app #ladderPage .quest-group-name{display:flex;align-items:center;gap:8px;min-width:0}
+html body#sharp-app #ladderPage .quest-section-mark{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(105,148,214,.11);border:1px solid rgba(142,181,238,.17);color:#aecdf8;font-family:"Unbounded",sans-serif;font-size:9px;font-weight:900}
+html body#sharp-app #ladderPage .quest-group-head h3{margin:0!important;font-size:13px!important;font-family:"Unbounded","Manrope",sans-serif!important;letter-spacing:-.02em!important}
+html body#sharp-app #ladderPage .quest-group-head b{min-width:42px!important;padding:5px 8px!important;border-radius:9px!important;background:rgba(104,143,205,.1)!important;border-color:rgba(141,180,235,.15)!important;color:#bcd6fb!important;font-size:9px!important}
+html body#sharp-app #ladderPage .quest-grid{gap:7px!important}
+html body#sharp-app #ladderPage .quest-card{padding:10px!important;border-radius:15px!important;background:linear-gradient(145deg,rgba(28,33,46,.92),rgba(16,19,28,.96))!important;border:1px solid rgba(255,255,255,.045)!important;box-shadow:none!important}
+html body#sharp-app #ladderPage .quest-card::before{background:linear-gradient(90deg,transparent,rgba(151,188,239,.16),transparent)!important}
+html body#sharp-app #ladderPage .quest-top{gap:9px!important}
+html body#sharp-app #ladderPage .quest-reward-thumb{width:46px!important;height:46px!important;flex-basis:46px!important;border-radius:12px!important;background:rgba(105,142,197,.08)!important;border-color:rgba(145,178,225,.1)!important}
+html body#sharp-app #ladderPage .quest-reward-thumb img{width:39px!important;height:39px!important}
+html body#sharp-app #ladderPage .quest-fallback-icon{width:34px!important;height:34px!important;border-radius:10px!important;background:linear-gradient(145deg,rgba(108,155,225,.32),rgba(72,105,158,.22))!important;box-shadow:none!important}
+html body#sharp-app #ladderPage .quest-mini-svg{width:23px;height:23px;fill:none;stroke:#bdd8ff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+html body#sharp-app #ladderPage .quest-mini-svg path:first-child{fill:rgba(140,184,247,.10)}
+html body#sharp-app #ladderPage .quest-title{font-size:11px!important;line-height:1.3!important;color:#f4f7fb!important}
+html body#sharp-app #ladderPage .quest-reward{margin-top:3px!important;color:#9fc2f4!important;font-size:9px!important}
+html body#sharp-app #ladderPage .quest-progress-chip{flex:0 0 auto;padding:5px 7px;border-radius:8px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.045);color:#aab7ca;font-size:8px;font-weight:900}
+html body#sharp-app #ladderPage .quest-progress-bar{height:5px!important;margin-top:8px!important;background:rgba(255,255,255,.045)!important}
+html body#sharp-app #ladderPage .quest-progress-fill{background:linear-gradient(90deg,#6695db,#8bb8f2)!important;box-shadow:none!important}
+html body#sharp-app #ladderPage .quest-actions{justify-content:flex-end!important;margin-top:8px!important}
+html body#sharp-app #ladderPage .quest-btn{min-width:92px!important;min-height:31px!important;height:31px!important;padding:0 12px!important;border-radius:9px!important;background:rgba(92,133,193,.16)!important;border:1px solid rgba(139,177,231,.22)!important;color:#cfe2ff!important;box-shadow:none!important;font-size:8px!important;letter-spacing:.02em}
+html body#sharp-app #ladderPage .quest-btn.claim{background:rgba(80,157,128,.16)!important;border-color:rgba(112,187,158,.25)!important;color:#bcebd8!important}
+html body#sharp-app #ladderPage .quest-btn.done{background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.05)!important;color:#6f7a8a!important;opacity:1!important}
+html body#sharp-app #ladderPage .quest-ticket-bar{padding:8px 10px!important;border-radius:14px!important;background:rgba(16,20,29,.92)!important;border-color:rgba(255,255,255,.045)!important}
+html body#sharp-app #ladderPage .quest-ticket-chip{padding:6px 8px!important;background:rgba(96,139,202,.08)!important;color:#c7d9f2!important}
+@media(max-width:380px){html body#sharp-app #ladderPage .quest-title{font-size:10px!important}html body#sharp-app #ladderPage .quest-btn{min-width:82px!important;padding-inline:9px!important}}
+</style>
+
+<script id="brainroterx-quests-logic">
+const QUESTS_STORAGE_KEY = "brainroterx_quests_v1";
+let questState = null;
+
+function questHourId(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}-${d.getHours()}`; }
+function questDayId(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+function questWeekId(){ const d=new Date(); const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const day=date.getUTCDay()||7; date.setUTCDate(date.getUTCDate()+4-day); const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1)); const week=Math.ceil((((date-yearStart)/86400000)+1)/7); return `${date.getUTCFullYear()}-W${week}`; }
+function defaultQuestState(){ return {hourId:questHourId(),dayId:questDayId(),weekId:questWeekId(),hour:{deposit:0,lavaka:0,anyCase:0,claimed:{}},day:{deposit:0,upgrade:0,upgradeCount:0,claimed:{}},week:{chaos:0,chaosTarget:Math.random()<0.5?2:3,claimed:{}},permanent:{deposit:0,claimed:{}},tickets:{"neon case":0,"noobini case":0,"overdrive case":0}}; }
+function loadQuestState(){ try{ const raw=JSON.parse(localStorage.getItem(QUESTS_STORAGE_KEY)||'null'); if(raw&&typeof raw==='object') return raw; }catch(_){ } return defaultQuestState(); }
+function saveQuestState(){ try{ localStorage.setItem(QUESTS_STORAGE_KEY, JSON.stringify(questState)); }catch(_){ } }
+function ensureQuestStateCurrent(){ if(!questState) questState = loadQuestState(); const h=questHourId(), d=questDayId(), w=questWeekId(); if(questState.hourId!==h){ questState.hourId=h; questState.hour={deposit:0,lavaka:0,anyCase:0,claimed:{}}; } if(questState.dayId!==d){ questState.dayId=d; questState.day={deposit:0,upgrade:0,upgradeCount:0,claimed:{}}; } if(questState.weekId!==w){ questState.weekId=w; questState.week={chaos:0,chaosTarget:Math.random()<0.5?2:3,claimed:{}}; } questState.hour=questState.hour||{deposit:0,lavaka:0,anyCase:0,claimed:{}}; questState.hour.claimed=questState.hour.claimed||{}; questState.hour.anyCase=Number(questState.hour.anyCase||0); questState.day=questState.day||{deposit:0,upgrade:0,upgradeCount:0,claimed:{}}; questState.day.claimed=questState.day.claimed||{}; questState.day.upgradeCount=Number(questState.day.upgradeCount||0); questState.week=questState.week||{chaos:0,chaosTarget:Math.random()<0.5?2:3,claimed:{}}; questState.week.claimed=questState.week.claimed||{}; questState.permanent = questState.permanent || {deposit:0,claimed:{}}; questState.permanent.claimed = questState.permanent.claimed || {}; questState.tickets = questState.tickets || {"neon case":0,"noobini case":0,"overdrive case":0}; saveQuestState(); return questState; }
+function questRewardLabel(reward){ if(reward.type==='coins') return `${reward.amount} ⓧ`; return reward.label || reward.caseName; }
+function questRewardImage(reward){ if(reward.type==='coins') return ''; try{ return caseImageFor({name:reward.caseName}) || ''; }catch(_){ return ''; } }
+function questFallbackIcon(quest){
+    const kind = String(quest?.action?.kind || '').toLowerCase();
+    if(kind === 'upgrade') return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M28.5 5 14 26h10l-4.2 17L34 21H24l4.5-16Z"/></svg>';
+    if(kind === 'case') return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M9 15.5 24 8l15 7.5v17L24 40 9 32.5v-17Z"/><path d="m9 15.5 15 7.7 15-7.7M24 23.2V40"/></svg>';
+    return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M9 20h30v20H9z"/><path d="M24 20v20M7 14h34v8H7z"/><path d="M24 14c-7 0-10-2.2-10-5 0-2 1.8-3.5 4-3.5 4.2 0 6 5.5 6 8.5Zm0 0c7 0 10-2.2 10-5 0-2-1.8-3.5-4-3.5-4.2 0-6 5.5-6 8.5Z"/></svg>';
+}
+function questTicketTitle(caseName){ const map={"neon case":"Неон кейс","noobini case":"Нубини кейс","overdrive case":"Овердрайф кейс"}; return map[String(caseName).toLowerCase()] || caseName; }
+function getQuestDefinitions(){ ensureQuestStateCurrent(); return [
+  {id:'hour_deposit_100', group:'hour', title:'Пополни баланс на 100 ⓧ', progress:questState.hour.deposit, target:100, reward:{type:'coins', amount:25, label:'25 коинов'}, action:{kind:'deposit'}, claimed:Boolean(questState.hour.claimed.hour_deposit_100)},
+  {id:'hour_lavaka_open', group:'hour', title:'Открой кейс Lavaka', progress:questState.hour.lavaka, target:1, reward:{type:'coins', amount:20, label:'20 коинов'}, action:{kind:'case', caseName:'lavaka case'}, claimed:Boolean(questState.hour.claimed.hour_lavaka_open)},
+  {id:'hour_any_cases_3', group:'hour', title:'Открой любые кейсы 3 раза', progress:questState.hour.anyCase, target:3, reward:{type:'coins', amount:15, label:'15 коинов'}, action:{kind:'case'}, claimed:Boolean(questState.hour.claimed.hour_any_cases_3)},
+  {id:'day_deposit_250', group:'day', title:'Пополни баланс на 250 ⓧ', progress:questState.day.deposit, target:250, reward:{type:'case', caseName:'neon case', label:'Неон кейс'}, action:{kind:'deposit'}, claimed:Boolean(questState.day.claimed.day_deposit_250)},
+  {id:'day_upgrade_100', group:'day', title:'Сделай апгрейд на 100 ⓧ', progress:questState.day.upgrade, target:100, reward:{type:'case', caseName:'noobini case', label:'Нубини кейс'}, action:{kind:'upgrade'}, claimed:Boolean(questState.day.claimed.day_upgrade_100)},
+  {id:'day_upgrade_count_3', group:'day', title:'Сделай 3 апгрейда', progress:questState.day.upgradeCount, target:3, reward:{type:'coins', amount:20, label:'20 коинов'}, action:{kind:'upgrade'}, claimed:Boolean(questState.day.claimed.day_upgrade_count_3)},
+  {id:'week_chaos_open', group:'week', title:`Открой кейс Chaos ${questState.week.chaosTarget} ${questState.week.chaosTarget===2?'раза':'раза'}`, progress:questState.week.chaos, target:Number(questState.week.chaosTarget||3), reward:{type:'coins', amount:39, label:'39 коинов'}, action:{kind:'case', caseName:'chaos case'}, claimed:Boolean(questState.week.claimed.week_chaos_open)},
+  {id:'perm_deposit_3500', group:'permanent', title:'Пополни баланс за всё время на 3500 ⓧ', progress:questState.permanent.deposit, target:3500, reward:{type:'case', caseName:'overdrive case', label:'Овердрайф кейс'}, action:{kind:'deposit'}, claimed:Boolean(questState.permanent.claimed.perm_deposit_3500)}
+]; }
+function questGroupArray(group){ return getQuestDefinitions().filter(q=>q.group===group); }
+function questCompletedCount(group){ const arr=questGroupArray(group); return arr.filter(q=>q.claimed).length; }
+function questClaimStore(group){ ensureQuestStateCurrent(); if(group==='hour') return questState.hour.claimed; if(group==='day') return questState.day.claimed; if(group==='week') return questState.week.claimed; return questState.permanent.claimed; }
+function questStateForGroup(group){ ensureQuestStateCurrent(); if(group==='hour') return questState.hour; if(group==='day') return questState.day; if(group==='week') return questState.week; return questState.permanent; }
+function questPercent(q){ return Math.max(0, Math.min(100, Math.round((Math.min(q.progress,q.target)/Math.max(1,q.target))*100))); }
+function questButtonState(q){ if(q.claimed) return {text:'ПОЛУЧЕНО', cls:'done', disabled:true}; if(q.progress>=q.target) return {text:'ЗАБРАТЬ', cls:'claim', disabled:false}; return {text:'ВЫПОЛНИТЬ', cls:'go', disabled:false}; }
+function renderQuestCards(group, rootId){ const root=document.getElementById(rootId); if(!root) return; const quests=questGroupArray(group); root.innerHTML=''; quests.forEach(q=>{ const state=questButtonState(q); const rewardImage=questRewardImage(q.reward); const fallback=questFallbackIcon(q); const current=Math.min(Number(q.progress||0),Number(q.target||0)); const card=document.createElement('div'); card.className='quest-card'; card.innerHTML=`<div class="quest-top"><div class="quest-reward-thumb">${rewardImage?`<img src="${rewardImage}" alt="">`:`<div class="quest-fallback-icon">${fallback}</div>`}</div><div class="quest-copy"><div class="quest-title">${q.title}</div><div class="quest-reward">${questRewardLabel(q.reward)}</div></div><div class="quest-progress-chip">${current}/${q.target}</div></div><div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${questPercent(q)}%"></div></div><div class="quest-actions"><button class="quest-btn ${state.cls}" ${state.disabled?'disabled':''} onclick="handleQuestAction('${q.id}')">${state.text}</button></div>`; root.appendChild(card); }); }
+function renderQuestTicketBar(){ ensureQuestStateCurrent(); const root=document.getElementById('questTicketBar'); if(!root) return; const entries=Object.entries(questState.tickets||{}).filter(([,count])=>Number(count)>0); if(!entries.length){ root.hidden=true; root.innerHTML=''; return; } root.hidden=false; root.innerHTML=entries.map(([caseName,count])=>`<div class="quest-ticket-chip"><img src="${questRewardImage({type:'case',caseName})}" alt=""><span>${questTicketTitle(caseName)} ×${Number(count)}</span></div>`).join(''); }
+function renderQuestPage(){ ensureQuestStateCurrent(); renderQuestCards('hour','hourlyQuests'); renderQuestCards('day','dailyQuestGrid'); renderQuestCards('week','weeklyQuestGrid'); renderQuestCards('permanent','permanentQuestGrid'); const hour=document.getElementById('questHourCount'); const day=document.getElementById('questDayCount'); const week=document.getElementById('questWeekCount'); const perm=document.getElementById('questPermanentCount'); if(hour) hour.textContent=`${questCompletedCount('hour')}/3`; if(day) day.textContent=`${questCompletedCount('day')}/3`; if(week) week.textContent=`${questCompletedCount('week')}/1`; if(perm) perm.textContent=`${questCompletedCount('permanent')}/1`; renderQuestTicketBar(); }
+function handleQuestAction(id){ const quest=getQuestDefinitions().find(q=>q.id===id); if(!quest) return; if(quest.claimed) return; if(quest.progress>=quest.target){ claimQuestReward(quest); return; } openQuestTarget(quest); }
+function claimQuestReward(quest){ ensureQuestStateCurrent(); const claimed=questClaimStore(quest.group); if(claimed[quest.id]) return; claimed[quest.id]=true; if(quest.reward.type==='coins'){ coins = Number(coins||0) + Number(quest.reward.amount||0); if(typeof updateBalance==='function') updateBalance(); if(typeof renderProfile==='function') renderProfile(); showToast(`✅ Награда получена: +${Number(quest.reward.amount||0)} ⓧ`,'success'); } else { const key=String(quest.reward.caseName||'').toLowerCase(); questState.tickets[key]=Number(questState.tickets[key]||0)+1; showToast(`✅ Получен ${questTicketTitle(key)}`,'success'); } saveQuestState(); renderQuestPage(); }
+function selectQuestCaseByName(caseName){ if(!Array.isArray(cases) || !cases.length) return false; const norm=String(caseName||'').trim().toLowerCase(); const found=cases.find(item=>String(item?.name||'').trim().toLowerCase()===norm || String(item?.name||'').trim().toLowerCase().replace(/\s+/g,' ')===norm); if(found){ try{ selectCase(found.id); }catch(_){ } return true; } return false; }
+function openQuestTarget(quest){ if(!quest||!quest.action) return; const action=quest.action; if(action.kind==='deposit'){ if(typeof openDeposit==='function') openDeposit(); return; } if(action.kind==='upgrade'){ if(typeof showPage==='function') showPage('upgrader'); return; } if(action.kind==='case'){ if(typeof showPage==='function') showPage('cases'); if(action.caseName) setTimeout(()=>{ selectQuestCaseByName(action.caseName); }, 50); return; } }
+function trackQuestDeposit(amount){ ensureQuestStateCurrent(); const value=Math.max(0, Number(amount||0)); if(!value) return; questState.hour.deposit = Number(questState.hour.deposit||0) + value; questState.day.deposit = Number(questState.day.deposit||0) + value; questState.permanent.deposit = Number(questState.permanent.deposit||0) + value; saveQuestState(); if(document.getElementById('ladderPage')?.classList.contains('active')) renderQuestPage(); }
+function trackQuestUpgrade(amount){ ensureQuestStateCurrent(); const value=Math.max(0, Number(amount||0)); if(!value) return; questState.day.upgrade = Number(questState.day.upgrade||0) + value; questState.day.upgradeCount = Number(questState.day.upgradeCount||0) + 1; saveQuestState(); if(document.getElementById('ladderPage')?.classList.contains('active')) renderQuestPage(); }
+function trackQuestCaseOpen(caseName,count=1){ ensureQuestStateCurrent(); const norm=String(caseName||'').trim().toLowerCase(); const qty=Math.max(1, Number(count||1)); questState.hour.anyCase = Number(questState.hour.anyCase||0) + qty; if(norm==='lavaka case') questState.hour.lavaka = Math.min(1, Number(questState.hour.lavaka||0) + qty); if(norm==='chaos case') questState.week.chaos = Number(questState.week.chaos||0) + qty; saveQuestState(); if(document.getElementById('ladderPage')?.classList.contains('active')) renderQuestPage(); }
+window.addEventListener('load', ()=>{ ensureQuestStateCurrent(); renderQuestPage(); });
+</script>
+
+
+<style id="upgrader-fast-buttons-size-fix">
+/* Upgrader quick presets: six perfectly equal buttons, including Mystery. */
+html body#sharp-app #upgraderPage .fast-buttons{
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+    gap:6px!important;
+    width:100%!important;
+    margin:10px 0!important;
+}
+html body#sharp-app #upgraderPage .fast-buttons > .fast-btn,
+html body#sharp-app #upgraderPage .fast-buttons > .mystery-wrap{
+    width:100%!important;
+    min-width:0!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    margin:0!important;
+}
+html body#sharp-app #upgraderPage .fast-buttons > .fast-btn{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0 2px!important;
+    border-radius:10px!important;
+    font-size:10px!important;
+    line-height:1!important;
+}
+html body#sharp-app #upgraderPage .mystery-wrap{
+    position:relative!important;
+    display:block!important;
+    padding:0!important;
+}
+html body#sharp-app #upgraderPage .mystery-crystal{
+    width:100%!important;
+    min-width:0!important;
+    height:40px!important;
+    min-height:40px!important;
+    max-height:40px!important;
+    margin:0!important;
+    padding:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:10px!important;
+    border-width:1px!important;
+    animation:none!important;
+    box-shadow:none!important;
+}
+html body#sharp-app #upgraderPage .mystery-crystal::before,
+html body#sharp-app #upgraderPage .mystery-crystal::after{
+    display:none!important;
+    content:none!important;
+}
+html body#sharp-app #upgraderPage .mystery-question{
+    position:static!important;
+    display:block!important;
+    transform:none!important;
+    font-size:17px!important;
+    line-height:1!important;
+}
+html body#sharp-app #upgraderPage .mystery-label{
+    display:none!important;
+}
+@media(max-width:390px){
+    html body#sharp-app #upgraderPage .fast-buttons{gap:4px!important;}
+    html body#sharp-app #upgraderPage .fast-buttons > .fast-btn{font-size:9px!important;}
+}
+</style>
+
 </body>
 
 </html>
@@ -29336,7 +29575,7 @@ html body#sharp-app #profilePromoCard .promo-input{min-width:0!important;padding
  const handlers={redeemPromo:'promoResult',claimReferral:'referralResult',submitDeposit:'depositResult',submitGearsDeposit:'gearsDepositResult',submitUahDeposit:'uahDepositResult',submitStarsDeposit:'starsDepositResult',exchangeItem:'exchangeResultText',adminApplyCoins:'adminCoinResult',adminApplyChanceMultiplier:'adminChanceResult',partnerRun:'partnerResult',confirmSellAll:'sellAllResult',submitWithdraw:'withdrawResult',submitWithdrawInternal:'withdrawResult'};
  for(const [name,id] of Object.entries(handlers)){
   const original=window[name],entry=byId.get(id);if(typeof original!=='function'||!entry)continue;
-  window[name]=async function(...args){const revision=entry.revision;try{return await original.apply(this,args);}finally{if(revision!==entry.revision||!visible(entry))clear(entry);}};
+  window[name]=async function(...args){const entry=byId.get(name==='submitGearsDeposit'&&args[0]==='depositResult'?'depositResult':id);const revision=entry.revision;try{return await original.apply(this,args);}finally{if(revision!==entry.revision||!visible(entry))clear(entry);}};
  }
 })();
 
@@ -29347,3 +29586,45 @@ html body#sharp-app #casePresentationStage,
 html body#sharp-app #casePresentationStage :is(#caseCinema,#caseIdleReels,.cinema-dialog,.cinema-drops,.cinema-drop,.cinema-window){min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
 html body#sharp-app #casePresentationStage #caseCinema .cinema-window{width:100%!important;}
 </style>
+
+<style id="smooth-wheel-feed">
+html body#sharp-app .upgrade-wheel-wrap{overflow:visible!important;}
+html body#sharp-app .needle-rotor{inset:0!important;transform-origin:50% 50%!important;will-change:transform;}
+html body#sharp-app .upgrade-needle{top:-17px!important;height:15px!important;width:14px!important;filter:none!important;}
+html body#sharp-app .upgrade-needle::after{display:none!important;}
+html body#sharp-app .big-win-item{animation:none!important;}
+.mixed-basket-note{margin:8px 0;color:#a9c3e9;font-size:12px;line-height:1.5;}
+</style>
+<script id="mixed-deposit-basket">
+(()=>{
+ let sending=false;
+ const originalBrain=submitDeposit,originalGear=submitGearsDeposit;
+ const snapshot=()=>({brain:getDepositCount(),gear:getGearsDepositCount(),total:Object.entries(depositSelection).reduce((sum,[id,q])=>{const item=brainrots.find(x=>Number(x.brainrot_id)===Number(id));return sum+(item?getBrainrotDepositValue(item)*Number(q):0)},0)+Object.entries(gearsDepositSelection).reduce((sum,[id,q])=>sum+Number(GEARS_DEPOSIT_ITEMS.find(x=>x.id===id)?.value||0)*Number(q),0)});
+ function summary(){
+  const basket=snapshot();
+  for(const [panel,id] of [['depositBrainrotTab','depositTotal'],['depositGearsTab','gearsDepositTotal']]){
+   const total=document.getElementById(id);if(total)total.textContent=basket.total;
+   const root=document.getElementById(panel)||document.getElementById(id)?.closest('.deposit-tab-panel');if(!root)continue;
+   let note=root.querySelector('.mixed-basket-note');if(!note){note=document.createElement('div');note.className='mixed-basket-note';root.querySelector('.deposit-summary')?.after(note);}
+   note.textContent=`Одна заявка: ${basket.brain}/5 Brainrot и ${basket.gear}/10 Гирсов. Выбор сохраняется при переключении вкладок.`;
+  }
+ }
+ for(const name of ['updateDepositSummary','updateGearsDepositSummary']){const fn=window[name];window[name]=function(...args){const value=fn.apply(this,args);summary();return value;};}
+ for(const [a,b] of [['depositRoblox','gearsDepositRoblox'],['depositReferral','gearsDepositReferral']])for(const [from,to] of [[a,b],[b,a]])document.getElementById(from)?.addEventListener('input',e=>{document.getElementById(to).value=e.target.value;});
+ async function send(kind){
+  if(sending)return;
+  const result=document.getElementById(kind==='brain'?'depositResult':'gearsDepositResult');
+  const basket=snapshot();if(basket.brain>5||basket.gear>10){result.textContent='Максимум 5 Brainrot и 10 Гирсов за заявку';return;}
+  const prefix=kind==='brain'?'deposit':'gearsDeposit',other=kind==='brain'?'gearsDeposit':'deposit';
+  for(const suffix of ['Roblox','Referral'])document.getElementById(other+suffix).value=document.getElementById(prefix+suffix).value;
+  sending=true;
+  const buttons=['depositSubmitButton','gearsDepositSubmitButton'].map(id=>document.getElementById(id));buttons.forEach(b=>b.disabled=true);
+  try{
+   if(basket.gear>0||kind==='gear'){
+    await originalGear(kind==='brain'?'depositResult':'gearsDepositResult');
+   }else await originalBrain();
+  }finally{sending=false;buttons.forEach(b=>b.disabled=false);}
+ }
+ submitDeposit=()=>send('brain');submitGearsDeposit=()=>send('gear');
+})();
+</script>
