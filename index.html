@@ -10277,7 +10277,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
         <div class="big-wins-title-row">
 
             <div class="big-wins-title">
-                🔥 Последние крупные выигрыши
+                🔥 Последние дропы
             </div>
 
 
@@ -11050,7 +11050,7 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
             <div class="quest-nickname-icon">🎁</div>
             <div class="quest-nickname-copy">
                 <div class="quest-nickname-title">Бесплатный Noobini каждый день</div>
-                <div class="quest-nickname-text">Поставь в имя Telegram <b>@brainroterXbot</b> и забирай 1 бесплатный Noobini Case раз в день.</div>
+                <div class="quest-nickname-text">Добавь <b>@brainroterXbot</b> в имя Telegram.</div>
                 <div id="nicknameQuestExample" class="quest-nickname-example"></div>
                 <div id="nicknameQuestStatus" class="quest-nickname-status"></div>
             </div>
@@ -14955,18 +14955,42 @@ function renderBigWins(animateIds = new Set()){
         fragment.appendChild(card);
     });
     root.replaceChildren(fragment);
-    if(oldCards.size && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
         const positions=[...root.children].map(el=>[el,el.getBoundingClientRect().left]);
         positions.forEach(([el,left])=>{
             const old=oldPositions.get(el.dataset.feedId);
+            const numericId=Number(el.dataset.feedId || 0);
+            const isNew=old===undefined || animateIds.has(numericId);
             el.getAnimations().forEach(animation=>animation.cancel());
-            const dx=old===undefined?-(el.offsetWidth+10):old-left;
-            if(Math.abs(dx)>.5)el.animate([{transform:`translateX(${dx}px)`,opacity:old===undefined?0:1},{transform:'translateX(0)',opacity:1}],{duration:550,easing:'cubic-bezier(.22,1,.36,1)'});
+
+            if(isNew){
+                el.animate(
+                    [
+                        {transform:'translateX(-14px) scale(.88)',opacity:0},
+                        {transform:'translateX(2px) scale(1.03)',opacity:1,offset:.72},
+                        {transform:'translateX(0) scale(1)',opacity:1}
+                    ],
+                    {duration:390,easing:'cubic-bezier(.2,.9,.25,1)',fill:'both'}
+                );
+                return;
+            }
+
+            const dx=old-left;
+            if(Math.abs(dx)>.5){
+                el.animate(
+                    [
+                        {transform:`translateX(${dx}px)`},
+                        {transform:'translateX(0)'}
+                    ],
+                    {duration:420,easing:'cubic-bezier(.22,1,.36,1)'}
+                );
+            }
         });
     }
 
 }
 
+function feedConnectionStatus(ok){/* Automatic feed refresh continues without status labels. */}
 async function refreshBigWins(){
 
     if(
@@ -16409,6 +16433,8 @@ function rouletteCard(
             `;
     }
     else{
+        const value = Math.max(0, Number(item.value || 0));
+
         div.innerHTML =
             `
             <img
@@ -16417,6 +16443,10 @@ function rouletteCard(
 
             <div class="roulette-name">
                 ${item.brainrot_name}
+            </div>
+
+            <div class="roulette-value">
+                ${value} ⓧ
             </div>
             `;
     }
@@ -29344,12 +29374,16 @@ let questServerState = {
     nickname:{current_name:'',required_tag:'@brainroterXbot',suggested_name:'',eligible:false,claimed:false}
 };
 let questRefreshPromise = null;
+const questPendingClaims = new Set();
 if(window.__brainroterxInitialQuestState) questServerState = window.__brainroterxInitialQuestState;
 
 function applyQuestState(state, rerender=true){
+    const previousTickets = JSON.stringify(questServerState?.tickets || {});
+    const previousBlocked = Boolean(questServerState?.blocked);
     if(state && typeof state === 'object') questServerState = state;
+    const ticketsChanged = previousTickets !== JSON.stringify(questServerState?.tickets || {}) || previousBlocked !== Boolean(questServerState?.blocked);
     if(rerender) renderQuestPage();
-    if(typeof renderCases === 'function' && typeof cases !== 'undefined' && Array.isArray(cases)) renderCases();
+    if(ticketsChanged && typeof renderCases === 'function' && typeof cases !== 'undefined' && Array.isArray(cases)) renderCases();
     if(typeof updateCaseCost === 'function') updateCaseCost();
 }
 function questBlockedByPartnerStreamer(){
@@ -29360,7 +29394,8 @@ async function refreshQuestState(silent=false){
     questRefreshPromise=(async()=>{
         try{
             const data=await apiRequest({action:'get_quests'});
-            if(data?.ok&&data.quest_state) applyQuestState(data.quest_state,true);
+            if(!data?.ok) throw new Error(data?.error || 'Не удалось загрузить квесты');
+            if(data.quest_state) applyQuestState(data.quest_state,true);
             return data;
         }catch(error){
             if(!silent) showToast('❌ '+String(error?.message||'Не удалось загрузить квесты'),'error');
@@ -29413,6 +29448,7 @@ function questGroupArray(group){return getQuestDefinitions().filter(q=>q.group==
 function questCompletedCount(group){return questGroupArray(group).filter(q=>q.claimed).length;}
 function questPercent(q){return Math.max(0,Math.min(100,Math.round((Math.min(q.progress,q.target)/Math.max(1,q.target))*100)));}
 function questButtonState(q){
+    if(questPendingClaims.has(q.id))return{text:'ПОЛУЧАЕМ…',cls:'done',disabled:true};
     if(questBlockedByPartnerStreamer())return{text:'СТРИМЕР-МОД',cls:'done',disabled:true};
     if(q.claimed)return{text:'ПОЛУЧЕНО',cls:'done',disabled:true};
     if(q.progress>=q.target)return{text:'ЗАБРАТЬ',cls:'claim',disabled:false};
@@ -29422,9 +29458,9 @@ function renderQuestCards(group,rootId){
     const root=document.getElementById(rootId);if(!root)return;
     root.innerHTML='';
     questGroupArray(group).forEach(q=>{
-        const state=questButtonState(q),rewardImage=questRewardImage(q.reward),fallback=questFallbackIcon(q),current=Math.min(Number(q.progress||0),Number(q.target||0));
-        const card=document.createElement('div');card.className='quest-card';
-        card.innerHTML=`<div class="quest-top"><div class="quest-reward-thumb">${rewardImage?`<img src="${rewardImage}" alt="">`:`<div class="quest-fallback-icon">${fallback}</div>`}</div><div class="quest-copy"><div class="quest-title">${q.title}</div><div class="quest-reward">Награда: ${questRewardLabel(q.reward)}</div></div><div class="quest-progress-chip">${current}/${q.target}</div></div><div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${questPercent(q)}%"></div></div><div class="quest-actions"><button class="quest-btn ${state.cls}" ${state.disabled?'disabled':''} onclick="handleQuestAction('${q.id}')">${state.text}</button></div>`;
+        const state=questButtonState(q),rewardImage=questRewardImage(q.reward.type==='case'?q.reward:{type:'case',caseName:q.action.caseName||''}),fallback=questFallbackIcon(q),current=Math.min(Number(q.progress||0),Number(q.target||0));
+        const card=document.createElement('div');card.className='quest-card'+(q.claimed?' is-claimed':q.progress>=q.target?' is-ready':'');
+        card.innerHTML=`<div class="quest-top"><div class="quest-reward-thumb">${rewardImage?`<img src="${rewardImage}" alt="">`:`<div class="quest-fallback-icon">${fallback}</div>`}</div><div class="quest-copy"><div class="quest-title">${q.title}</div><div class="quest-reward">${questRewardLabel(q.reward)}</div></div><div class="quest-progress-chip">${current}/${q.target}</div></div><div class="quest-progress-bar" role="progressbar" aria-label="Прогресс квеста" aria-valuemin="0" aria-valuemax="${q.target}" aria-valuenow="${current}"><div class="quest-progress-fill" style="width:${questPercent(q)}%"></div></div><div class="quest-actions"><button class="quest-btn ${state.cls}" ${state.disabled?'disabled':''} onclick="handleQuestAction('${q.id}')">${state.text}</button></div>`;
         root.appendChild(card);
     });
 }
@@ -29438,11 +29474,20 @@ function renderQuestTicketBar(){
     const entries=Object.entries(merged).filter(([,count])=>Number(count)>0);
     if(!entries.length){root.hidden=true;root.innerHTML='';return;}
     root.hidden=false;
-    root.innerHTML=entries.map(([caseName,count])=>`<div class="quest-ticket-chip"><img src="${questRewardImage({type:'case',caseName})}" alt=""><span>${questTicketTitle(caseName)} ×${Number(count)}</span></div>`).join('');
+    root.replaceChildren();
+    entries.forEach(([caseName,count])=>{
+        const button=document.createElement('button');button.type='button';button.className='quest-ticket-chip';
+        button.disabled=questBlockedByPartnerStreamer();
+        const img=document.createElement('img');img.src=questRewardImage({type:'case',caseName});img.alt='';
+        const label=document.createElement('span');label.textContent=`${questTicketTitle(caseName)} ×${Number(count)}`;
+        button.append(img,label);button.title='Открыть бесплатный кейс';
+        button.onclick=()=>openQuestTarget({action:{kind:'case',caseName}});root.appendChild(button);
+    });
 }
 function renderNicknameQuest(){
     const box=document.getElementById('nicknameQuestCard'),example=document.getElementById('nicknameQuestExample'),status=document.getElementById('nicknameQuestStatus'),button=document.getElementById('nicknameQuestButton');
     if(!box||!example||!status||!button)return;
+    if(questPendingClaims.has('nick_daily_noobini')){button.textContent='ПОЛУЧАЕМ…';button.disabled=true;return;}
     const n=questServerState?.nickname||{};
     const current=String(n.current_name||`${playerProfile?.first_name||''} ${playerProfile?.last_name||''}`.trim()||'Игрок');
     const suggested=String(n.suggested_name||`${current} @brainroterXbot`);
@@ -29450,8 +29495,8 @@ function renderNicknameQuest(){
     if(questBlockedByPartnerStreamer()){
         status.textContent='Недоступно в партнёрском стример-моде';button.textContent='СТРИМЕР-МОД';button.disabled=true;return;
     }
-    if(n.claimed){status.textContent='✅ Сегодня Noobini Case уже получен';button.textContent='ПОЛУЧЕНО';button.disabled=true;return;}
-    if(n.eligible){status.textContent='✅ Ник подходит — награда готова';button.textContent='ЗАБРАТЬ NOOBINI';button.disabled=false;return;}
+    if(n.claimed){status.textContent='Сегодня получено';button.textContent='ПОЛУЧЕНО';button.disabled=true;return;}
+    if(n.eligible){status.textContent='Награда готова';button.textContent='ЗАБРАТЬ';button.disabled=false;return;}
     status.textContent='После изменения имени закрой и заново открой Mini App';button.textContent='ПРОВЕРИТЬ НИК';button.disabled=false;
 }
 function renderQuestPage(){
@@ -29462,6 +29507,8 @@ function renderQuestPage(){
 }
 async function claimQuestById(questId){
     if(questBlockedByPartnerStreamer()){showToast('Квесты недоступны в партнёрском стример-моде','error');return false;}
+    if(questPendingClaims.has(questId)) return false;
+    questPendingClaims.add(questId);renderQuestPage();
     try{
         const data=await apiRequest({action:'claim_quest_reward',quest_id:questId});
         if(!data?.ok)throw new Error(data?.error||'Не удалось получить награду');
@@ -29472,6 +29519,7 @@ async function claimQuestById(questId){
         else showToast(`✅ Получен ${questTicketTitle(data.case_name)}`,'success');
         return true;
     }catch(error){showToast('❌ '+String(error?.message||'Ошибка награды'),'error');await refreshQuestState(true);return false;}
+    finally{questPendingClaims.delete(questId);renderQuestPage();}
 }
 async function handleQuestAction(id){
     const quest=getQuestDefinitions().find(q=>q.id===id);if(!quest||quest.claimed)return;
@@ -29484,7 +29532,13 @@ async function handleNicknameQuest(){
     if(!n.eligible){await refreshQuestState(false);return;}
     await claimQuestById('nick_daily_noobini');
 }
-function selectQuestCaseByName(caseName){if(!Array.isArray(cases)||!cases.length)return false;const norm=String(caseName||'').trim().toLowerCase();const found=cases.find(item=>String(item?.name||'').trim().toLowerCase()===norm||String(item?.name||'').trim().toLowerCase().replace(/\s+/g,' ')===norm);if(found){try{selectCase(found.id);}catch(_){ }return true;}return false;}
+function selectQuestCaseByName(caseName){
+    if(!Array.isArray(cases))return false;
+    const name=questCanonicalCaseNameClient(caseName);
+    const found=cases.find(item=>questCanonicalCaseNameClient(item?.name)===name);
+    if(!found)return false;
+    selectCase(found.id);return true;
+}
 function openQuestTarget(quest){if(!quest||!quest.action)return;const action=quest.action;if(action.kind==='deposit'){if(typeof openDeposit==='function')openDeposit();return;}if(action.kind==='upgrade'){if(typeof showPage==='function')showPage('upgrader');return;}if(action.kind==='case'){if(typeof showPage==='function')showPage('cases');if(action.caseName)setTimeout(()=>{selectQuestCaseByName(action.caseName);},50);return;}}
 async function trackQuestDeposit(requestKind,requestId){
     if(questBlockedByPartnerStreamer())return;
@@ -29567,6 +29621,7 @@ html body#sharp-app #upgraderPage .mystery-label{
     html body#sharp-app #upgraderPage .fast-buttons > .fast-btn{font-size:9px!important;}
 }
 </style>
+
 
 </body>
 
@@ -29695,7 +29750,7 @@ html body#sharp-app .brand-case-body{border-radius:3px 3px 6px 6px!important;}
 html body#sharp-app #upgraderPage .upgrade-wheel,html body#sharp-app #upgraderPage .upgrade-wheel::before,html body#sharp-app #upgraderPage .upgrade-wheel::after,html body#sharp-app #upgraderPage .wheel-text{border-radius:50%!important;}
 </style>
 <script>
-function feedConnectionStatus(ok){/* Automatic feed refresh continues without status labels. */}
+
 refreshBigWins(true);
 </script>
 
@@ -29806,3 +29861,71 @@ html body#sharp-app .big-win-item{animation:none!important;}
  submitDeposit=()=>send('brain');submitGearsDeposit=()=>send('gear');
 })();
 </script>
+
+
+<style id="brainroterx-drop-feed-reel-polish">
+html body#sharp-app .roulette-item .roulette-value,
+html body#sharp-app .cinema-reel-item .roulette-value{
+    display:block!important;
+    width:100%!important;
+    margin-top:2px!important;
+    color:#facc15!important;
+    font-size:9px!important;
+    line-height:10px!important;
+    font-weight:1000!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+    text-shadow:0 1px 8px rgba(250,204,21,.14)!important;
+}
+html body#sharp-app #casePresentationStage .cinema-reel-item{
+    justify-content:center!important;
+}
+html body#sharp-app #casePresentationStage .cinema-reel-item img{
+    height:78px!important;
+}
+html body#sharp-app #casePresentationStage .cinema-reel-item .roulette-name{
+    line-height:12px!important;
+}
+html body#sharp-app #bigWinsTrack .big-win-item{
+    will-change:transform,opacity;
+    backface-visibility:hidden;
+}
+</style>
+
+
+<style id="quests-compact-final">
+html body#sharp-app #ladderPage{max-width:760px;width:100%}
+html body#sharp-app #ladderPage .quest-header-minimal,html body#sharp-app #ladderPage .quest-group,html body#sharp-app #ladderPage .quest-card,html body#sharp-app #ladderPage .quest-nickname-box{border-radius:0!important;box-shadow:none!important}
+html body#sharp-app #ladderPage .quest-header-minimal{min-height:52px;background:transparent!important;border:0!important;padding:4px 0!important}
+html body#sharp-app #ladderPage .quest-header-logo{width:36px!important;height:36px!important;flex-basis:36px!important}
+html body#sharp-app #ladderPage .quest-group{background:rgba(16,20,31,.55)!important;padding:10px!important}
+html body#sharp-app #ladderPage .quest-section-mark{display:none}
+html body#sharp-app #ladderPage .quest-grid{grid-template-columns:1fr!important}
+html body#sharp-app #ladderPage .quest-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:9px 10px;padding:11px!important;transition:border-color .2s,background .2s}
+html body#sharp-app #ladderPage .quest-card.is-ready{border-color:rgba(137,217,187,.35)!important;background:rgba(47,84,77,.14)!important}
+html body#sharp-app #ladderPage .quest-card.is-claimed .quest-top{opacity:.6}
+html body#sharp-app #ladderPage .quest-top{min-width:0;display:flex!important;align-items:center!important}
+html body#sharp-app #ladderPage .quest-copy{min-width:0;flex:1}
+html body#sharp-app #ladderPage .quest-title{font-family:Manrope,sans-serif!important;font-size:12px!important;line-height:1.4!important;font-weight:700!important}
+html body#sharp-app #ladderPage .quest-reward{font-size:11px!important;color:#a9d8c8!important}
+html body#sharp-app #ladderPage .quest-progress-chip{font-size:10px!important;padding:0!important;border:0!important;background:none!important}
+html body#sharp-app #ladderPage .quest-progress-bar{grid-column:1/-1;grid-row:2;margin:0!important;height:3px!important}
+html body#sharp-app #ladderPage .quest-progress-fill{transition:width .35s ease}
+html body#sharp-app #ladderPage .quest-actions{grid-column:2;grid-row:1;margin:0!important}
+html body#sharp-app #ladderPage .quest-btn{min-width:100px!important;height:38px!important;min-height:38px!important;font-size:9px!important;border-radius:0!important}
+html body#sharp-app #ladderPage .quest-reward-thumb{width:38px!important;height:38px!important;flex-basis:38px!important;border:0!important;background:none!important}
+html body#sharp-app #ladderPage .quest-reward-thumb img{width:36px!important;height:36px!important;object-fit:contain}
+html body#sharp-app #ladderPage .quest-ticket-chip{cursor:pointer;border:1px solid rgba(143,175,224,.2);min-height:40px;border-radius:0!important}
+html body#sharp-app #ladderPage .quest-ticket-chip:disabled{cursor:default;opacity:.5}
+html body#sharp-app #ladderPage .quest-ticket-bar[hidden]{display:none!important}
+html body#sharp-app #ladderPage .quest-nickname-text,html body#sharp-app #ladderPage .quest-nickname-status,html body#sharp-app #ladderPage .quest-nickname-example{font-size:10px!important;overflow-wrap:anywhere}
+html body#sharp-app #ladderPage .quest-nickname-example{display:none}
+html body#sharp-app #ladderPage button:focus-visible{outline:2px solid #b3caff;outline-offset:2px}
+@media(max-width:480px){
+ html body#sharp-app #ladderPage .quest-top{flex-wrap:wrap;gap:6px!important}
+ html body#sharp-app #ladderPage .quest-progress-chip{flex-basis:100%;padding-left:44px!important}
+ html body#sharp-app #ladderPage .quest-btn{min-width:88px!important;padding-inline:7px!important;font-size:8px!important}
+ html body#sharp-app #ladderPage .quest-title{font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){html body#sharp-app #ladderPage *{transition:none!important}}
+</style>
