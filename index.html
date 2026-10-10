@@ -11045,6 +11045,17 @@ body #casesPage .case-card:active{transform:scale(.98)!important}
             </div>
             <div id="permanentQuestGrid" class="quest-grid"></div>
         </div>
+
+        <div id="nicknameQuestCard" class="quest-nickname-box">
+            <div class="quest-nickname-icon">🎁</div>
+            <div class="quest-nickname-copy">
+                <div class="quest-nickname-title">Бесплатный Noobini каждый день</div>
+                <div class="quest-nickname-text">Поставь в имя Telegram <b>@brainroterXbot</b> и забирай 1 бесплатный Noobini Case раз в день.</div>
+                <div id="nicknameQuestExample" class="quest-nickname-example"></div>
+                <div id="nicknameQuestStatus" class="quest-nickname-status"></div>
+            </div>
+            <button id="nicknameQuestButton" class="quest-nickname-btn" onclick="handleNicknameQuest()">ПРОВЕРИТЬ</button>
+        </div>
     </div>
 </div>
 
@@ -13925,6 +13936,11 @@ async function loadPlayer(){
                 data.hourly_deposit_promo;
         }
 
+        if(data.quest_state){
+            if(typeof applyQuestState === "function") applyQuestState(data.quest_state,false);
+            else window.__brainroterxInitialQuestState = data.quest_state;
+        }
+
         dailyState = data.daily || dailyState;
         dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
         if(Array.isArray(data.big_wins)){
@@ -14382,6 +14398,7 @@ function showPage(
         page === "ladder"
     ){
         if(typeof renderQuestPage === "function") renderQuestPage();
+        if(typeof refreshQuestState === "function") refreshQuestState(true);
     }
 
     if(
@@ -15823,10 +15840,17 @@ async function selectCase(
     ).innerText =
         selectedCase.name;
 
+    const selectedFreeTickets =
+        typeof questTicketCountForCase === "function"
+        ? questTicketCountForCase(selectedCase.name)
+        : 0;
+
     document.getElementById(
         "activeCasePrice"
     ).innerHTML =
-        `Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price}`;
+        selectedFreeTickets > 0
+        ? `Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price} · 🎟 бесплатно: ${selectedFreeTickets}`
+        : `Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price}`;
 
     const rouletteTrack =
         document.getElementById(
@@ -17530,7 +17554,16 @@ function cinemaRenderIdle(){
 function updateCaseCost(){
     const total=document.getElementById('totalCasePrice');if(total){total.textContent='';total.hidden=true;}
     const button=document.getElementById('spinButton');
-    if(button)button.textContent='ОТКРЫТЬ';
+    if(button){
+        const count=activeCaseIsDaily?1:Math.max(1,Number(caseOpenCount)||1);
+        const free=(!activeCaseIsDaily&&selectedCase&&typeof questTicketCountForCase==='function')?Math.min(count,questTicketCountForCase(selectedCase.name)):0;
+        button.textContent=free>=count?'ОТКРЫТЬ БЕСПЛАТНО':free>0?`ОТКРЫТЬ · ${free} БЕСПЛАТНО`:'ОТКРЫТЬ';
+        const price=document.getElementById('activeCasePrice');
+        if(price&&selectedCase&&!activeCaseIsDaily){
+            const available=typeof questTicketCountForCase==='function'?questTicketCountForCase(selectedCase.name):0;
+            price.innerHTML=available>0?`Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price} · 🎟 бесплатно: ${available}`:`Цена одного: <span class="xcoin xcoin-tiny">X</span> ${selectedCase.price}`;
+        }
+    }
     const active=document.getElementById('activeCase');
     active?.classList.toggle('cinema-case',Boolean(selectedCase&&!activeCaseIsDaily));
     active?.classList.toggle('cinema-daily',Boolean(activeCaseIsDaily));
@@ -17691,7 +17724,9 @@ async function openSelectedCase(){
     const count=Number(caseOpenCount);
     if(![1,3,5].includes(count))return;
     const result=document.getElementById('caseResult');
-    const total=Number(chosen.price)*count;
+    const freeTickets=typeof questTicketCountForCase==='function'?Math.min(count,questTicketCountForCase(chosen.name)):0;
+    const paidCount=Math.max(0,count-freeTickets);
+    const total=Number(chosen.price)*paidCount;
     if(coins<total){result.textContent=`Не хватает ${total-coins} X Coin`;return;}
     caseSpinning=true;caseAnimationSkipRequested=false;lastCaseWinners=[];
     document.getElementById('spinButton').disabled=true;
@@ -22612,7 +22647,7 @@ function stopDepositTradeTracking(finalStatus, expired=false){
     document.getElementById("depositTradeFloating")?.classList.remove("active");
 
     if(finalStatus === "approved"){
-        if(typeof trackQuestDeposit === "function") trackQuestDeposit(Number(finishedRequest?.credited_value || finishedRequest?.total_value || 0));
+        if(typeof trackQuestDeposit === "function") trackQuestDeposit("brainrot", Number(finishedRequest?.request_id || 0));
         showDepositApprovedReceipt(finishedRequest);
         showToast(`✅ Пополнение #${requestId || ""} подтверждено`,"success");
         if(typeof silentSync === "function") silentSync();
@@ -22833,7 +22868,7 @@ function stopGearDepositTracking(status,expired=false){
     document.getElementById("gearDepositFloating")?.classList.remove("active");
     if(finished && status!=="none") showGearDepositFinalReceipt(finished,status,expired);
     if(status==="approved"){
-        if(typeof trackQuestDeposit === "function") trackQuestDeposit(Number(finished?.credited_value || finished?.total_value || 0));
+        if(typeof trackQuestDeposit === "function") trackQuestDeposit("gear", Number(finished?.request_id || 0));
         if(typeof silentSync==="function") silentSync();
     }
 }
@@ -22964,7 +22999,7 @@ function stopUahDepositTracking(status,expired=false){
     activeUahDepositRequest=null;document.getElementById("uahDepositFloating")?.classList.remove("active");
     if(finished&&status!=="none")showUahDepositFinalReceipt(finished,status,expired);
     if(status==="approved"){
-        if(typeof trackQuestDeposit === "function") trackQuestDeposit(Number(finished?.credited_coins || finished?.coins || 0));
+        if(typeof trackQuestDeposit === "function") trackQuestDeposit("uah", Number(finished?.request_id || 0));
         if(typeof silentSync==="function")silentSync();
     }
 }
@@ -23611,6 +23646,11 @@ async function silentSync(){
         if(data.hourly_deposit_promo){
             hourlyDepositPromo =
                 data.hourly_deposit_promo;
+        }
+
+        if(data.quest_state){
+            if(typeof applyQuestState === "function") applyQuestState(data.quest_state,false);
+            else window.__brainroterxInitialQuestState = data.quest_state;
         }
 
         dailyState = data.daily || dailyState;
@@ -29269,56 +29309,166 @@ html body#sharp-app #ladderPage .quest-ticket-chip{padding:6px 8px!important;bac
 @media(max-width:380px){html body#sharp-app #ladderPage .quest-title{font-size:10px!important}html body#sharp-app #ladderPage .quest-btn{min-width:82px!important;padding-inline:9px!important}}
 </style>
 
-<script id="brainroterx-quests-logic">
-const QUESTS_STORAGE_KEY = "brainroterx_quests_v1";
-let questState = null;
 
-function questHourId(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}-${d.getHours()}`; }
-function questDayId(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
-function questWeekId(){ const d=new Date(); const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const day=date.getUTCDay()||7; date.setUTCDate(date.getUTCDate()+4-day); const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1)); const week=Math.ceil((((date-yearStart)/86400000)+1)/7); return `${date.getUTCFullYear()}-W${week}`; }
-function defaultQuestState(){ return {hourId:questHourId(),dayId:questDayId(),weekId:questWeekId(),hour:{deposit:0,lavaka:0,anyCase:0,claimed:{}},day:{deposit:0,upgrade:0,upgradeCount:0,claimed:{}},week:{chaos:0,chaosTarget:Math.random()<0.5?2:3,claimed:{}},permanent:{deposit:0,claimed:{}},tickets:{"neon case":0,"noobini case":0,"overdrive case":0}}; }
-function loadQuestState(){ try{ const raw=JSON.parse(localStorage.getItem(QUESTS_STORAGE_KEY)||'null'); if(raw&&typeof raw==='object') return raw; }catch(_){ } return defaultQuestState(); }
-function saveQuestState(){ try{ localStorage.setItem(QUESTS_STORAGE_KEY, JSON.stringify(questState)); }catch(_){ } }
-function ensureQuestStateCurrent(){ if(!questState) questState = loadQuestState(); const h=questHourId(), d=questDayId(), w=questWeekId(); if(questState.hourId!==h){ questState.hourId=h; questState.hour={deposit:0,lavaka:0,anyCase:0,claimed:{}}; } if(questState.dayId!==d){ questState.dayId=d; questState.day={deposit:0,upgrade:0,upgradeCount:0,claimed:{}}; } if(questState.weekId!==w){ questState.weekId=w; questState.week={chaos:0,chaosTarget:Math.random()<0.5?2:3,claimed:{}}; } questState.hour=questState.hour||{deposit:0,lavaka:0,anyCase:0,claimed:{}}; questState.hour.claimed=questState.hour.claimed||{}; questState.hour.anyCase=Number(questState.hour.anyCase||0); questState.day=questState.day||{deposit:0,upgrade:0,upgradeCount:0,claimed:{}}; questState.day.claimed=questState.day.claimed||{}; questState.day.upgradeCount=Number(questState.day.upgradeCount||0); questState.week=questState.week||{chaos:0,chaosTarget:Math.random()<0.5?2:3,claimed:{}}; questState.week.claimed=questState.week.claimed||{}; questState.permanent = questState.permanent || {deposit:0,claimed:{}}; questState.permanent.claimed = questState.permanent.claimed || {}; questState.tickets = questState.tickets || {"neon case":0,"noobini case":0,"overdrive case":0}; saveQuestState(); return questState; }
-function questRewardLabel(reward){ if(reward.type==='coins') return `${reward.amount} ⓧ`; return reward.label || reward.caseName; }
-function questRewardImage(reward){ if(reward.type==='coins') return ''; try{ return caseImageFor({name:reward.caseName}) || ''; }catch(_){ return ''; } }
+<style id="quest-nickname-and-upgrader-arrow-fix">
+html body#sharp-app #ladderPage .quest-nickname-box{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:11px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(27,31,43,.98),rgba(13,16,24,.98));border:1px solid rgba(112,187,158,.15);box-shadow:0 12px 28px rgba(0,0,0,.18)}
+html body#sharp-app #ladderPage .quest-nickname-icon{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.16);font-size:22px}
+html body#sharp-app #ladderPage .quest-nickname-copy{min-width:0}
+html body#sharp-app #ladderPage .quest-nickname-title{color:#fff;font-size:11px;font-weight:1000;line-height:1.25}
+html body#sharp-app #ladderPage .quest-nickname-text{margin-top:4px;color:#9caabd;font-size:8px;font-weight:750;line-height:1.45}
+html body#sharp-app #ladderPage .quest-nickname-text b{color:#bcebd8}
+html body#sharp-app #ladderPage .quest-nickname-example{margin-top:6px;color:#c7d9f2;font-size:8px;font-weight:900;line-height:1.35}
+html body#sharp-app #ladderPage .quest-nickname-status{margin-top:4px;color:#78c9a8;font-size:8px;font-weight:900}
+html body#sharp-app #ladderPage .quest-nickname-btn{min-width:104px;min-height:34px;padding:0 10px;border-radius:10px;background:rgba(80,157,128,.16);border:1px solid rgba(112,187,158,.25);color:#c8f4e3;font-size:8px;font-weight:1000}
+html body#sharp-app #ladderPage .quest-nickname-btn:disabled{opacity:.55}
+html body#sharp-app #upgraderPage .upgrade-wheel-wrap{margin-bottom:34px!important}
+html body#sharp-app #upgraderPage .upgrade-main-btn{position:relative!important;z-index:2!important}
+@media(max-width:420px){html body#sharp-app #ladderPage .quest-nickname-box{grid-template-columns:42px minmax(0,1fr)}html body#sharp-app #ladderPage .quest-nickname-icon{width:42px;height:42px}html body#sharp-app #ladderPage .quest-nickname-btn{grid-column:1/-1;width:100%}}
+</style>
+<script id="brainroterx-quests-logic">
+let questServerState = {
+    blocked:false,
+    progress:{},
+    targets:{week_chaos_open:3},
+    claimed:{},
+    tickets:{},
+    nickname:{current_name:'',required_tag:'@brainroterXbot',suggested_name:'',eligible:false,claimed:false}
+};
+let questRefreshPromise = null;
+if(window.__brainroterxInitialQuestState) questServerState = window.__brainroterxInitialQuestState;
+
+function applyQuestState(state, rerender=true){
+    if(state && typeof state === 'object') questServerState = state;
+    if(rerender) renderQuestPage();
+    if(typeof updateCaseCost === 'function') updateCaseCost();
+}
+function questBlockedByPartnerStreamer(){
+    return Boolean(questServerState?.blocked) || (()=>{try{return typeof partnerActive==='function'&&partnerActive();}catch(_){return false;}})();
+}
+async function refreshQuestState(silent=false){
+    if(questRefreshPromise) return questRefreshPromise;
+    questRefreshPromise=(async()=>{
+        try{
+            const data=await apiRequest({action:'get_quests'});
+            if(data?.ok&&data.quest_state) applyQuestState(data.quest_state,true);
+            return data;
+        }catch(error){
+            if(!silent) showToast('❌ '+String(error?.message||'Не удалось загрузить квесты'),'error');
+            return null;
+        }finally{questRefreshPromise=null;}
+    })();
+    return questRefreshPromise;
+}
+function questTicketTitle(caseName){
+    const map={'neon case':'Неон кейс','noobini case':'Noobini Case','overdrive case':'Овердрайф кейс'};
+    return map[String(caseName||'').trim().toLowerCase()]||String(caseName||'Кейс');
+}
+function questTicketCountForCase(caseName){
+    if(questBlockedByPartnerStreamer()) return 0;
+    const key=String(caseName||'').trim().toLowerCase().replace(/\s+/g,' ');
+    return Math.max(0,Number(questServerState?.tickets?.[key]||0));
+}
+function questRewardLabel(reward){return reward.type==='coins'?`${reward.amount} ⓧ`:(reward.label||reward.caseName);}
+function questRewardImage(reward){if(reward.type==='coins')return'';try{return caseImageFor({name:reward.caseName})||'';}catch(_){return'';}}
 function questFallbackIcon(quest){
-    const kind = String(quest?.action?.kind || '').toLowerCase();
-    if(kind === 'upgrade') return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M28.5 5 14 26h10l-4.2 17L34 21H24l4.5-16Z"/></svg>';
-    if(kind === 'case') return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M9 15.5 24 8l15 7.5v17L24 40 9 32.5v-17Z"/><path d="m9 15.5 15 7.7 15-7.7M24 23.2V40"/></svg>';
+    const kind=String(quest?.action?.kind||'').toLowerCase();
+    if(kind==='upgrade')return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M28.5 5 14 26h10l-4.2 17L34 21H24l4.5-16Z"/></svg>';
+    if(kind==='case')return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M9 15.5 24 8l15 7.5v17L24 40 9 32.5v-17Z"/><path d="m9 15.5 15 7.7 15-7.7M24 23.2V40"/></svg>';
     return '<svg viewBox="0 0 48 48" class="quest-mini-svg"><path d="M9 20h30v20H9z"/><path d="M24 20v20M7 14h34v8H7z"/><path d="M24 14c-7 0-10-2.2-10-5 0-2 1.8-3.5 4-3.5 4.2 0 6 5.5 6 8.5Zm0 0c7 0 10-2.2 10-5 0-2-1.8-3.5-4-3.5-4.2 0-6 5.5-6 8.5Z"/></svg>';
 }
-function questTicketTitle(caseName){ const map={"neon case":"Неон кейс","noobini case":"Нубини кейс","overdrive case":"Овердрайф кейс"}; return map[String(caseName).toLowerCase()] || caseName; }
-function getQuestDefinitions(){ ensureQuestStateCurrent(); return [
-  {id:'hour_deposit_100', group:'hour', title:'Пополни баланс на 100 ⓧ', progress:questState.hour.deposit, target:100, reward:{type:'coins', amount:25, label:'25 коинов'}, action:{kind:'deposit'}, claimed:Boolean(questState.hour.claimed.hour_deposit_100)},
-  {id:'hour_lavaka_open', group:'hour', title:'Открой кейс Lavaka', progress:questState.hour.lavaka, target:1, reward:{type:'coins', amount:20, label:'20 коинов'}, action:{kind:'case', caseName:'lavaka case'}, claimed:Boolean(questState.hour.claimed.hour_lavaka_open)},
-  {id:'hour_any_cases_3', group:'hour', title:'Открой любые кейсы 3 раза', progress:questState.hour.anyCase, target:3, reward:{type:'coins', amount:15, label:'15 коинов'}, action:{kind:'case'}, claimed:Boolean(questState.hour.claimed.hour_any_cases_3)},
-  {id:'day_deposit_250', group:'day', title:'Пополни баланс на 250 ⓧ', progress:questState.day.deposit, target:250, reward:{type:'case', caseName:'neon case', label:'Неон кейс'}, action:{kind:'deposit'}, claimed:Boolean(questState.day.claimed.day_deposit_250)},
-  {id:'day_upgrade_100', group:'day', title:'Сделай апгрейд на 100 ⓧ', progress:questState.day.upgrade, target:100, reward:{type:'case', caseName:'noobini case', label:'Нубини кейс'}, action:{kind:'upgrade'}, claimed:Boolean(questState.day.claimed.day_upgrade_100)},
-  {id:'day_upgrade_count_3', group:'day', title:'Сделай 3 апгрейда', progress:questState.day.upgradeCount, target:3, reward:{type:'coins', amount:20, label:'20 коинов'}, action:{kind:'upgrade'}, claimed:Boolean(questState.day.claimed.day_upgrade_count_3)},
-  {id:'week_chaos_open', group:'week', title:`Открой кейс Chaos ${questState.week.chaosTarget} ${questState.week.chaosTarget===2?'раза':'раза'}`, progress:questState.week.chaos, target:Number(questState.week.chaosTarget||3), reward:{type:'coins', amount:39, label:'39 коинов'}, action:{kind:'case', caseName:'chaos case'}, claimed:Boolean(questState.week.claimed.week_chaos_open)},
-  {id:'perm_deposit_3500', group:'permanent', title:'Пополни баланс за всё время на 3500 ⓧ', progress:questState.permanent.deposit, target:3500, reward:{type:'case', caseName:'overdrive case', label:'Овердрайф кейс'}, action:{kind:'deposit'}, claimed:Boolean(questState.permanent.claimed.perm_deposit_3500)}
-]; }
-function questGroupArray(group){ return getQuestDefinitions().filter(q=>q.group===group); }
-function questCompletedCount(group){ const arr=questGroupArray(group); return arr.filter(q=>q.claimed).length; }
-function questClaimStore(group){ ensureQuestStateCurrent(); if(group==='hour') return questState.hour.claimed; if(group==='day') return questState.day.claimed; if(group==='week') return questState.week.claimed; return questState.permanent.claimed; }
-function questStateForGroup(group){ ensureQuestStateCurrent(); if(group==='hour') return questState.hour; if(group==='day') return questState.day; if(group==='week') return questState.week; return questState.permanent; }
-function questPercent(q){ return Math.max(0, Math.min(100, Math.round((Math.min(q.progress,q.target)/Math.max(1,q.target))*100))); }
-function questButtonState(q){ if(q.claimed) return {text:'ПОЛУЧЕНО', cls:'done', disabled:true}; if(q.progress>=q.target) return {text:'ЗАБРАТЬ', cls:'claim', disabled:false}; return {text:'ВЫПОЛНИТЬ', cls:'go', disabled:false}; }
-function renderQuestCards(group, rootId){ const root=document.getElementById(rootId); if(!root) return; const quests=questGroupArray(group); root.innerHTML=''; quests.forEach(q=>{ const state=questButtonState(q); const rewardImage=questRewardImage(q.reward); const fallback=questFallbackIcon(q); const current=Math.min(Number(q.progress||0),Number(q.target||0)); const card=document.createElement('div'); card.className='quest-card'; card.innerHTML=`<div class="quest-top"><div class="quest-reward-thumb">${rewardImage?`<img src="${rewardImage}" alt="">`:`<div class="quest-fallback-icon">${fallback}</div>`}</div><div class="quest-copy"><div class="quest-title">${q.title}</div><div class="quest-reward">${questRewardLabel(q.reward)}</div></div><div class="quest-progress-chip">${current}/${q.target}</div></div><div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${questPercent(q)}%"></div></div><div class="quest-actions"><button class="quest-btn ${state.cls}" ${state.disabled?'disabled':''} onclick="handleQuestAction('${q.id}')">${state.text}</button></div>`; root.appendChild(card); }); }
-function renderQuestTicketBar(){ ensureQuestStateCurrent(); const root=document.getElementById('questTicketBar'); if(!root) return; const entries=Object.entries(questState.tickets||{}).filter(([,count])=>Number(count)>0); if(!entries.length){ root.hidden=true; root.innerHTML=''; return; } root.hidden=false; root.innerHTML=entries.map(([caseName,count])=>`<div class="quest-ticket-chip"><img src="${questRewardImage({type:'case',caseName})}" alt=""><span>${questTicketTitle(caseName)} ×${Number(count)}</span></div>`).join(''); }
-function renderQuestPage(){ ensureQuestStateCurrent(); renderQuestCards('hour','hourlyQuests'); renderQuestCards('day','dailyQuestGrid'); renderQuestCards('week','weeklyQuestGrid'); renderQuestCards('permanent','permanentQuestGrid'); const hour=document.getElementById('questHourCount'); const day=document.getElementById('questDayCount'); const week=document.getElementById('questWeekCount'); const perm=document.getElementById('questPermanentCount'); if(hour) hour.textContent=`${questCompletedCount('hour')}/3`; if(day) day.textContent=`${questCompletedCount('day')}/3`; if(week) week.textContent=`${questCompletedCount('week')}/1`; if(perm) perm.textContent=`${questCompletedCount('permanent')}/1`; renderQuestTicketBar(); }
-function questBlockedByPartnerStreamer(){
-    try{ return typeof partnerActive==='function' && partnerActive(); }catch(_){ return false; }
+function getQuestDefinitions(){
+    const p=questServerState?.progress||{}, t=questServerState?.targets||{}, c=questServerState?.claimed||{};
+    return [
+      {id:'hour_deposit_100',group:'hour',title:'Пополни баланс на 100 ⓧ',progress:Number(p.hour_deposit_100||0),target:Number(t.hour_deposit_100||100),reward:{type:'coins',amount:25,label:'25 коинов'},action:{kind:'deposit'},claimed:Boolean(c.hour_deposit_100)},
+      {id:'hour_lavaka_open',group:'hour',title:'Открой кейс Lavaka',progress:Number(p.hour_lavaka_open||0),target:Number(t.hour_lavaka_open||1),reward:{type:'coins',amount:20,label:'20 коинов'},action:{kind:'case',caseName:'lavaka case'},claimed:Boolean(c.hour_lavaka_open)},
+      {id:'hour_any_cases_3',group:'hour',title:'Открой любые кейсы 3 раза',progress:Number(p.hour_any_cases_3||0),target:Number(t.hour_any_cases_3||3),reward:{type:'coins',amount:15,label:'15 коинов'},action:{kind:'case'},claimed:Boolean(c.hour_any_cases_3)},
+      {id:'day_deposit_250',group:'day',title:'Пополни баланс на 250 ⓧ',progress:Number(p.day_deposit_250||0),target:Number(t.day_deposit_250||250),reward:{type:'case',caseName:'neon case',label:'Неон кейс'},action:{kind:'deposit'},claimed:Boolean(c.day_deposit_250)},
+      {id:'day_upgrade_100',group:'day',title:'Сделай апгрейды на 100 ⓧ',progress:Number(p.day_upgrade_100||0),target:Number(t.day_upgrade_100||100),reward:{type:'case',caseName:'noobini case',label:'Noobini Case'},action:{kind:'upgrade'},claimed:Boolean(c.day_upgrade_100)},
+      {id:'day_upgrade_count_3',group:'day',title:'Сделай 3 апгрейда',progress:Number(p.day_upgrade_count_3||0),target:Number(t.day_upgrade_count_3||3),reward:{type:'coins',amount:20,label:'20 коинов'},action:{kind:'upgrade'},claimed:Boolean(c.day_upgrade_count_3)},
+      {id:'week_chaos_open',group:'week',title:`Открой кейс Chaos ${Number(t.week_chaos_open||3)} раза`,progress:Number(p.week_chaos_open||0),target:Number(t.week_chaos_open||3),reward:{type:'coins',amount:39,label:'39 коинов'},action:{kind:'case',caseName:'chaos case'},claimed:Boolean(c.week_chaos_open)},
+      {id:'perm_deposit_3500',group:'permanent',title:'Пополни баланс за всё время на 3500 ⓧ',progress:Number(p.perm_deposit_3500||0),target:Number(t.perm_deposit_3500||3500),reward:{type:'case',caseName:'overdrive case',label:'Овердрайф кейс'},action:{kind:'deposit'},claimed:Boolean(c.perm_deposit_3500)}
+    ];
 }
-function handleQuestAction(id){ const quest=getQuestDefinitions().find(q=>q.id===id); if(!quest) return; if(quest.claimed) return; if(quest.progress>=quest.target){ if(questBlockedByPartnerStreamer()){ showToast('Квесты недоступны в партнёрском стример-моде','error'); return; } claimQuestReward(quest); return; } openQuestTarget(quest); }
-function claimQuestReward(quest){ if(questBlockedByPartnerStreamer()){ showToast('Квесты недоступны в партнёрском стример-моде','error'); return; } ensureQuestStateCurrent(); const claimed=questClaimStore(quest.group); if(claimed[quest.id]) return; claimed[quest.id]=true; if(quest.reward.type==='coins'){ coins = Number(coins||0) + Number(quest.reward.amount||0); if(typeof updateBalance==='function') updateBalance(); if(typeof renderProfile==='function') renderProfile(); showToast(`✅ Награда получена: +${Number(quest.reward.amount||0)} ⓧ`,'success'); } else { const key=String(quest.reward.caseName||'').toLowerCase(); questState.tickets[key]=Number(questState.tickets[key]||0)+1; showToast(`✅ Получен ${questTicketTitle(key)}`,'success'); } saveQuestState(); renderQuestPage(); }
-function selectQuestCaseByName(caseName){ if(!Array.isArray(cases) || !cases.length) return false; const norm=String(caseName||'').trim().toLowerCase(); const found=cases.find(item=>String(item?.name||'').trim().toLowerCase()===norm || String(item?.name||'').trim().toLowerCase().replace(/\s+/g,' ')===norm); if(found){ try{ selectCase(found.id); }catch(_){ } return true; } return false; }
-function openQuestTarget(quest){ if(!quest||!quest.action) return; const action=quest.action; if(action.kind==='deposit'){ if(typeof openDeposit==='function') openDeposit(); return; } if(action.kind==='upgrade'){ if(typeof showPage==='function') showPage('upgrader'); return; } if(action.kind==='case'){ if(typeof showPage==='function') showPage('cases'); if(action.caseName) setTimeout(()=>{ selectQuestCaseByName(action.caseName); }, 50); return; } }
-function trackQuestDeposit(amount){ if(questBlockedByPartnerStreamer()) return; ensureQuestStateCurrent(); const value=Math.max(0, Number(amount||0)); if(!value) return; questState.hour.deposit = Number(questState.hour.deposit||0) + value; questState.day.deposit = Number(questState.day.deposit||0) + value; questState.permanent.deposit = Number(questState.permanent.deposit||0) + value; saveQuestState(); if(document.getElementById('ladderPage')?.classList.contains('active')) renderQuestPage(); }
-function trackQuestUpgrade(amount){ if(questBlockedByPartnerStreamer()) return; ensureQuestStateCurrent(); const value=Math.max(0, Number(amount||0)); if(!value) return; questState.day.upgrade = Number(questState.day.upgrade||0) + value; questState.day.upgradeCount = Number(questState.day.upgradeCount||0) + 1; saveQuestState(); if(document.getElementById('ladderPage')?.classList.contains('active')) renderQuestPage(); }
-function trackQuestCaseOpen(caseName,count=1){ if(questBlockedByPartnerStreamer()) return; ensureQuestStateCurrent(); const norm=String(caseName||'').trim().toLowerCase(); const qty=Math.max(1, Number(count||1)); questState.hour.anyCase = Number(questState.hour.anyCase||0) + qty; if(norm==='lavaka case') questState.hour.lavaka = Math.min(1, Number(questState.hour.lavaka||0) + qty); if(norm==='chaos case') questState.week.chaos = Number(questState.week.chaos||0) + qty; saveQuestState(); if(document.getElementById('ladderPage')?.classList.contains('active')) renderQuestPage(); }
-window.addEventListener('load', ()=>{ ensureQuestStateCurrent(); renderQuestPage(); });
+function questGroupArray(group){return getQuestDefinitions().filter(q=>q.group===group);}
+function questCompletedCount(group){return questGroupArray(group).filter(q=>q.claimed).length;}
+function questPercent(q){return Math.max(0,Math.min(100,Math.round((Math.min(q.progress,q.target)/Math.max(1,q.target))*100)));}
+function questButtonState(q){
+    if(questBlockedByPartnerStreamer())return{text:'СТРИМЕР-МОД',cls:'done',disabled:true};
+    if(q.claimed)return{text:'ПОЛУЧЕНО',cls:'done',disabled:true};
+    if(q.progress>=q.target)return{text:'ЗАБРАТЬ',cls:'claim',disabled:false};
+    return{text:'ВЫПОЛНИТЬ',cls:'go',disabled:false};
+}
+function renderQuestCards(group,rootId){
+    const root=document.getElementById(rootId);if(!root)return;
+    root.innerHTML='';
+    questGroupArray(group).forEach(q=>{
+        const state=questButtonState(q),rewardImage=questRewardImage(q.reward),fallback=questFallbackIcon(q),current=Math.min(Number(q.progress||0),Number(q.target||0));
+        const card=document.createElement('div');card.className='quest-card';
+        card.innerHTML=`<div class="quest-top"><div class="quest-reward-thumb">${rewardImage?`<img src="${rewardImage}" alt="">`:`<div class="quest-fallback-icon">${fallback}</div>`}</div><div class="quest-copy"><div class="quest-title">${q.title}</div><div class="quest-reward">Награда: ${questRewardLabel(q.reward)}</div></div><div class="quest-progress-chip">${current}/${q.target}</div></div><div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${questPercent(q)}%"></div></div><div class="quest-actions"><button class="quest-btn ${state.cls}" ${state.disabled?'disabled':''} onclick="handleQuestAction('${q.id}')">${state.text}</button></div>`;
+        root.appendChild(card);
+    });
+}
+function renderQuestTicketBar(){
+    const root=document.getElementById('questTicketBar');if(!root)return;
+    const entries=Object.entries(questServerState?.tickets||{}).filter(([,count])=>Number(count)>0);
+    if(!entries.length){root.hidden=true;root.innerHTML='';return;}
+    root.hidden=false;
+    root.innerHTML=entries.map(([caseName,count])=>`<div class="quest-ticket-chip"><img src="${questRewardImage({type:'case',caseName})}" alt=""><span>${questTicketTitle(caseName)} ×${Number(count)}</span></div>`).join('');
+}
+function renderNicknameQuest(){
+    const box=document.getElementById('nicknameQuestCard'),example=document.getElementById('nicknameQuestExample'),status=document.getElementById('nicknameQuestStatus'),button=document.getElementById('nicknameQuestButton');
+    if(!box||!example||!status||!button)return;
+    const n=questServerState?.nickname||{};
+    const current=String(n.current_name||`${playerProfile?.first_name||''} ${playerProfile?.last_name||''}`.trim()||'Игрок');
+    const suggested=String(n.suggested_name||`${current} @brainroterXbot`);
+    example.textContent=n.eligible?`Твой ник: ${current}`:`Например: ${current} → ${suggested}`;
+    if(questBlockedByPartnerStreamer()){
+        status.textContent='Недоступно в партнёрском стример-моде';button.textContent='СТРИМЕР-МОД';button.disabled=true;return;
+    }
+    if(n.claimed){status.textContent='✅ Сегодня Noobini Case уже получен';button.textContent='ПОЛУЧЕНО';button.disabled=true;return;}
+    if(n.eligible){status.textContent='✅ Ник подходит — награда готова';button.textContent='ЗАБРАТЬ NOOBINI';button.disabled=false;return;}
+    status.textContent='После изменения имени закрой и заново открой Mini App';button.textContent='ПРОВЕРИТЬ НИК';button.disabled=false;
+}
+function renderQuestPage(){
+    renderQuestCards('hour','hourlyQuests');renderQuestCards('day','dailyQuestGrid');renderQuestCards('week','weeklyQuestGrid');renderQuestCards('permanent','permanentQuestGrid');
+    const hour=document.getElementById('questHourCount'),day=document.getElementById('questDayCount'),week=document.getElementById('questWeekCount'),perm=document.getElementById('questPermanentCount');
+    if(hour)hour.textContent=`${questCompletedCount('hour')}/3`;if(day)day.textContent=`${questCompletedCount('day')}/3`;if(week)week.textContent=`${questCompletedCount('week')}/1`;if(perm)perm.textContent=`${questCompletedCount('permanent')}/1`;
+    renderQuestTicketBar();renderNicknameQuest();
+}
+async function claimQuestById(questId){
+    if(questBlockedByPartnerStreamer()){showToast('Квесты недоступны в партнёрском стример-моде','error');return false;}
+    try{
+        const data=await apiRequest({action:'claim_quest_reward',quest_id:questId});
+        if(!data?.ok)throw new Error(data?.error||'Не удалось получить награду');
+        if(Number.isFinite(Number(data.coins)))coins=Number(data.coins);
+        if(data.quest_state)applyQuestState(data.quest_state,true);else await refreshQuestState(true);
+        updateBalance();renderProfile();
+        if(data.reward_type==='coins')showToast(`✅ Получено +${Number(data.reward_amount||0)} ⓧ`,'success');
+        else showToast(`✅ Получен ${questTicketTitle(data.case_name)}`,'success');
+        return true;
+    }catch(error){showToast('❌ '+String(error?.message||'Ошибка награды'),'error');await refreshQuestState(true);return false;}
+}
+async function handleQuestAction(id){
+    const quest=getQuestDefinitions().find(q=>q.id===id);if(!quest||quest.claimed)return;
+    if(quest.progress>=quest.target){await claimQuestById(quest.id);return;}
+    openQuestTarget(quest);
+}
+async function handleNicknameQuest(){
+    const n=questServerState?.nickname||{};
+    if(n.claimed)return;
+    if(!n.eligible){await refreshQuestState(false);return;}
+    await claimQuestById('nick_daily_noobini');
+}
+function selectQuestCaseByName(caseName){if(!Array.isArray(cases)||!cases.length)return false;const norm=String(caseName||'').trim().toLowerCase();const found=cases.find(item=>String(item?.name||'').trim().toLowerCase()===norm||String(item?.name||'').trim().toLowerCase().replace(/\s+/g,' ')===norm);if(found){try{selectCase(found.id);}catch(_){ }return true;}return false;}
+function openQuestTarget(quest){if(!quest||!quest.action)return;const action=quest.action;if(action.kind==='deposit'){if(typeof openDeposit==='function')openDeposit();return;}if(action.kind==='upgrade'){if(typeof showPage==='function')showPage('upgrader');return;}if(action.kind==='case'){if(typeof showPage==='function')showPage('cases');if(action.caseName)setTimeout(()=>{selectQuestCaseByName(action.caseName);},50);return;}}
+async function trackQuestDeposit(requestKind,requestId){
+    if(questBlockedByPartnerStreamer())return;
+    const id=Number(requestId||0);if(!id)return;
+    try{const data=await apiRequest({action:'quest_record_deposit',request_kind:String(requestKind||''),request_id:id});if(data?.quest_state)applyQuestState(data.quest_state,true);}catch(error){console.log('Quest deposit sync:',error);}
+}
+function trackQuestUpgrade(){if(!questBlockedByPartnerStreamer())setTimeout(()=>refreshQuestState(true),80);}
+function trackQuestCaseOpen(){if(!questBlockedByPartnerStreamer())setTimeout(()=>refreshQuestState(true),80);}
+window.addEventListener('load',()=>{renderQuestPage();setTimeout(()=>refreshQuestState(true),350);});
 </script>
 
 
