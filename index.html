@@ -29369,14 +29369,24 @@ async function refreshQuestState(silent=false){
     })();
     return questRefreshPromise;
 }
+function questCanonicalCaseNameClient(caseName){
+    const key=String(caseName||'').trim().toLowerCase().replace(/\s+/g,' ');
+    if(['noob','noob case','noobini','noobini case'].includes(key)) return 'noob case';
+    return key;
+}
+function questTicketAliasKeysClient(caseName){
+    const key=questCanonicalCaseNameClient(caseName);
+    return key==='noob case'?['noob case','noobini case']:(key?[key]:[]);
+}
 function questTicketTitle(caseName){
-    const map={'neon case':'Неон кейс','noobini case':'Noobini Case','overdrive case':'Овердрайф кейс'};
-    return map[String(caseName||'').trim().toLowerCase()]||String(caseName||'Кейс');
+    const key=questCanonicalCaseNameClient(caseName);
+    const map={'neon case':'Неон кейс','noob case':'Noobini Case','noobini case':'Noobini Case','overdrive case':'Овердрайф кейс'};
+    return map[key]||String(caseName||'Кейс');
 }
 function questTicketCountForCase(caseName){
     if(questBlockedByPartnerStreamer()) return 0;
-    const key=String(caseName||'').trim().toLowerCase().replace(/\s+/g,' ');
-    return Math.max(0,Number(questServerState?.tickets?.[key]||0));
+    const tickets=questServerState?.tickets||{};
+    return questTicketAliasKeysClient(caseName).reduce((sum,key)=>sum+Math.max(0,Number(tickets?.[key]||0)),0);
 }
 function questRewardLabel(reward){return reward.type==='coins'?`${reward.amount} ⓧ`:(reward.label||reward.caseName);}
 function questRewardImage(reward){if(reward.type==='coins')return'';try{return caseImageFor({name:reward.caseName})||'';}catch(_){return'';}}
@@ -29420,7 +29430,12 @@ function renderQuestCards(group,rootId){
 }
 function renderQuestTicketBar(){
     const root=document.getElementById('questTicketBar');if(!root)return;
-    const entries=Object.entries(questServerState?.tickets||{}).filter(([,count])=>Number(count)>0);
+    const merged={};
+    Object.entries(questServerState?.tickets||{}).forEach(([caseName,count])=>{
+        const key=questCanonicalCaseNameClient(caseName);
+        if(key)merged[key]=(merged[key]||0)+Math.max(0,Number(count||0));
+    });
+    const entries=Object.entries(merged).filter(([,count])=>Number(count)>0);
     if(!entries.length){root.hidden=true;root.innerHTML='';return;}
     root.hidden=false;
     root.innerHTML=entries.map(([caseName,count])=>`<div class="quest-ticket-chip"><img src="${questRewardImage({type:'case',caseName})}" alt=""><span>${questTicketTitle(caseName)} ×${Number(count)}</span></div>`).join('');
