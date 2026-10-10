@@ -14398,7 +14398,6 @@ function showPage(
         page === "ladder"
     ){
         if(typeof renderQuestPage === "function") renderQuestPage();
-        if(typeof refreshQuestState === "function") refreshQuestState(true);
     }
 
     if(
@@ -15186,6 +15185,11 @@ function buildCaseCard(gameCase){
             gameCase
         );
 
+    const freeCaseCount =
+        typeof questTicketCountForCase === "function"
+        ? questTicketCountForCase(gameCase.name)
+        : 0;
+
     const card =
         document.createElement(
             "button"
@@ -15199,6 +15203,10 @@ function buildCaseCard(gameCase){
         card.classList.add(
             "case-card-new"
         );
+    }
+
+    if(freeCaseCount > 0){
+        card.classList.add("case-card-free");
     }
 
     card.innerHTML =
@@ -15225,8 +15233,9 @@ function buildCaseCard(gameCase){
         </div>
 
         <div class="case-price">
-            <span class="xcoin xcoin-small">X</span>
-            ${Number(gameCase.price || 0)}
+            ${freeCaseCount > 0
+                ? '<span class="case-free-count">FREE ' + freeCaseCount + '</span>'
+                : '<span class="xcoin xcoin-small">X</span> ' + Number(gameCase.price || 0)}
         </div>
         `;
 
@@ -29310,7 +29319,7 @@ html body#sharp-app #ladderPage .quest-ticket-chip{padding:6px 8px!important;bac
 </style>
 
 
-<style id="quest-nickname-and-upgrader-arrow-fix">
+<style id="free-case-ticket-ui-fix">
 html body#sharp-app #ladderPage .quest-nickname-box{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:11px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(27,31,43,.98),rgba(13,16,24,.98));border:1px solid rgba(112,187,158,.15);box-shadow:0 12px 28px rgba(0,0,0,.18)}
 html body#sharp-app #ladderPage .quest-nickname-icon{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(52,211,153,.10);border:1px solid rgba(52,211,153,.16);font-size:22px}
 html body#sharp-app #ladderPage .quest-nickname-copy{min-width:0}
@@ -29321,8 +29330,8 @@ html body#sharp-app #ladderPage .quest-nickname-example{margin-top:6px;color:#c7
 html body#sharp-app #ladderPage .quest-nickname-status{margin-top:4px;color:#78c9a8;font-size:8px;font-weight:900}
 html body#sharp-app #ladderPage .quest-nickname-btn{min-width:104px;min-height:34px;padding:0 10px;border-radius:10px;background:rgba(80,157,128,.16);border:1px solid rgba(112,187,158,.25);color:#c8f4e3;font-size:8px;font-weight:1000}
 html body#sharp-app #ladderPage .quest-nickname-btn:disabled{opacity:.55}
-html body#sharp-app #upgraderPage .upgrade-wheel-wrap{margin-bottom:34px!important}
-html body#sharp-app #upgraderPage .upgrade-main-btn{position:relative!important;z-index:2!important}
+.case-card.case-card-free{border-color:rgba(52,211,153,.34)!important;box-shadow:0 8px 24px rgba(16,185,129,.10),0 8px 22px rgba(0,0,0,.19)}
+.case-free-count{display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:3px 9px;border-radius:999px;color:#bfffe5;background:rgba(16,185,129,.13);border:1px solid rgba(52,211,153,.26);font-size:11px;font-weight:1000;letter-spacing:.35px}
 @media(max-width:420px){html body#sharp-app #ladderPage .quest-nickname-box{grid-template-columns:42px minmax(0,1fr)}html body#sharp-app #ladderPage .quest-nickname-icon{width:42px;height:42px}html body#sharp-app #ladderPage .quest-nickname-btn{grid-column:1/-1;width:100%}}
 </style>
 <script id="brainroterx-quests-logic">
@@ -29340,6 +29349,7 @@ if(window.__brainroterxInitialQuestState) questServerState = window.__brainroter
 function applyQuestState(state, rerender=true){
     if(state && typeof state === 'object') questServerState = state;
     if(rerender) renderQuestPage();
+    if(typeof renderCases === 'function' && typeof cases !== 'undefined' && Array.isArray(cases)) renderCases();
     if(typeof updateCaseCost === 'function') updateCaseCost();
 }
 function questBlockedByPartnerStreamer(){
