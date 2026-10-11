@@ -25651,6 +25651,9 @@ loadPlayer()
         if(typeof restoreActiveDepositTradeRequest === "function"){
             await restoreActiveDepositTradeRequest();
         }
+        if(typeof startSitePresence === "function"){
+            startSitePresence();
+        }
     })
     .finally(
         () => {
@@ -29632,6 +29635,42 @@ html body#sharp-app #upgraderPage .mystery-label{
 }
 </style>
 
+
+
+<script id="brainroterx-site-presence-v1">
+/*
+  Real online counter for /online in the admin bot.
+  A visible Mini App sends a lightweight heartbeat every 20 seconds.
+  Hidden/background tabs stop sending heartbeats and expire from online shortly.
+*/
+let sitePresenceTimer = null;
+let sitePresenceBusy = false;
+
+async function sitePresencePing(){
+    if(sitePresenceBusy || document.visibilityState !== "visible") return;
+    sitePresenceBusy = true;
+    try{
+        await apiRequest({action:"presence_ping"});
+    }
+    catch(_error){
+        /* Presence must never interrupt gameplay. */
+    }
+    finally{
+        sitePresenceBusy = false;
+    }
+}
+
+function startSitePresence(){
+    if(sitePresenceTimer) return;
+    sitePresencePing();
+    sitePresenceTimer = setInterval(sitePresencePing, 20000);
+}
+
+document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "visible") sitePresencePing();
+});
+window.addEventListener("focus", sitePresencePing);
+</script>
 
 </body>
 

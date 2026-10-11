@@ -1222,6 +1222,35 @@ async def deposit_plus(
 
 
 # =====================================================
+# REAL SITE ONLINE
+# =====================================================
+
+async def online_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.effective_message.reply_text("❌ Нет доступа")
+        return
+
+    result = await call_server_async(
+        "admin_get_online_count",
+        actor_telegram_id=update.effective_user.id,
+        window_seconds=60,
+    )
+
+    if not result.get("ok"):
+        await update.effective_message.reply_text(
+            "❌ " + str(result.get("error", "Не удалось получить онлайн"))
+        )
+        return
+
+    online = max(0, int(float(result.get("online", 0) or 0)))
+    await update.effective_message.reply_text(
+        "🟢 ОНЛАЙН НА САЙТЕ\n\n"
+        f"👥 Сейчас в сети: {online}\n"
+        "🌐 Считаются игроки с активным открытым Mini App за последнюю минуту."
+    )
+
+
+# =====================================================
 # ADMIN MENU + CHANNEL CONTROLS
 # =====================================================
 
@@ -1436,15 +1465,16 @@ def commands_text():
         "/promoinfo ID — посмотреть остаток\n\n"
         "/po+ ID ЛИМИТ НИК — выдать приём Brainrot / Гирсы заявок\n"
         "/po- ID — снять приём заявок\n"
-        "/smo ID — статистика оператора / 30% / вчера\n\n"
+        "/smo ID — статистика оператора / 30% / вчера\n"
+        "/online — сколько игроков сейчас на сайте\n\n"
         "/- — отключить все пополнения\n"
         "/+ — включить все пополнения\n"
         "/g- — отключить только ГРН\n"
         "/g+ — включить только ГРН\n"
-        "/r- — отключить только РУБ / FunPay\n"
-        "/r+ — включить только РУБ / FunPay\n"
-        "/f- — отключить пополнение через FunPay\n"
-        "/f+ — включить пополнение через FunPay\n"
+        "/r- — отключить только РУБ\n"
+        "/r+ — включить только РУБ\n"
+        
+        
         "/b- — отключить только Brainrot\n"
         "/b+ — включить только Brainrot\n"
         "/v- — отключить вывод\n"
@@ -2969,6 +2999,8 @@ def main():
             menu_command
         )
     )
+
+    app.add_handler(CommandHandler("online", online_command))
 
     # Символ + не входит в обычное имя Telegram bot_command,
     # поэтому /promo+ ловим как текст до /promo.
