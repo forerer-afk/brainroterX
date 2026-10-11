@@ -38,6 +38,9 @@ ADMIN_SECRET = os.getenv("ADMIN_SECRET", "").strip()
 
 ADMIN_TELEGRAM_ID = int(os.getenv("ADMIN_TELEGRAM_ID", "1273118871"))
 
+# Отдельный делегат: может только управлять РУБ через /r+ /r- и создавать /promo+ с отыгрышем.
+RUB_PROMO_DELEGATE_ID = int(os.getenv("RUB_PROMO_DELEGATE_ID", "6986400218"))
+
 FUNCTION_URL = (
     "https://obbxdztisfeutsvljiek.supabase.co/"
     "functions/v1/telegram-player"
@@ -159,6 +162,11 @@ def is_admin(update: Update):
 
 def is_owner(update: Update):
     return is_admin(update)
+
+
+def is_rub_promo_delegate(update: Update):
+    user = update.effective_user
+    return bool(user and int(user.id) == RUB_PROMO_DELEGATE_ID)
 
 
 async def get_promo_access(telegram_id: int):
@@ -657,6 +665,18 @@ async def start_command(
         )
         return
 
+    if is_rub_promo_delegate(update):
+        await update.message.reply_text(
+            "💳 ДОСТУП К РУБЛЯМ И PROMO+\n\n"
+            "/r+ — включить пополнение в рублях\n"
+            "/r- — отключить пополнение в рублях\n\n"
+            "/promo+ КОЛ-ВО_КОДОВ АКТИВАЦИИ МОНЕТЫ\n"
+            "Пример: /promo+ 5 100 1\n"
+            "Каждый promo+ даёт отыгрыш x1.2.\n\n"
+            "Другие админ-команды недоступны."
+        )
+        return
+
     operator_access = await call_server_async(
         "admin_get_deposit_operator_stats",
         actor_telegram_id=user.id,
@@ -816,7 +836,7 @@ async def promo_command(
 
 
 # =====================================================
-# /promo+ — ПЛАТЁЖНЫЕ ПРОМОКОДЫ FUNPAY
+# /promo+ — ПРОМОКОДЫ С ОТЫГРЫШЕМ x1.2
 # Формат: /promo+ КОЛ-ВО_КОДОВ АКТИВАЦИИ МОНЕТЫ
 # Пример: /promo+ 5 100 1
 # Каждый код получает отыгрыш x1.2 после активации.
@@ -838,7 +858,7 @@ async def promo_plus_command(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
 ):
-    if not is_owner(update):
+    if not (is_owner(update) or is_rub_promo_delegate(update)):
         if update.effective_message:
             await update.effective_message.reply_text("❌ Нет доступа")
         return
@@ -884,7 +904,7 @@ async def promo_plus_command(
             code = generate_short_promo_code()
             result = await call_server_async(
                 "admin_create_promo",
-                actor_telegram_id=ADMIN_TELEGRAM_ID,
+                actor_telegram_id=int(update.effective_user.id),
                 actor_username=(update.effective_user.username or ""),
                 actor_name=(update.effective_user.full_name or ""),
                 code=code,
@@ -929,6 +949,25 @@ async def promo_plus_command(
         await message.reply_text(
             f"❌ Создано {len(codes)} из {count}. Ошибка: {errors[0]}"
         )
+
+    # Один итоговый отчёт владельцу, чтобы /promo+ на много кодов не спамил сотнями сообщений.
+    if is_rub_promo_delegate(update) and codes:
+        try:
+            await context.bot.send_message(
+                chat_id=ADMIN_TELEGRAM_ID,
+                text=(
+                    "🎯 PROMO+ СОЗДАН ДЕЛЕГАТОМ\n\n"
+                    f"👤 {update.effective_user.full_name or 'Без имени'}"
+                    + (f" (@{update.effective_user.username})" if update.effective_user.username else "")
+                    + f"\n🆔 {update.effective_user.id}\n\n"
+                    f"🎫 Создано кодов: {len(codes)} из {count}\n"
+                    f"👥 Активаций на код: {max_uses}\n"
+                    f"💰 Награда: {reward_coins} монет\n"
+                    f"🎯 Отыгрыш: x{PROMO_PLUS_WAGER_MULTIPLIER}"
+                )
+            )
+        except Exception as exc:
+            logger.info("Could not notify owner about promo+ delegate batch: %r", exc)
 
 
 # =====================================================
@@ -1432,6 +1471,15 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    if is_rub_promo_delegate(update):
+        await update.message.reply_text(
+            "💳 ТВОИ КОМАНДЫ\n\n"
+            "/r+ — включить рубли\n"
+            "/r- — отключить рубли\n"
+            "/promo+ КОЛ-ВО_КОДОВ АКТИВАЦИИ МОНЕТЫ — создать промо с отыгрышем x1.2"
+        )
+        return
+
     operator_access = await call_server_async(
         "admin_get_deposit_operator_stats",
         actor_telegram_id=user.id,
@@ -1469,18 +1517,34 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(promo_access_text(access))
 
 async def set_channel(update, channel, enabled):
-    if not is_admin(update):
+    user = update.effective_user
+    if not user:
+        return
+
+    command = ((update.effective_message.text or "").strip().split(maxsplit=1)[0].split("@", 1)[0].lower()
+               if update.effective_message else "")
+    special_rub_access = (
+        int(user.id) == RUB_PROMO_DELEGATE_ID
+        and channel == "rub"
+        and command in ("/r+", "/r-")
+    )
+
+    if not (is_admin(update) or special_rub_access):
         await update.message.reply_text("❌ Нет доступа")
         return
+
     result=await call_server_async(
         "admin_set_deposit_channel_enabled",
+        actor_telegram_id=int(user.id),
+        actor_username=(user.username or ""),
+        actor_name=(user.full_name or ""),
         channel=channel,
         enabled=enabled
     )
     if not result.get("ok"):
         await update.message.reply_text("❌ "+result.get("error","Ошибка"))
         return
-    name=("ГРН" if channel=="uah" else ("РУБ / FunPay" if channel=="rub" else "Brainrot + Гирсы"))
+    name=("ГРН" if channel=="uah" else ("РУБ" if channel=="rub" else "Brainrot + Гирсы"))
     await update.message.reply_text(
         ("✅ " if enabled else "⛔ ")+name+
         (" включено" if enabled else " отключено")
