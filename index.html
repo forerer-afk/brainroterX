@@ -3076,6 +3076,7 @@ img{
     background:#343a45;
 }
 
+.case-theme-og{--case-accent:#ff637e;--case-accent2:#486c23;--case-panel:#221018}
 .case-theme-noob{--case-accent:#b69264}
 .case-theme-lucky{--case-accent:#34d058}
 .case-theme-chaos{--case-accent:#ff6b00}
@@ -13506,6 +13507,7 @@ const BRAINROT_IMAGES = {
 
     /* 23 NEW SECRET BRAINROTS */
     "skibidi toilet":"./skibidi-toilet.png",
+    "john pork":"./junk-pork.png",
     "junk pork":"./junk-pork.png",
     "arcodragon":"./arcodragon.png",
     "elefanto frigo":"./elefanto-frigo.png",
@@ -14849,6 +14851,8 @@ function showPage(
 ===================================================== */
 
 const CASE_VISUALS = {
+    "og":{theme:"og",symbol:"OG"},
+    "og case":{theme:"og",symbol:"OG"},
     "noob case":{theme:"noob",symbol:"NOOB"},
     "lucky case":{theme:"lucky",symbol:"🍀"},
     "chaos case":{theme:"chaos",symbol:"CHAOS"},
@@ -14881,6 +14885,8 @@ const CASE_IMAGES = {
     "ежедневный кейс":"./cases/free-case.png",
     "ежедневний кейс":"./cases/free-case.png",
 
+    "og":"./cases/og-case.png",
+    "og case":"./cases/og-case.png",
     "noob case":"./cases/noobini-case.png",
     "noobini case":"./cases/noobini-case.png",
 
@@ -18320,18 +18326,11 @@ function renderCaseContent(){
                     name:
                         item.brainrot_name,
 
+                    // Для OG используем точные цены наград из case_items.
                     value:
-                        brainrot
-                        ?
-                        Number(
-                            brainrot.value
-                        )
-                        :
-                        Number(
-                            item.value
-                            ||
-                            0
-                        )
+                        normalizeName(selectedCase.name).replace(/\s+case$/i, "") === "og"
+                        ? Number(item.value || 0)
+                        : (brainrot ? Number(brainrot.value) : Number(item.value || 0))
 
                 };
 
