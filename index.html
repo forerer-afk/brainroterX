@@ -10238,6 +10238,12 @@ body.site-test-active{overflow:hidden!important;}
 body.site-test-active > :not(#siteTestScreen){pointer-events:none!important;}
 </style>
 
+<style id="brx-case-odds-style">
+.case-odds-note{grid-column:1/-1;width:100%;padding:7px 8px;color:#b8bfc9;font-size:10px;line-height:1.5;border:1px solid rgba(255,255,255,.07);border-radius:2px}
+#caseContentList .case-content-value{display:flex!important;flex-direction:column!important;border-radius:3px!important;gap:3px!important}
+#caseContentList .case-content-price-line{display:flex;align-items:center;justify-content:center;gap:3px}
+.case-content-chance{font-size:9px;color:#c9d0db;font-weight:600;white-space:nowrap}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -13242,7 +13248,8 @@ let playerProfile = {
 
     can_withdraw:false,
 
-    case_luck_boost:0
+    case_luck_boost:0,
+    case_luck_penalty:0
 
 };
 
@@ -14245,6 +14252,8 @@ async function loadPlayer(){
                         )
                     )
                 ),
+
+            case_luck_penalty: Math.max(0, Math.min(0.50, Number(data.case_luck_penalty || 0))),
 
             best_drop:
                 data.best_drop
@@ -16074,7 +16083,8 @@ function renderCases(){
         "lucky",
         "toxic",
         "neon lavaka",
-        "moon"
+        "moon",
+        "og"
     ]);
 
     const hiddenCases = byNames([
@@ -18261,9 +18271,11 @@ async function openSelectedCase(){
         coins=Number(data.coins??coins);
         playerProfile.cases_opened=Number(data.cases_opened??playerProfile.cases_opened);
         playerProfile.case_luck_boost=Math.max(0,Math.min(.30,Number(data.case_luck_boost??playerProfile.case_luck_boost??0)));
+        playerProfile.case_luck_penalty=Math.max(0,Math.min(.50,Number(data.case_luck_penalty??playerProfile.case_luck_penalty??0)));
         playerProfile.wager_required=Number(data.wager_required??playerProfile.wager_required??0);
         playerProfile.wager_progress=Number(data.wager_progress??playerProfile.wager_progress??0);
         playerProfile.can_withdraw=Boolean(playerProfile.has_deposited)&&playerProfile.wager_progress>=playerProfile.wager_required;
+        if (selectedCase?.id === chosen.id) renderCaseContent();
         state.winners=cinemaWinners(data);
         if(typeof trackQuestCaseOpen === 'function') trackQuestCaseOpen(chosen.name,count);
         const added=[...(Array.isArray(data.items)?data.items:[]),...(data.item?[data.item]:[]),...state.winners.filter(item=>!cinemaIsCoins(item))];
@@ -18311,10 +18323,25 @@ function renderCaseContent(){
 
     }
 
+    // Exact server weight formula; show player their current probability.
+    // Base 0% entries remain exactly 0%, even during a luck boost.
+    const rawItems = getCaseItems();
+    const boost = Math.max(0, Math.min(.30, Number(playerProfile?.case_luck_boost || 0)));
+    const penalty = Math.max(0, Math.min(.50, Number(playerProfile?.case_luck_penalty || 0)));
+    const casePrice = Number(selectedCase.price || 0);
+    const oddsWeights = rawItems.map(item => {
+        const base = Math.max(0, Number(item.chance || 0));
+        const payout = String(item.reward_type || "brainrot") === "coins"
+            ? Number(item.reward_amount || item.value || 0)
+            : Number(item.value || 0);
+        return base * (payout > casePrice ? Math.max(0, 1 + boost - penalty) : 1);
+    });
+    const totalOddsWeight = oddsWeights.reduce((sum, weight) => sum + weight, 0);
+
     const items =
-        getCaseItems()
+        rawItems
         .map(
-            item => {
+            (item, index) => {
 
                 const brainrot =
                     getBrainrotByName(
@@ -18325,6 +18352,8 @@ function renderCaseContent(){
 
                     name:
                         item.brainrot_name,
+                    effectiveChance: totalOddsWeight > 0
+                        ? 100 * oddsWeights[index] / totalOddsWeight : 0,
 
                     // Для OG используем точные цены наград из case_items.
                     value:
@@ -18345,6 +18374,11 @@ function renderCaseContent(){
                 -
                 a.value
         );
+
+    const oddsNotice=document.createElement('div');
+    oddsNotice.className='case-odds-note';
+    oddsNotice.textContent='Шансы учитывают пополнения, выигрыши и выводы. Указаны для следующего открытия.';
+    root.appendChild(oddsNotice);
 
     items.forEach(
         item => {
@@ -18374,7 +18408,8 @@ function renderCaseContent(){
                 </div>
 
                 <div class="case-content-value">
-                    <span class="xcoin xcoin-tiny">X</span> ${item.value}
+                    <div class="case-content-price-line"><span class="xcoin xcoin-tiny">X</span> ${item.value}</div>
+                    <div class="case-content-chance">Шанс: ${item.effectiveChance.toFixed(2)}%</div>
                 </div>
                 `;
 
@@ -24051,6 +24086,8 @@ async function silentSync(){
                         )
                     )
                 ),
+
+            case_luck_penalty: Math.max(0, Math.min(0.50, Number(data.case_luck_penalty || 0))),
 
             best_drop:
                 data.best_drop
