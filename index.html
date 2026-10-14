@@ -13,7 +13,31 @@
 <title>
     Brainroter X
 </title>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
+
+<script id="brx-boot-watchdog">
+(()=>{
+    window.__BRX_BOOT_FINISHED__=false;
+    setTimeout(()=>{
+        if(window.__BRX_BOOT_FINISHED__) return;
+        const loader=document.getElementById("appLoader");
+        if(!loader) return;
+        const text=document.getElementById("loaderText");
+        if(text) text.textContent="Сервер отвечает дольше обычного";
+        const box=loader.querySelector(".loader-box");
+        if(box&&!document.getElementById("brxBootRetry")){
+            const note=document.createElement("div");
+            note.id="brxBootRetry";
+            note.style.cssText="margin-top:16px;font:700 10px/1.45 Arial,sans-serif;color:#8ea0b8";
+            note.innerHTML='Проверь соединение и открой Mini App заново.<br><button type="button" style="margin-top:10px;padding:10px 16px;border:1px solid #334155;background:#111827;color:#fff;font-weight:900;cursor:pointer" onclick="location.reload()">ПОВТОРИТЬ</button>';
+            box.appendChild(note);
+        }
+    },20000);
+})();
+</script>
 <script id="brx-telegram-sdk-loader">
 (function(){
     const isWeb = location.protocol === "http:" || location.protocol === "https:";
@@ -25,6 +49,10 @@
     document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');
 })();
 </script>
+
+<style id="brx-system-font-fallback">
+html,body,button,input,select,textarea{font-family:Arial,"Segoe UI",system-ui,sans-serif!important;}
+</style>
 <style id="brx-local-loader-css">
 html.brx-local-browser #appLoader{display:none!important;visibility:hidden!important;pointer-events:none!important;opacity:0!important;}
 </style>
@@ -59,9 +87,6 @@ html.brx-local-browser #appLoader{display:none!important;visibility:hidden!impor
 })();
 </script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
@@ -14016,7 +14041,7 @@ function deactivateSiteTestScreen(){
 
 async function apiRequest(data){
  const controller=new AbortController();
- const timeoutMs=data.action==='get_player'?10000:(data.action==='get_big_wins'?12000:25000);
+ const timeoutMs=data.action==='get_player'?18000:(data.action==='get_big_wins'?12000:25000);
  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
  try{
   const response=await fetch(FUNCTION_URL,{method:'POST',cache:data.action==='get_big_wins'?'no-store':'default',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,partner_mode:partnerActive(),initData:tg.initData})});
@@ -26008,6 +26033,7 @@ function sleep(
 ===================================================== */
 
 const finishAppLoader=()=>{
+    window.__BRX_BOOT_FINISHED__=true;
     const loader=document.getElementById("appLoader");
     if(!loader)return;
     loader.classList.add("hide");
