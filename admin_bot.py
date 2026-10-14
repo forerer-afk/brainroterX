@@ -1222,6 +1222,51 @@ async def deposit_plus(
 
 
 # =====================================================
+# SITE TEST MODE
+# /test+ — close site for everyone except owner
+# /test- — reopen site
+# =====================================================
+
+async def test_mode_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_owner(update):
+        await update.effective_message.reply_text("❌ Нет доступа")
+        return
+
+    message = update.effective_message
+    text = (message.text or "").strip().lower()
+    command = text.split("@", 1)[0].split()[0] if text else ""
+
+    if command not in ("/test+", "/test-"):
+        await message.reply_text("Использование: /test+ или /test-")
+        return
+
+    enabled = command == "/test+"
+    result = await call_server_async(
+        "admin_set_test_mode",
+        actor_telegram_id=update.effective_user.id,
+        enabled=enabled,
+    )
+
+    if not result.get("ok"):
+        await message.reply_text(
+            "❌ " + str(result.get("error", "Не удалось изменить TEST MODE"))
+        )
+        return
+
+    if enabled:
+        await message.reply_text(
+            "🧪 TEST MODE ВКЛЮЧЁН\n\n"
+            "Сайт закрыт для всех игроков.\n"
+            "Твой аккаунт продолжает заходить и может тестировать обновление."
+        )
+    else:
+        await message.reply_text(
+            "✅ TEST MODE ВЫКЛЮЧЕН\n\n"
+            "Сайт снова открыт для всех игроков."
+        )
+
+
+# =====================================================
 # REAL SITE ONLINE
 # =====================================================
 
@@ -1466,7 +1511,9 @@ def commands_text():
         "/po+ ID ЛИМИТ НИК — выдать приём Brainrot / Гирсы заявок\n"
         "/po- ID — снять приём заявок\n"
         "/smo ID — статистика оператора / 30% / вчера\n"
-        "/online — сколько игроков сейчас на сайте\n\n"
+        "/online — сколько игроков сейчас на сайте\n"
+        "/test+ — закрыть сайт для всех, кроме владельца\n"
+        "/test- — снова открыть сайт\n\n"
         "/- — отключить все пополнения\n"
         "/+ — включить все пополнения\n"
         "/g- — отключить только ГРН\n"
@@ -3001,6 +3048,12 @@ def main():
     )
 
     app.add_handler(CommandHandler("online", online_command))
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(r"^/test[+-](?:@[A-Za-z0-9_]+)?\s*$"),
+            test_mode_command,
+        )
+    )
 
     # Символ + не входит в обычное имя Telegram bot_command,
     # поэтому /promo+ ловим как текст до /promo.
