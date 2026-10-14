@@ -14377,22 +14377,14 @@ async function loadPlayer(){
             try{ fn(); }catch(renderError){ console.error("Boot render failed:",name,renderError); }
         };
 
+        // Avoid painting five hidden screens before the first touch.
+        // Each menu paints its current server-backed data when first opened.
         safeBootRender("balance",updateBalance);
         safeBootRender("daily",renderDailyCard);
-        safeBootRender("history",renderDropHistory);
         safeBootRender("wins",renderBigWins);
-        safeBootRender("ladder",renderLadder);
-        safeBootRender("ladderInventory",renderLadderInventory);
-        safeBootRender("profile",renderProfile);
         safeBootRender("cases",renderCases);
-        safeBootRender("inventory",renderInventory);
-        safeBootRender("upgradeSource",renderSourceGrid);
-        safeBootRender("upgradeTarget",renderTargetGrid);
-        safeBootRender("deposit",renderDepositGrid);
-        safeBootRender("referral",renderReferral);
         safeBootRender("hourlyPromo",renderHourlyDepositPromo);
         safeBootRender("hourlyTimer",startHourlyDepositPromoTimer);
-        safeBootRender("upgradeUI",updateUpgradeUI);
 
         if(!cases.length){
             const caseRoot=document.getElementById("caseList");
@@ -14406,9 +14398,12 @@ async function loadPlayer(){
 
         // Restore all three own deposit status cards after a full Mini App reload.
         /* Load slower feed/referral/quest state after the core UI is already usable. */
+        // Spread the non-critical full sync over several seconds when many
+        // Telegram users enter simultaneously. Core cases/balance are already painted.
         setTimeout(() => {
+            if(document.visibilityState !== "visible") return;
             try{ silentSync(); }catch(_){ }
-        }, 450);
+        }, 3000 + Math.floor(Math.random() * 5000));
 
         if(!window.__brainroterxDepositRestoreBooted){
             window.__brainroterxDepositRestoreBooted = true;
@@ -14818,8 +14813,18 @@ function showPage(
         behavior:"instant"
     });
 
-    silentSync();
+    // Navigation is instant. Do not queue a full player fetch and dozens of hidden-page
+    // rerenders on every tab tap. Refresh stale data after the UI has responded.
+    if(!window.__brxNavSyncLastAt) window.__brxNavSyncLastAt = Date.now();
+    if(Date.now()-window.__brxNavSyncLastAt > 30000){
+        window.__brxNavSyncLastAt=Date.now();
+        setTimeout(()=>{if(document.visibilityState==='visible')silentSync();},900);
+    }
 
+    if(page === "cases" && window.__brxCasesNeedPaint && !selectedCase){
+        window.__brxCasesNeedPaint=false;
+        renderCases();
+    }
     if(
         page === "inventory"
     ){
@@ -14830,7 +14835,9 @@ function showPage(
     if(
         page === "ladder"
     ){
-        if(typeof renderQuestPage === "function") renderQuestPage();
+        if(typeof renderLadder === "function")renderLadder();
+        if(typeof renderLadderInventory === "function")renderLadderInventory();
+        if(typeof renderQuestPage === "function")renderQuestPage();
     }
 
     if(
@@ -22136,13 +22143,37 @@ async function refreshDepositChannels(){
 }
 
 
+// Instant navigation feedback while an essential server permission check is pending.
+// The mask blocks every form control until validation finishes.
+function brxShowModalLoading(id,label,cancel){
+    const overlay=document.getElementById(id);
+    const dialog=overlay?.querySelector('.modal');
+    if(!dialog)return ()=>{};
+    overlay.classList.add('show');
+    dialog.style.position='relative';
+    dialog.querySelector('.brx-modal-loading')?.remove();
+    const mask=document.createElement('div');
+    mask.className='brx-modal-loading';
+    mask.setAttribute('role','status');
+    mask.setAttribute('aria-live','polite');
+    const text=document.createElement('span');text.textContent=label;
+    const button=document.createElement('button');button.type='button';button.textContent='Отмена';
+    button.onclick=cancel;
+    mask.append(text,button);
+    dialog.append(mask);
+    return ()=>mask.remove();
+}
+let brxDepositOpeningToken=0;
 async function openDeposit(){
-
-    await refreshDepositChannels();
+    const token=++brxDepositOpeningToken;
+    const finishLoading=brxShowModalLoading('depositModal','Загружаем пополнение…',()=>closeDeposit());
+    try{await refreshDepositChannels();}finally{finishLoading();}
+    if(token!==brxDepositOpeningToken)return;
 
     if(
         !depositEnabled
     ){
+        closeDeposit();
         if(
             tg &&
             typeof tg.showAlert === "function"
@@ -22175,6 +22206,7 @@ async function openDeposit(){
         &&
         !starsDepositEnabled
     ){
+        closeDeposit();
         if(
             tg &&
             typeof tg.showAlert === "function"
@@ -22306,6 +22338,8 @@ async function openDeposit(){
 
 
 function closeDeposit(){
+    brxDepositOpeningToken++;
+    document.getElementById('depositModal')?.querySelector('.brx-modal-loading')?.remove();
 
     document
         .getElementById(
@@ -24175,22 +24209,35 @@ async function silentSync(){
         preloadFeedAvatars(bigWins);
         ladderSession = data.ladder_session || ladderSession;
 
+        // Keep background data current, but paint only what is on screen.
+        // Rebuilding all 5 pages on each network response freezes Telegram WebView,
+        // particularly when users have a large inventory.
         updateBalance();
-        renderDailyCard();
-        renderDropHistory();
-        renderBigWins();
-        renderLadder();
-        renderLadderInventory();
-        renderProfile();
-        renderInventory();
-        renderCases();
-        renderSourceGrid();
-        renderTargetGrid();
-        renderDepositGrid();
-        renderReferral();
-        renderHourlyDepositPromo();
+        const activePage = document.querySelector('.page.active')?.id || 'casesPage';
+        if(activePage === 'casesPage'){
+            renderDailyCard();
+            renderBigWins();
+            if(!selectedCase && document.getElementById('caseList')?.style.display !== 'none')renderCases();
+            renderHourlyDepositPromo();
+        }else if(activePage === 'inventoryPage'){
+            window.__brxCasesNeedPaint=true;
+            renderProfile();
+            renderInventory();
+        }else if(activePage === 'upgraderPage'){
+            window.__brxCasesNeedPaint=true;
+            renderSourceGrid();
+            renderTargetGrid();
+            updateUpgradeUI();
+        }else if(activePage === 'ladderPage'){
+            window.__brxCasesNeedPaint=true;
+            renderLadder();
+            renderLadderInventory();
+        }
+        if(activePage === 'dicePage')window.__brxCasesNeedPaint=true;
+        if(document.getElementById('dropHistoryModal')?.classList.contains('show'))renderDropHistory();
+        if(document.getElementById('depositModal')?.classList.contains('show') && !document.getElementById('depositModal')?.querySelector('.brx-modal-loading'))renderDepositGrid();
+        if(document.getElementById('referralModal')?.classList.contains('show'))renderReferral();
         startHourlyDepositPromoTimer();
-        updateUpgradeUI();
 
     }
     catch(
@@ -24729,6 +24776,7 @@ function replaceUnavailableWithdraw(id){
 }
 
 
+let brxWithdrawOpeningToken=0;
 async function openWithdraw(
     id
 ){
@@ -24749,6 +24797,8 @@ async function openWithdraw(
     selectedWithdrawSlot = null;
 
     withdrawStatusChecking = true;
+    const openingToken=++brxWithdrawOpeningToken;
+    const finishLoading=brxShowModalLoading('withdrawModal','Проверяем доступность вывода…',()=>closeWithdraw());
 
     try{
         const status =
@@ -24771,9 +24821,12 @@ async function openWithdraw(
     }
     finally{
         withdrawStatusChecking = false;
+        finishLoading();
     }
+    if(openingToken!==brxWithdrawOpeningToken)return;
 
     if(!withdrawEnabled){
+        closeWithdraw();
         showToast(
             "Вывод временно недоступен",
             "error"
@@ -24792,6 +24845,7 @@ async function openWithdraw(
         <=
         0
     ){
+        closeWithdraw();
         showToast(
             "Для вывода нужно сначала хотя бы один раз пополнить баланс Brainrot",
             "error"
@@ -24813,6 +24867,7 @@ async function openWithdraw(
             0
         )
     ){
+        closeWithdraw();
         showToast(
             `Сначала выполни отыгрыш: ${playerProfile.wager_progress} из ${playerProfile.wager_required} X`,
             "error"
@@ -25073,6 +25128,8 @@ function goWithdrawStep2(){
 
 
 function closeWithdraw(){
+    brxWithdrawOpeningToken++;
+    document.getElementById('withdrawModal')?.querySelector('.brx-modal-loading')?.remove();
 
     selectedWithdrawItem =
         null;
@@ -26136,8 +26193,10 @@ if(localChromePreview){
     const prepareImage = img => {
         if (!img) return;
 
-        /* Fast scrolling should never reveal unloaded slots. */
-        img.loading = "eager";
+        /* Do not download/decode off-screen inventory and other hidden tabs
+           during a tap. Reel assets must still be available immediately. */
+        img.loading = img.closest('.cinema-track,.cinema-window,#casePresentationStage')
+            ? 'eager' : 'lazy';
         img.decoding = "async";
     };
 
@@ -27699,7 +27758,7 @@ body.streamer-mode #settingsModal *{
                Do not fire another identical request immediately for every user. */
             bigWinsTimer = setInterval(
                 () => refreshBigWins(false),
-                5000
+                28000
             );
         };
 
@@ -30250,9 +30309,9 @@ function syncThreeDayDropVisibility(){
 }
 
 window.addEventListener('load',()=>{
-    refreshThreeDayDrop(true);
+    setTimeout(()=>{if(document.visibilityState==='visible')refreshThreeDayDrop(true);},2200+Math.floor(Math.random()*6000));
     if(!threeDayDropTimer)threeDayDropTimer=setInterval(threeDayDropTick,1000);
-    if(!threeDayDropRefreshTimer)threeDayDropRefreshTimer=setInterval(()=>refreshThreeDayDrop(true),60000);
+    if(!threeDayDropRefreshTimer)threeDayDropRefreshTimer=setInterval(()=>{if(document.visibilityState==='visible')refreshThreeDayDrop(true);},120000);
     const active=document.getElementById('activeCase');
     if(active){new MutationObserver(syncThreeDayDropVisibility).observe(active,{attributes:true,attributeFilter:['style','class']});syncThreeDayDropVisibility();}
 });
@@ -30285,8 +30344,8 @@ async function sitePresencePing(){
 
 function startSitePresence(){
     if(sitePresenceTimer) return;
-    sitePresencePing();
-    sitePresenceTimer = setInterval(sitePresencePing, 20000);
+    setTimeout(sitePresencePing,Math.floor(Math.random()*3000));
+    sitePresenceTimer = setInterval(sitePresencePing, 30000);
 }
 
 document.addEventListener("visibilitychange", () => {
@@ -32510,6 +32569,11 @@ html body#sharp-app .back-btn,
 html body#sharp-app .nav-btn{
     transition-duration:.09s!important;
 }
+</style>
+
+<style id="brx-responsive-modal-load-css">
+.brx-modal-loading{position:absolute;z-index:100;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;min-height:190px;padding:25px;background:rgba(8,15,26,.97);color:#edf4ff;font-size:13px;font-weight:800;text-align:center;cursor:progress}
+.brx-modal-loading>button{padding:10px 22px;border:1px solid #3b516a;border-radius:0;background:#19283b;color:#f3f7fc;font-weight:800;font-size:12px;cursor:pointer}
 </style>
 </body>
 </html>
