@@ -31326,7 +31326,7 @@ html body#sharp-app #casePresentationStage .cinema-final{animation:brxWinnerSett
     window.brxRouletteTick=(progress=0,index=0)=>{
         /* One soft click for one crossed card. Speed comes from the reel timing, not from audio pitch. */
         const p=Math.max(0,Math.min(1,Number(progress)||0));
-        play('tick',p>.90?.50:.44,1.01-p*.035,14);
+        play('tick',p>.90?.78:.72,1.01-p*.035,14);
     };
     window.brxCaseOpenSound=()=>{};
     window.brxCaseResultSound=(items=[])=>{if(items?.length)play('win',.18,1,2);};
@@ -31348,10 +31348,59 @@ html body#sharp-app #casePresentationStage .cinema-final{animation:brxWinnerSett
     let soundsUnlocked=false;
     document.addEventListener('click',()=>{soundsUnlocked=true;},{capture:true,once:true});
 
+    /* Sound intent guard: scrolling across a case/button is NOT a button press.
+       Observe gestures only; never cancel clicks or change game mechanics. */
+    const shouldPlayTapSound=(()=>{
+        let active=null;
+        let last={time:-Infinity,dragged:false,type:''};
+        const scrollPosition=()=>({x:window.scrollX||0,y:window.scrollY||0});
+        const finish=(event,cancelled=false)=>{
+            if(!active||active.id!==event.pointerId)return;
+            const scroll=scrollPosition();
+            last={
+                time:performance.now(),
+                dragged:cancelled||active.dragged||Math.abs(scroll.x-active.scroll.x)>2||Math.abs(scroll.y-active.scroll.y)>2,
+                type:active.type
+            };
+            active=null;
+        };
+        document.addEventListener('pointerdown',event=>{
+            if(!event.isPrimary)return;
+            active={id:event.pointerId,type:event.pointerType||'',x:event.clientX,y:event.clientY,
+                scroll:scrollPosition(),dragged:false};
+        },{capture:true,passive:true});
+        document.addEventListener('pointermove',event=>{
+            if(!active||active.id!==event.pointerId)return;
+            if(Math.hypot(event.clientX-active.x,event.clientY-active.y)>7)active.dragged=true;
+        },{capture:true,passive:true});
+        document.addEventListener('pointerup',event=>finish(event),{capture:true,passive:true});
+        document.addEventListener('pointercancel',event=>finish(event,true),{capture:true,passive:true});
+        document.addEventListener('scroll',()=>{
+            if(active&&active.type!=='mouse')active.dragged=true;
+        },{capture:true,passive:true});
+        /* WebViews can stop pointermove once native scrolling takes control. */
+        document.addEventListener('touchmove',event=>{
+            if(!active||active.type==='mouse')return;
+            const touch=event.touches?.[0]||event.changedTouches?.[0];
+            if(touch&&Math.hypot(touch.clientX-active.x,touch.clientY-active.y)>7)active.dragged=true;
+        },{capture:true,passive:true});
+        return event=>{
+            if(event.isTrusted===false)return false;
+            /* A synthetic mobile click may have detail=0; gesture history takes precedence. */
+            const elapsed=performance.now()-last.time;
+            if(elapsed>=0&&elapsed<450&&last.dragged){
+                if(!event.pointerType||!last.type||event.pointerType===last.type)return false;
+            }
+            return true;
+        };
+    })();
+    window.brxShouldPlayTapSound=shouldPlayTapSound;
+
     /* UI toggles use the user's toggle sound. Lazy playback means zero audio loading during boot. */
     document.addEventListener('click',(event)=>{
         const button=event.target.closest?.('.streamer-toggle,[role="switch"],#caseSpeedButton,#upgradeSpeedButton,#caseSoundButton,#upgradeSoundButton');
         if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return;
+        if(!window.brxShouldPlayTapSound?.(event))return;
         const soundToggle=button.id==='caseSoundButton'||button.id==='upgradeSoundButton';
         window.brxUiToggleSound?.(soundToggle);
     },true);
@@ -31607,6 +31656,7 @@ html body#sharp-app .support-float-btn{border-radius:50%!important;}
         if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return;
         if(button.id==='spinButton'||button.dataset?.silentClick==='true')return;
         if(button.matches?.('.streamer-toggle,[role="switch"],#caseSpeedButton,#upgradeSpeedButton,#caseSoundButton,#upgradeSoundButton'))return;
+        if(!window.brxShouldPlayTapSound?.(event))return;
         playClick(button);
     },true);
 })();
