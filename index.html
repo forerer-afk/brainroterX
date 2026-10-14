@@ -30448,9 +30448,11 @@ html body#sharp-app #settingsModal .streamer-setting-card[data-brx-live="1"] .st
     if(liveDesc)liveDesc.textContent='Скрывает баланс, цены и личные данные на экране во время трансляции.';
     const syncLiveStatus=()=>{
         if(!liveStatus||!privacyToggle)return;
-        liveStatus.textContent=privacyToggle.getAttribute('aria-checked')==='true'?'LIVE включён':'LIVE выключен';
+        const next=privacyToggle.getAttribute('aria-checked')==='true'?'LIVE включён':'LIVE выключен';
+        if(liveStatus.textContent!==next) liveStatus.textContent=next;
     };
-    if(liveStatus)new MutationObserver(syncLiveStatus).observe(liveStatus,{childList:true,subtree:true,characterData:true});
+    // Observe only the toggle. Observing liveStatus itself caused a self-triggering
+    // MutationObserver loop in Telegram WebView and could keep the startup loader alive forever.
     if(privacyToggle)new MutationObserver(syncLiveStatus).observe(privacyToggle,{attributes:true,attributeFilter:['aria-checked','class']});
     syncLiveStatus();
 
