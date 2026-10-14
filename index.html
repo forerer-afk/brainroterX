@@ -10475,7 +10475,7 @@ html body#sharp-app #casesPage .three-day-drop-stats{display:grid;grid-template-
 html body#sharp-app #casesPage .three-day-drop-stat{min-width:0;padding:8px 9px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055)}
 html body#sharp-app #casesPage .three-day-drop-stat span{display:block;color:#7f8ba0;font-size:8px;font-weight:800}
 html body#sharp-app #casesPage .three-day-drop-stat b{display:block;margin-top:2px;color:#eaf1ff;font-size:11px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-html body#sharp-app #casesPage .three-day-drop-rewards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px;position:relative;z-index:1}
+html body#sharp-app #casesPage .three-day-drop-rewards{display:grid;grid-template-columns:minmax(0,160px);justify-content:center;gap:7px;margin-top:9px;position:relative;z-index:1}
 html body#sharp-app #casesPage .three-day-drop-slot{min-width:0;height:102px;padding:7px;border-radius:12px;background:linear-gradient(155deg,rgba(35,43,63,.88),rgba(16,21,33,.96));border:1px solid rgba(159,180,218,.09);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden}
 html body#sharp-app #casesPage .three-day-drop-slot.is-unknown{border-style:dashed;background:rgba(255,255,255,.018)}
 html body#sharp-app #casesPage .three-day-drop-question{color:#64748b;font-size:30px;font-weight:1000;line-height:1}
@@ -10526,8 +10526,7 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
         <div class="three-day-drop-head">
             <div>
                 <div class="three-day-drop-kicker">3-ДНЕВНЫЙ ДРОП</div>
-                <div class="three-day-drop-title">3 случайные награды</div>
-                <div class="three-day-drop-sub">Brainrot или X Coin · сила дропа зависит от пополнений за текущий цикл</div>
+                <div class="three-day-drop-title">Выбери 1 из 3 Brainrot</div>
             </div>
             <div id="threeDayDropBadge" class="three-day-drop-badge">Загрузка</div>
         </div>
@@ -10538,7 +10537,7 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
                 <b id="threeDayDropDeposit">—</b>
             </div>
             <div class="three-day-drop-stat">
-                <span>Каждый приз</span>
+                <span>Стоимость Brainrot</span>
                 <b id="threeDayDropRange">—</b>
             </div>
         </div>
@@ -10550,9 +10549,8 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
         </div>
 
         <button id="threeDayDropButton" class="three-day-drop-button" type="button" onclick="claimThreeDayDrop()" disabled>
-            ЗАГРУЗКА...
+            ВЫБЕРИ BRAINROT
         </button>
-        <div id="threeDayDropNote" class="three-day-drop-note">Подтверждённые пополнения повышают стоимость всех трёх наград.</div>
     </section>
 
     <div
@@ -13752,6 +13750,13 @@ function showToast(
     if(!root){
         return;
     }
+
+    try{
+        const kind=String(type||'success').toLowerCase();
+        const text=String(message||'');
+        if(kind==='error') window.brxErrorSound?.();
+        else if(kind==='success'&&/получ|выпал|награ|дроп|побед|выигр|начисл|забрал/i.test(text)) window.brxRewardSound?.();
+    }catch(_){ }
 
     const toast =
         document.createElement(
@@ -18134,6 +18139,7 @@ async function cinemaAnimate(state){
         };
         requestAnimationFrame(frame);
     });
+    window.brxCaseStopSound?.();
 }
 function cinemaWinners(data){
     const items=Array.isArray(data.items)?data.items:[];
@@ -30002,9 +30008,10 @@ html body#sharp-app #upgraderPage .mystery-label{
 
 
 
-<script id="brainroterx-three-day-drop-logic-v1">
+<script id="brainroterx-three-day-drop-logic-v2">
 let threeDayDropState = null;
 let threeDayDropBusy = false;
+let threeDayDropSelectedId = null;
 let threeDayDropTimer = null;
 let threeDayDropRefreshTimer = null;
 
@@ -30018,25 +30025,44 @@ function threeDayDropFormatTime(totalSeconds){
     return d>0?`${d}д ${hh}:${mm}:${ss}`:`${hh}:${mm}:${ss}`;
 }
 
-function threeDayDropRewardNode(reward,index,reveal=false){
+function selectThreeDayDropChoice(brainrotId){
+    if(threeDayDropBusy||!threeDayDropState?.available)return;
+    const id=Number(brainrotId||0);
+    const choices=Array.isArray(threeDayDropState?.choices)?threeDayDropState.choices:[];
+    if(!choices.some(item=>Number(item?.brainrot_id||0)===id))return;
+    threeDayDropSelectedId=id;
+    document.querySelectorAll('#threeDayDropRewards .three-day-drop-slot').forEach(node=>{
+        node.classList.toggle('is-selected',Number(node.dataset.brainrotId||0)===id);
+    });
+    threeDayDropUpdateControls();
+}
+
+function threeDayDropRewardNode(reward,index,reveal=false,selectable=false){
+    const type=String(reward?.type||'').toLowerCase();
+    if(type!=='brainrot') return threeDayDropUnknownNode();
     const node=document.createElement('div');
-    node.className='three-day-drop-slot'+(reveal?' reveal':'');
+    node.className='three-day-drop-slot'+(reveal?' reveal':'')+(selectable?' is-choice':'');
     if(reveal) node.style.animationDelay=`${index*90}ms`;
-    const type=String(reward?.type||'');
-    if(type==='brainrot'){
-        const img=document.createElement('img');
-        const name=String(reward?.brainrot_name||'Brainrot');
-        img.src=typeof getImage==='function'?getImage(name):'';
-        img.alt=name;
-        img.onerror=()=>{img.style.visibility='hidden';};
-        node.appendChild(img);
-        const title=document.createElement('div');title.className='three-day-drop-name';title.textContent=name;node.appendChild(title);
-        const value=document.createElement('div');value.className='three-day-drop-value';value.textContent=`${Math.max(0,Number(reward?.value||0))} X`;node.appendChild(value);
-    }else{
-        const coin=document.createElement('div');coin.className='three-day-drop-coin';coin.textContent='X';node.appendChild(coin);
-        const title=document.createElement('div');title.className='three-day-drop-name';title.textContent='X Coin';node.appendChild(title);
-        const value=document.createElement('div');value.className='three-day-drop-value';value.textContent=`+${Math.max(0,Number(reward?.amount||reward?.value||0))} X`;node.appendChild(value);
+    const id=Number(reward?.brainrot_id||0);
+    if(id>0) node.dataset.brainrotId=String(id);
+    if(selectable){
+        node.setAttribute('role','button');
+        node.setAttribute('tabindex','0');
+        node.setAttribute('aria-label',`Выбрать ${String(reward?.brainrot_name||'Brainrot')}`);
+        const choose=()=>selectThreeDayDropChoice(id);
+        node.addEventListener('click',choose);
+        node.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose();}});
+        if(id===Number(threeDayDropSelectedId||0))node.classList.add('is-selected');
     }
+    const img=document.createElement('img');
+    const name=String(reward?.brainrot_name||'Brainrot');
+    img.src=typeof getImage==='function'?getImage(name):'';
+    img.alt=name;
+    img.onerror=()=>{img.style.visibility='hidden';};
+    node.appendChild(img);
+    const title=document.createElement('div');title.className='three-day-drop-name';title.textContent=name;node.appendChild(title);
+    const value=document.createElement('div');value.className='three-day-drop-value';value.textContent=`${Math.max(0,Number(reward?.value||0))} X`;node.appendChild(value);
+    if(selectable){const mark=document.createElement('div');mark.className='three-day-drop-choice-mark';mark.textContent='ВЫБРАТЬ';node.appendChild(mark);}
     return node;
 }
 
@@ -30052,7 +30078,13 @@ function threeDayDropUpdateControls(){
     if(!button||!badge||!state)return;
     badge.classList.remove('is-wait','is-blocked');
     if(state.blocked){badge.textContent='НЕДОСТУПНО';badge.classList.add('is-blocked');button.textContent='НЕДОСТУПНО В СТРИМЕР-МОДЕ';button.disabled=true;return;}
-    if(state.available){badge.textContent='ГОТОВО';button.textContent='ЗАБРАТЬ 3 НАГРАДЫ';button.disabled=threeDayDropBusy;return;}
+    if(state.available){
+        badge.textContent='ВЫБОР 1 ИЗ 3';
+        const picked=Number(threeDayDropSelectedId||0)>0;
+        button.textContent=picked?'ЗАБРАТЬ ВЫБРАННЫЙ':'ВЫБЕРИ BRAINROT';
+        button.disabled=threeDayDropBusy||!picked;
+        return;
+    }
     const time=threeDayDropFormatTime(state.remaining_seconds);
     badge.textContent=time;badge.classList.add('is-wait');button.textContent=`СЛЕДУЮЩИЙ ДРОП ЧЕРЕЗ ${time}`;button.disabled=true;
 }
@@ -30063,20 +30095,25 @@ function renderThreeDayDrop(state,reveal=false){
     const dep=document.getElementById('threeDayDropDeposit');
     const range=document.getElementById('threeDayDropRange');
     const root=document.getElementById('threeDayDropRewards');
-    const note=document.getElementById('threeDayDropNote');
     if(dep)dep.textContent=`${Math.max(0,Math.floor(Number(current.deposit_total||0)))} X`;
     if(range)range.textContent=`${Number(current?.tier?.min||0)}–${Number(current?.tier?.max||0)} X`;
-    if(note){
-        const next=Number(current?.tier?.next_at||0);
-        note.textContent=next>0
-            ?`До следующего уровня нужно ${Math.max(0,next-Math.floor(Number(current.deposit_total||0)))} X подтверждённых пополнений.`
-            :'После 500 X диапазон растёт вместе с суммой пополнений за цикл.';
+    if(current.available){
+        const choices=Array.isArray(current.choices)?current.choices.filter(item=>String(item?.type||'').toLowerCase()==='brainrot'):[];
+        if(!choices.some(item=>Number(item?.brainrot_id||0)===Number(threeDayDropSelectedId||0)))threeDayDropSelectedId=null;
+    }else{
+        threeDayDropSelectedId=null;
     }
     if(root){
         root.replaceChildren();
-        const rewards=(!current.available&&Array.isArray(current.last_rewards))?current.last_rewards:[];
-        if(rewards.length===3){rewards.forEach((reward,index)=>root.appendChild(threeDayDropRewardNode(reward,index,reveal)));}
-        else{for(let i=0;i<3;i++)root.appendChild(threeDayDropUnknownNode());}
+        if(current.available){
+            const choices=Array.isArray(current.choices)?current.choices.filter(item=>String(item?.type||'').toLowerCase()==='brainrot'):[];
+            if(choices.length===3)choices.forEach((reward,index)=>root.appendChild(threeDayDropRewardNode(reward,index,reveal,true)));
+            else for(let i=0;i<3;i++)root.appendChild(threeDayDropUnknownNode());
+        }else{
+            const rewards=Array.isArray(current.last_rewards)?current.last_rewards:[];
+            const reward=rewards.find(item=>String(item?.type||'').toLowerCase()==='brainrot');
+            root.appendChild(reward?threeDayDropRewardNode(reward,0,reveal,false):threeDayDropUnknownNode());
+        }
     }
     threeDayDropUpdateControls();
 }
@@ -30097,16 +30134,18 @@ async function refreshThreeDayDrop(silent=false){
 }
 
 async function claimThreeDayDrop(){
-    if(threeDayDropBusy||!threeDayDropState?.available)return;
+    if(threeDayDropBusy||!threeDayDropState?.available||!threeDayDropSelectedId)return;
+    const selectedId=Number(threeDayDropSelectedId);
     threeDayDropBusy=true;threeDayDropUpdateControls();
-    const button=document.getElementById('threeDayDropButton');if(button){button.disabled=true;button.textContent='ОТКРЫВАЕМ 3 НАГРАДЫ...';}
+    const button=document.getElementById('threeDayDropButton');if(button){button.disabled=true;button.textContent='ЗАБИРАЕМ BRAINROT...';}
     try{
-        const data=await apiRequest({action:'claim_three_day_drop'});
+        const data=await apiRequest({action:'claim_three_day_drop',brainrot_id:selectedId});
         if(!data?.ok)throw new Error(data?.error||'Не удалось забрать дроп');
+        threeDayDropSelectedId=null;
         if(data.three_day_drop)threeDayDropState=data.three_day_drop;
-        if(Array.isArray(data.rewards)&&threeDayDropState){threeDayDropState={...threeDayDropState,last_rewards:data.rewards,available:false};}
+        if(Array.isArray(data.rewards)&&threeDayDropState){threeDayDropState={...threeDayDropState,last_rewards:data.rewards,available:false,choices:[]};}
         renderThreeDayDrop(threeDayDropState,true);
-        if(typeof showToast==='function')showToast('🎁 Получены 3 награды. Следующий дроп через 3 дня!','success');
+        if(typeof showToast==='function')showToast('🎁 Выбранный Brainrot получен. Следующий дроп через 3 дня!','success');
         if(typeof silentSync==='function')await silentSync();
     }catch(error){
         if(typeof showToast==='function')showToast('❌ '+String(error?.message||'Ошибка получения дропа'),'error');
@@ -31241,7 +31280,7 @@ html body#sharp-app #casePresentationStage .cinema-final{animation:brxWinnerSett
     }
 
     /* Exact standalone sound previews are also embedded here, so the HTML needs no extra asset files. */
-    const soundSources={tick:'case_tick.wav',open:'case_open.wav',win:'case_win.wav',upstop:'upgrader_stop.wav'};
+    const soundSources={tick:'case_tick.wav',open:'case_open.wav',win:'reward.wav',upstop:'upgrader_stop.wav',stop:'case_stop.wav',error:'ui_error.wav',toggle:'ui_toggle.wav'};
     const pools={};
     function pool(name,size){
         if(pools[name])return pools[name];
@@ -31259,8 +31298,27 @@ html body#sharp-app #casePresentationStage .cinema-final{animation:brxWinnerSett
         play('tick',p>.90?.047:.041,1.01-p*.035,14);
     };
     window.brxCaseOpenSound=()=>play('open',.10,1,2);
-    window.brxCaseResultSound=(items=[])=>{if(items?.length)play('win',.09,Math.max(1,Math.min(1.12,1+(items.length-1)*.02)),2);};
+    window.brxCaseResultSound=(items=[])=>{if(items?.length)play('win',.18,1,2);};
+    window.brxRewardSound=()=>play('win',.18,1,3);
+    window.brxErrorSound=()=>play('error',.20,1,3);
+    window.brxUiToggleSound=(force=false)=>{
+        if(force&&typeof soundEnabled!=='undefined'&&!soundEnabled){
+            const list=pool('toggle',2),i=list._index++%list.length,a=list[i];
+            try{a.pause();a.currentTime=0;a.volume=.16;a.playbackRate=1;a.play().catch(()=>{});}catch(_){}
+            return;
+        }
+        play('toggle',.16,1,3);
+    };
+    window.brxCaseStopSound=()=>play('stop',.18,1,3);
     window.brxUpgraderStopSound=()=>play('upstop',.115,1,3);
+
+    /* UI toggles use the user's toggle sound. Lazy playback means zero audio loading during boot. */
+    document.addEventListener('pointerdown',(event)=>{
+        const button=event.target.closest?.('.streamer-toggle,[role="switch"],#caseSpeedButton,#upgradeSpeedButton,#caseSoundButton,#upgradeSoundButton');
+        if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return;
+        const soundToggle=button.id==='caseSoundButton'||button.id==='upgradeSoundButton';
+        window.brxUiToggleSound?.(soundToggle);
+    },true);
 })();
 </script>
 
@@ -31512,6 +31570,7 @@ html body#sharp-app .support-float-btn{border-radius:50%!important;}
         const button=event.target.closest('button,[role="button"]');
         if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return;
         if(button.id==='spinButton'||button.dataset?.silentClick==='true')return;
+        if(button.matches?.('.streamer-toggle,[role="switch"],#caseSpeedButton,#upgradeSpeedButton,#caseSoundButton,#upgradeSoundButton'))return;
         playClick(button);
     },true);
 })();
@@ -31620,5 +31679,57 @@ html body#sharp-app :is(#profileAvatar,#profileAvatar img,.xcoin,.coin,.upgrade-
 })();
 </script>
 
+
+<style id="brainroterx-three-choice-drop-layout">
+html body#sharp-app #casesPage .three-day-drop-rewards{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+    width:100%!important;
+    margin-top:9px!important;
+}
+html body#sharp-app #casesPage .three-day-drop-slot{
+    width:100%!important;
+    min-width:0!important;
+    height:112px!important;
+    padding:7px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    cursor:default;
+    transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease!important;
+}
+html body#sharp-app #casesPage .three-day-drop-slot.is-choice{cursor:pointer!important;}
+html body#sharp-app #casesPage .three-day-drop-slot.is-choice:hover{border-color:rgba(141,216,255,.28)!important;background:rgba(42,54,78,.82)!important;}
+html body#sharp-app #casesPage .three-day-drop-slot.is-choice.is-selected{
+    transform:translateY(-2px)!important;
+    border-color:rgba(141,216,255,.72)!important;
+    background:linear-gradient(155deg,rgba(43,75,105,.94),rgba(19,31,48,.98))!important;
+    box-shadow:0 0 0 2px rgba(141,216,255,.12),0 10px 25px rgba(0,0,0,.18)!important;
+}
+html body#sharp-app #casesPage .three-day-drop-slot img{width:52px!important;height:52px!important;margin:0 auto!important;}
+html body#sharp-app #casesPage .three-day-drop-name{margin-top:3px!important;text-align:center!important;font-size:8px!important;}
+html body#sharp-app #casesPage .three-day-drop-value{text-align:center!important;}
+html body#sharp-app #casesPage .three-day-drop-choice-mark{
+    margin-top:4px;
+    padding:3px 5px;
+    border:1px solid rgba(141,216,255,.14);
+    background:rgba(141,216,255,.06);
+    color:#8dd8ff;
+    font-size:6px;
+    font-weight:1000;
+    letter-spacing:.06em;
+}
+html body#sharp-app #casesPage .three-day-drop-slot.is-selected .three-day-drop-choice-mark{background:#8dd8ff;color:#0b1420;border-color:#8dd8ff;}
+@media(max-width:390px){
+    html body#sharp-app #casesPage .three-day-drop-rewards{gap:5px!important;}
+    html body#sharp-app #casesPage .three-day-drop-slot{height:104px!important;padding:5px!important;}
+    html body#sharp-app #casesPage .three-day-drop-slot img{width:46px!important;height:46px!important;}
+    html body#sharp-app #casesPage .three-day-drop-name{font-size:7px!important;}
+    html body#sharp-app #casesPage .three-day-drop-value{font-size:8px!important;}
+}
+</style>
 </body>
 </html>
