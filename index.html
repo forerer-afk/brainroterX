@@ -14082,7 +14082,7 @@ async function loadPlayer(){
         const data =
             await apiRequest({
                 action:
-                    "get_player"
+                    "get_boot_core"
             });
 
         if(
@@ -14114,20 +14114,36 @@ async function loadPlayer(){
             : [];
         rememberPendingWithdrawRequestIds(pendingWithdrawRequests);
 
-        brainrots =
-            data.brainrots
-            ||
-            [];
+        brainrots = Array.isArray(data.brainrots) ? data.brainrots : [];
+        cases = Array.isArray(data.cases) ? data.cases : [];
+        caseItems = Array.isArray(data.case_items) ? data.case_items : [];
 
-        cases =
-            data.cases
-            ||
-            [];
-
-        caseItems =
-            data.case_items
-            ||
-            [];
+        /*
+          Catalog safety net: profile/balance may load even when a catalog
+          request inside get_player failed or returned an empty array.
+          Fetch the game catalog independently so cases, upgrader and deposit
+          are never left blank after a successful Telegram login.
+        */
+        if(!brainrots.length || !cases.length || !caseItems.length){
+            try{
+                const catalog = await apiRequest({action:"get_game_catalog"});
+                if(catalog?.ok){
+                    if(Array.isArray(catalog.brainrots) && catalog.brainrots.length) brainrots = catalog.brainrots;
+                    if(Array.isArray(catalog.cases) && catalog.cases.length) cases = catalog.cases;
+                    if(Array.isArray(catalog.case_items) && catalog.case_items.length) caseItems = catalog.case_items;
+                    if(Array.isArray(catalog.deposit_brainrot_enabled_ids)){
+                        adminDepositEnabledIds = new Set(catalog.deposit_brainrot_enabled_ids.map(Number));
+                        adminAvailabilityLoaded = true;
+                    }
+                    if(Array.isArray(catalog.withdraw_brainrot_in_stock_ids)){
+                        adminWithdrawInStockIds = new Set(catalog.withdraw_brainrot_in_stock_ids.map(Number));
+                        adminAvailabilityLoaded = true;
+                    }
+                }
+            }catch(catalogError){
+                console.error("Catalog fallback failed:",catalogError);
+            }
+        }
 
         playerProfile = {
 
@@ -14334,33 +14350,43 @@ async function loadPlayer(){
         preloadFeedAvatars(bigWins);
         ladderSession = data.ladder_session || null;
 
-        updateBalance();
+        const safeBootRender = (name,fn) => {
+            try{ fn(); }catch(renderError){ console.error("Boot render failed:",name,renderError); }
+        };
 
-        renderDailyCard();
-        renderDropHistory();
-        renderBigWins();
-        renderLadder();
-        renderLadderInventory();
+        safeBootRender("balance",updateBalance);
+        safeBootRender("daily",renderDailyCard);
+        safeBootRender("history",renderDropHistory);
+        safeBootRender("wins",renderBigWins);
+        safeBootRender("ladder",renderLadder);
+        safeBootRender("ladderInventory",renderLadderInventory);
+        safeBootRender("profile",renderProfile);
+        safeBootRender("cases",renderCases);
+        safeBootRender("inventory",renderInventory);
+        safeBootRender("upgradeSource",renderSourceGrid);
+        safeBootRender("upgradeTarget",renderTargetGrid);
+        safeBootRender("deposit",renderDepositGrid);
+        safeBootRender("referral",renderReferral);
+        safeBootRender("hourlyPromo",renderHourlyDepositPromo);
+        safeBootRender("hourlyTimer",startHourlyDepositPromoTimer);
+        safeBootRender("upgradeUI",updateUpgradeUI);
 
-        renderProfile();
-
-        renderCases();
-
-        renderInventory();
-
-        renderSourceGrid();
-
-        renderTargetGrid();
-
-        renderDepositGrid();
-
-        renderReferral();
-        renderHourlyDepositPromo();
-        startHourlyDepositPromoTimer();
-
-        updateUpgradeUI();
+        if(!cases.length){
+            const caseRoot=document.getElementById("caseList");
+            if(caseRoot) caseRoot.innerHTML='<div style="padding:18px;text-align:center;color:#fca5a5;font-size:11px">Не удалось загрузить кейсы. Нажми сюда, чтобы повторить.</div>';
+            caseRoot?.addEventListener("click",()=>loadPlayer(),{once:true});
+        }
+        if(!brainrots.length){
+            const depositRoot=document.getElementById("depositGrid");
+            if(depositRoot) depositRoot.innerHTML='<div style="grid-column:1/-1;padding:18px;text-align:center;color:#fca5a5;font-size:11px">Не удалось загрузить Brainrot. Закрой и снова открой пополнение.</div>';
+        }
 
         // Restore all three own deposit status cards after a full Mini App reload.
+        /* Load slower feed/referral/quest state after the core UI is already usable. */
+        setTimeout(() => {
+            try{ silentSync(); }catch(_){ }
+        }, 450);
+
         if(!window.__brainroterxDepositRestoreBooted){
             window.__brainroterxDepositRestoreBooted = true;
             setTimeout(() => {
@@ -23918,20 +23944,15 @@ async function silentSync(){
             : [];
         rememberPendingWithdrawRequestIds(pendingWithdrawRequests);
 
-        brainrots =
-            data.brainrots
-            ||
-            [];
-
-        cases =
-            data.cases
-            ||
-            [];
-
-        caseItems =
-            data.case_items
-            ||
-            [];
+        if(Array.isArray(data.brainrots) && data.brainrots.length){
+            brainrots = data.brainrots;
+        }
+        if(Array.isArray(data.cases) && data.cases.length){
+            cases = data.cases;
+        }
+        if(Array.isArray(data.case_items) && data.case_items.length){
+            caseItems = data.case_items;
+        }
 
         playerProfile = {
             telegram_id:
