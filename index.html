@@ -13578,11 +13578,12 @@ function askActionConfirm({
     title,
     text,
     image = "",
-    confirmText = "Подтвердить"
+    confirmText = "Подтвердить",
+    alwaysConfirm = false
 }){
 
     if(
-        confirmationDisabled(
+        !alwaysConfirm && confirmationDisabled(
             type
         )
     ){
@@ -13596,7 +13597,8 @@ function askActionConfirm({
 
             pendingActionConfirm = {
                 resolve,
-                type
+                type,
+                alwaysConfirm
             };
 
             const modal =
@@ -13631,8 +13633,10 @@ function askActionConfirm({
 
             document.getElementById(
                 "actionConfirmDontShow"
-            ).checked =
-                false;
+            ).checked = false;
+            document.getElementById(
+                "actionConfirmDontShow"
+            ).closest('label').style.display = alwaysConfirm ? 'none' : '';
 
             if(image){
                 imageEl.src =
@@ -13688,6 +13692,7 @@ function closeActionConfirm(
         accepted
         &&
         dontShow
+        && !pendingActionConfirm.alwaysConfirm
     ){
         localStorage.setItem(
             `brainroter_confirm_${pendingActionConfirm.type}`,
@@ -18427,19 +18432,46 @@ function getPendingWithdrawForItem(itemId){
     }) || null;
 }
 
+const cancellingOwnWithdrawRequests = new Set();
 async function cancelOwnWithdraw(requestId, button){
-    if(button) button.disabled=true;
+    const id=Number(requestId);
+    const request=(Array.isArray(pendingWithdrawRequests)?pendingWithdrawRequests:[])
+        .find(r=>Number(r.id)===id && String(r.status||'pending')==='pending');
+    if(!Number.isInteger(id)||id<=0||!request){
+        showToast('Заявка уже обработана или не найдена','error');
+        return;
+    }
+    if(cancellingOwnWithdrawRequests.has(id))return;
+    cancellingOwnWithdrawRequests.add(id);
+    if(button)button.disabled=true;
     try{
-        const data=await apiRequest({action:"cancel_own_withdraw_request",request_id:Number(requestId)});
-        if(!data?.ok) throw new Error(data?.error||"Не удалось отменить вывод");
+        const count=Array.isArray(request.items)&&request.items.length?request.items.length:1;
+        const confirmed=await askActionConfirm({
+            type:'withdraw_cancel',
+            alwaysConfirm:true,
+            header:'Отмена вывода',
+            title:`Отменить заявку #${id}?`,
+            text:`${count} Brainrot вернутся в инвентарь.`,
+            confirmText:'Отменить вывод'
+        });
+        if(!confirmed)return;
+        const data=await apiRequest({action:'cancel_own_withdraw_request',request_id:id});
+        if(!data?.ok)throw new Error(data?.error||'Не удалось отменить вывод');
         const ids=new Set((data.inventory_ids||[]).map(Number));
-        inventory.forEach(item=>{ if(ids.has(Number(item.id))){ item.locked=false; item.withdraw_pending=false; } });
-        pendingWithdrawRequests=pendingWithdrawRequests.filter(r=>Number(r.id)!==Number(requestId));
-        showToast(`↩️ Заявка #${requestId} отменена`,"success");
-        renderInventory(); renderSourceGrid(); renderTargetGrid();
+        inventory.forEach(item=>{
+            if(ids.has(Number(item.id))){item.locked=false;item.withdraw_pending=false;}
+        });
+        pendingWithdrawRequests=pendingWithdrawRequests.filter(r=>Number(r.id)!==id);
+        showToast(`Заявка #${id} отменена. Brainrot возвращены в инвентарь`,'success');
+        renderInventory();renderSourceGrid();renderTargetGrid();
+        if(typeof buildWithdrawGroups==='function')buildWithdrawGroups();
+        if(typeof renderWithdrawSelection==='function')renderWithdrawSelection();
+        window.renderWithdrawPendingInline?.();
     }catch(error){
-        showToast(error?.message||"Не удалось отменить вывод","error");
-        if(button) button.disabled=false;
+        showToast(error?.message||'Не удалось отменить вывод','error');
+    }finally{
+        cancellingOwnWithdrawRequests.delete(id);
+        if(button?.isConnected)button.disabled=false;
     }
 }
 
@@ -24826,11 +24858,19 @@ async function openWithdraw(
     if(openingToken!==brxWithdrawOpeningToken)return;
 
     if(!withdrawEnabled){
+        // New withdrawal requests may be disabled, but a player must still
+        // be able to cancel a previously submitted pending request.
+        const hasPending=(Array.isArray(pendingWithdrawRequests)?pendingWithdrawRequests:[])
+            .some(r=>String(r?.status||'pending')==='pending');
+        if(hasPending){
+            document.getElementById('withdrawStep1')?.classList.remove('active');
+            document.getElementById('withdrawStep2')?.classList.remove('active');
+            document.getElementById('withdrawModal')?.classList.add('show');
+            window.renderWithdrawPendingInline?.();
+            return;
+        }
         closeWithdraw();
-        showToast(
-            "Вывод временно недоступен",
-            "error"
-        );
+        showToast('Вывод временно недоступен','error');
         return;
     }
 
@@ -30466,6 +30506,26 @@ html body#sharp-app #withdrawPendingInline .withdraw-inline-time{
     color:#b9d2ef;font-size:8px;font-weight:850;text-align:right;white-space:nowrap;
 }
 
+
+/* Player cancellation control in the existing Withdraw menu. */
+html body#sharp-app #withdrawPendingInline .withdraw-inline-request{
+    display:grid;gap:6px;padding:6px;
+    border:1px solid #26374d;border-radius:2px;background:#0d1622;
+}
+html body#sharp-app #withdrawPendingInline .withdraw-inline-request .withdraw-inline-item{
+    border-radius:2px;
+}
+html body#sharp-app #withdrawPendingInline .withdraw-inline-controls{display:flex;justify-content:stretch;}
+html body#sharp-app #withdrawPendingInline .withdraw-inline-cancel{
+    width:100%;min-height:34px;padding:7px 10px;
+    border:1px solid #6b404c;border-radius:2px;
+    background:#291920;color:#ffc4cd;font-size:11px;font-weight:800;
+    cursor:pointer;touch-action:manipulation;
+}
+html body#sharp-app #withdrawPendingInline .withdraw-inline-cancel:disabled{
+    opacity:.5;cursor:wait;
+}
+
 /* Support cloud: only on Cases after the player scrolls down. Solid, not transparent. */
 html body#sharp-app .support-float-btn{
     background:#28568e!important;
@@ -30544,29 +30604,43 @@ html body#sharp-app #settingsModal .streamer-setting-card[data-brx-live="1"] .st
     window.renderWithdrawPendingInline=function(){
         const root=document.getElementById('withdrawPendingInline');
         const list=root?.querySelector('.withdraw-inline-list');if(!root||!list)return;
-        const requests=Array.isArray(pendingWithdrawRequests)?pendingWithdrawRequests.filter(r=>String(r?.status||'pending')==='pending'):[];
+        const requests=Array.isArray(pendingWithdrawRequests)
+            ?pendingWithdrawRequests.filter(r=>String(r?.status||'pending')==='pending') : [];
         list.replaceChildren();
-        const rows=[];
+        root.hidden=requests.length===0;
         for(const req of requests){
-            const items=Array.isArray(req?.items)&&req.items.length?req.items:[{inventory_id:req?.inventory_id,brainrot_name:req?.brainrot_name,value:req?.value}];
+            const requestId=Number(req?.id||0);
+            if(!Number.isInteger(requestId)||requestId<=0)continue;
+            const group=document.createElement('div');group.className='withdraw-inline-request';
+            const items=Array.isArray(req?.items)&&req.items.length
+                ?req.items:[{inventory_id:req?.inventory_id,brainrot_name:req?.brainrot_name,value:req?.value}];
             for(const item of items){
-                const inventoryItem=(Array.isArray(inventory)?inventory:[]).find(x=>Number(x?.id)===Number(item?.inventory_id));
+                const inventoryItem=(Array.isArray(inventory)?inventory:[])
+                    .find(x=>Number(x?.id)===Number(item?.inventory_id));
                 const name=String(item?.brainrot_name||inventoryItem?.brainrot_name||'Brainrot');
-                rows.push({name,value:Number(item?.value??inventoryItem?.value??0),time:req?.requested_time||'',image:(typeof getImage==='function'?getImage(name):'')});
+                const card=document.createElement('div');card.className='withdraw-inline-item';
+                const img=document.createElement('img');img.src=(typeof getImage==='function'?getImage(name):'')||'';img.alt='';img.loading='lazy';
+                const info=document.createElement('div');
+                const label=document.createElement('div');label.className='withdraw-inline-name';label.textContent=name;
+                const value=document.createElement('div');value.className='withdraw-inline-value';
+                value.textContent=`${Number(item?.value??inventoryItem?.value??0)} X`;
+                info.append(label,value);
+                const time=document.createElement('div');time.className='withdraw-inline-time';time.textContent=fmtWhen(req?.requested_time||'');
+                card.append(img,info,time);group.append(card);
             }
-        }
-        root.hidden=rows.length===0;
-        for(const row of rows){
-            const card=document.createElement('div');card.className='withdraw-inline-item';
-            const img=document.createElement('img');img.src=row.image||'';img.alt='';img.loading='lazy';
-            const info=document.createElement('div');
-            const name=document.createElement('div');name.className='withdraw-inline-name';name.textContent=row.name;
-            const value=document.createElement('div');value.className='withdraw-inline-value';value.textContent=`${row.value} X`;
-            info.append(name,value);
-            const time=document.createElement('div');time.className='withdraw-inline-time';time.textContent=fmtWhen(row.time);
-            card.append(img,info,time);list.appendChild(card);
+            const controls=document.createElement('div');controls.className='withdraw-inline-controls';
+            const cancel=document.createElement('button');cancel.type='button';cancel.className='withdraw-inline-cancel';
+            cancel.dataset.requestId=String(requestId);cancel.textContent='Отменить вывод';
+            cancel.disabled=cancellingOwnWithdrawRequests.has(requestId);
+            controls.append(cancel);group.append(controls);list.append(group);
         }
     };
+    document.querySelector('#withdrawPendingInline .withdraw-inline-list')?.addEventListener('click',(event)=>{
+        const button=event.target.closest('button.withdraw-inline-cancel');
+        if(!button||button.disabled)return;
+        const id=Number(button.dataset.requestId);
+        if(Number.isInteger(id)&&id>0)void cancelOwnWithdraw(id,button);
+    });
     const refreshPendingSoon=()=>setTimeout(()=>window.renderWithdrawPendingInline?.(),0);
     for(const fn of ['openWithdraw','submitWithdraw','silentSync']){
         const original=window[fn];
