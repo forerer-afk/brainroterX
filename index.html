@@ -14408,15 +14408,33 @@ async function loadPlayer(){
         setTimeout(() => {
             if(document.visibilityState !== "visible") return;
             try{ silentSync(); }catch(_){ }
-        }, 3000 + Math.floor(Math.random() * 5000));
+        }, 12000 + Math.floor(Math.random() * 20000));
 
         if(!window.__brainroterxDepositRestoreBooted){
             window.__brainroterxDepositRestoreBooted = true;
-            setTimeout(() => {
-                try{ restoreActiveDepositTradeRequest(); }catch(_){ }
-                try{ restoreActiveGearDepositRequest(); }catch(_){ }
-                try{ restoreActiveUahDepositRequest(); }catch(_){ }
-            }, 250);
+            // Avoid three DB status lookups per every player at the same time.
+            // Restore locally known active requests quickly; check for server-only
+            // pending requests later, staggered across users and channels.
+            const depositRestoreJobs = [
+                ['brainroterx_active_deposit_request', restoreActiveDepositTradeRequest],
+                ['brainroterx_active_gear_deposit_request', restoreActiveGearDepositRequest],
+                ['brainroterx_active_uah_deposit_request', restoreActiveUahDepositRequest]
+            ];
+            depositRestoreJobs.forEach(([storageKey, restore], index) => {
+                let hasActiveLocalRequest = false;
+                try { hasActiveLocalRequest = Number(localStorage.getItem(storageKey) || 0) > 0; } catch (_) {}
+                const delay = hasActiveLocalRequest
+                    ? 700 + Math.floor(Math.random() * 2400)
+                    : 16000 + index * 4500 + Math.floor(Math.random() * 16000);
+                const tryRestore = () => {
+                    if (document.visibilityState !== 'visible') {
+                        document.addEventListener('visibilitychange', tryRestore, {once:true});
+                        return;
+                    }
+                    try { Promise.resolve(restore()).catch(() => {}); } catch (_) {}
+                };
+                setTimeout(tryRestore, delay);
+            });
         }
 
     }
@@ -16382,11 +16400,7 @@ async function selectCase(
 
         try{
 
-            const fresh =
-                await apiRequest({
-                    action:
-                        "get_player"
-                });
+            const fresh = await apiRequest({ action: "get_game_catalog" });
 
             if(
                 fresh.ok
@@ -26202,9 +26216,6 @@ if(localChromePreview){
     loadPlayer()
         .then(() => {
             /* These are background tasks and must never keep the loader open. */
-            if(typeof restoreActiveDepositTradeRequest === "function"){
-                try{Promise.resolve(restoreActiveDepositTradeRequest()).catch(()=>{});}catch(_){ }
-            }
             if(typeof startSitePresence === "function"){
                 try{startSitePresence();}catch(_){ }
             }
@@ -30349,7 +30360,7 @@ function syncThreeDayDropVisibility(){
 }
 
 window.addEventListener('load',()=>{
-    setTimeout(()=>{if(document.visibilityState==='visible')refreshThreeDayDrop(true);},2200+Math.floor(Math.random()*6000));
+    setTimeout(()=>{if(document.visibilityState==='visible')refreshThreeDayDrop(true);},7000+Math.floor(Math.random()*14000));
     if(!threeDayDropTimer)threeDayDropTimer=setInterval(threeDayDropTick,1000);
     if(!threeDayDropRefreshTimer)threeDayDropRefreshTimer=setInterval(()=>{if(document.visibilityState==='visible')refreshThreeDayDrop(true);},120000);
     const active=document.getElementById('activeCase');
@@ -30384,7 +30395,7 @@ async function sitePresencePing(){
 
 function startSitePresence(){
     if(sitePresenceTimer) return;
-    setTimeout(sitePresencePing,Math.floor(Math.random()*3000));
+    setTimeout(sitePresencePing,3000+Math.floor(Math.random()*9000));
     sitePresenceTimer = setInterval(sitePresencePing, 30000);
 }
 
