@@ -22610,33 +22610,8 @@ function changeDeposit(
 
 
 function applyGlobalBrainrotPriceOverrides(){
-
-    if(
-        !Array.isArray(
-            brainrots
-        )
-    ){
-        return;
-    }
-
-    brainrots.forEach(
-        item => {
-
-            if(
-                normalizeName(
-                    item?.name
-                )
-                ===
-                "cash or card"
-            ){
-                item.value = 55;
-            }
-
-        }
-    );
-
+    // Prices now come only from the server's brainrots catalog.
 }
-
 applyGlobalBrainrotPriceOverrides();
 
 
@@ -22644,26 +22619,8 @@ function getBrainrotDepositValue(
     item
 ){
 
-    if(
-        normalizeName(
-            item?.name
-        )
-        ===
-        "cash or card"
-    ){
-        return 55;
-    }
-
-    return Math.max(
-        0,
-        Number(
-            item?.value
-            ||
-            0
-        )
-        -
-        8
-    );
+    // Same deposit formula as the server. No Brainrot-specific fixed price.
+    return Math.max(1, Number(item?.value ?? 0) - 8);
 
 }
 
@@ -26870,7 +26827,7 @@ body.admin-panel-page-locked{
     right:0!important;
     width:100%!important;
 }
-.admin-panel-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:11px 0}
+.admin-panel-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:11px 0}
 .admin-panel-tab{padding:8px 3px;border-radius:9px;background:rgba(255,255,255,.045);color:#958da5;font-size:8px;font-weight:900}
 .admin-panel-tab.active{background:rgba(139,92,246,.22);color:#fff;border:1px solid rgba(167,139,250,.22)}
 .admin-panel-section{display:none}.admin-panel-section.active{display:block}
@@ -26898,6 +26855,14 @@ body.admin-panel-page-locked{
 .admin-case-reward .admin-case-remove{background:#4b2028;color:#ffc4cb;padding:8px;border-radius:4px;font-size:9px}
 .admin-case-actual{font-size:8px;color:#b6e6c3;text-align:right}
 @media(max-width:390px){.admin-case-reward{grid-template-columns:1fr 65px 52px;padding:6px}.admin-case-reward .admin-case-remove{padding:8px 1px}}
+.admin-price-list{display:grid;gap:7px;max-height:51dvh;overflow:auto;overscroll-behavior:contain}
+.admin-price-card{display:grid;grid-template-columns:38px minmax(0,1fr) 94px;gap:8px;align-items:center;padding:9px 7px;background:#100c18;border:1px solid rgba(167,139,250,.13);border-radius:6px}
+.admin-price-card img{width:38px;height:38px;object-fit:contain}
+.admin-price-name{font-size:10px;font-weight:900;overflow-wrap:anywhere}
+.admin-price-old{font-size:9px;color:#aaa2b8;margin-top:4px}
+.admin-price-card input{min-width:0;width:100%;padding:7px;color:#fff;background:#0e0a16;border:1px solid #47374e;border-radius:4px;font-size:12px}
+.admin-price-card button{width:100%;margin-top:5px;padding:8px 3px;background:#188357;color:white;font-size:9px;font-weight:900;border-radius:4px}
+.admin-price-card button:disabled{opacity:.5}
 </style>
 
 <div id="adminPanelModal" class="overlay" onclick="if(event.target===this)closeAdminPanel()">
@@ -26909,6 +26874,18 @@ body.admin-panel-page-locked{
       <button class="admin-panel-tab" data-admin-tab="withdraw" onclick="setAdminPanelTab('withdraw')">📤 Вывод</button>
       <button class="admin-panel-tab" data-admin-tab="chance" onclick="setAdminPanelTab('chance')">⚡ Шансы</button>
       <button class="admin-panel-tab" data-admin-tab="cases" onclick="setAdminPanelTab('cases')">🎁 Кейсы</button>
+      <button class="admin-panel-tab" data-admin-tab="prices" onclick="setAdminPanelTab('prices')">ⓧ Цены</button>
+    </div>
+
+    <div id="adminSectionPrices" class="admin-panel-section">
+      <div class="admin-box">
+        <div class="admin-box-title">Цены Brainrot для всего сайта</div>
+        <div class="admin-hint">Новая цена применяется к Brainrot в каталоге, во всех инвентарях и дропах кейсов. История уже завершённых операций не изменяется. Пополнение пересчитывается из новой цены.</div>
+        <input id="adminPriceSearch" class="admin-brainrot-search" style="margin:10px 0" placeholder="Найти Brainrot по имени или ID" oninput="adminPriceRenderList()">
+        <button class="admin-mini-btn" style="margin-bottom:8px" onclick="adminPriceReload(true)">ОБНОВИТЬ ЦЕНЫ</button>
+        <div id="adminPriceList" class="admin-price-list"></div>
+        <div id="adminPriceResult" class="result"></div>
+      </div>
     </div>
 
     <div id="adminSectionCoins" class="admin-panel-section active">
@@ -26951,6 +26928,7 @@ body.admin-panel-page-locked{
           </div>
           <div id="adminCaseRewards" class="admin-case-rewards"></div>
           <button class="admin-action-btn" style="background:#272033" onclick="adminCaseAddReward('brainrot')">+ ДОБАВИТЬ BRAINROT</button>
+          <button class="admin-action-btn" style="background:#272033" onclick="adminCaseAddReward('gear')">+ ДОБАВИТЬ GEAR</button>
           <button class="admin-action-btn" style="background:#272033" onclick="adminCaseAddReward('coins')">+ ДОБАВИТЬ X</button>
           <div id="adminCaseSummary" class="admin-hint" style="margin-top:9px"></div>
           <button id="adminCaseSave" class="admin-action-btn add" onclick="adminSaveCaseEditor()">СОХРАНИТЬ ИЗМЕНЕНИЯ КЕЙСА</button>
@@ -27077,6 +27055,8 @@ async function openAdminPanel(){
         const ownerAccess=Boolean(data.upgrade_event_owner);
         const caseEditorTab=document.querySelector('[data-admin-tab="cases"]');
         if(caseEditorTab)caseEditorTab.style.display=ownerAccess?'':'none';
+        const pricesTab=document.querySelector('[data-admin-tab="prices"]');
+        if(pricesTab)pricesTab.style.display=ownerAccess?'':'none';
         chanceControls?.querySelectorAll('#adminChanceMultiplier,#adminChanceMultiplierExact,#adminChanceDuration,button[onclick^="adminApplyChanceMultiplier"],button[onclick^="adminResetChanceMultiplier"]').forEach(el=>{el.disabled=!ownerAccess;});
         document.getElementById("adminChanceMultiplier").value=String(Math.round(globalUpgradeChanceMultiplier*100));
         document.getElementById("adminChanceMultiplierExact").value=globalUpgradeChanceMultiplier.toFixed(2);
@@ -27097,8 +27077,9 @@ async function openAdminPanel(){
 
 function setAdminPanelTab(tab){
     document.querySelectorAll(".admin-panel-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.adminTab===tab));
-    ["coins","deposit","withdraw","chance","cases"].forEach(name=>document.getElementById("adminSection"+name[0].toUpperCase()+name.slice(1))?.classList.toggle("active",name===tab));
+    ["coins","deposit","withdraw","chance","cases","prices"].forEach(name=>document.getElementById("adminSection"+name[0].toUpperCase()+name.slice(1))?.classList.toggle("active",name===tab));
     if(tab==="cases") adminCaseReload(false);
+    if(tab==="prices") adminPriceReload(false);
     if(tab==="deposit"||tab==="withdraw") adminRenderBrainrots(tab);
     if(tab==="chance") adminLoadTestAccount(true);
 }
@@ -27295,6 +27276,111 @@ async function adminResetChanceMultiplier(){
 
 setTimeout(()=>{updateAdminPanelAccessUI();renderGlobalChanceNotice();adminRenderTestChanceMultiplier()},0);
 </script>
+<script id="brx-global-brainrot-price-editor">
+let adminPriceRows=null;
+let adminPriceBusy=false;
+function adminPriceStatus(message,error=false){
+    const el=document.getElementById('adminPriceResult');
+    if(el){el.textContent=String(message||'');el.style.color=error?'#fca5a5':'#86efac';}
+}
+async function adminPriceReload(force=false){
+    if(adminPriceBusy)return;
+    if(adminPriceRows&&!force)return;
+    adminPriceBusy=true;adminPriceStatus('Загрузка цен…');
+    try{
+        const data=await apiRequest({action:'admin_panel_price_get'});
+        if(!data?.ok||!Array.isArray(data.brainrots))throw new Error(data?.error||'Каталог недоступен');
+        adminPriceRows=data.brainrots;
+        adminPriceRenderList();adminPriceStatus('');
+    }catch(e){adminPriceStatus(e?.message||'Ошибка загрузки цен',true);}
+    finally{adminPriceBusy=false;}
+}
+function adminPriceRenderList(){
+    const root=document.getElementById('adminPriceList');if(!root)return;
+    root.replaceChildren();
+    const search=String(document.getElementById('adminPriceSearch')?.value||'').trim().toLowerCase();
+    const list=(adminPriceRows||[]).filter(r=>
+        String(r.name||'').toLowerCase().includes(search)||String(r.brainrot_id).includes(search)
+    );
+    if(!list.length){root.textContent='Нет Brainrot по этому запросу';return;}
+    const fragment=document.createDocumentFragment();
+    list.forEach(row=>{
+        const id=Number(row.brainrot_id),oldValue=Number(row.value||0);
+        const card=document.createElement('div');card.className='admin-price-card';
+        const photo=document.createElement('img');photo.src=getImage(row.name||'');photo.alt='';
+        const details=document.createElement('div');
+        const name=document.createElement('div');name.className='admin-price-name';name.textContent=String(row.name||'Brainrot');
+        const old=document.createElement('div');old.className='admin-price-old';old.textContent=`#${id} · Сейчас: ${oldValue} X`;
+        details.append(name,old);
+        const controls=document.createElement('div');
+        const input=document.createElement('input');input.type='number';input.min='1';input.max='999999999';input.step='1';input.value=String(oldValue);
+        const save=document.createElement('button');save.type='button';save.textContent='СОХРАНИТЬ';
+        save.onclick=()=>adminPriceSave(id,oldValue,input,save);
+        controls.append(input,save);card.append(photo,details,controls);fragment.appendChild(card);
+    });
+    root.appendChild(fragment);
+}
+async function adminPriceSave(id,oldValue,input,button){
+    if(adminPriceBusy)return;
+    const value=Number(input.value);
+    if(!Number.isSafeInteger(value)||value<1||value>999999999){adminPriceStatus('Введи целую цену от 1 до 999999999 X',true);return;}
+    if(value===oldValue){adminPriceStatus('Цена не изменилась');return;}
+    if(adminCaseDirty){adminPriceStatus('Сначала сохрани или отмени несохранённые изменения кейса',true);return;}
+    if(!window.confirm(`Изменить цену Brainrot #${id} с ${oldValue} X на ${value} X?\nБудут переоценены ВСЕ уже полученные предметы игроков и все дропы кейсов.`))return;
+    adminPriceBusy=true;button.disabled=true;adminPriceStatus('Сохранение на сервере…');
+    try{
+        const result=await apiRequest({action:'admin_panel_price_save',brainrot_id:id,expected_value:oldValue,new_value:value});
+        if(!result?.ok)throw new Error(result?.error||'Цена не сохранена');
+        adminPriceRows=(adminPriceRows||[]).map(b=>Number(b.brainrot_id)===id?{...b,value}:b);
+        if(Number.isSafeInteger(Number(result.revision)))brxPriceRevision=Number(result.revision);
+        // The case editor may hold pre-reprice values. Reload it when opened again.
+        adminCaseEditorState=null;adminCaseDraft=null;adminCaseDirty=false;
+        try{await brxRefreshAllLivePrices();}
+        catch(syncError){console.warn('Цены сохранены, синхронизация экрана будет повторена:',syncError);}
+        adminPriceRenderList();
+        adminPriceStatus(`Сохранено: ${oldValue} → ${value} X. Инвентарь: ${result.inventory_updated||0}, дропы: ${result.case_items_updated||0}.`);
+    }catch(e){adminPriceStatus(e?.message||'Ошибка сохранения цены',true);}
+    finally{adminPriceBusy=false;button.disabled=false;}
+}
+// Lightweight price revision check. Runs only while the Mini App is visible.
+let brxPriceRevision=-1;
+let brxPriceRefreshing=false;
+async function brxRefreshAllLivePrices(){
+    if(brxPriceRefreshing)return;
+    brxPriceRefreshing=true;
+    try{
+        const data=await apiRequest({action:'get_fresh_brainrot_prices'});
+        if(!data?.ok||!Array.isArray(data.brainrots)||!Array.isArray(data.inventory)||!Array.isArray(data.case_items))
+            throw new Error('Не удалось синхронизировать цены');
+        brainrots=data.brainrots;caseItems=data.case_items;inventory=data.inventory;
+        if(adminPanelServerState)adminPanelServerState.brainrots=data.brainrots;
+        const page=document.querySelector('.page.active')?.id;
+        if(page==='inventoryPage'){renderInventory();renderProfile();}
+        if(page==='upgraderPage'&&!upgrading){renderSourceGrid();renderTargetGrid();updateUpgradeUI();}
+        if(page==='ladderPage'){renderLadder();renderLadderInventory();}
+        if(page==='casesPage'&&!caseSpinning){if(selectedCase)renderCaseContent();else renderCases();}
+        if(document.getElementById('depositModal')?.classList.contains('show')){renderDepositGrid();if(typeof renderDepositPicked==='function')renderDepositPicked();}
+        if(document.getElementById('withdrawModal')?.classList.contains('show'))buildWithdrawGroups();
+        if(document.getElementById('adminPanelModal')?.classList.contains('show')){
+            adminRenderBrainrots('deposit');adminRenderBrainrots('withdraw');
+        }
+    }finally{brxPriceRefreshing=false;}
+}
+async function brxCheckPriceRevision(){
+    if(document.visibilityState==='hidden'||!Array.isArray(brainrots)||!brainrots.length||brxPriceRefreshing)return;
+    try{
+        const d=await apiRequest({action:'get_brainrot_price_revision'});
+        const revision=Number(d?.revision||0);
+        if(!Number.isSafeInteger(revision)||revision<=0)return;
+        if(revision!==brxPriceRevision){
+            brxPriceRevision=revision;
+            await brxRefreshAllLivePrices();
+        }
+    }catch(_){/* Background polling should never break the app. */}
+}
+setInterval(brxCheckPriceRevision,15000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')brxCheckPriceRevision();});
+</script>
 <script id="brx-case-editor-script">
 let adminCaseEditorState=null;
 let adminCaseDraft=null;
@@ -27304,8 +27390,16 @@ let adminCaseLoading=false;
 function adminCaseHtmlOption(select,value,text){
     const option=document.createElement('option');option.value=String(value);option.textContent=String(text);select.appendChild(option);
 }
-function adminCaseCatalogItem(id){
-    return (adminCaseEditorState?.brainrots||[]).find(b=>Number(b.brainrot_id)===Number(id));
+function adminCaseCatalogItems(type){
+    return type==='gear'?(adminCaseEditorState?.gears||[]):(adminCaseEditorState?.brainrots||[]);
+}
+function adminCaseCatalogItem(id,type='brainrot'){
+    return adminCaseCatalogItems(type).find(b=>Number(b.brainrot_id)===Number(id));
+}
+function adminCaseRewardType(item){
+    if(String(item?.reward_type)==='coins')return 'coins';
+    return (adminCaseEditorState?.gears||[]).some(g=>Number(g.brainrot_id)===Number(item?.brainrot_id))
+        && String(item?.rarity||'').toLowerCase()==='gear' ? 'gear':'brainrot';
 }
 function adminCasePriceValue(n){const x=Number(n);return Number.isFinite(x)?x:0;}
 function adminCaseResults(message,error=false){
@@ -27343,7 +27437,7 @@ function adminCaseSelectChanged(skipConfirm=false){
     adminCaseDraft={id:Number(c.id),revision:Number(c.admin_revision||0),price:Number(c.price||0),is_active:c.is_active!==false,
         is_daily:c.is_daily===true,items:(adminCaseEditorState.case_items||[])
         .filter(i=>Number(i.case_id)===id)
-        .map(i=>({id:Number(i.id||0),reward_type:String(i.reward_type||'brainrot'),brainrot_id:Number(i.brainrot_id||0),
+        .map(i=>({id:Number(i.id||0),reward_type:adminCaseRewardType(i),brainrot_id:Number(i.brainrot_id||0),
                   value:Number(i.reward_type==='coins'?i.reward_amount??i.value:i.value||0),chance:Number(i.chance||0)}))};
     document.getElementById('adminCasePrice').value=String(adminCaseDraft.price);
     document.getElementById('adminCasePrice').disabled=adminCaseDraft.is_daily;
@@ -27363,7 +27457,7 @@ function adminCaseRenderRewards(){
         const block=document.createElement('div');block.className='admin-case-reward';
         const top=document.createElement('div');top.className='admin-case-prize';
         const type=document.createElement('select');
-        adminCaseHtmlOption(type,'brainrot','Brainrot');adminCaseHtmlOption(type,'coins','Монеты X');
+        adminCaseHtmlOption(type,'brainrot','Brainrot');adminCaseHtmlOption(type,'gear','Gear');adminCaseHtmlOption(type,'coins','Монеты X');
         type.value=item.reward_type;
         const prize=document.createElement('select');
         function populatePrize(){
@@ -27372,9 +27466,9 @@ function adminCaseRenderRewards(){
                 adminCaseHtmlOption(prize,'coins','Монеты X');prize.disabled=true;
             }else{
                 prize.disabled=false;
-                (adminCaseEditorState?.brainrots||[]).forEach(b=>adminCaseHtmlOption(prize,b.brainrot_id,
+                adminCaseCatalogItems(item.reward_type).forEach(b=>adminCaseHtmlOption(prize,b.brainrot_id,
                     `${b.name} (${b.value||0} X)`));
-                if((adminCaseEditorState?.brainrots||[]).some(b=>Number(b.brainrot_id)===item.brainrot_id)){
+                if(adminCaseCatalogItems(item.reward_type).some(b=>Number(b.brainrot_id)===item.brainrot_id)){
                     prize.value=String(item.brainrot_id);
                 }else if(prize.options.length){
                     item.brainrot_id=Number(prize.options[0].value);prize.value=String(item.brainrot_id);
@@ -27383,13 +27477,13 @@ function adminCaseRenderRewards(){
         }
         type.onchange=()=>{
             item.reward_type=type.value;
-            if(item.reward_type==='brainrot'){
-                const b=adminCaseEditorState.brainrots[0];item.brainrot_id=Number(b?.brainrot_id||0);item.value=Number(b?.value||0);
+            if(item.reward_type!=='coins'){
+                const b=adminCaseCatalogItems(item.reward_type)[0];item.brainrot_id=Number(b?.brainrot_id||0);item.value=Number(b?.value||0);
             }else{item.brainrot_id=0;item.value=Math.max(1,Math.round(item.value||1));}
             adminCaseDirty=true;adminCaseRenderRewards();adminCaseSummary();
         };
         populatePrize();
-        prize.onchange=()=>{const b=adminCaseCatalogItem(prize.value);if(!b)return;
+        prize.onchange=()=>{const b=adminCaseCatalogItem(prize.value,item.reward_type);if(!b)return;
             item.brainrot_id=Number(b.brainrot_id);item.value=Number(b.value||0);
             adminCaseDirty=true;adminCaseRenderRewards();adminCaseSummary();};
         top.append(type,prize);
@@ -27410,9 +27504,10 @@ function adminCaseRenderRewards(){
 function adminCaseAddReward(type){
     if(!adminCaseDraft)return;
     if(adminCaseDraft.items.length>=80){adminCaseResults('Максимум 80 предметов',true);return;}
-    const b=adminCaseEditorState?.brainrots?.[0];
-    adminCaseDraft.items.push({id:0,reward_type:type,brainrot_id:type==='brainrot'?Number(b?.brainrot_id||0):0,
-        value:type==='brainrot'?Number(b?.value||0):1,chance:1});
+    const b=adminCaseCatalogItems(type)[0];
+    if(type!=='coins'&&!b){adminCaseResults('Нет доступных предметов этого типа',true);return;}
+    adminCaseDraft.items.push({id:0,reward_type:type,brainrot_id:type!=='coins'?Number(b?.brainrot_id||0):0,
+        value:type!=='coins'?Number(b?.value||0):1,chance:1});
     adminCaseDirty=true;adminCaseRenderRewards();adminCaseSummary();
 }
 function adminCaseSummary(){
@@ -27436,7 +27531,10 @@ async function adminSaveCaseEditor(){
         adminCaseResults('Добавь предмет с положительным шансом',true);return;
     }
     if(c.items.some(i=>!Number.isFinite(i.chance)||i.chance<0||i.chance>1000000||!Number.isSafeInteger(i.value)||i.value<0||i.value>999999999||
-        (i.reward_type==='coins'&&i.value===0)||(i.reward_type==='brainrot'&&!Number.isSafeInteger(i.brainrot_id)))){
+        !['brainrot','gear','coins'].includes(i.reward_type)||
+        (i.reward_type==='coins'&&i.value===0)||
+        (i.reward_type!=='coins'&&(!Number.isSafeInteger(i.brainrot_id)||i.brainrot_id<1))||
+        (i.reward_type==='gear'&&!adminCaseCatalogItem(i.brainrot_id,'gear')))){
         adminCaseResults('Проверь вес и стоимость наград',true);return;
     }
     const old=adminCaseEditorState.cases.find(v=>Number(v.id)===c.id);
