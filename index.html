@@ -26102,10 +26102,47 @@ let crashToastRoundResult = { roundId:null, status:null };
 let crashActionBusy = false;
 let crashNextControlUpdateAt = 0;
 
-const CRASH_UI_SCALE_MS = 25000;
-function crashCurveMultiplier(elapsedMs){
-    const t=Math.max(0,elapsedMs)/CRASH_UI_SCALE_MS;
-    return Math.min(100,Math.exp(t+0.24*t*t));
+// Crash v2: timing must match brx_crash_curve_v2() in PostgreSQL.
+// Previous rounds use curve_version=1 so in-progress flights are not changed.
+const CRASH_CURVE_KNOTS = [
+    {s:0, value:1, slope:0.09},
+    {s:8, value:2, slope:0.075},
+    {s:21, value:5, slope:0.05},
+    {s:39, value:10, slope:0.06},
+    {s:54, value:100, slope:0.18}
+];
+function crashCurveMultiplier(elapsedMs, version=2){
+    if(Number(version)!==2){
+        const t=Math.max(0, Number(elapsedMs)||0)/25000;
+        return Math.min(100, Math.exp(t+0.24*t*t));
+    }
+    const seconds=Math.max(0,Number(elapsedMs)||0)/1000;
+    if(seconds>=54) return 100;
+    let i=0;
+    while(i<CRASH_CURVE_KNOTS.length-2 && seconds>=CRASH_CURVE_KNOTS[i+1].s) i++;
+    const a=CRASH_CURVE_KNOTS[i], b=CRASH_CURVE_KNOTS[i+1];
+    const h=b.s-a.s, u=(seconds-a.s)/h;
+    const y0=Math.log(a.value), y1=Math.log(b.value);
+    const logValue=(2*u*u*u-3*u*u+1)*y0
+        +(u*u*u-2*u*u+u)*h*a.slope
+        +(-2*u*u*u+3*u*u)*y1
+        +(u*u*u-u*u)*h*b.slope;
+    return Math.min(100,Math.max(1,Math.exp(logValue)));
+}
+
+// Estimate the item-plus-coins payout from the catalog for the button text.
+// The database independently calculates the REAL payout at cashout.
+function crashRewardPreview(total){
+    const rounded=Math.max(1,Math.round(Number(total)||0));
+    const options=Array.isArray(brainrots) ? brainrots : [];
+    const eligible=options.filter(entry=>Number(entry?.value)>0 && Number(entry.value)<=rounded);
+    eligible.sort((a,b)=>Number(b.value)-Number(a.value) || Number(a.brainrot_id)-Number(b.brainrot_id));
+    const item=eligible[0]||null;
+    return {
+        name:String(item?.name||''),
+        value:item?Number(item.value):0,
+        coins:rounded-(item?Number(item.value):0)
+    };
 }
 
 function startCrashMode(){
@@ -26206,7 +26243,7 @@ function crashPhaseNow(){
     }else if(state.phase === 'flying' || now >= Number(state.flight_start_ms||0)){
         phase='flying';
         const elapsed = Math.max(0, now - Number(state.flight_start_ms||0));
-        multiplier = crashCurveMultiplier(elapsed);
+        multiplier = crashCurveMultiplier(elapsed, Number(state.curve_version || 1));
     }else{
         phase='betting'; multiplier=1;
     }
@@ -26338,7 +26375,12 @@ function renderCrashControls(){
             setButton(true,'alt',`СТАВКА — ${betName}`,'ОЖИДАНИЕ СТАРТА');
         }else if(state.phase === 'flying'){
             const canCashout = state.multiplier >= 1.01;
-            setButton(!canCashout, canCashout ? 'warn' : 'alt', `ЗАБРАТЬ — ${betName}`, `${stake} ⓧ + ${profit} ⓧ`);
+            const reward=crashRewardPreview(payout);
+            const rewardName=reward.name || betName;
+            const rewardText=reward.value>0
+                ? `${reward.value} ⓧ предмет + ${reward.coins} ⓧ монеты`
+                : `${reward.coins} ⓧ монеты`;
+            setButton(!canCashout, canCashout ? 'warn' : 'alt', `ЗАБРАТЬ — ${crashSafeText(rewardName)}`, rewardText);
         }else{
             setButton(true, 'alt', 'РАУНД ЗАВЕРШЁН');
         }
@@ -26346,8 +26388,10 @@ function renderCrashControls(){
     }
     const oldBet = crashMyRoundBet;
     if(oldBet && oldBet.status === 'cashed' && state.phase !== 'betting'){
-        const profit = Math.max(0,Number(oldBet.payout_value || 0) - Number(oldBet.stake_value || 0));
-        setButton(true,'alt','ЗАБРАНО',`+ ${profit} ⓧ`);
+        const itemName=crashSafeText(oldBet.reward_brainrot_name || '');
+        const coinCount=Number(oldBet.reward_coins || 0);
+        const rewardLabel=itemName ? `${itemName} + ${coinCount} ⓧ` : `${Number(oldBet.payout_value||0)} ⓧ`;
+        setButton(true,'alt','ЗАБРАНО',rewardLabel);
     }else if(oldBet && oldBet.status === 'crashed' && state.phase !== 'betting'){
         setButton(true,'alt','РАКЕТА ВЗОРВАЛАСЬ');
     }else if(state.phase === 'betting'){
@@ -26599,7 +26643,10 @@ async function crashCashout(){
         renderDicePicked();
         renderCrashControls();
         fetchCrashState(true);
-        showToast(`🚀 Забрано ${Number(data.multiplier||1).toFixed(2)}x · ${Number(data.payout||0)} ⓧ`, 'success');
+        const rewardDesc=data.reward_brainrot_name
+            ? `${data.reward_brainrot_name} (${Number(data.reward_brainrot_value||0)} ⓧ) + ${Number(data.reward_coins||0)} ⓧ`
+            : `${Number(data.reward_coins ?? data.payout ?? 0)} ⓧ`;
+        showToast(`Забрано на ${Number(data.multiplier||1).toFixed(2)}x: ${rewardDesc}`, 'success');
     }catch(error){
         showToast(error?.message || 'Не удалось забрать ставку', 'error');
         fetchCrashState(false);
