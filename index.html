@@ -26101,6 +26101,44 @@ let crashLastRoundId = null;
 let crashToastRoundResult = { roundId:null, status:null };
 let crashActionBusy = false;
 let crashNextControlUpdateAt = 0;
+let crashFlightVerifiedRoundId = null;
+let crashFlightVerifiedSamples = [];
+// Delay the *visual* interpolation by one poll so it never outruns a result
+// already determined by the shared server round. Bets still use server time.
+const CRASH_VERIFIED_DISPLAY_DELAY_MS = 1150;
+function crashVerifiedVisualMultiplier(nowMs){
+    const samples=crashFlightVerifiedSamples;
+    if(!samples.length) return 1;
+    const targetTime=nowMs-CRASH_VERIFIED_DISPLAY_DELAY_MS;
+    if(targetTime<=samples[0].time) return samples[0].multiplier;
+    for(let i=1;i<samples.length;i++){
+        const start=samples[i-1],end=samples[i];
+        if(targetTime<=end.time){
+            const span=Math.max(1,end.time-start.time);
+            const progress=Math.min(1,Math.max(0,(targetTime-start.time)/span));
+            // Interpolate logarithmic multiplier smoothly; never exceed a confirmed value.
+            return Math.exp(Math.log(start.multiplier)+(Math.log(end.multiplier)-Math.log(start.multiplier))*progress);
+        }
+    }
+    return samples[samples.length-1].multiplier;
+}
+function crashRememberVerifiedSample(data){
+    const roundId=String(data?.round_id??'');
+    if(roundId!==crashFlightVerifiedRoundId){
+        crashFlightVerifiedRoundId=roundId;
+        crashFlightVerifiedSamples=[];
+    }
+    if(data?.phase!=='flying') return;
+    const multiplier=Number(data.current_multiplier);
+    const time=Number(data.server_now_ms);
+    if(!Number.isFinite(multiplier)||!Number.isFinite(time)) return;
+    const samples=crashFlightVerifiedSamples;
+    if(samples.length && time<=samples[samples.length-1].time) return;
+    const last=samples.length?samples[samples.length-1].multiplier:1;
+    // Only a verified, nondecreasing value is recorded; it cannot pass the actual crash.
+    samples.push({time,multiplier:Math.max(last,Math.max(1,multiplier))});
+    if(samples.length>8) samples.shift();
+}
 
 // Crash v2: timing must match brx_crash_curve_v2() in PostgreSQL.
 // Previous rounds use curve_version=1 so in-progress flights are not changed.
@@ -26242,8 +26280,9 @@ function crashPhaseNow(){
         multiplier = Number(state.crash_multiplier||state.current_multiplier||1);
     }else if(state.phase === 'flying' || now >= Number(state.flight_start_ms||0)){
         phase='flying';
-        const elapsed = Math.max(0, now - Number(state.flight_start_ms||0));
-        multiplier = crashCurveMultiplier(elapsed, Number(state.curve_version || 1));
+        // A locally extrapolated value can exceed the actual crash multiplier while
+        // the phone is waiting for the next poll. Use only server-confirmed points.
+        multiplier = crashVerifiedVisualMultiplier(now);
     }else{
         phase='betting'; multiplier=1;
     }
@@ -26573,6 +26612,7 @@ async function fetchCrashState(force){
     try{
         const data = await apiRequest({ action:'get_crash_state' });
         if(!data?.ok) throw new Error(data?.error || 'Не удалось загрузить раунд');
+        crashRememberVerifiedSample(data);
         crashRoundState = data;
         crashMyBet = data.my_bet || null;
         crashMyRoundBet = data.my_round_bet || null;
@@ -33869,6 +33909,8 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
 
 
 
+
+
 </body>
 </html>
 
@@ -34228,4 +34270,17 @@ html body#sharp-app #dicePage .crash-stage.betting .crash-rocket,
 html body#sharp-app #dicePage .crash-stage.live .crash-rocket{visibility:visible!important;}
 html body#sharp-app #dicePage .crash-stage.crashed .crash-rocket img,
 html body#sharp-app #dicePage .crash-stage.waiting .crash-rocket img{opacity:0!important;}
+</style>
+<style id="brx-case-color-and-crash-authoritative-20261020">
+/* Screen blend was additive, creating a light haze across case pictures. */
+html body#sharp-app #casesPage #caseList .case-card img.case-image-art,
+html body#sharp-app #casesPage #caseList img.case-image-art{
+    mix-blend-mode:lighten!important;
+    opacity:1!important;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.22))!important;
+}
+html body#sharp-app #casesPage #caseList .case-card{
+    filter:none!important;
+    -webkit-filter:none!important;
+}
 </style>
