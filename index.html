@@ -34271,16 +34271,37 @@ html body#sharp-app #dicePage .crash-stage.live .crash-rocket{visibility:visible
 html body#sharp-app #dicePage .crash-stage.crashed .crash-rocket img,
 html body#sharp-app #dicePage .crash-stage.waiting .crash-rocket img{opacity:0!important;}
 </style>
-<style id="brx-case-color-and-crash-authoritative-20261020">
-/* Screen blend was additive, creating a light haze across case pictures. */
+<style id="brx-case-art-opaque-clean-20261020">
+/* No compositing with the card: 'screen'/'lighten' caused an unwanted milky white veil. */
 html body#sharp-app #casesPage #caseList .case-card img.case-image-art,
 html body#sharp-app #casesPage #caseList img.case-image-art{
-    mix-blend-mode:lighten!important;
+    mix-blend-mode:normal!important;
     opacity:1!important;
-    filter:drop-shadow(0 8px 10px rgba(0,0,0,.22))!important;
-}
-html body#sharp-app #casesPage #caseList .case-card{
     filter:none!important;
     -webkit-filter:none!important;
+    background:transparent!important;
+    box-shadow:none!important;
+}
+/* Case art must sit on a fully opaque, dark card, not a semi-transparent panel. */
+html body#sharp-app #casesPage #caseList .case-card{
+    opacity:1!important;
+    background:#131c2a!important;
+    background-image:linear-gradient(160deg,#1c2839 0%,#101824 100%)!important;
+    filter:none!important;
+    -webkit-filter:none!important;
+    isolation:isolate!important;
+}
+/* Remove the bright layer and its animated white dots behind case pictures. */
+html body#sharp-app #casesPage #caseList .case-card .case-stars,
+html body#sharp-app #casesPage #caseList .case-card::before,
+html body#sharp-app #casesPage #caseList .case-card::after{
+    display:none!important;
+    content:none!important;
+}
+/* The selected-case preview should not whiten its image either. */
+html body#sharp-app #caseCoverPreview img{
+    mix-blend-mode:normal!important;
+    opacity:1!important;
+    filter:none!important;
 }
 </style>
