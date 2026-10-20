@@ -17104,7 +17104,7 @@ function getCaseItems(){
                         "daily",
 
                     brainrot_id:
-                        null,
+                        Number(item.brainrot_id||0)||null,
 
                     brainrot_name:
                         item.name,
@@ -17688,43 +17688,29 @@ async function sellAllRecentCaseWinners(){
 
 
 function getDailyCaseItems(){
-
+    // Admin-configured Daily Case is the sole source for preview content when available.
+    const configured=(Array.isArray(cases)?cases:[]).find(row=>row?.is_daily===true);
+    if(configured){
+        const configuredItems=(Array.isArray(caseItems)?caseItems:[])
+            .filter(item=>Number(item.case_id)===Number(configured.id))
+            .map(item=>({
+                kind:String(item.reward_type||'brainrot')==='coins'?'coins':'brainrot',
+                name:String(item.brainrot_name|| (String(item.reward_type)==='coins'?`${Number(item.reward_amount||item.value||0)} X`:'Brainrot')),
+                value:Number(item.reward_type==='coins'?item.reward_amount??item.value:item.value||0),
+                chance:Number(item.chance||0),
+                brainrot_id:Number(item.brainrot_id||0)
+            }));
+        return configuredItems;
+    }
+    // Compatibility with databases where the standalone Daily Case has not been created.
     return [
-        {
-            kind:"coins",
-            name:"3 X",
-            value:3,
-            chance:79
-        },
-        {
-            kind:"coins",
-            name:"5 X",
-            value:5,
-            chance:10
-        },
-        {
-            kind:"coins",
-            name:"7 X",
-            value:7,
-            chance:5
-        },
-        {
-            kind:"brainrot",
-            name:"La Grande",
-            chance:3
-        },
-        {
-            kind:"brainrot",
-            name:"Nuclearo Dinossauro",
-            chance:2
-        },
-        {
-            kind:"brainrot",
-            name:"Money Money Puggy",
-            chance:1
-        }
+        {kind:'coins',name:'3 X',value:3,chance:79},
+        {kind:'coins',name:'5 X',value:5,chance:10},
+        {kind:'coins',name:'7 X',value:7,chance:5},
+        {kind:'brainrot',name:'La Grande',chance:3},
+        {kind:'brainrot',name:'Nuclearo Dinossauro',chance:2},
+        {kind:'brainrot',name:'Money Money Puggy',chance:1}
     ];
-
 }
 
 
@@ -18140,8 +18126,9 @@ async function openDailyWithRoulette(){
             );
         }
 
-        const pool =
-            buildDailyRoulettePool();
+        // Preview does not roll the prize. The server chooses it from saved case_items.
+        // Do not expand weights into thousands of DOM-side array entries.
+        const pool = getDailyCaseItems();
 
         const serverPrizeName =
             data.reward_type
@@ -18410,6 +18397,7 @@ function cinemaReleaseBackground(state){
 }
 function cinemaClose(){
     const state=caseCinema;if(!state||state.busy||state.selling)return;
+    cinemaStopPreview(state);
     state.resizeObserver?.disconnect();
     state.root.remove();cinemaReleaseBackground(state);caseCinema=null;
     cinemaRenderIdle();
@@ -18419,21 +18407,71 @@ async function cinemaOpenAgain(){
     if(!caseCinema||caseCinema.busy||caseCinema.selling||caseSpinning)return;
     cinemaClose();await openSelectedCase();
 }
+function cinemaReadTrackX(track){
+    const raw=getComputedStyle(track).transform;
+    if(!raw||raw==='none')return 0;
+    try{if(typeof DOMMatrixReadOnly==='function')return new DOMMatrixReadOnly(raw).m41||0;}catch(_){ }
+    const match=raw.match(/^matrix\(([^)]+)\)$/);
+    if(match)return Number(match[1].split(',')[4])||0;
+    const matrix3d=raw.match(/^matrix3d\(([^)]+)\)$/);
+    return matrix3d?Number(matrix3d[1].split(',')[12])||0:0;
+}
+function cinemaKeepPreviewMoving(state){
+    let previous=performance.now();
+    function frame(now){
+        if(state.previewStopped||!state.root.isConnected)return;
+        const elapsed=Math.min(48,Math.max(0,now-previous));previous=now;
+        for(const handoff of state.handoffs){
+            if(!handoff)continue;
+            handoff.x-=handoff.speed*elapsed/1000;
+            if(handoff.cycle>0&&handoff.x<=-handoff.cycle)handoff.x+=handoff.cycle;
+            handoff.track.style.transform=`translate3d(${handoff.x}px,0,0)`;
+        }
+        state.previewFrame=requestAnimationFrame(frame);
+    }
+    state.previewFrame=requestAnimationFrame(frame);
+}
+function cinemaStopPreview(state){
+    if(!state)return;
+    state.previewStopped=true;
+    if(state.previewFrame)cancelAnimationFrame(state.previewFrame);
+    state.previewFrame=0;
+}
 function cinemaOpen(name,count){
     const stage=cinemaStage(),root=document.createElement('div');root.id='caseCinema';
     root.innerHTML='<section class="cinema-dialog" role="region"><p class="cinema-status" role="status" tabindex="-1">Открываем кейсы…</p><div class="cinema-drops"></div><div class="cinema-actions" hidden><button class="cinema-sell-all"></button></div></section>';
     root.querySelector('section').setAttribute('aria-label',name);
-    const state={root,busy:true,selling:false,winners:[],revealed:0,sold:new Set(),focus:document.activeElement,background:[],lanes:[]};
+    const state={root,busy:true,selling:false,winners:[],revealed:0,sold:new Set(),focus:document.activeElement,background:[],lanes:[],handoffs:[],previewStopped:false};
     caseCinema=state;
-    for(let i=0;i<count;i++){const lane=cinemaLane();cinemaFillIdle(lane,i);root.querySelector('.cinema-drops').appendChild(lane);state.lanes.push(lane);}
+    const idle=document.getElementById('caseIdleReels');
+    const available=idle&&!idle.hidden&&idle.children.length===count?Array.from(idle.children):[];
+    for(let i=0;i<count;i++){
+        // Move the ACTUAL slowly moving reel into the opening stage; don't create a new one.
+        const lane=available[i]||cinemaLane();
+        if(!available[i])cinemaFillIdle(lane,i);
+        const track=lane.querySelector('.cinema-track');
+        const cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
+        const x=available[i]?cinemaReadTrackX(track):0;
+        const half=Math.floor(cards.length/2);
+        const cycle=half>0&&cards[half]?cards[half].offsetLeft-cards[0].offsetLeft:0;
+        const duration=Math.max(.1,Number.parseFloat(track.style.getPropertyValue('--brx-preview-duration'))||66);
+        track.classList.remove('cinema-idle-track');
+        track.style.animation='none';
+        track.style.transition='none';
+        track.style.transform=`translate3d(${x}px,0,0)`;
+        state.handoffs.push({track,x,cycle,speed:cycle/duration});
+        root.querySelector('.cinema-drops').appendChild(lane);state.lanes.push(lane);
+    }
     document.querySelectorAll('.topbar,#activeCase > .back-btn,#activeCase > .panel > :not(#casePresentationStage)').forEach(node=>{state.background.push([node,node.inert]);node.inert=true;});
     const bottomMenu=document.querySelector('.bottom-menu');if(bottomMenu)bottomMenu.inert=false;
-    const idle=document.getElementById('caseIdleReels');if(idle)idle.hidden=true;
+    if(idle)idle.hidden=true;
     root.querySelector('.cinema-sell-all').onclick=()=>cinemaSell();
     root.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();cinemaClose();}});
     stage.appendChild(root);document.body.classList.add('case-cinema-open');
+    cinemaKeepPreviewMoving(state);
     return state;
 }
+
 function cinemaReveal(state,index){
     const item=state.winners[index],lane=state.lanes[index];if(!item||!lane||lane.dataset.revealed)return;
     lane.dataset.revealed='true';
@@ -18472,6 +18510,7 @@ async function cinemaSell(id){
     }finally{state.selling=false;cinemaRefreshSales(state);}
 }
 function cinemaFinish(state,message){
+    cinemaStopPreview(state);
     if(!state.winners.length){
         state.busy=false;const text=String(message||'Не удалось открыть кейс');
         const result=document.getElementById('caseResult');
@@ -18485,70 +18524,79 @@ function cinemaFinish(state,message){
     state.root.querySelector('.cinema-actions').hidden=false;
     cinemaReleaseBackground(state);cinemaRefreshSales(state);updateCaseCost();
 }
-function cinemaProgress(t){t=Math.min(1,Math.max(0,t));if(t<=0.18)return 0.50*(t/0.18);const u=(t-0.18)/0.82;return 0.50+0.50*(1-Math.pow(1-u,4.15));}
-function cinemaTimeForProgress(p){p=Math.min(1,Math.max(0,p));if(p<=.5)return .36*p;const remain=Math.max(0,2*(1-p));const u=1-Math.pow(remain,1/4.15);return .18+.82*u;}
+function cinemaMotionDistance(reel,elapsed){
+    // Gradual acceleration, a fast middle stretch and a real 4.7 second braking phase.
+    const e=Math.min(reel.duration,Math.max(0,elapsed));
+    const a=reel.accel,cruise=reel.cruise,brake=reel.brake;
+    const v=reel.cruiseVelocity,v0=reel.startVelocity,p=reel.brakePower;
+    const accelerated=v0*a+(v-v0)*a/2;
+    if(e<a)return v0*e+(v-v0)*e*e/(2*a);
+    if(e<a+cruise)return accelerated+v*(e-a);
+    const u=Math.min(1,(e-a-cruise)/brake);
+    return Math.min(reel.distance,accelerated+v*cruise+v*brake/(p+1)*(1-Math.pow(1-u,p+1)));
+}
 async function cinemaAnimate(state){
     if(!state.winners.length)return;
-    const pool=getCaseItems();
+    cinemaStopPreview(state);
+    const pool=getCaseItems().filter(Boolean);
     const fast=Number(caseSpeed)>1;
-
-    /* Returned to the earlier, quicker timing profile. */
-    const totalDuration=fast?1500:(state.winners.length<=1?4000:state.winners.length<=3?7000:10000);
     const count=state.winners.length;
-
-    /* Multi-open reels finish with a little more separation, without making the whole spin longer. */
-    const spreadStep=fast?32:(count<=1?0:(count<=3?145:185));
-    const firstDuration=Math.max(900,totalDuration-spreadStep*Math.max(0,count-1));
-
+    // Normal case: 8.2s single; x3/x5 longer. Last ~4.7s are a visible smooth slowdown.
+    const totalDuration=fast?1500:(count<=1?8200:count<=3?10600:12700);
+    const spreadStep=fast?20:(count<=1?0:count<=3?70:90);
+    const firstDuration=totalDuration-spreadStep*Math.max(0,count-1);
     const reels=state.winners.map((winner,index)=>{
         const lane=state.lanes[index],track=lane.querySelector('.cinema-track'),viewport=lane.querySelector('.cinema-window');
-        track.replaceChildren();track.classList.remove('cinema-idle-track','cinema-single-result');
-        track.style.transition='none';track.style.animation='none';
-
-        /* Different travel distance makes x3/x5 feel less cloned. */
-        const extraTravel=count>1?Math.floor(Math.random()*(count>=5?8:6)):Math.floor(Math.random()*3);
-        const stop=52+extraTravel+index*2,cards=[];
-        for(let i=0;i<=stop+6;i++){
+        const handoff=state.handoffs[index];
+        const originX=Number.isFinite(handoff?.x)?handoff.x:cinemaReadTrackX(track);
+        track.classList.remove('cinema-idle-track','cinema-single-result');
+        track.style.animation='none';track.style.transition='none';
+        // Keep every preview card visible in exactly the same order and append the opening.
+        // Only the final card is fixed to the reward the SERVER has already awarded.
+        const extraTravel=Math.floor(Math.random()*(count>1?7:5));
+        const existing=track.querySelectorAll('.cinema-reel-item').length;
+        const stop=existing+17+extraTravel+index*2,cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
+        for(let i=existing;i<=stop+7;i++){
             const item=i===stop?winner:pool[Math.floor(Math.random()*pool.length)]||winner;
             const card=rouletteCard(item);card.className='cinema-reel-item';track.appendChild(card);cards.push(card);
         }
-
-        /* Tiny mechanical imperfect stop: sub-millimetre visual offset only; reward never changes. */
-        const imperfect=!fast&&Math.random()<0.44;
-        const finalOffset=imperfect?(Math.random()<.5?-1:1)*(0.35+Math.random()*1.05):0;
-        const jitter=count>1?(Math.random()*50-25):0;
-        return {
-            track,viewport,cards,stop,index,done:false,
-            duration:Math.max(850,firstDuration+index*spreadStep+jitter),
-            finalOffset,
-            lastTick:-1
-        };
+        // Occasional near-miss: put a more expensive visible item NEXT to the real winner.
+        // Neither this neighbor nor the landing offset changes the server's reward/odds.
+        const bait=!fast&&Math.random()<.27;
+        const finalFraction=bait?(Math.random()<.5?-1:1)*(.405+Math.random()*.07):Math.random()*.82-.41;
+        if(bait&&pool.length){
+            const prizeValue=Number(winner.value||0);
+            const nearby=pool.filter(i=>Number(i.value||0)>prizeValue)
+                .sort((a,b)=>Number(b.value||0)-Number(a.value||0));
+            const alternative=nearby.length?nearby[Math.floor(Math.random()*Math.min(nearby.length,5))]:pool[Math.floor(Math.random()*pool.length)];
+            const neighborIndex=stop+(finalFraction<0?1:-1);
+            const old=cards[neighborIndex];const replacement=rouletteCard(alternative);
+            replacement.className='cinema-reel-item';old.replaceWith(replacement);cards[neighborIndex]=replacement;
+        }
+        const last=cards[stop];
+        const finalOffset=last.offsetWidth*finalFraction;
+        const targetX=viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+finalOffset;
+        const distance=Math.max(1,originX-targetX);
+        const duration=Math.max(1.0,(firstDuration+index*spreadStep)/1000);
+        const accel=fast?.22:.9,brake=fast?.9:4.7;
+        const cruise=Math.max(.08,duration-accel-brake);
+        const startVelocity=fast?35:Math.max(14,Math.min(25,handoff?.speed||18));
+        const brakePower=3.15;
+        const cruiseVelocity=(distance-startVelocity*accel/2)/(accel/2+cruise+brake/(brakePower+1));
+        return {track,viewport,cards,stop,index,done:false,originX,distance,duration,accel,cruise,brake,brakePower,startVelocity,cruiseVelocity,finalFraction,lastTick:-1};
     });
-
     if(typeof ResizeObserver!=='undefined'){
         state.resizeObserver?.disconnect();
         state.resizeObserver=new ResizeObserver(()=>{
             reels.filter(reel=>reel.done).forEach(reel=>{
                 const card=reel.cards[reel.stop];
-                reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-card.offsetLeft-card.offsetWidth/2+reel.finalOffset}px,0,0)`;
+                reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-card.offsetLeft-card.offsetWidth/2+card.offsetWidth*reel.finalFraction}px,0,0)`;
             });
         });
         reels.forEach(reel=>state.resizeObserver.observe(reel.viewport));
     }
-
-    /*
-      The last reel is the master sound clock, so x3/x5 keep clicking until the whole opening ends.
-      Each travelled card schedules exactly one click using the inverse of the same easing curve.
-    */
-    const soundReel=reels[reels.length-1]||reels[0];
-    if(soundReel&&soundReel.stop>0){
-        for(let cardIndex=1;cardIndex<=soundReel.stop;cardIndex++){
-            const cardProgress=cardIndex/soundReel.stop;
-            const delay=Math.max(0,Math.round(cinemaTimeForProgress(cardProgress)*soundReel.duration)-2);
-            setTimeout(()=>window.brxRouletteTick?.(cardProgress,0,cardIndex,soundReel.stop),delay);
-        }
-    }
-
+    // Keep the quiet soft click tied to actual cards crossing the pointer.
+    const soundReel=reels[reels.length-1];
     let started=null;
     await new Promise((resolve,reject)=>{
         const frame=now=>{
@@ -18556,18 +18604,22 @@ async function cinemaAnimate(state){
                 if(started===null)started=now;
                 let allDone=true;
                 for(const reel of reels){
-                    const t=Math.min(1,(now-started)/reel.duration),first=reel.cards[0],last=reel.cards[reel.stop];
-                    const start=first.offsetLeft+first.offsetWidth/2,end=last.offsetLeft+last.offsetWidth/2;
-                    const progress=cinemaProgress(t);
-                    const position=start+(end-start)*progress;
-                    const finalAdjust=reel.finalOffset*(Math.max(0,(t-.82)/.18));
-                    reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-position+finalAdjust}px,0,0)`;
-
-                    if(t>=1&&!reel.done){
+                    const elapsed=Math.min(reel.duration,(now-started)/1000);
+                    const moved=cinemaMotionDistance(reel,elapsed);
+                    reel.track.style.transform=`translate3d(${reel.originX-moved}px,0,0)`;
+                    if(reel===soundReel&&!reel.done){
+                        const center=reel.viewport.clientWidth/2-reel.originX+moved;
+                        const approxCard=Math.max(0,Math.floor((center-(reel.cards[0]?.offsetLeft||0))/Math.max(1,(reel.cards[1]?.offsetLeft||92)-(reel.cards[0]?.offsetLeft||0))));
+                        if(approxCard>reel.lastTick){
+                            if(reel.lastTick>=0)window.brxRouletteTick?.(moved/reel.distance,0,approxCard,reel.stop);
+                            reel.lastTick=approxCard;
+                        }
+                    }
+                    if(elapsed>=reel.duration&&!reel.done){
                         reel.done=true;
-                        reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+reel.finalOffset}px,0,0)`;
-                        last.classList.add('cinema-final');
-                        cinemaReveal(state,reel.index);
+                        const last=reel.cards[reel.stop];
+                        reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+last.offsetWidth*reel.finalFraction}px,0,0)`;
+                        last.classList.add('cinema-final');cinemaReveal(state,reel.index);
                     }
                     if(!reel.done)allDone=false;
                 }
@@ -18578,6 +18630,7 @@ async function cinemaAnimate(state){
     });
     window.brxCaseStopSound?.();
 }
+
 function cinemaWinners(data){
     const items=Array.isArray(data.items)?data.items:[];
     const entries=Array.isArray(data.results)?data.results:[];
