@@ -18524,33 +18524,42 @@ function cinemaFinish(state,message){
     state.root.querySelector('.cinema-actions').hidden=false;
     cinemaReleaseBackground(state);cinemaRefreshSales(state);updateCaseCost();
 }
-function cinemaSlowRollUnits(duration, elapsed){
-    // Units are whole reel cards, rather than pixels. This keeps the visual
-    // speed consistent across mobile widths and across different case layouts.
-    // First ~4s: 13.4 cards/s. Next 1.65s: smooth 13.4 -> 5.1 cards/s.
-    // Last 5.5s: smooth 5.1 -> 0, travelling ~12 more cards at low speed.
-    const tail=5.5;
-    const transition=1.65;
-    const cruising=Math.max(0,duration-transition-tail);
-    const rapid=13.4, slow=5.1, slowPower=1.3;
-    const rapidDistance=rapid*cruising;
-    const transitionDistance=(rapid+slow)*transition/2;
-    const tailDistance=slow*tail/(slowPower+1);
+/*
+ * 7-second normal case opening. The preview stays attached to the same DOM reel.
+ * Travel is the integral of a non-negative velocity: first about 27 cards/s
+ * for 1.2–1.8 s, then a smooth deceleration all the way to zero velocity.
+ * Different hold lengths and coast profiles prevent identical-looking spins.
+ * This is purely visual; the server determines the item before spinning.
+ */
+function cinemaRollPlan(duration){
+    const hold=Math.min(duration*.35,1.2+Math.random()*.55);
+    const speed=26.5+Math.random(); // approximately 27 cards per second
+    const power=Math.random()<.5?3:4;
+    const plan={hold,speed,power};
+    plan.units=cinemaSlowRollUnits(duration,duration,plan);
+    return plan;
+}
+function cinemaSlowRollUnits(duration,elapsed,plan){
     const t=Math.max(0,Math.min(duration,elapsed));
-    if(t<=cruising)return rapid*t;
-    if(t<=cruising+transition){
-        const b=t-cruising;
-        return rapidDistance+rapid*b+(slow-rapid)*b*b/(2*transition);
-    }
-    const u=Math.min(1,(t-cruising-transition)/tail);
-    return rapidDistance+transitionDistance+tailDistance*(1-Math.pow(1-u,slowPower+1));
+    const hold=plan?.hold??1.5;
+    const speed=plan?.speed??27;
+    if(t<=hold)return speed*t;
+    const tail=Math.max(.001,duration-hold);
+    const u=Math.min(1,(t-hold)/tail);
+    const u2=u*u,u3=u*u2,u5=u3*u2,u7=u5*u2;
+    // Integral of (1-u*u)^power. Its velocity is continuous at the join,
+    // is never negative, and tends smoothly to 0 without an abrupt cutoff.
+    const integral=plan?.power===4
+        ?u-(4/3)*u3+(6/5)*u5-(4/7)*u7+(1/9)*u7*u2
+        :u-u3+(3/5)*u5-u7/7;
+    return speed*(hold+tail*integral);
 }
 function cinemaMotionDistance(reel,elapsed){
     const e=Math.min(reel.duration,Math.max(0,elapsed));
     if(!reel.fast){
         // Normalized to the actual location of the server-awarded card.
         // This also avoids any snapping / jumps on the last frame.
-        return reel.distance*Math.min(1,cinemaSlowRollUnits(reel.duration,e)/reel.plannedUnits);
+        return reel.distance*Math.min(1,cinemaSlowRollUnits(reel.duration,e,reel.rollPlan)/reel.plannedUnits);
     }
     // Keep the existing 1.5-second accelerated mode unchanged.
     const a=reel.accel,cruise=reel.cruise,brake=reel.brake;
@@ -18567,9 +18576,10 @@ async function cinemaAnimate(state){
     const pool=getCaseItems().filter(Boolean);
     const fast=Number(caseSpeed)>1;
     const count=state.winners.length;
-    // Normal opening: 10–12 seconds, a rapid start and a 5.2-second progressively slower landing. Multi-open reels finish almost together.
-    const totalDuration=fast?1500:(count<=1?10500:count<=3?10800:11200);
-    const spreadStep=fast?20:(count<=1?0:count<=3?45:55);
+    // Normal opening takes about 7 seconds. Long coast and a zero-speed landing;
+    // reels in multi-open still finish only milliseconds apart.
+    const totalDuration=fast?1500:(count<=1?7000:count<=3?7100:7200);
+    const spreadStep=fast?20:(count<=1?0:count<=3?35:45);
     const firstDuration=totalDuration-spreadStep*Math.max(0,count-1);
     const reels=state.winners.map((winner,index)=>{
         const lane=state.lanes[index],track=lane.querySelector('.cinema-track'),viewport=lane.querySelector('.cinema-window');
@@ -18583,7 +18593,8 @@ async function cinemaAnimate(state){
         const cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
         const existing=cards.length;
         const duration=Math.max(1.0,(firstDuration+index*spreadStep)/1000);
-        const plannedUnits=fast?0:cinemaSlowRollUnits(duration,duration);
+        const rollPlan=fast?null:cinemaRollPlan(duration);
+        const plannedUnits=rollPlan?.units||0;
         // The final reel position is chosen FROM the currently visible preview,
         // not from the end of its duplicated preview cards. We never replace
         // any of the cards that the player can currently see.
@@ -18593,10 +18604,14 @@ async function cinemaAnimate(state){
         const stop=fast
             ?existing+27+extraTravel+index*2
             :Math.max(existing>0?1:0,Math.ceil(visibleCenter+plannedUnits+(Math.random()*2-1)));
+        // A fragment avoids repeated layout work when a 27-card/s spin needs
+        // many cards, particularly on small mobile devices with 3/5 reels.
+        const appended=document.createDocumentFragment();
         for(let i=existing;i<=stop+7;i++){
             const item=i===stop?winner:pool[Math.floor(Math.random()*pool.length)]||winner;
-            const card=rouletteCard(item);card.className='cinema-reel-item';track.appendChild(card);cards.push(card);
+            const card=rouletteCard(item);card.className='cinema-reel-item';appended.appendChild(card);cards.push(card);
         }
+        track.appendChild(appended);
         if(stop<existing){
             // An idle preview may already contain more than 80 cards. Replace
             // only the distant winning slot, with all visible cards untouched.
@@ -18634,7 +18649,7 @@ async function cinemaAnimate(state){
         const startVelocity=35;
         const brakePower=3.15;
         const cruiseVelocity=(distance-startVelocity*accel/2)/(accel/2+cruise+brake/(brakePower+1));
-        return {track,viewport,cards,stop,index,done:false,originX,distance,duration,fast,plannedUnits,accel,cruise,brake,brakePower,startVelocity,cruiseVelocity,finalFraction,lastTick:-1};
+        return {track,viewport,cards,stop,index,done:false,originX,distance,duration,fast,plannedUnits,rollPlan,accel,cruise,brake,brakePower,startVelocity,cruiseVelocity,finalFraction,lastTick:-1};
     });
     if(typeof ResizeObserver!=='undefined'){
         state.resizeObserver?.disconnect();
