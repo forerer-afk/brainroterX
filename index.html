@@ -13658,6 +13658,38 @@ let hourlyDepositPromoRefreshing = false;
 
 let silentSyncRunning = false;
 
+// All sell acknowledgements are authoritative. Do not allow an older get_player
+// response to overwrite a newly credited balance or remove/restore inventory.
+let brxEconomyGeneration = 0;
+let brxSaleOperationsInFlight = 0;
+let brxEconomyRecheckTimer = null;
+const brxSingleSellPending = new Set();
+
+function brxScheduleEconomyRecheck(delay=450){
+    if(brxEconomyRecheckTimer !== null) clearTimeout(brxEconomyRecheckTimer);
+    brxEconomyRecheckTimer = setTimeout(()=>{
+        brxEconomyRecheckTimer = null;
+        if(brxSaleOperationsInFlight || silentSyncRunning){
+            brxScheduleEconomyRecheck(350);
+            return;
+        }
+        if(document.visibilityState === 'visible') void silentSync();
+    },delay);
+}
+
+async function brxPerformSale(body){
+    brxSaleOperationsInFlight++;
+    brxEconomyGeneration++;
+    try{
+        return await apiRequest(body);
+    }finally{
+        brxSaleOperationsInFlight=Math.max(0,brxSaleOperationsInFlight-1);
+        brxEconomyGeneration++;
+        brxScheduleEconomyRecheck(500);
+    }
+}
+
+
 let depositEnabled = true;
 let uahDepositEnabled = true;
 let brainrotDepositEnabled = true;
@@ -18525,34 +18557,50 @@ function cinemaFinish(state,message){
     cinemaReleaseBackground(state);cinemaRefreshSales(state);updateCaseCost();
 }
 /*
- * 7-second normal case opening. The preview stays attached to the same DOM reel.
- * Travel is the integral of a non-negative velocity: first about 27 cards/s
- * for 1.2–1.8 s, then a smooth deceleration all the way to zero velocity.
- * Different hold lengths and coast profiles prevent identical-looking spins.
- * This is purely visual; the server determines the item before spinning.
+ * One seamless motion: server awards the result before rendering.
+ * Faster opening (~27 cards/sec), ~2 sec at 5 cards/sec, then 4, 3, 1,
+ * finally a long progressive glide to exactly zero speed.  We integrate
+ * velocity analytically; the last rendered position equals the winner target.
+ * The tiny variation in timings prevents mechanically identical openings.
  */
 function cinemaRollPlan(duration){
-    const hold=Math.min(duration*.35,1.2+Math.random()*.55);
-    const speed=26.5+Math.random(); // approximately 27 cards per second
-    const power=Math.random()<.5?3:4;
-    const plan={hold,speed,power};
+    const rand=(a,b)=>a+Math.random()*(b-a);
+    const raw=[
+        {seconds:rand(1.25,1.50),v0:27,v1:27},
+        {seconds:rand(.78,1.00),v0:27,v1:5},
+        {seconds:rand(1.95,2.12),v0:5,v1:5},
+        {seconds:rand(.55,.70),v0:5,v1:4},
+        {seconds:rand(.60,.78),v0:4,v1:3},
+        {seconds:rand(.75,.95),v0:3,v1:1.05},
+        {seconds:rand(.60,.78),v0:1.05,v1:1.05},
+        {seconds:rand(.95,1.18),v0:1.05,v1:.22},
+        {seconds:rand(1.25,1.55),v0:.22,v1:0}
+    ];
+    const rawDuration=raw.reduce((sum,segment)=>sum+segment.seconds,0);
+    const scale=duration/rawDuration;
+    const segments=raw.map(segment=>({
+        ...segment,seconds:segment.seconds*scale
+    }));
+    const plan={segments,duration};
     plan.units=cinemaSlowRollUnits(duration,duration,plan);
     return plan;
 }
 function cinemaSlowRollUnits(duration,elapsed,plan){
-    const t=Math.max(0,Math.min(duration,elapsed));
-    const hold=plan?.hold??1.5;
-    const speed=plan?.speed??27;
-    if(t<=hold)return speed*t;
-    const tail=Math.max(.001,duration-hold);
-    const u=Math.min(1,(t-hold)/tail);
-    const u2=u*u,u3=u*u2,u5=u3*u2,u7=u5*u2;
-    // Integral of (1-u*u)^power. Its velocity is continuous at the join,
-    // is never negative, and tends smoothly to 0 without an abrupt cutoff.
-    const integral=plan?.power===4
-        ?u-(4/3)*u3+(6/5)*u5-(4/7)*u7+(1/9)*u7*u2
-        :u-u3+(3/5)*u5-u7/7;
-    return speed*(hold+tail*integral);
+    const segments=plan?.segments;
+    if(!segments?.length)return 0;
+    let rest=Math.max(0,Math.min(duration,elapsed));
+    let distanceCards=0;
+    for(const {seconds,v0,v1} of segments){
+        if(rest<=0)break;
+        const used=Math.min(seconds,rest);
+        const u=used/seconds;
+        // S(u)=3u²-2u³, ∫S(u)du=u³-u⁴/2.
+        // Both incoming and outgoing velocity meet without a speed jump.
+        const integral=u*u*u-.5*u*u*u*u;
+        distanceCards += seconds*(v0*u+(v1-v0)*integral);
+        rest-=used;
+    }
+    return distanceCards;
 }
 function cinemaMotionDistance(reel,elapsed){
     const e=Math.min(reel.duration,Math.max(0,elapsed));
@@ -18576,9 +18624,10 @@ async function cinemaAnimate(state){
     const pool=getCaseItems().filter(Boolean);
     const fast=Number(caseSpeed)>1;
     const count=state.winners.length;
-    // Normal opening takes about 7 seconds. Long coast and a zero-speed landing;
-    // reels in multi-open still finish only milliseconds apart.
-    const totalDuration=fast?1500:(count<=1?7000:count<=3?7100:7200);
+    // Around 9-10 seconds are needed to keep ~2 seconds at 5 cards/second,
+    // then visibly coast through 4, 3, 1 and a very slow final crawl.
+    // Fast mode remains at 1.5 seconds.
+    const totalDuration=fast?1500:(count<=1?9500:count<=3?9650:9800);
     const spreadStep=fast?20:(count<=1?0:count<=3?35:45);
     const firstDuration=totalDuration-spreadStep*Math.max(0,count-1);
     const reels=state.winners.map((winner,index)=>{
@@ -18993,6 +19042,8 @@ function renderInventory(){
 ===================================================== */
 
 async function sellItem(id, batchConfirmed=false){
+    const brxSellId=Number(id);
+    if(brxSingleSellPending.has(brxSellId)) return false;
     if(comfortIsFavorite(id)){showToast("Предмет в избранном. Сначала сними звёздочку.","error");return false;}
     if(sellAllSubmitting||(comfortBulkBusy&&!batchConfirmed))return false;
     const soldItem = (Array.isArray(inventory) ? inventory : []).find(
@@ -19000,7 +19051,8 @@ async function sellItem(id, batchConfirmed=false){
     );
 
     if(!soldItem){
-        showToast("Предмет не найден", "error");
+        showToast("Обновляю инвентарь…", "info");
+        brxScheduleEconomyRecheck(100);
         return false;
     }
 
@@ -19022,8 +19074,10 @@ async function sellItem(id, batchConfirmed=false){
         return false;
     }
 
+    if(brxSingleSellPending.has(brxSellId)) return false;
+    brxSingleSellPending.add(brxSellId);
     try{
-        const data = await apiRequest({
+        const data = await brxPerformSale({
             action:"sell_item",
             inventory_id:Number(id)
         });
@@ -19055,6 +19109,8 @@ async function sellItem(id, batchConfirmed=false){
     }catch(error){
         showToast(error?.message || "Ошибка продажи", "error");
         return false;
+    }finally{
+        brxSingleSellPending.delete(brxSellId);
     }
 }
 
@@ -19195,7 +19251,7 @@ async function confirmSellAll(){
 
     try{
         const data =
-            await apiRequest({
+            await brxPerformSale({
                 action:
                     "sell_all"
             });
@@ -24498,6 +24554,9 @@ async function claimReferral(){
 
 async function silentSync(){
 
+    if(brxSaleOperationsInFlight) return;
+    const brxSyncGeneration = brxEconomyGeneration;
+
     if(
         silentSyncRunning
     ){
@@ -24521,23 +24580,16 @@ async function silentSync(){
                     "get_player"
             });
 
-        if(
-            !data.ok
-        ){
+        if(!data.ok) return;
+        // get_player may have been sent BEFORE a completed sale. In that case
+        // it is a stale snapshot, not permission to undo the acknowledged sale.
+        if(brxSaleOperationsInFlight || brxSyncGeneration !== brxEconomyGeneration){
+            brxScheduleEconomyRecheck(400);
             return;
         }
 
-        coins =
-            Number(
-                data.coins
-                ||
-                0
-            );
-
-        inventory =
-            data.inventory
-            ||
-            [];
+        coins = Number(data.coins ?? 0);
+        inventory = Array.isArray(data.inventory) ? data.inventory : inventory;
 
         pendingWithdrawRequests = Array.isArray(data.pending_withdraw_requests)
             ? data.pending_withdraw_requests
