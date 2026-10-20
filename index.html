@@ -15242,6 +15242,35 @@ function caseImageFor(gameCase){
     return path ? `${path}?v=${CASE_IMAGE_VERSION}` : "";
 }
 
+// Меню кейса: показываем именно PNG выбранного кейса над лентой наград.
+function brxUpdateCaseMenuCover(gameCase){
+    const cover=document.getElementById('caseCoverPreview');
+    if(!cover)return;
+    const img=cover.querySelector('img');
+    if(!img)return;
+    const url=caseImageFor(gameCase);
+    img.onerror=()=>{
+        if(img.getAttribute('src')!==url)return;
+        img.hidden=true;
+        cover.classList.add('cover-missing');
+    };
+    img.onload=()=>{
+        if(img.getAttribute('src')!==url)return;
+        img.hidden=false;
+        cover.classList.remove('cover-missing');
+    };
+    if(url){
+        cover.classList.remove('cover-missing');
+        img.alt=String(gameCase?.name||'Кейс');
+        img.hidden=false;
+        if(img.getAttribute('src')!==url)img.src=url;
+    }else{
+        img.hidden=true;
+        img.removeAttribute('src');
+        cover.classList.add('cover-missing');
+    }
+}
+
 
 function caseVisualFor(
     gameCase
@@ -16626,6 +16655,7 @@ async function selectCase(
         "activeCaseName"
     ).innerText =
         selectedCase.name;
+    brxUpdateCaseMenuCover(selectedCase);
 
     const selectedFreeTickets =
         typeof questTicketCountForCase === "function"
@@ -17768,6 +17798,7 @@ function openDailyCase(){
         )
         .innerText =
             "Ежедневный кейс";
+    brxUpdateCaseMenuCover(selectedCase);
 
     document
         .getElementById(
@@ -18327,12 +18358,18 @@ function cinemaLane(){
 function cinemaFillIdle(lane,index){
     const pool=getCaseItems(),track=lane.querySelector('.cinema-track');
     track.replaceChildren();
-    for(let i=0;i<11;i++){
-        const item=pool[(i+index*3)%Math.max(1,pool.length)];
-        const card=item?rouletteCard(item):document.createElement('div');
-        card.className='cinema-reel-item';track.appendChild(card);
+    track.classList.remove('cinema-idle-track');
+    if(!pool.length)return;
+    // Каждая награда попадает в один повторяющийся цикл; две копии делают переход бесшовным.
+    // Лента предпросмотра не участвует в выборе награды: реальные награды выдаёт сервер.
+    const sequenceLength=Math.max(12,Math.min(48,pool.length));
+    for(let i=0;i<sequenceLength*2;i++){
+        const item=pool[(i%sequenceLength+index*3)%pool.length];
+        const card=rouletteCard(item);
+        card.className='cinema-reel-item';
+        track.appendChild(card);
     }
-    // CSS percentage centers the middle idle card without relying on a visible layout.
+    track.style.setProperty('--brx-preview-duration',`${(sequenceLength*5.5).toFixed(1)}s`);
     track.classList.add('cinema-idle-track');
 }
 function cinemaRenderIdle(){
@@ -34303,5 +34340,71 @@ html body#sharp-app #caseCoverPreview img{
     mix-blend-mode:normal!important;
     opacity:1!important;
     filter:none!important;
+}
+</style>
+
+<style id="brx-case-slow-idle-and-cover-20261021">
+/* Показываем оригинальную картинку выбранного кейса над лентами, без белой плёнки. */
+html body#sharp-app #activeCase #caseCoverPreview,
+body #activeCase #caseCoverPreview{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    height:150px!important;
+    min-height:150px!important;
+    max-height:150px!important;
+    margin:10px 0 7px!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+    box-shadow:none!important;
+    overflow:hidden!important;
+    filter:none!important;
+    backdrop-filter:none!important;
+    pointer-events:none!important;
+}
+html body#sharp-app #activeCase #caseCoverPreview img,
+body #activeCase #caseCoverPreview img{
+    display:block!important;
+    position:relative!important;
+    width:100%!important;
+    max-width:210px!important;
+    height:145px!important;
+    max-height:145px!important;
+    object-fit:contain!important;
+    margin:0!important;
+    opacity:1!important;
+    mix-blend-mode:normal!important;
+    filter:none!important;
+    -webkit-filter:none!important;
+    transform:none!important;
+}
+body #activeCase #caseCoverPreview img[hidden]{display:none!important;}
+body #activeCase #caseCoverPreview .case-cover-halo{display:none!important;}
+body #activeCase #caseCoverPreview .case-cover-fallback{font-size:11px!important;text-shadow:none!important;color:#798ca6!important;}
+/* До открытия — медленное непрерывное движение. Во время открытия действуют старые анимации. */
+@keyframes brxCaseIdleSlowScroll{
+    from{transform:translate3d(0,0,0);}
+    to{transform:translate3d(calc(-50% - 3.5px),0,0);}
+}
+html body#sharp-app #casePresentationStage #caseIdleReels .cinema-track.cinema-idle-track,
+body #casePresentationStage #caseIdleReels .cinema-track.cinema-idle-track{
+    position:relative!important;
+    left:0!important;
+    width:max-content!important;
+    transform:translate3d(0,0,0);
+    animation:brxCaseIdleSlowScroll var(--brx-preview-duration,66s) linear infinite!important;
+    will-change:transform;
+}
+@media (hover:hover){
+    body #casePresentationStage #caseIdleReels .cinema-window:hover .cinema-track.cinema-idle-track{
+        animation-play-state:paused!important;
+    }
+}
+@media(max-width:390px){
+    body #activeCase #caseCoverPreview{height:130px!important;min-height:130px!important;max-height:130px!important;}
+    body #activeCase #caseCoverPreview img{height:125px!important;max-height:125px!important;}
 }
 </style>
