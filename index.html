@@ -18566,8 +18566,9 @@ function cinemaFinish(state,message){
 function cinemaRollPlan(duration){
     const rand=(a,b)=>a+Math.random()*(b-a);
     const raw=[
-        {seconds:rand(1.25,1.50),v0:27,v1:27},
-        {seconds:rand(.78,1.00),v0:27,v1:5},
+        {seconds:rand(.85,1.05),v0:27,v1:27},
+        // The 27 → 5 transition takes longer and starts/ends with zero acceleration.
+        {seconds:rand(1.45,1.65),v0:27,v1:5,curve:'smoother'},
         {seconds:rand(1.95,2.12),v0:5,v1:5},
         {seconds:rand(.55,.70),v0:5,v1:4},
         {seconds:rand(.60,.78),v0:4,v1:3},
@@ -18590,13 +18591,16 @@ function cinemaSlowRollUnits(duration,elapsed,plan){
     if(!segments?.length)return 0;
     let rest=Math.max(0,Math.min(duration,elapsed));
     let distanceCards=0;
-    for(const {seconds,v0,v1} of segments){
+    for(const {seconds,v0,v1,curve} of segments){
         if(rest<=0)break;
         const used=Math.min(seconds,rest);
         const u=used/seconds;
-        // S(u)=3u²-2u³, ∫S(u)du=u³-u⁴/2.
-        // Both incoming and outgoing velocity meet without a speed jump.
-        const integral=u*u*u-.5*u*u*u*u;
+        // Integrated smootherstep for the fast-to-medium transition: C2-continuous
+        // velocity (no abrupt change in acceleration), with the same endpoint.
+        // Other slow-down stages keep their original cubic timing.
+        const integral=curve==='smoother'
+            ? u*u*u*u*(2.5-3*u+u*u)
+            : u*u*u-.5*u*u*u*u;
         distanceCards += seconds*(v0*u+(v1-v0)*integral);
         rest-=used;
     }
