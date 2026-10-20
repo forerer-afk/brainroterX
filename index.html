@@ -18525,7 +18525,7 @@ function cinemaFinish(state,message){
     cinemaReleaseBackground(state);cinemaRefreshSales(state);updateCaseCost();
 }
 function cinemaMotionDistance(reel,elapsed){
-    // Gradual acceleration, a fast middle stretch and a real 4.7 second braking phase.
+    // Quick initial acceleration, fast middle stretch and smooth 5.2-second braking.
     const e=Math.min(reel.duration,Math.max(0,elapsed));
     const a=reel.accel,cruise=reel.cruise,brake=reel.brake;
     const v=reel.cruiseVelocity,v0=reel.startVelocity,p=reel.brakePower;
@@ -18541,9 +18541,9 @@ async function cinemaAnimate(state){
     const pool=getCaseItems().filter(Boolean);
     const fast=Number(caseSpeed)>1;
     const count=state.winners.length;
-    // Normal case: 8.2s single; x3/x5 longer. Last ~4.7s are a visible smooth slowdown.
-    const totalDuration=fast?1500:(count<=1?8200:count<=3?10600:12700);
-    const spreadStep=fast?20:(count<=1?0:count<=3?70:90);
+    // Normal opening: 10–12 seconds, a rapid start and a 5.2-second progressively slower landing. Multi-open reels finish almost together.
+    const totalDuration=fast?1500:(count<=1?10500:count<=3?10800:11200);
+    const spreadStep=fast?20:(count<=1?0:count<=3?45:55);
     const firstDuration=totalDuration-spreadStep*Math.max(0,count-1);
     const reels=state.winners.map((winner,index)=>{
         const lane=state.lanes[index],track=lane.querySelector('.cinema-track'),viewport=lane.querySelector('.cinema-window');
@@ -18553,17 +18553,26 @@ async function cinemaAnimate(state){
         track.style.animation='none';track.style.transition='none';
         // Keep every preview card visible in exactly the same order and append the opening.
         // Only the final card is fixed to the reward the SERVER has already awarded.
-        const extraTravel=Math.floor(Math.random()*(count>1?7:5));
+        const extraTravel=Math.floor(Math.random()*(count>1?9:7));
         const existing=track.querySelectorAll('.cinema-reel-item').length;
-        const stop=existing+17+extraTravel+index*2,cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
+        const stop=existing+27+extraTravel+index*2,cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
         for(let i=existing;i<=stop+7;i++){
             const item=i===stop?winner:pool[Math.floor(Math.random()*pool.length)]||winner;
             const card=rouletteCard(item);card.className='cinema-reel-item';track.appendChild(card);cards.push(card);
         }
         // Occasional near-miss: put a more expensive visible item NEXT to the real winner.
         // Neither this neighbor nor the landing offset changes the server's reward/odds.
-        const bait=!fast&&Math.random()<.27;
-        const finalFraction=bait?(Math.random()<.5?-1:1)*(.405+Math.random()*.07):Math.random()*.82-.41;
+        const bait=!fast&&Math.random()<.32;
+        // Visual landing ONLY: the server-supplied reward never changes. The arrow
+        // may stop nearly anywhere on the winner, including within a few pixels
+        // of either edge (without crossing onto the neighboring reward).
+        const winningCardWidth=Math.max(48,cards[stop]?.offsetWidth||84);
+        const edgeFraction=Math.min(.49,.5-3/winningCardWidth);
+        const edgeLanding=bait||Math.random()<.26;
+        const side=Math.random()<.5?-1:1;
+        const finalFraction=edgeLanding
+            ?side*(edgeFraction-Math.random()*.11)
+            :(Math.random()*2-1)*edgeFraction;
         if(bait&&pool.length){
             const prizeValue=Number(winner.value||0);
             const nearby=pool.filter(i=>Number(i.value||0)>prizeValue)
@@ -18578,9 +18587,9 @@ async function cinemaAnimate(state){
         const targetX=viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+finalOffset;
         const distance=Math.max(1,originX-targetX);
         const duration=Math.max(1.0,(firstDuration+index*spreadStep)/1000);
-        const accel=fast?.22:.9,brake=fast?.9:4.7;
+        const accel=fast?.22:.38,brake=fast?.9:5.2;
         const cruise=Math.max(.08,duration-accel-brake);
-        const startVelocity=fast?35:Math.max(14,Math.min(25,handoff?.speed||18));
+        const startVelocity=fast?35:Math.max(75,Math.min(140,(handoff?.speed||18)*5));
         const brakePower=3.15;
         const cruiseVelocity=(distance-startVelocity*accel/2)/(accel/2+cruise+brake/(brakePower+1));
         return {track,viewport,cards,stop,index,done:false,originX,distance,duration,accel,cruise,brake,brakePower,startVelocity,cruiseVelocity,finalFraction,lastTick:-1};
