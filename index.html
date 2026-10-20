@@ -18524,9 +18524,35 @@ function cinemaFinish(state,message){
     state.root.querySelector('.cinema-actions').hidden=false;
     cinemaReleaseBackground(state);cinemaRefreshSales(state);updateCaseCost();
 }
+function cinemaSlowRollUnits(duration, elapsed){
+    // Units are whole reel cards, rather than pixels. This keeps the visual
+    // speed consistent across mobile widths and across different case layouts.
+    // First ~4s: 13.4 cards/s. Next 1.65s: smooth 13.4 -> 5.1 cards/s.
+    // Last 5.5s: smooth 5.1 -> 0, travelling ~12 more cards at low speed.
+    const tail=5.5;
+    const transition=1.65;
+    const cruising=Math.max(0,duration-transition-tail);
+    const rapid=13.4, slow=5.1, slowPower=1.3;
+    const rapidDistance=rapid*cruising;
+    const transitionDistance=(rapid+slow)*transition/2;
+    const tailDistance=slow*tail/(slowPower+1);
+    const t=Math.max(0,Math.min(duration,elapsed));
+    if(t<=cruising)return rapid*t;
+    if(t<=cruising+transition){
+        const b=t-cruising;
+        return rapidDistance+rapid*b+(slow-rapid)*b*b/(2*transition);
+    }
+    const u=Math.min(1,(t-cruising-transition)/tail);
+    return rapidDistance+transitionDistance+tailDistance*(1-Math.pow(1-u,slowPower+1));
+}
 function cinemaMotionDistance(reel,elapsed){
-    // Quick initial acceleration, fast middle stretch and smooth 5.2-second braking.
     const e=Math.min(reel.duration,Math.max(0,elapsed));
+    if(!reel.fast){
+        // Normalized to the actual location of the server-awarded card.
+        // This also avoids any snapping / jumps on the last frame.
+        return reel.distance*Math.min(1,cinemaSlowRollUnits(reel.duration,e)/reel.plannedUnits);
+    }
+    // Keep the existing 1.5-second accelerated mode unchanged.
     const a=reel.accel,cruise=reel.cruise,brake=reel.brake;
     const v=reel.cruiseVelocity,v0=reel.startVelocity,p=reel.brakePower;
     const accelerated=v0*a+(v-v0)*a/2;
@@ -18554,11 +18580,28 @@ async function cinemaAnimate(state){
         // Keep every preview card visible in exactly the same order and append the opening.
         // Only the final card is fixed to the reward the SERVER has already awarded.
         const extraTravel=Math.floor(Math.random()*(count>1?9:7));
-        const existing=track.querySelectorAll('.cinema-reel-item').length;
-        const stop=existing+27+extraTravel+index*2,cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
+        const cards=Array.from(track.querySelectorAll('.cinema-reel-item'));
+        const existing=cards.length;
+        const duration=Math.max(1.0,(firstDuration+index*spreadStep)/1000);
+        const plannedUnits=fast?0:cinemaSlowRollUnits(duration,duration);
+        // The final reel position is chosen FROM the currently visible preview,
+        // not from the end of its duplicated preview cards. We never replace
+        // any of the cards that the player can currently see.
+        const step=Math.max(1,(cards[1]?.offsetLeft??115)-(cards[0]?.offsetLeft??0));
+        const firstCenter=(cards[0]?.offsetLeft??0)+(cards[0]?.offsetWidth??108)/2;
+        const visibleCenter=(viewport.clientWidth/2-originX-firstCenter)/step;
+        const stop=fast
+            ?existing+27+extraTravel+index*2
+            :Math.max(existing>0?1:0,Math.ceil(visibleCenter+plannedUnits+(Math.random()*2-1)));
         for(let i=existing;i<=stop+7;i++){
             const item=i===stop?winner:pool[Math.floor(Math.random()*pool.length)]||winner;
             const card=rouletteCard(item);card.className='cinema-reel-item';track.appendChild(card);cards.push(card);
+        }
+        if(stop<existing){
+            // An idle preview may already contain more than 80 cards. Replace
+            // only the distant winning slot, with all visible cards untouched.
+            const replacement=rouletteCard(winner);replacement.className='cinema-reel-item';
+            cards[stop].replaceWith(replacement);cards[stop]=replacement;
         }
         // Occasional near-miss: put a more expensive visible item NEXT to the real winner.
         // Neither this neighbor nor the landing offset changes the server's reward/odds.
@@ -18586,13 +18629,12 @@ async function cinemaAnimate(state){
         const finalOffset=last.offsetWidth*finalFraction;
         const targetX=viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+finalOffset;
         const distance=Math.max(1,originX-targetX);
-        const duration=Math.max(1.0,(firstDuration+index*spreadStep)/1000);
-        const accel=fast?.22:.38,brake=fast?.9:5.2;
+        const accel=.22,brake=.9;
         const cruise=Math.max(.08,duration-accel-brake);
-        const startVelocity=fast?35:Math.max(75,Math.min(140,(handoff?.speed||18)*5));
+        const startVelocity=35;
         const brakePower=3.15;
         const cruiseVelocity=(distance-startVelocity*accel/2)/(accel/2+cruise+brake/(brakePower+1));
-        return {track,viewport,cards,stop,index,done:false,originX,distance,duration,accel,cruise,brake,brakePower,startVelocity,cruiseVelocity,finalFraction,lastTick:-1};
+        return {track,viewport,cards,stop,index,done:false,originX,distance,duration,fast,plannedUnits,accel,cruise,brake,brakePower,startVelocity,cruiseVelocity,finalFraction,lastTick:-1};
     });
     if(typeof ResizeObserver!=='undefined'){
         state.resizeObserver?.disconnect();
