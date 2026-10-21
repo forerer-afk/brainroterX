@@ -27829,10 +27829,14 @@ function setAdminPanelPageLock(locked){
 
 window.updateAdminPanelAccessUI = function(){
     const button = document.getElementById("adminPanelButton");
-    if(!button) return;
-    button.classList.toggle("show", Boolean(adminPanelAccess));
+    if(button) button.classList.toggle("show", Boolean(adminPanelAccess));
+    // The affiliate admin controls use the same access switch as the Mini App admin panel.
     if(!adminPanelAccess){
         document.getElementById("adminPanelModal")?.classList.remove("show");
+        const affiliateButton = document.getElementById("affiliateAdminOpen");
+        if(affiliateButton) affiliateButton.hidden = true;
+        const affiliateSettings = document.getElementById("affiliateAdmin");
+        if(affiliateSettings) affiliateSettings.hidden = true;
     }
 };
 
@@ -33821,7 +33825,8 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    if(!data.ok)throw new Error(data.error||'Не удалось загрузить партнёрку');
    affiliateState=data;
    el('affiliateLink').value=data.invite_link||'';
-   const adminOpen=el('affiliateAdminOpen');if(adminOpen)adminOpen.hidden=!data.is_admin;
+   const adminOpen=el('affiliateAdminOpen');
+   if(adminOpen)adminOpen.hidden=!(data.is_admin && adminPanelAccess);
    const p=data.profile||{};
    el('affiliateEarned').textContent=`Реферальный баланс: ${Number(p.referral_balance||0)} ⓧ · Всего: ${Number(p.total_earned||0)} ⓧ`;
    el('affiliatePercents').textContent=`Владельцу ${p.owner_percent??10}% · приглашённому ${p.player_percent??5}%`;
@@ -33835,12 +33840,15 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    for(const item of stock){const option=document.createElement('option');option.value=String(item.brainrot_id);option.textContent=`${item.name} · ${item.cost} ⓧ`;select.append(option);}
    el('affiliateWithdrawSubmit').disabled=!stock.length;
    el('affiliateWithdrawHistory').textContent=(data.requests||[]).map(r=>`#${r.id} · ${r.brainrot_name} · ${r.status}`).join(' | ');
-   el('affiliateAdmin').hidden=!data.is_admin;
-   if(data.is_admin)void affiliateAdminRefresh();
+   el('affiliateAdmin').hidden=!(data.is_admin && adminPanelAccess);
+   if(data.is_admin && adminPanelAccess)void affiliateAdminRefresh();
  }
  window.openAffiliateMenu=async function(){
    el('settingsModal')?.classList.remove('show');el('referralModal')?.classList.remove('show');
    el('affiliateModal')?.classList.add('show');status('Загрузка…');
+   // Recheck active permissions on each opening, never show stale admin controls.
+   if(el('affiliateAdminOpen'))el('affiliateAdminOpen').hidden=true;
+   if(el('affiliateAdmin'))el('affiliateAdmin').hidden=true;
    try{await refresh();status('');}catch(e){status(e.message||'Ошибка загрузки');}
  };
  window.affiliateCopy=async function(){
@@ -33863,7 +33871,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
  };
  // Admin settings are verified by Telegram initData on the server, not by DOM visibility.
  window.affiliateAdminLookup=async function(){
-   if(!affiliateState?.is_admin){status('Настройка доступна только администратору');return;}
+   if(!affiliateState?.is_admin || !adminPanelAccess){status('Включи админ-панель через бота');return;}
    const id=Number(el('affiliateAdminId').value);
    if(!Number.isSafeInteger(id)||id<=0){status('Введи корректный Telegram ID');return;}
    const out=el('affiliateAdminLookupResult');out.textContent='Проверяем…';
@@ -33874,7 +33882,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    }catch(e){out.textContent=e.message||'Ошибка проверки';}
  };
  window.affiliateAdminSave=async function(){
-   if(!affiliateState?.is_admin){status('Выдавать реферальные коды может только администратор');return;}
+   if(!affiliateState?.is_admin || !adminPanelAccess){status('Включи админ-панель через бота');return;}
    const id=Number(el('affiliateAdminId').value),a=Number(el('affiliateAdminOwner').value),b=Number(el('affiliateAdminPlayer').value),grant=el('affiliateAdminGranted').checked;
    if(!Number.isSafeInteger(id)||id<=0||a<0||a>30||b<0||b>30){status('Проверь ID и проценты 0–30');return;}
    try{const data=await apiRequest({action:'affiliate_owner_config',telegram_id:id,owner_percent:a,player_percent:b,code_granted:grant,code:el('affiliateAdminCode').value});
@@ -33882,7 +33890,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    }catch(e){status(e.message||'Ошибка настройки');}
  };
  window.affiliateAdminRefresh=async function(){
-   if(!affiliateState?.is_admin)return;
+   if(!affiliateState?.is_admin || !adminPanelAccess)return;
    const list=el('affiliateAdminRequests');list.textContent='Загрузка…';
    try{
      const data=await apiRequest({action:'affiliate_admin_requests'});
@@ -33903,7 +33911,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    }catch(e){list.textContent=e.message||'Ошибка загрузки';}
  };
  window.affiliateAdminDecision=async function(id,result){
-   if(!affiliateState?.is_admin){status('Нет прав администратора');return;}
+   if(!affiliateState?.is_admin || !adminPanelAccess){status('Включи админ-панель через бота');return;}
    if(!confirm('Изменить статус заявки #'+id+' на '+result+'?'))return;
    try{const data=await apiRequest({action:'affiliate_admin_decide',request_id:id,status:result});
      if(!data.ok)throw new Error(data.error||'Ошибка');status('Статус заявки обновлён');await affiliateAdminRefresh();}
@@ -33914,13 +33922,17 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
  if(typeof originalReferralOpen==='function'){
    window.openReferral=function(...args){
      const result=originalReferralOpen.apply(this,args);
+     // Hide first; authoritative permission is requested every time the menu opens.
+     if(el('affiliateAdminOpen'))el('affiliateAdminOpen').hidden=true;
+     if(el('affiliateAdmin'))el('affiliateAdmin').hidden=true;
      const linkField=el('affiliateLink');if(linkField&&!linkField.value)linkField.placeholder='Загружаем ссылку…';
      void apiRequest({action:'affiliate_state'}).then(data=>{
        if(!data?.ok)return;
        affiliateState=data;
        if(linkField)linkField.value=data.invite_link||'';
        if(el('affiliateQuickWithdraw'))el('affiliateQuickWithdraw').hidden=!data.profile?.code_granted;
-       if(el('affiliateAdminOpen'))el('affiliateAdminOpen').hidden=!data.is_admin;
+       if(el('affiliateAdminOpen'))el('affiliateAdminOpen').hidden=!(data.is_admin && adminPanelAccess);
+       if(el('affiliateAdmin'))el('affiliateAdmin').hidden=!(data.is_admin && adminPanelAccess);
      }).catch(()=>{if(linkField)linkField.placeholder='Не удалось загрузить ссылку';});
      return result;
    };
