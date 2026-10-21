@@ -18509,24 +18509,57 @@ function cinemaFinish(state,message){
  * velocity analytically; the last rendered position equals the winner target.
  * The tiny variation in timings prevents mechanically identical openings.
  */
+/* Smooth, monotone velocity profile for normal case openings.
+ * A monotone cubic Hermite speed spline keeps speed AND acceleration continuous
+ * between phases; no sudden 27 -> 10 -> 1 card/sec switches.
+ * Integrating that velocity exactly keeps the animation pixel-continuous.
+ * Fast/skip case mode is handled separately and is unchanged.
+ */
 function cinemaRollPlan(duration){
-    const rand=(a,b)=>a+Math.random()*(b-a);
+    // Normal-case speed measured in cards per second. The last ~1 second
+    // visibly moves at about one full card/sec, then eases to zero.
+    const variation=(Math.random()-.5)*.018;
     const raw=[
-        {seconds:rand(.85,1.05),v0:27,v1:27},
-        // The 27 → 5 transition takes longer and starts/ends with zero acceleration.
-        {seconds:rand(1.45,1.65),v0:27,v1:5,curve:'smoother'},
-        {seconds:rand(1.95,2.12),v0:5,v1:5},
-        {seconds:rand(.55,.70),v0:5,v1:4},
-        {seconds:rand(.60,.78),v0:4,v1:3},
-        {seconds:rand(.75,.95),v0:3,v1:1.05},
-        {seconds:rand(.60,.78),v0:1.05,v1:1.05},
-        {seconds:rand(.95,1.18),v0:1.05,v1:.22},
-        {seconds:rand(1.25,1.55),v0:.22,v1:0}
+        [0.000,27.0],
+        [0.095,26.1],
+        [0.190,23.0],
+        [0.280,18.4],
+        [0.370,13.6],
+        [0.450,10.0],
+        [0.530,7.4],
+        [0.610,5.3],
+        [0.680,3.9],
+        [0.750,2.7],
+        [0.770,1.60],
+        [0.805,1.05],
+        [0.925,1.05],
+        [0.956,0.62],
+        [1.000,0]
     ];
-    const rawDuration=raw.reduce((sum,segment)=>sum+segment.seconds,0);
-    const scale=duration/rawDuration;
-    const segments=raw.map(segment=>({
-        ...segment,seconds:segment.seconds*scale
+    // Tiny smooth variation between openings, without modifying the slow finish.
+    const nodes=raw.map(([fraction,speed],index)=>({
+        time:fraction*duration,
+        speed:index<11?speed*(1+variation):speed,
+        slope:0
+    }));
+    const secants=[];
+    for(let i=0;i<nodes.length-1;i++){
+        secants.push((nodes[i+1].speed-nodes[i].speed)/(nodes[i+1].time-nodes[i].time));
+    }
+    nodes[0].slope=secants[0];
+    nodes[nodes.length-1].slope=secants[secants.length-1];
+    for(let i=1;i<nodes.length-1;i++){
+        const left=secants[i-1],right=secants[i];
+        if(left===0||right===0||left*right<=0){nodes[i].slope=0;continue;}
+        const h0=nodes[i].time-nodes[i-1].time;
+        const h1=nodes[i+1].time-nodes[i].time;
+        const w0=2*h1+h0,w1=h1+2*h0;
+        nodes[i].slope=(w0+w1)/(w0/left+w1/right);
+    }
+    const segments=nodes.slice(0,-1).map((node,i)=>({
+        seconds:nodes[i+1].time-node.time,
+        v0:node.speed,v1:nodes[i+1].speed,
+        m0:node.slope,m1:nodes[i+1].slope
     }));
     const plan={segments,duration};
     plan.units=cinemaSlowRollUnits(duration,duration,plan);
@@ -18537,18 +18570,17 @@ function cinemaSlowRollUnits(duration,elapsed,plan){
     if(!segments?.length)return 0;
     let rest=Math.max(0,Math.min(duration,elapsed));
     let distanceCards=0;
-    for(const {seconds,v0,v1,curve} of segments){
+    for(const {seconds:h,v0,v1,m0,m1} of segments){
         if(rest<=0)break;
-        const used=Math.min(seconds,rest);
-        const u=used/seconds;
-        // Integrated smootherstep for the fast-to-medium transition: C2-continuous
-        // velocity (no abrupt change in acceleration), with the same endpoint.
-        // Other slow-down stages keep their original cubic timing.
-        const integral=curve==='smoother'
-            ? u*u*u*u*(2.5-3*u+u*u)
-            : u*u*u-.5*u*u*u*u;
-        distanceCards += seconds*(v0*u+(v1-v0)*integral);
-        rest-=used;
+        const u=Math.min(1,rest/h),u2=u*u,u3=u2*u,u4=u3*u;
+        // Exact integral of cubic Hermite velocity, in card units.
+        distanceCards+=h*(
+            v0*(u-u3+.5*u4)
+           +h*m0*(.5*u2-(2/3)*u3+.25*u4)
+           +v1*(u3-.5*u4)
+           +h*m1*(-u3/3+.25*u4)
+        );
+        rest-=h;
     }
     return distanceCards;
 }
@@ -18570,7 +18602,7 @@ function cinemaMotionDistance(reel,elapsed){
 }
 /*
  * Compositor-driven, pixel-continuous roulette motion.
- * Keep the SAME 9.5s velocity curve and winner coordinate. Instead of
+ * Keep the same ~9.5s duration and winner coordinate. Instead of
  * updating transform from JS once per frame (which can miss frames while
  * images/layout are busy), interpolate absolute pixel positions in the
  * browser's animation compositor. No per-card jumps or CSS steps().
@@ -18578,7 +18610,9 @@ function cinemaMotionDistance(reel,elapsed){
 function cinemaStartPixelSmoothMotion(reel){
     if(typeof reel.track.animate!=='function')return null;
     const durationMs=reel.duration*1000;
-    const sampleCount=Math.max(160,Math.min(300,Math.ceil(reel.duration*30)));
+    // Sub-frame pixel positions for stable high-speed motion even on 90/120Hz phones.
+    // The browser interpolates between adjacent positions without card-sized jumps.
+    const sampleCount=Math.max(180,Math.min(1000,Math.ceil(reel.duration*90)));
     const frames=[];
     for(let i=0;i<=sampleCount;i++){
         const offset=i/sampleCount;
