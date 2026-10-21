@@ -12291,37 +12291,10 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
 </div>
 
 
-<div id="partnerModal" class="overlay"><div class="modal partner-modal">
- <div class="modal-header"><div id="partnerTitle" class="modal-title">Партнёр</div><button class="close" onclick="document.getElementById('partnerModal').classList.remove('show')">×</button></div>
- <div id="partnerOffNote" class="partner-note">Для выдачи монет, обмена и партнёрского вывода включи стример-мод в настройках.</div>
- <div class="partner-card"><div>Партнёрский реферальный код</div><strong id="partnerCode"></strong><div id="partnerRates"></div><small>Работает и при выключенном стример-моде.</small></div>
- <div class="partner-card"><button id="partnerTopup" data-mutation onclick="partnerRun('partner_topup',{},'Стримерский баланс пополнен до 1500.')">ПОПОЛНИТЬ ДО 1500</button><small>Доступно при стримерском балансе меньше 100. Выигрыши с этих монет вывести нельзя.</small></div>
- <div class="partner-card"><strong id="partnerEarned"></strong><div class="partner-buttons"><button id="partnerConvertGaram" data-mutation onclick="partnerConvert('garam')">ОБМЕНЯТЬ НА ГАРАМОВ · 60 / ШТ.</button><button id="partnerConvertDragon" data-mutation onclick="partnerConvert('dragon')">ОБМЕНЯТЬ НА ДРАКОНОВ · 1000 / ШТ.</button></div><small>Обменивается максимум целых предметов. Гарамы — от 3 за раз, драконы — от 1. Остаток монет сохраняется.</small></div>
- <div class="partner-card"><strong>Создать промокод</strong><small id="partnerPromoLimits"></small>
- <div class="partner-promo-fields"><label>Монет за активацию<input id="partnerPromoCoins" type="number" min="1" step="1" value="1" inputmode="numeric" oninput="partnerPromoUpdate()"></label><label>Количество активаций<input id="partnerPromoUses" type="number" min="1" step="1" value="1" inputmode="numeric" oninput="partnerPromoUpdate()"></label></div>
- <small id="partnerPromoCost"></small><button id="partnerPromoCreate" data-mutation onclick="partnerCreatePromo()">СОЗДАТЬ ПРОМОКОД</button>
- <div id="partnerPromoList"></div></div>
- <div class="partner-card"><strong>Предметы из реферального обмена</strong><div id="partnerRefItems"></div><input id="partnerRoblox" placeholder="Твой Roblox ник" maxlength="20" autocomplete="off"><button id="partnerWithdrawButton" data-mutation onclick="partnerWithdraw()">ВЫВЕСТИ ВЫБРАННОЕ БЕЗ ОЧЕРЕДИ</button><small>Можно выбрать даже одного гарама. Администратор получит заявку сразу; предметы передаёт он.</small></div>
- <div id="partnerResult" class="result" role="status"></div>
-</div></div>
-<style>
-#partnerSettings[hidden],#partnerBalanceBadge[hidden],#partnerModal [hidden]{display:none!important;}
-.partner-modal{width:min(520px,calc(100vw - 24px));max-height:88dvh;overflow-y:auto;}
-.partner-card{display:grid;gap:10px;background:#171a2a;border:1px solid #ba9cff25;border-radius:14px;padding:15px;margin-top:12px;}
-.partner-card strong{overflow-wrap:anywhere}.partner-card small,.partner-note{font-size:11px;color:#b4adca;line-height:1.5}.partner-note{margin:12px 0;}
-.partner-card button,#partnerOpenButton{padding:11px 14px;border-radius:10px;background:#b49ae8;color:#20172d;font-weight:800;width:100%;font-size:11px;}
-.partner-card button:disabled{opacity:.4}.partner-buttons{display:grid;gap:8px;}
-#partnerRefItems{display:grid;gap:9px;max-height:240px;overflow-y:auto;}.partner-ref-item{display:flex;align-items:center;gap:10px;font-size:12px;}.partner-ref-item input{width:18px;height:18px;accent-color:#c5a6f7;}
-#partnerRoblox{padding:12px;color:#fff;background:#101422;border:1px solid #ffffff20;border-radius:10px;}
-#partnerBalanceBadge{font-size:10px;text-align:center;padding:5px;color:#e3d2ff;background:#40325b;}
-</style>
-
-
 <!-- Regular referral links; no streamer balance or streamer realm. -->
 <div id="affiliateModal" class="overlay" role="dialog" aria-label="Партнёрка">
  <div class="modal affiliate-dialog">
-  <div class="modal-header"><div class="modal-title">Партнёрка</div><button class="close" type="button" onclick="document.getElementById('affiliateModal').classList.remove('show')">✕</button></div>
-  <div class="affiliate-panel"><label>Твоя ссылка для приглашений</label><input id="affiliateLink" readonly aria-label="Ссылка для приглашения"/><button type="button" onclick="affiliateCopy()">КОПИРОВАТЬ ССЫЛКУ</button><small>Игрок привязывается к владельцу ссылки один раз. Бонусы начисляются после подтверждения пополнений.</small></div>
+  <div class="modal-header"><div class="modal-title">Партнёрские заявки и настройки</div><button class="close" type="button" onclick="document.getElementById('affiliateModal').classList.remove('show')">✕</button></div>
   <div class="affiliate-panel"><div id="affiliateEarned">Загрузка…</div><div id="affiliatePercents"></div><div id="affiliateOwnCode" hidden></div><div id="affiliateBoundNote"></div></div>
   <div id="affiliateWithdrawPanel" class="affiliate-panel" hidden>
     <strong>Запросить вывод</strong><small>Показаны только доступные предметы: Цербер, Капитан, Гарама, Дракон.</small>
@@ -12333,6 +12306,8 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
   <div id="affiliateAdmin" class="affiliate-panel" hidden>
    <strong>Настройки рефералов по Telegram ID</strong>
    <input id="affiliateAdminId" inputmode="numeric" placeholder="Telegram ID игрока"/>
+   <button type="button" onclick="affiliateAdminLookup()">ПРОВЕРИТЬ ИГРОКА И ЕГО ПАРТНЁРА</button>
+   <div id="affiliateAdminLookupResult" role="status"></div>
    <div class="affiliate-admin-row"><label>Процент владельцу<input id="affiliateAdminOwner" type="number" min="0" max="30" step="0.5" value="10"/></label><label>Процент игроку<input id="affiliateAdminPlayer" type="number" min="0" max="30" step="0.5" value="5"/></label></div>
    <label><input id="affiliateAdminGranted" type="checkbox"/> Выдать реферальный код и право запрашивать вывод</label>
    <input id="affiliateAdminCode" maxlength="24" placeholder="Код (необязательно — 4–24 символа)"/>
@@ -12343,9 +12318,6 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
  </div>
 </div>
 <style id="brx-normal-affiliates-style">
-#partnerSettings,#partnerModal{display:none!important}
-#settingsModal .streamer-setting-card:has(#streamerModeToggle),#streamerModeStatus{display:none!important}
-body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
 .affiliate-open-referral[hidden],.affiliate-open-settings[hidden]{display:none!important}
 .affiliate-open-referral,.affiliate-open-settings{display:block;width:100%;padding:12px;margin:10px 0;background:#6751a4;color:#fff;font-weight:900;border:1px solid #9f8bce;font-size:12px}
 .affiliate-dialog{max-height:87dvh;overflow-y:auto}
@@ -12361,6 +12333,43 @@ body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
 #affiliateWithdrawHistory{font-size:11px;color:#a7b0c8}
 </style>
 
+<style id="brx-affiliate-inline-scroll-fix">
+/* Real vertical scroll in both referral and admin/withdrawal dialogs, including Telegram WebView. */
+body #affiliateModal,body #referralModal{
+    padding:12px 10px calc(12px + env(safe-area-inset-bottom,0px))!important;
+    min-height:0!important;max-height:100dvh!important;
+    overflow:hidden!important;overscroll-behavior:contain;
+}
+body #affiliateModal>.modal,body #referralModal>.modal{
+    box-sizing:border-box!important;min-height:0!important;
+    max-height:calc(100vh - 28px - env(safe-area-inset-bottom,0px))!important;
+    max-height:calc(100dvh - 28px - env(safe-area-inset-bottom,0px))!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    touch-action:pan-y!important;overscroll-behavior:contain;
+    scrollbar-width:thin;
+}
+.referral-invite-inline{display:grid;gap:8px;margin-top:13px;min-width:0}
+.referral-invite-row{display:flex;gap:7px;min-width:0;align-items:stretch}
+.referral-invite-row input{width:100%;flex:1;min-width:0;padding:11px 9px;background:#101827;color:#dce9f9;border:1px solid #334155;font-size:11px}
+.referral-invite-row button{flex:0 0 auto;padding:0 10px;background:#315689;color:white;font-size:10px;font-weight:900}
+.referral-invite-inline small{font-size:10px;line-height:1.45;color:#a7b0c8}
+#affiliateCopyStatus{font-size:11px;color:#9fd4ff;min-height:0}
+body .affiliate-open-referral[hidden],body #affiliateAdminOpen[hidden]{display:none!important}
+@media(max-width:350px){.referral-invite-row{flex-direction:column}.referral-invite-row button{padding:9px}}
+@media(max-height:480px){body #affiliateModal,body #referralModal{align-items:flex-start!important}}
+</style>
+<style id="brx-sound-setting-kept">
+/* The sound switch keeps its original feel; the LIVE switch was removed. */
+#globalSoundSetting{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;background:#111a27;border:1px solid #29394f;}
+#globalSoundSetting .streamer-setting-copy{flex:1;min-width:0}
+#globalSoundSetting .streamer-setting-title{font-size:13px;font-weight:900}
+#globalSoundSetting .streamer-setting-desc{font-size:10px;color:#9eabc0;margin-top:4px}
+#globalSoundToggle.streamer-toggle{flex:0 0 auto;position:relative;width:50px;height:28px;border:1px solid #465671;border-radius:20px;background:#29364a;padding:0;cursor:pointer;transition:background .18s}
+#globalSoundToggle.streamer-toggle.on{background:#2563eb}
+#globalSoundToggle .streamer-toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#eff6ff;transition:transform .18s}
+#globalSoundToggle.on .streamer-toggle-knob{transform:translateX(21px)}
+</style>
 <div id="settingsModal" class="overlay">
     <div class="modal streamer-settings-modal">
         <div class="modal-header">
@@ -12378,7 +12387,6 @@ body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
             </button>
         </div>
         <div id="globalSoundStatus" class="streamer-mode-status">Звуки включены</div>
-        <button type="button" class="affiliate-open-settings" onclick="openAffiliateMenu()">ПАРТНЁРЫ · ПРИГЛАСИТЕЛЬНАЯ ССЫЛКА</button>
         <div id="globalSoundVolumeWrap" class="brx-sound-volume">
             <div class="brx-sound-volume-row">
                 <span>Громкость</span>
@@ -12387,36 +12395,7 @@ body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
             <input id="globalSoundVolume" type="range" min="0" max="100" step="1" value="72" aria-label="Громкость звуков">
         </div>
 
-        <div id="partnerSettings" hidden>
-<div class="streamer-setting-card"><div class="streamer-setting-copy"><div class="streamer-setting-title">Партнёрский стример-мод</div><div id="partnerModeNote" class="streamer-setting-desc"></div></div><button id="partnerModeToggle" class="streamer-toggle" role="switch" aria-checked="false" onclick="partnerToggle()"><span class="streamer-toggle-knob"></span></button></div>
-<button id="partnerOpenButton" onclick="openPartnerMenu()">МЕНЮ ПАРТНЁРА</button></div>
-<div class="streamer-setting-card">
-            <div class="streamer-setting-copy">
-                <div class="streamer-setting-title">🎥 Скрытие данных на экране</div>
-                <div class="streamer-setting-desc">
-                    Скрывает баланс, цены и надписи о кейсах, продаже, пополнении и выводе. Кнопки продолжают работать.
-                </div>
-            </div>
 
-            <button
-                id="streamerModeToggle"
-                class="streamer-toggle"
-                type="button"
-                role="switch"
-                aria-checked="false"
-                onclick="toggleStreamerMode()"
-            >
-                <span class="streamer-toggle-knob"></span>
-            </button>
-        </div>
-
-        <div id="streamerModeStatus" class="streamer-mode-status">
-            Скрытие данных выключено
-        </div>
-
-        <div class="streamer-mode-note">
-            Режим меняет только отображение сайта. Игровая логика, результаты и шансы не меняются.
-        </div>
     </div>
 </div>
 
@@ -12442,8 +12421,6 @@ body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
 
         </div>
 
-        <button type="button" class="affiliate-open-referral" onclick="openAffiliateMenu()">МОЯ ПРИГЛАСИТЕЛЬНАЯ ССЫЛКА И ПАРТНЁРКА</button>
-        <button type="button" id="affiliateQuickWithdraw" class="affiliate-open-referral" onclick="openAffiliateMenu()" hidden>ЗАПРОСИТЬ ВЫВОД РЕФЕРАЛЬНЫХ ПРЕДМЕТОВ</button>
         <div class="referral-card">
 
             <div class="input-label">
@@ -12461,6 +12438,16 @@ body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
 
                 <span class="sync-dot"></span>
 
+            </div>
+
+            <div class="referral-invite-inline">
+                <div class="input-label">Реферальная ссылка</div>
+                <div class="referral-invite-row">
+                    <input id="affiliateLink" type="text" readonly aria-label="Реферальная ссылка" placeholder="Загружаем ссылку…" />
+                    <button type="button" onclick="affiliateCopy()">КОПИРОВАТЬ</button>
+                </div>
+                <small>Приглашённый игрок привязывается один раз после входа через Telegram.</small>
+                <div id="affiliateCopyStatus" role="status" aria-live="polite"></div>
             </div>
 
             <div class="referral-stats">
@@ -12531,6 +12518,9 @@ body.streamer-mode .game,body.streamer-mode #coins {filter:none!important}
                 он получает +5% к пополнению, а тебе начисляется
                 +5% в реферальный баланс.
             </div>
+
+            <button type="button" id="affiliateQuickWithdraw" class="affiliate-open-referral" onclick="openAffiliateMenu()" hidden>ЗАПРОСИТЬ ВЫВОД РЕФЕРАЛЬНЫХ ПРЕДМЕТОВ</button>
+            <button type="button" id="affiliateAdminOpen" class="affiliate-open-referral" onclick="openAffiliateMenu()" hidden>АДМИН: НАСТРОИТЬ РЕФЕРАЛЬНЫЕ КОДЫ</button>
 
             <div
                 id="referralResult"
@@ -14291,116 +14281,10 @@ function getUpgraderTargets(){
    API
 ===================================================== */
 
-let partnerProfile=null;
-let partnerBusy=false;
-const partnerOperationIds=new Map();
-function partnerNewOperationId(){
-    if(crypto.randomUUID)return crypto.randomUUID();
-    const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
-    const hex=[...bytes].map(n=>n.toString(16).padStart(2,'0')).join('');
-    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
-}
-function partnerActive(){return false;} // Legacy streamer mode removed.
-function partnerApply(profile){
-    partnerProfile=profile||null;
-    const section=document.getElementById('partnerSettings');if(!section)return;
-    section.hidden=!partnerProfile?.granted;
-    const toggle=document.getElementById('partnerModeToggle');
-    toggle.setAttribute('aria-checked',String(partnerActive()));toggle.classList.toggle('on',partnerActive());
-    toggle.disabled=partnerBusy;
-    document.getElementById('partnerModeNote').textContent=partnerActive()?'Стримерский баланс. Обычные монеты и инвентарь сохранены отдельно.':'Обычный аккаунт. Партнёрский код продолжает работать.';
-}
-async function partnerRefresh(){
-    const data=await apiRequest({action:'partner_state'});if(!data.ok)throw new Error(data.error||'Не удалось загрузить партнёрку');
-    partnerApply(data.partner);partnerRender(data.items||[],data.promos||[]);return data;
-}
-function partnerRender(items,promos=[]){
-    const p=partnerProfile;if(!p?.granted)return;
-    document.getElementById('partnerTitle').textContent=`Партнёр · уровень ${p.level}`;
-    document.getElementById('partnerCode').textContent=p.code||'Код не назначен';
-    document.getElementById('partnerRates').textContent=`Тебе ${p.owner_percent}% · игроку ${p.player_percent}%`;
-    document.getElementById('partnerEarned').textContent=`Реферальные монеты: ${Number(p.referral_balance)||0}`;
-    document.getElementById('partnerTopup').disabled=partnerBusy||!partnerActive()||Number(coins)>=100;
-    document.getElementById('partnerConvertGaram').disabled=partnerBusy||!partnerActive()||Number(p.referral_balance)<180;
-    document.getElementById('partnerConvertDragon').hidden=Number(p.level)<2;
-    document.getElementById('partnerConvertDragon').disabled=partnerBusy||!partnerActive()||Number(p.referral_balance)<1000;
-    document.getElementById('partnerWithdrawButton').disabled=partnerBusy||!partnerActive();
-    document.getElementById('partnerOffNote').hidden=partnerActive();
-    partnerPromoUpdate();partnerRenderPromos(promos);
-    const root=document.getElementById('partnerRefItems');root.replaceChildren();
-    if(!items.length){root.textContent='Предметов из реферального обмена пока нет.';return;}
-    for(const item of items){
-        const label=document.createElement('label');label.className='partner-ref-item';
-        const check=document.createElement('input');check.type='checkbox';check.value=String(item.id);check.disabled=item.state!=='available'||!partnerActive()||partnerBusy;
-        const text=document.createElement('span');text.textContent=`${item.kind==='garam'?'Garama And Madundung':'Dragon Cannelloni'} · ${item.cost} X${item.state==='pending'?' · заявка отправлена':''}`;
-        label.append(check,text);root.appendChild(label);
-    }
-}
-async function openPartnerMenu(){
-    document.getElementById('settingsModal').classList.remove('show');
-    document.getElementById('referralModal').classList.remove('show');
-    document.getElementById('partnerModal').classList.add('show');
-    try{await partnerRefresh();}catch(error){document.getElementById('partnerResult').textContent=error.message;}
-}
-async function partnerToggle(){
-    if(sellAllSubmitting||comfortBulkBusy||partnerBusy||caseSpinning||dailyOpening||upgrading||diceRolling){showToast('Сначала дождись окончания игры','error');return;}
-    await partnerRun('partner_mode',{enabled:!partnerActive()},'Режим переключён.');
-}
-async function partnerRun(action,payload={},message='Готово'){
-    if(partnerBusy)return;
-    partnerBusy=true;partnerApply(partnerProfile);
-    const result=document.getElementById('partnerResult');result.textContent='Обрабатываем…';
-    document.querySelectorAll('#partnerModal button[data-mutation]').forEach(b=>b.disabled=true);
-    const key=action+JSON.stringify(payload);
-    let operationId=partnerOperationIds.get(key);
-    if(!operationId){operationId=partnerNewOperationId();partnerOperationIds.set(key,operationId);}
-    try{
-        const data=await apiRequest({action,...payload,operation_id:operationId});
-        if(!data.ok)throw new Error(data.error||'Операция не выполнена');
-        partnerOperationIds.delete(key);
-        if(caseCinema&&!caseCinema.busy&&!caseCinema.selling)cinemaClose();
-        await loadPlayer();await partnerRefresh();
-        if(action==='partner_mode')await refreshBigWins(true);
-        result.textContent=data.promo_code?`Промокод ${data.promo_code} создан. Списано ${data.reward_coins} монет. Осталось: ${data.remaining}.`:data.converted?`Обменяно: ${data.converted}. Осталось монет: ${data.remaining}.`:data.request_id?`Заявка #${data.request_id} отправлена администратору без очереди.`:message;
-    }catch(error){result.textContent=error.message||'Ошибка связи. Повтори действие.';showToast(result.textContent,'error');}
-    finally{partnerBusy=false;partnerApply(partnerProfile);try{await partnerRefresh();}catch(_){} }
-}
-function partnerPromoUpdate(){
-    const cap=Math.max(1,Number(partnerProfile?.level)||1)*5;
-    const amount=document.getElementById('partnerPromoCoins'),uses=document.getElementById('partnerPromoUses');
-    amount.max=uses.max=String(cap);
-    const reward=Number(amount.value),count=Number(uses.value);
-    document.getElementById('partnerPromoLimits').textContent=`До ${cap} монет за активацию и до ${cap} активаций. Код создаётся автоматически.`;
-    document.getElementById('partnerPromoCost').textContent=`Стоимость: ${Number.isInteger(reward)&&reward>0?reward:0} реферальных монет за весь промокод. Число активаций не увеличивает стоимость.`;
-    document.getElementById('partnerPromoCreate').disabled=partnerBusy||!partnerActive()||!Number.isInteger(reward)||!Number.isInteger(count)||reward<1||reward>cap||count<1||count>cap||reward>Number(partnerProfile?.referral_balance||0);
-}
-function partnerCreatePromo(){
-    partnerPromoUpdate();if(document.getElementById('partnerPromoCreate').disabled)return;
-    return partnerRun('partner_create_promo',{reward_coins:Number(document.getElementById('partnerPromoCoins').value),max_uses:Number(document.getElementById('partnerPromoUses').value)});
-}
-function partnerRenderPromos(promos){
-    const root=document.getElementById('partnerPromoList');root.replaceChildren();
-    for(const promo of promos){
-        const row=document.createElement('div');row.className='partner-promo-entry';
-        const code=document.createElement('input');code.readOnly=true;code.value=promo.code;code.setAttribute('aria-label','Промокод');code.onclick=()=>code.select();
-        const info=document.createElement('small');info.textContent=`${promo.reward_coins} монет · лимит ${promo.max_uses} активаций`;
-        const copy=document.createElement('button');copy.type='button';copy.textContent='КОПИРОВАТЬ';copy.onclick=async()=>{try{await navigator.clipboard.writeText(promo.code);copy.textContent='СКОПИРОВАНО';}catch(_){code.focus();code.select();document.getElementById('partnerResult').textContent='Код выделен — скопируй его.';}};
-        row.append(code,info,copy);root.appendChild(row);
-    }
-}
-
-function partnerConvert(kind){
-    const price=kind==='garam'?60:1000;
-    const quantity=Math.min(1000,Math.floor(Number(partnerProfile?.referral_balance||0)/price));
-    if(quantity<(kind==='garam'?3:1))return;
-    return partnerRun('partner_convert',{kind,quantity});
-}
-function partnerWithdraw(){
-    const item_ids=[...document.querySelectorAll('#partnerRefItems input:checked')].map(input=>Number(input.value));
-    const roblox_username=document.getElementById('partnerRoblox').value.trim();
-    if(!item_ids.length){document.getElementById('partnerResult').textContent='Выбери предметы из реферального обмена.';return;}
-    return partnerRun('partner_withdraw',{item_ids,roblox_username});
-}
+// Retired streamer mode compatibility: always use the ordinary player account.
+function partnerActive(){return false;}
+function partnerApply(_profile){}
+async function openPartnerMenu(){return openAffiliateMenu();}
 
 function activateSiteTestScreen(payload){
     const screen=document.getElementById("siteTestScreen");
@@ -28895,254 +28779,9 @@ window.addEventListener("focus",()=>pollWithdrawOutOfStockNotifications());
 </style>
 
 
-<style id="brainroterx-streamer-mode-style">
-/* =====================================================
-   BRAINROTER X — STREAMER MODE
-   Client-side visual privacy/safe-stream layer only.
-===================================================== */
-.settings-fab{
-    position:absolute;
-    z-index:5;
-    top:14px;
-    right:64px;
-    width:42px;
-    height:42px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:0;
-    border-radius:50%;
-    color:#fff;
-    background:linear-gradient(145deg,#334155,#111827);
-    box-shadow:0 8px 20px rgba(2,6,23,.38),inset 0 0 0 1px rgba(255,255,255,.08);
-    font-size:18px;
-    cursor:pointer;
-}
-.settings-fab:active{transform:scale(.94)}
-
-.streamer-settings-modal{max-width:390px!important}
-.streamer-setting-card{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:14px;
-    border-radius:16px;
-    background:rgba(15,23,42,.72);
-    border:1px solid rgba(167,139,250,.14);
-}
-.streamer-setting-copy{min-width:0;flex:1}
-.streamer-setting-title{font-size:14px;font-weight:1000;color:#fff}
-.streamer-setting-desc{margin-top:5px;color:#94a3b8;font-size:9px;line-height:1.4}
-.streamer-toggle{
-    position:relative;
-    flex:0 0 52px;
-    width:52px;
-    height:30px;
-    padding:0;
-    border:0;
-    border-radius:999px;
-    background:#334155;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
-    transition:.22s ease;
-}
-.streamer-toggle-knob{
-    position:absolute;
-    left:4px;
-    top:4px;
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    background:#fff;
-    box-shadow:0 3px 10px rgba(0,0,0,.28);
-    transition:.22s cubic-bezier(.2,.8,.2,1);
-}
-.streamer-toggle.on{background:linear-gradient(135deg,#22c55e,#15803d)}
-.streamer-toggle.on .streamer-toggle-knob{transform:translateX(22px)}
-.streamer-mode-status{
-    margin-top:10px;
-    padding:9px 11px;
-    border-radius:11px;
-    text-align:center;
-    color:#cbd5e1;
-    background:rgba(255,255,255,.035);
-    border:1px solid rgba(255,255,255,.055);
-    font-size:10px;
-    font-weight:900;
-}
-.streamer-mode-note{margin-top:8px;color:#7f8ca3;font-size:8px;line-height:1.45;text-align:center}
 
 
-/* =====================================================
-   STREAMER MODE — MINIMAL BLUR
-   Blur ONLY visible wording related to deposits/bets/withdrawals
-   plus the top balance. Everything else remains unchanged.
-===================================================== */
-body.streamer-mode .balance-box{
-    filter:blur(3px) !important;
-    opacity:.82 !important;
-}
 
-body.streamer-mode .streamer-text-blur{
-    display:inline-block;
-    filter:blur(2.7px) !important;
-    opacity:.86 !important;
-}
-
-/* Never blur the settings window itself. */
-body.streamer-mode #settingsModal,
-body.streamer-mode #settingsModal *{
-    filter:none !important;
-    opacity:1 !important;
-}
-
-</style>
-
-<script id="brainroterx-streamer-mode-script">
-(function(){
-    const STORAGE_KEY = "brainroterx_streamer_mode";
-    const BLUR_CLASS = "streamer-text-blur";
-    const KEYWORD_SOURCE = "пополн\\p{L}*|ставк\\p{L}*|вывод\\p{L}*|вывест\\p{L}*|кейс\\p{L}*|продать|продан\\p{L}*|продаж\\p{L}*|баланс\\p{L}*|коин\\p{L}*|цен[аыуе]\\p{L}*";
-    let streamerModeEnabled = false;
-    let refreshQueued = false;
-    let observer = null;
-
-    function unwrapKeywordBlur(){
-        document.querySelectorAll("." + BLUR_CLASS).forEach(span => {
-            const parent = span.parentNode;
-            if(!parent) return;
-            parent.replaceChild(document.createTextNode(span.textContent || ""),span);
-            parent.normalize();
-        });
-    }
-
-    function shouldSkipTextNode(node){
-        const parent = node.parentElement;
-        if(!parent) return true;
-        if(parent.closest("#settingsModal")) return true;
-        if(parent.closest("script,style,noscript,svg")) return true;
-        if(parent.closest("." + BLUR_CLASS)) return true;
-        return false;
-    }
-
-    function wrapKeywords(){
-        const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT
-        );
-        const nodes = [];
-        let node;
-        while((node = walker.nextNode())){
-            if(shouldSkipTextNode(node)) continue;
-            const value = node.nodeValue || "";
-            if(new RegExp(KEYWORD_SOURCE,"iu").test(value)) nodes.push(node);
-        }
-
-        for(const textNode of nodes){
-            const value = textNode.nodeValue || "";
-            const regex = new RegExp(KEYWORD_SOURCE,"giu");
-            let last = 0;
-            let match;
-            const fragment = document.createDocumentFragment();
-            while((match = regex.exec(value))){
-                if(match.index > last){
-                    fragment.appendChild(document.createTextNode(value.slice(last,match.index)));
-                }
-                const span = document.createElement("span");
-                span.className = BLUR_CLASS;
-                span.textContent = match[0];
-                fragment.appendChild(span);
-                last = match.index + match[0].length;
-            }
-            if(last < value.length){
-                fragment.appendChild(document.createTextNode(value.slice(last)));
-            }
-            textNode.parentNode?.replaceChild(fragment,textNode);
-        }
-    }
-
-    function observe(){
-        if(!observer || !document.body) return;
-        observer.observe(document.body,{
-            subtree:true,
-            childList:true,
-            characterData:true
-        });
-    }
-
-    function refreshKeywordBlur(){
-        refreshQueued = false;
-        observer?.disconnect();
-        unwrapKeywordBlur();
-        if(streamerModeEnabled) wrapKeywords();
-        observe();
-    }
-
-    function queueKeywordRefresh(){
-        if(refreshQueued) return;
-        refreshQueued = true;
-        requestAnimationFrame(refreshKeywordBlur);
-    }
-
-    function syncStreamerToggleUi(){
-        const toggle = document.getElementById("streamerModeToggle");
-        const status = document.getElementById("streamerModeStatus");
-        if(toggle){
-            toggle.classList.toggle("on",streamerModeEnabled);
-            toggle.setAttribute("aria-checked",streamerModeEnabled ? "true" : "false");
-        }
-        if(status){
-            status.textContent = streamerModeEnabled
-                ? "✅ Скрытие данных включено"
-                : "Скрытие данных выключено";
-        }
-    }
-
-    function applyStreamerMode(enabled, persist=true){
-        streamerModeEnabled = !!enabled;
-        document.body.classList.toggle("streamer-mode",streamerModeEnabled);
-        syncStreamerToggleUi();
-        queueKeywordRefresh();
-        if(persist){
-            try{localStorage.setItem(STORAGE_KEY,streamerModeEnabled ? "1" : "0");}catch(_){ }
-        }
-    }
-
-    window.openSettings = function(){
-        syncStreamerToggleUi();
-        const modal = document.getElementById("settingsModal");
-        if(modal) modal.classList.add("show");
-    };
-
-    window.closeSettings = function(){
-        const modal = document.getElementById("settingsModal");
-        if(modal) modal.classList.remove("show");
-    };
-
-    window.toggleStreamerMode = function(){applyStreamerMode(false,false);};
-
-    window.setStreamerMode = function(enabled){applyStreamerMode(false,false);};
-
-    function restoreStreamerPreference(){
-        try{localStorage.removeItem(STORAGE_KEY);}catch(_){ }
-        applyStreamerMode(false,false);
-    }
-
-    observer = new MutationObserver(() => {
-        if(streamerModeEnabled) queueKeywordRefresh();
-    });
-
-    function init(){
-        restoreStreamerPreference();
-        observe();
-    }
-
-    if(document.readyState === "loading"){
-        document.addEventListener("DOMContentLoaded",init,{once:true});
-    }else{
-        init();
-    }
-})();
-</script>
 
 
 
@@ -31221,7 +30860,7 @@ body #inventory .comfort-card{width:auto!important;min-width:0!important;}
 </style>
 <script>/* Inventory controls, protected favorites and withdrawal history. */
 let comfortSelected=new Set(),comfortBulkBusy=false,comfortOnlyFavorites=false,comfortRealm='',comfortHistoryToken=0;
-function comfortKey(){return 'brx-favorites-v1:'+String(tg?.initDataUnsafe?.user?.id||'local')+':'+(partnerActive()?'stream':'normal');}
+function comfortKey(){return 'brx-favorites-v1:'+String(tg?.initDataUnsafe?.user?.id||'local')+':'+'normal';}
 function comfortFavorites(){try{return new Set(JSON.parse(localStorage.getItem(comfortKey())||'[]').map(String));}catch(_){return new Set();}}
 function comfortIsFavorite(id){return false;}
 function comfortFavorite(id){if(comfortBulkBusy)return;const favorites=comfortFavorites(),key=String(id);favorites.has(key)?favorites.delete(key):favorites.add(key);try{localStorage.setItem(comfortKey(),JSON.stringify([...favorites]));}catch(_){showToast('Не удалось сохранить избранное','error');return;}comfortSelected.delete(Number(id));renderInventory();}
@@ -31396,9 +31035,7 @@ function applyQuestState(state, rerender=true){
     if(typeof renderCases === 'function' && typeof cases !== 'undefined' && Array.isArray(cases)) renderCases();
     if(typeof updateCaseCost === 'function') updateCaseCost();
 }
-function questBlockedByPartnerStreamer(){
-    return Boolean(questServerState?.blocked) || (()=>{try{return typeof partnerActive==='function'&&partnerActive();}catch(_){return false;}})();
-}
+function questBlockedByPartnerStreamer(){return false;}
 async function refreshQuestState(silent=false){
     if(questRefreshPromise) return questRefreshPromise;
     questRefreshPromise=(async()=>{
@@ -32080,25 +31717,6 @@ html body#sharp-app #settingsModal .streamer-setting-card[data-brx-live="1"] .st
     }
     refreshPendingSoon();
 
-    /* Make the privacy toggle read LIVE and keep its status concise after every change. */
-    const privacyToggle=document.getElementById('streamerModeToggle');
-    const liveCard=privacyToggle?.closest('.streamer-setting-card');
-    const liveTitle=liveCard?.querySelector('.streamer-setting-title');
-    const liveDesc=liveCard?.querySelector('.streamer-setting-desc');
-    const liveStatus=document.getElementById('streamerModeStatus');
-    if(liveCard)liveCard.dataset.brxLive='1';
-    if(liveTitle)liveTitle.textContent='LIVE';
-    if(liveDesc)liveDesc.textContent='Скрывает баланс, цены и личные данные на экране во время трансляции.';
-    const syncLiveStatus=()=>{
-        if(!liveStatus||!privacyToggle)return;
-        const next=privacyToggle.getAttribute('aria-checked')==='true'?'LIVE включён':'LIVE выключен';
-        if(liveStatus.textContent!==next) liveStatus.textContent=next;
-    };
-    // Observe only the toggle. Observing liveStatus itself caused a self-triggering
-    // MutationObserver loop in Telegram WebView and could keep the startup loader alive forever.
-    if(privacyToggle)new MutationObserver(syncLiveStatus).observe(privacyToggle,{attributes:true,attributeFilter:['aria-checked','class']});
-    syncLiveStatus();
-
     /* Better solid cloud icon + show only on Cases after a little page scroll. */
     const support=document.querySelector('.support-float-btn');
     if(support){
@@ -32283,17 +31901,7 @@ function feedConnectionStatus(ok){/* Automatic feed refresh continues without st
 refreshBigWins(true);
 </script>
 
-<style id="streamer-privacy-complete">
-html body#sharp-app.streamer-mode .balance-box,
-html body#sharp-app.streamer-mode #sharpBalance,
-html body#sharp-app.streamer-mode .sharp-profile-balance,
-html body#sharp-app.streamer-mode .inventory-value,
-html body#sharp-app.streamer-mode .case-price,
-html body#sharp-app.streamer-mode #activeCasePrice,
-html body#sharp-app.streamer-mode .big-win-price,
-html body#sharp-app.streamer-mode .profile-best-drop-price,
-html body#sharp-app.streamer-mode .streamer-text-blur{filter:blur(5px)!important;user-select:none!important;}
-</style>
+
 <style id="round-loader-fix">
 html body#sharp-app .loader-orbit::before,html body#sharp-app .loader-orbit::after{border-radius:50%!important;}
 </style>
@@ -34213,6 +33821,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    if(!data.ok)throw new Error(data.error||'Не удалось загрузить партнёрку');
    affiliateState=data;
    el('affiliateLink').value=data.invite_link||'';
+   const adminOpen=el('affiliateAdminOpen');if(adminOpen)adminOpen.hidden=!data.is_admin;
    const p=data.profile||{};
    el('affiliateEarned').textContent=`Реферальный баланс: ${Number(p.referral_balance||0)} ⓧ · Всего: ${Number(p.total_earned||0)} ⓧ`;
    el('affiliatePercents').textContent=`Владельцу ${p.owner_percent??10}% · приглашённому ${p.player_percent??5}%`;
@@ -34236,8 +33845,9 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
  };
  window.affiliateCopy=async function(){
    const link=el('affiliateLink').value;if(!link)return;
-   try{await navigator.clipboard.writeText(link);status('Ссылка скопирована');}
-   catch(_){el('affiliateLink').focus();el('affiliateLink').select();status('Ссылка выделена — скопируй её');}
+   const note=el('affiliateCopyStatus');
+   try{await navigator.clipboard.writeText(link);if(note)note.textContent='Ссылка скопирована';}
+   catch(_){el('affiliateLink').focus();el('affiliateLink').select();if(note)note.textContent='Ссылка выделена — скопируй её';}
  };
  window.affiliateWithdraw=async function(){
    const id=Number(el('affiliateWithdrawItem').value),name=el('affiliateRoblox').value.trim();
@@ -34252,7 +33862,19 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    finally{el('affiliateWithdrawSubmit').disabled=false;}
  };
  // Admin settings are verified by Telegram initData on the server, not by DOM visibility.
+ window.affiliateAdminLookup=async function(){
+   if(!affiliateState?.is_admin){status('Настройка доступна только администратору');return;}
+   const id=Number(el('affiliateAdminId').value);
+   if(!Number.isSafeInteger(id)||id<=0){status('Введи корректный Telegram ID');return;}
+   const out=el('affiliateAdminLookupResult');out.textContent='Проверяем…';
+   try{const info=await apiRequest({action:'affiliate_admin_lookup',telegram_id:id});
+     if(!info.ok)throw new Error(info.error||'Ошибка');
+     out.textContent=`Привязан к: ${info.bound_owner||'не привязан'} · Код: ${info.code||'нет'} · Выдача: ${info.profile?.code_granted?'да':'нет'}`;
+     if(info.profile){el('affiliateAdminOwner').value=info.profile.owner_percent;el('affiliateAdminPlayer').value=info.profile.player_percent;el('affiliateAdminGranted').checked=!!info.profile.code_granted;}
+   }catch(e){out.textContent=e.message||'Ошибка проверки';}
+ };
  window.affiliateAdminSave=async function(){
+   if(!affiliateState?.is_admin){status('Выдавать реферальные коды может только администратор');return;}
    const id=Number(el('affiliateAdminId').value),a=Number(el('affiliateAdminOwner').value),b=Number(el('affiliateAdminPlayer').value),grant=el('affiliateAdminGranted').checked;
    if(!Number.isSafeInteger(id)||id<=0||a<0||a>30||b<0||b>30){status('Проверь ID и проценты 0–30');return;}
    try{const data=await apiRequest({action:'affiliate_owner_config',telegram_id:id,owner_percent:a,player_percent:b,code_granted:grant,code:el('affiliateAdminCode').value});
@@ -34281,6 +33903,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
    }catch(e){list.textContent=e.message||'Ошибка загрузки';}
  };
  window.affiliateAdminDecision=async function(id,result){
+   if(!affiliateState?.is_admin){status('Нет прав администратора');return;}
    if(!confirm('Изменить статус заявки #'+id+' на '+result+'?'))return;
    try{const data=await apiRequest({action:'affiliate_admin_decide',request_id:id,status:result});
      if(!data.ok)throw new Error(data.error||'Ошибка');status('Статус заявки обновлён');await affiliateAdminRefresh();}
@@ -34291,9 +33914,14 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
  if(typeof originalReferralOpen==='function'){
    window.openReferral=function(...args){
      const result=originalReferralOpen.apply(this,args);
+     const linkField=el('affiliateLink');if(linkField&&!linkField.value)linkField.placeholder='Загружаем ссылку…';
      void apiRequest({action:'affiliate_state'}).then(data=>{
-       if(data?.ok&&el('affiliateQuickWithdraw'))el('affiliateQuickWithdraw').hidden=!data.profile?.code_granted;
-     }).catch(()=>{});
+       if(!data?.ok)return;
+       affiliateState=data;
+       if(linkField)linkField.value=data.invite_link||'';
+       if(el('affiliateQuickWithdraw'))el('affiliateQuickWithdraw').hidden=!data.profile?.code_granted;
+       if(el('affiliateAdminOpen'))el('affiliateAdminOpen').hidden=!data.is_admin;
+     }).catch(()=>{if(linkField)linkField.placeholder='Не удалось загрузить ссылку';});
      return result;
    };
  }
@@ -34306,7 +33934,7 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
      const found=/^ref_([1-9][0-9]{0,16})$/.exec(raw);
      if(!found||!window.Telegram?.WebApp?.initData)return;
      const key='brx_ref_attached_'+found[1];if(sessionStorage.getItem(key))return;
-     const reply=await apiRequest({action:'affiliate_bind',owner_id:Number(found[1])});
+     const reply=await apiRequest({action:'affiliate_bind'});
      if(reply?.ok&&reply.bound)sessionStorage.setItem(key,'1');
    }catch(error){console.warn('Invite binding not applied',error);}
  }
