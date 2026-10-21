@@ -12397,6 +12397,16 @@ body .affiliate-open-referral[hidden],body #affiliateAdminOpen[hidden]{display:n
             </div>
             <input id="globalSoundVolume" type="range" min="0" max="100" step="1" value="72" aria-label="Громкость звуков">
         </div>
+        <div class="streamer-setting-card brx-stream-setting" id="brxStreamSetting" data-brx-streamer-ignore="1">
+            <div class="streamer-setting-copy">
+                <div class="streamer-setting-title">Стример-мод</div>
+                <div class="streamer-setting-desc">Плавно скрывает чувствительные слова, суммы и действия. Наведи курсор, чтобы посмотреть; на телефоне удерживай палец.</div>
+            </div>
+            <button id="brxStreamerToggle" class="streamer-toggle" type="button" role="switch" aria-label="Визуальный стример-мод" aria-checked="false">
+                <span class="streamer-toggle-knob"></span>
+            </button>
+        </div>
+        <div class="brx-streamer-status" id="brxStreamerStatus" data-brx-streamer-ignore="1" aria-live="polite">Стример-мод выключен</div>
 
 
     </div>
@@ -34446,3 +34456,184 @@ body #casePresentationStage #caseIdleReels .cinema-track.cinema-idle-track{
     body #activeCase #caseCoverPreview img{height:125px!important;max-height:125px!important;}
 }
 </style>
+
+
+<!-- BRX: local presentation-only streamer blur. No server-side payout, inventory or referral gates. -->
+<style id="brx-streamer-privacy-mode-v1">
+#settingsModal #brxStreamSetting{
+    display:flex!important;align-items:center;justify-content:space-between;
+    gap:10px;margin-top:14px;padding:12px;background:#111a27;
+    border:1px solid #29394f;min-width:0;
+}
+#settingsModal #brxStreamSetting .streamer-setting-copy{flex:1;min-width:0;}
+#settingsModal #brxStreamSetting .streamer-setting-title{font-size:13px;font-weight:900;}
+#settingsModal #brxStreamSetting .streamer-setting-desc{font-size:10px;color:#a8b9ce;line-height:1.55;margin-top:5px;}
+#settingsModal #brxStreamerToggle{
+    position:relative;display:block;flex:0 0 50px;width:50px;height:28px;
+    border:1px solid #465671;border-radius:24px;background:#29364a;padding:0;
+    transition:background .24s ease,border-color .24s ease;cursor:pointer;
+}
+#settingsModal #brxStreamerToggle .streamer-toggle-knob{
+    position:absolute;top:3px;left:3px;width:20px;height:20px;
+    background:#eff6ff;border-radius:50%;transition:transform .3s cubic-bezier(.2,.8,.2,1);
+}
+#settingsModal #brxStreamerToggle.on{background:#7c69be!important;border-color:#aea2de!important;}
+#settingsModal #brxStreamerToggle.on .streamer-toggle-knob{transform:translateX(21px)!important;}
+#settingsModal .brx-streamer-status{margin:7px 0 3px;text-align:center;font-size:11px;color:#b6c7db;}
+/* Only designated UI nodes are hidden; gameplay and click handlers remain unchanged. */
+body.brx-streamer-privacy .brx-streamer-sensitive,
+body.brx-streamer-privacy :is(
+  .balance-box,.case-price,.total-case-price,.profile-number,
+  .referral-code,.referral-stat-value,.case-content-value,
+  .deposit-top,#depositTotal,#depositCount,#threeDayDropDeposit,
+  #affiliateEarned,#affiliatePercents,#affiliateOwnCode,#affiliateBoundNote,
+  #siteWithdrawnValue,#hourlyPromoCode,#hourlyPromoPercent,
+  #caseResult,#upgradeResult,#crashMultiplierText,
+  #crashRoundBets,#crashRoundBetsCount,#crashStatusMini,
+  #referralInviteLink,#affiliateInviteLink,.cinema-result-price,
+  .roulette-item .roulette-name,.roulette-item .roulette-price
+){
+    filter:blur(7px)!important;-webkit-filter:blur(7px)!important;
+    transition:filter .36s cubic-bezier(.22,.65,.24,1),-webkit-filter .36s cubic-bezier(.22,.65,.24,1)!important;
+}
+body.brx-streamer-privacy .brx-streamer-sensitive:hover,
+body.brx-streamer-privacy .brx-streamer-sensitive:focus-visible,
+body.brx-streamer-privacy .brx-streamer-sensitive:focus-within,
+body.brx-streamer-privacy .brx-streamer-sensitive.brx-streamer-revealed,
+body.brx-streamer-privacy :is(
+  .balance-box,.case-price,.total-case-price,.profile-number,
+  .referral-code,.referral-stat-value,.case-content-value,
+  .deposit-top,#depositTotal,#depositCount,#threeDayDropDeposit,
+  #affiliateEarned,#affiliatePercents,#affiliateOwnCode,#affiliateBoundNote,
+  #siteWithdrawnValue,#hourlyPromoCode,#hourlyPromoPercent,
+  #caseResult,#upgradeResult,#crashMultiplierText,
+  #crashRoundBets,#crashRoundBetsCount,#crashStatusMini,
+  #referralInviteLink,#affiliateInviteLink,.cinema-result-price,
+  .roulette-item .roulette-name,.roulette-item .roulette-price
+):is(:hover,:focus-visible,:focus-within,.brx-streamer-revealed){
+    filter:blur(0)!important;-webkit-filter:blur(0)!important;
+}
+/* Game action scenes are covered too, not only their captions or payouts. */
+body.brx-streamer-privacy .brx-streamer-scene{
+    filter:blur(5px)!important;-webkit-filter:blur(5px)!important;
+    transition:filter .36s cubic-bezier(.22,.65,.24,1),-webkit-filter .36s cubic-bezier(.22,.65,.24,1)!important;
+}
+body.brx-streamer-privacy .brx-streamer-scene:is(:hover,:focus-within,.brx-streamer-revealed){
+    filter:blur(0)!important;-webkit-filter:blur(0)!important;
+}
+/* Do not blur the streamer switch itself or make the settings window unreadable. */
+body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-status,.streamer-setting-title,.streamer-setting-desc){filter:none!important;-webkit-filter:none!important;}
+@media (hover:none){body.brx-streamer-privacy .brx-streamer-sensitive:active{filter:blur(0)!important;-webkit-filter:blur(0)!important;}}
+@media(prefers-reduced-motion:reduce){body.brx-streamer-privacy .brx-streamer-sensitive{transition-duration:.01ms!important;}}
+</style>
+<script id="brx-streamer-privacy-script-v1">
+(()=>{
+    'use strict';
+    const storageKey='brx_visual_streamer_blur_v1';
+    const root=document.body;
+    const modal=document.getElementById('settingsModal');
+    const toggle=document.getElementById('brxStreamerToggle');
+    const status=document.getElementById('brxStreamerStatus');
+    if(!root||!toggle)return;
+    // Gambling-like actions, prize promises, payment flows and promotional/referral cues.
+    // A presentation filter, not a guarantee of social-platform compliance.
+    const sensitive=/(?:казино|азарт|ставк|лотере|рулетк|слот|джекпот|депозит|донат|пополн|вывод|вывест|вывестись|снять\s+средств|обналич|рубл|грн|гривн|₴|₽|выигр|заработ|продать|продаж|купить|шанс|кейс|крутить|крутка|апгрейд|краш|баланс|цена|стоимост|стоимость|реферал|партн[её]р|промокод|активац|прибыл|окуп|вознагражден|выплат|доход|плат[её]ж|заказ|заявк|получи\s+монет|предмет\s+за|монет|бонус|brainroterxbot|t\.me\/|(?:^|\s)ⓧ(?:\s|$)|casino|gambl|jackpot|betting|bet\s|withdraw|deposit|referral|affiliate|payout|cashout|earnings|roulette|spin\s|upgrade|reward|coin|promo\s*code)/i;
+    const amount=/(?:\d[\d\s,.]*\s*(?:ⓧ|₴|₽|грн|руб(?:лей|ля)?|монет|coins?|stars?|⭐))|(?:[₴₽]\s*\d)/i;
+    const exclude='script,style,noscript,template,textarea,option,select,svg,pre,code,[contenteditable],#settingsModal,[data-brx-streamer-ignore]';
+    let enabled=false;
+    let observer=null;
+    let timer=0;
+    const pending=new Set();
+    function shouldHide(value){
+        if(!value||value.length>300)return false;
+        return sensitive.test(value)||amount.test(value);
+    }
+    function inspectText(node){
+        if(node.nodeType!==Node.TEXT_NODE||!shouldHide(node.nodeValue))return;
+        const parent=node.parentElement;
+        if(!parent||parent.closest(exclude)||parent.closest('.brx-streamer-sensitive'))return;
+        // Keep native controls and listeners. Blur their text without disabling them.
+        if(parent.childNodes.length===1&&parent.tagName!=='A'){
+            parent.classList.add('brx-streamer-sensitive');
+        }else{
+            const span=document.createElement('span');
+            span.className='brx-streamer-sensitive brx-streamer-text';
+            node.parentNode.replaceChild(span,node);
+            span.appendChild(node);
+        }
+    }
+    function scan(element){
+        if(!element)return;
+        if(element.nodeType===Node.TEXT_NODE){inspectText(element);return;}
+        if(element.nodeType!==Node.ELEMENT_NODE||element.closest(exclude))return;
+        const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);
+        const nodes=[];
+        while(walker.nextNode()){
+            const node=walker.currentNode;
+            if(shouldHide(node.nodeValue)&&!node.parentElement?.closest(exclude)&&!node.parentElement?.closest('.brx-streamer-sensitive'))nodes.push(node);
+        }
+        nodes.forEach(inspectText);
+        // Blur actual case spinning / crash flight / upgrade wheel, too.
+        const gameScene='#rouletteContainer,#crashStage,#upgraderPage .upgrade-wheel-wrap,#casePresentationStage .cinema-window';
+        if(element.matches(gameScene))element.classList.add('brx-streamer-scene');
+        for(const scene of element.querySelectorAll(gameScene))scene.classList.add('brx-streamer-scene');
+        // Numeric inputs and referral links have no text nodes; blur the control.
+        for(const field of element.querySelectorAll('input,select')){
+            if(field.closest(exclude)||field.closest('#settingsModal'))continue;
+            const marker=(field.id+' '+field.name+' '+field.placeholder+' '+field.getAttribute('aria-label')).toLowerCase();
+            if(/(?:amount|sum|price|currency|coins|money|balance|earned|referral|promo|withdraw|deposit|cost|сумм|цен|ставк|пополн|реферал|промокод|вывод)/.test(marker))field.classList.add('brx-streamer-sensitive');
+        }
+    }
+    function flush(){
+        timer=0;
+        if(!enabled){pending.clear();return;}
+        const items=[...pending];pending.clear();
+        for(const el of items)if(el.isConnected)scan(el);
+    }
+    function observe(){
+        if(observer)return;
+        observer=new MutationObserver(records=>{
+            for(const record of records){
+                if(record.type==='characterData'){pending.add(record.target);continue;}
+                for(const node of record.addedNodes){if(node.nodeType===1||node.nodeType===3)pending.add(node);}
+            }
+            if(pending.size&&!timer)timer=setTimeout(flush,100);
+        });
+        observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+    }
+    function unobserve(){
+        observer?.disconnect();observer=null;
+        clearTimeout(timer);timer=0;pending.clear();
+    }
+    function render(){
+        toggle.classList.toggle('on',enabled);
+        toggle.setAttribute('aria-checked',String(enabled));
+        if(status)status.textContent=enabled?'Стример-мод включён · наведи для просмотра':'Стример-мод выключен';
+    }
+    function setEnabled(next){
+        enabled=Boolean(next);
+        root.classList.toggle('brx-streamer-privacy',enabled);
+        if(enabled){scan(root);observe();}else{unobserve();}
+        render();
+        try{localStorage.setItem(storageKey,enabled?'1':'0');}catch(_){}
+    }
+    toggle.addEventListener('click',()=>setEnabled(!enabled));
+    // On touchscreens, hold a concealed control to view it; release restores the blur.
+    let touched=null;
+    document.addEventListener('pointerdown',event=>{
+        if(!enabled||event.pointerType==='mouse')return;
+        const el=event.target.closest?.('.brx-streamer-sensitive,.brx-streamer-scene,.balance-box,.profile-number,.referral-stat-value,.referral-code,.case-price,.total-case-price,.deposit-top,#crashMultiplierText');
+        if(el){touched=el;el.classList.add('brx-streamer-revealed');}
+    },{passive:true});
+    const conceal=()=>{touched?.classList.remove('brx-streamer-revealed');touched=null;};
+    document.addEventListener('pointerup',conceal,{passive:true});
+    document.addEventListener('pointercancel',conceal,{passive:true});
+    const oldOpen=window.openSettings;
+    if(typeof oldOpen==='function'){
+        window.openSettings=function(...args){const result=oldOpen.apply(this,args);render();return result;};
+    }
+    try{setEnabled(localStorage.getItem(storageKey)==='1');}catch(_){setEnabled(false);}
+    // If the settings dialog is opened after initialization, its state is current.
+    modal?.addEventListener('click',()=>render());
+})();
+</script>
