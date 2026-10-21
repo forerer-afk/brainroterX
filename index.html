@@ -17720,31 +17720,44 @@ async function sellAllRecentCaseWinners(){
 
 
 function getDailyCaseItems(){
-    // Admin-configured Daily Case is the sole source for preview content when available.
+    // Read exactly the rewards configured for the Daily Case in the admin editor.
+    // The catalog fallback is necessary for older case_items with missing value.
     const configured=(Array.isArray(cases)?cases:[]).find(row=>row?.is_daily===true);
+    const resolveBrainrot=(entry)=>{
+        const catalog=Array.isArray(brainrots)?brainrots:[];
+        return catalog.find(b=>Number(b.brainrot_id)>0 && Number(b.brainrot_id)===Number(entry.brainrot_id))
+            || catalog.find(b=>normalizeName(b.name)===normalizeName(entry.brainrot_name)) || null;
+    };
     if(configured){
-        const configuredItems=(Array.isArray(caseItems)?caseItems:[])
+        return (Array.isArray(caseItems)?caseItems:[])
             .filter(item=>Number(item.case_id)===Number(configured.id))
-            .map(item=>({
-                kind:String(item.reward_type||'brainrot')==='coins'?'coins':'brainrot',
-                name:String(item.brainrot_name|| (String(item.reward_type)==='coins'?`${Number(item.reward_amount||item.value||0)} X`:'Brainrot')),
-                value:Number(item.reward_type==='coins'?item.reward_amount??item.value:item.value||0),
-                chance:Number(item.chance||0),
-                brainrot_id:Number(item.brainrot_id||0)
-            }));
-        return configuredItems;
+            .map(item=>{
+                const kind=String(item.reward_type||'brainrot')==='coins'?'coins':'brainrot';
+                const catalog=kind==='brainrot'?resolveBrainrot(item):null;
+                const storedValue=Number(item.value);
+                const catalogValue=Number(catalog?.value);
+                const rawValue=kind==='coins' ? Number(item.reward_amount ?? item.value)
+                    : (Number.isFinite(storedValue)&&storedValue>0 ? storedValue : catalogValue);
+                const value=Number.isFinite(rawValue)?Math.max(0,rawValue):0;
+                return {
+                    kind,
+                    name:String(item.brainrot_name||catalog?.name||(kind==='coins'?`${value} X`:'Brainrot')),
+                    value,
+                    chance:Math.max(0,Number(item.chance)||0),
+                    brainrot_id:Number(item.brainrot_id||0)
+                };
+            });
     }
-    // Compatibility with databases where the standalone Daily Case has not been created.
+    // Legacy preview only. Server-side daily SQL must be installed to synchronize odds.
     return [
         {kind:'coins',name:'3 X',value:3,chance:79},
         {kind:'coins',name:'5 X',value:5,chance:10},
         {kind:'coins',name:'7 X',value:7,chance:5},
-        {kind:'brainrot',name:'La Grande',chance:3},
-        {kind:'brainrot',name:'Nuclearo Dinossauro',chance:2},
-        {kind:'brainrot',name:'Money Money Puggy',chance:1}
+        {kind:'brainrot',name:'La Grande',value:Number(getBrainrotByName('La Grande')?.value)||0,chance:3},
+        {kind:'brainrot',name:'Nuclearo Dinossauro',value:Number(getBrainrotByName('Nuclearo Dinossauro')?.value)||0,chance:2},
+        {kind:'brainrot',name:'Money Money Puggy',value:Number(getBrainrotByName('Money Money Puggy')?.value)||0,chance:1}
     ];
 }
-
 
 function openDailyCase(){
     if(caseCinema&&!caseCinema.busy&&!caseCinema.selling)cinemaClose();
@@ -17912,119 +17925,46 @@ function openDailyCase(){
 
 
 function renderDailyCaseContent(){
-
-    const root =
-        document
-            .getElementById(
-                "caseContentList"
-            );
-
-    if(
-        !root
-    ){
-        return;
-    }
-
-    root.innerHTML =
-        "";
-
-    getDailyCaseItems()
-        .forEach(
-            item => {
-
-                const div =
-                    document.createElement(
-                        "div"
-                    );
-
-                div.className =
-                    "case-content-item";
-
-                const image =
-                    item.kind
-                    ===
-                    "coins"
-                    ?
-                    ""
-                    :
-                    `<img
-                        class="case-content-img"
-                        src="${getImage(item.name)}"
-                    >`;
-
-                div.innerHTML =
-                    `
-                    <div class="case-content-left">
-
-                        ${
-                            item.kind
-                            ===
-                            "coins"
-                            ?
-                            `<div class="xcoin" style="margin-right:8px">X</div>`
-                            :
-                            image
-                        }
-
-                        <div class="case-content-name">
-                            ${item.name}
-                        </div>
-
-                    </div>
-
-                    <div class="case-content-value">
-                        FREE
-                    </div>
-                    `;
-
-                root.appendChild(
-                    div
-                );
-
-            }
-        );
-
-}
-
-
-function buildDailyRoulettePool(){
-
-    const items =
-        getDailyCaseItems();
-
-    const pool =
-        [];
-
-    items.forEach(
-        item => {
-
-            const weight =
-                Math.max(
-                    1,
-                    Math.round(
-                        Number(
-                            item.chance
-                        )
-                    )
-                );
-
-            for(
-                let i = 0;
-                i < weight;
-                i++
-            ){
-                pool.push(
-                    item
-                );
-            }
-
+    const root=document.getElementById('caseContentList');
+    if(!root)return;
+    root.replaceChildren();
+    getDailyCaseItems().forEach(item=>{
+        const div=document.createElement('div');
+        div.className='case-content-item';
+        const left=document.createElement('div');
+        left.className='case-content-left';
+        if(item.kind==='coins'){
+            const coin=document.createElement('div');
+            coin.className='xcoin';coin.textContent='X';coin.style.marginRight='8px';
+            left.appendChild(coin);
+        }else{
+            const img=document.createElement('img');
+            img.className='case-content-img';img.src=getImage(item.name);img.alt='';
+            left.appendChild(img);
         }
-    );
-
-    return pool;
-
+        const name=document.createElement('div');
+        name.className='case-content-name';name.textContent=item.name;
+        left.appendChild(name);div.appendChild(left);
+        const value=document.createElement('div');
+        value.className='case-content-value';
+        value.textContent=item.value>0?`${item.value} ⓧ`:'—';
+        div.appendChild(value);root.appendChild(div);
+    });
 }
 
+// Visual-only weighted sampling: rare prizes should not appear in every idle reel.
+// The actual winner is always chosen and awarded by the server, NOT here.
+function brxDailyWeightedPick(pool){
+    const valid=(Array.isArray(pool)?pool:[]).filter(i=>Number(i?.chance)>0);
+    if(!valid.length)return null;
+    const total=valid.reduce((sum,i)=>sum+Number(i.chance),0);
+    let roll=Math.random()*total;
+    for(const item of valid){
+        roll-=Number(item.chance);
+        if(roll<0)return item;
+    }
+    return valid[valid.length-1];
+}
 
 async function openDailyWithRoulette(){
 
@@ -18382,8 +18322,14 @@ function cinemaFillIdle(lane,index){
     // Каждая награда попадает в один повторяющийся цикл; две копии делают переход бесшовным.
     // Лента предпросмотра не участвует в выборе награды: реальные награды выдаёт сервер.
     const sequenceLength=Math.max(12,Math.min(48,pool.length));
+    // The second cycle repeats the FIRST, so idle scrolling loops without jumping.
+    const dailyPreview=activeCaseIsDaily
+        ? Array.from({length:sequenceLength},()=>brxDailyWeightedPick(pool)||pool[0])
+        : null;
     for(let i=0;i<sequenceLength*2;i++){
-        const item=pool[(i%sequenceLength+index*3)%pool.length];
+        const item=activeCaseIsDaily
+            ? dailyPreview[i%sequenceLength]
+            : pool[(i%sequenceLength+index*3)%pool.length];
         const card=rouletteCard(item);
         card.className='cinema-reel-item';
         track.appendChild(card);
@@ -18399,7 +18345,7 @@ function cinemaRenderIdle(){
     if(!idle){idle=document.createElement('div');idle.id='caseIdleReels';stage.appendChild(idle);}
     idle.hidden=false;
     const count=activeCaseIsDaily?1:Number(caseOpenCount)||1;
-    const key=`${activeCaseIsDaily?'daily':selectedCase?.id}:${count}:${getCaseItems().length}`;
+    const key=`${activeCaseIsDaily?'daily':selectedCase?.id}:${count}:${getCaseItems().length}:${activeCaseIsDaily?getDailyCaseItems().map(i=>[i.name,i.value,i.chance].join(',')).join(';'):''}`;
     if(idle.dataset.key===key&&idle.children.length===count&&idle.querySelector('.cinema-reel-item'))return;
     idle.dataset.key=key;idle.replaceChildren();
     for(let i=0;i<count;i++){const lane=cinemaLane();cinemaFillIdle(lane,i);idle.appendChild(lane);}
@@ -18687,7 +18633,7 @@ async function cinemaAnimate(state){
         // many cards, particularly on small mobile devices with 3/5 reels.
         const appended=document.createDocumentFragment();
         for(let i=existing;i<=stop+7;i++){
-            const item=i===stop?winner:pool[Math.floor(Math.random()*pool.length)]||winner;
+            const item=i===stop?winner:(activeCaseIsDaily?brxDailyWeightedPick(pool):pool[Math.floor(Math.random()*pool.length)])||winner;
             const card=rouletteCard(item);card.className='cinema-reel-item';appended.appendChild(card);cards.push(card);
         }
         track.appendChild(appended);
@@ -18699,7 +18645,7 @@ async function cinemaAnimate(state){
         }
         // Occasional near-miss: put a more expensive visible item NEXT to the real winner.
         // Neither this neighbor nor the landing offset changes the server's reward/odds.
-        const bait=!fast&&Math.random()<.32;
+        const bait=!fast&&!activeCaseIsDaily&&Math.random()<.32;
         // Visual landing ONLY: the server-supplied reward never changes. The arrow
         // may stop nearly anywhere on the winner, including within a few pixels
         // of either edge (without crossing onto the neighboring reward).
