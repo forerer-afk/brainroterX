@@ -33177,6 +33177,24 @@ html body#sharp-app #settingsModal #globalSoundStatus{margin:7px 0 10px!importan
         if(value)value.textContent=`${Math.round(volume*100)}%`;
     }
     window.updateGlobalSoundUI=updateGlobalSoundUI;
+    // Restore the standard profile Settings dialog. The old handlers were
+    // removed together with LIVE mode, while the gear button still uses them.
+    window.openSettings=function(){
+        const modal=document.getElementById('settingsModal');
+        if(!modal)return;
+        updateGlobalSoundUI();
+        modal.classList.add('show');
+    };
+    window.closeSettings=function(){
+        document.getElementById('settingsModal')?.classList.remove('show');
+    };
+    const settingsModal=document.getElementById('settingsModal');
+    settingsModal?.addEventListener('click',event=>{
+        if(event.target===settingsModal)window.closeSettings();
+    });
+    document.addEventListener('keydown',event=>{
+        if(event.key==='Escape'&&settingsModal?.classList.contains('show'))window.closeSettings();
+    });
     window.toggleGlobalSound=function(){
         const was=typeof soundEnabled==='undefined'?true:Boolean(soundEnabled);
         soundEnabled=!was;
