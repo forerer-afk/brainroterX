@@ -18622,6 +18622,32 @@ function cinemaMotionDistance(reel,elapsed){
     const u=Math.min(1,(e-a-cruise)/brake);
     return Math.min(reel.distance,accelerated+v*cruise+v*brake/(p+1)*(1-Math.pow(1-u,p+1)));
 }
+/*
+ * Compositor-driven, pixel-continuous roulette motion.
+ * Keep the SAME 9.5s velocity curve and winner coordinate. Instead of
+ * updating transform from JS once per frame (which can miss frames while
+ * images/layout are busy), interpolate absolute pixel positions in the
+ * browser's animation compositor. No per-card jumps or CSS steps().
+ */
+function cinemaStartPixelSmoothMotion(reel){
+    if(typeof reel.track.animate!=='function')return null;
+    const durationMs=reel.duration*1000;
+    const sampleCount=Math.max(160,Math.min(300,Math.ceil(reel.duration*30)));
+    const frames=[];
+    for(let i=0;i<=sampleCount;i++){
+        const offset=i/sampleCount;
+        const moved=cinemaMotionDistance(reel,reel.duration*offset);
+        frames.push({offset,transform:`translate3d(${(reel.originX-moved).toFixed(3)}px,0,0)`});
+    }
+    try{
+        return reel.track.animate(frames,{
+            duration:durationMs,
+            easing:'linear',
+            fill:'forwards',
+            iterations:1
+        });
+    }catch(_error){return null;}
+}
 async function cinemaAnimate(state){
     if(!state.winners.length)return;
     cinemaStopPreview(state);
@@ -18714,18 +18740,31 @@ async function cinemaAnimate(state){
         });
         reels.forEach(reel=>state.resizeObserver.observe(reel.viewport));
     }
-    // Keep the quiet soft click tied to actual cards crossing the pointer.
+    // The actual scroll is drawn by the compositor; rAF is used only for
+    // soft per-card clicks and revealing the already-awarded server item.
+    // Older WebViews fall back to the exact same pixel positions from JS.
     const soundReel=reels[reels.length-1];
-    let started=null;
+    const clockStart=performance.now();
+    for(const reel of reels){
+        reel.smoothAnimation=cinemaStartPixelSmoothMotion(reel);
+        // Align all reels to one logical start instant, even if creating the
+        // keyframes for multiple lanes took a few milliseconds.
+        if(reel.smoothAnimation){
+            try{reel.smoothAnimation.currentTime=Math.max(0,performance.now()-clockStart);}catch(_e){}
+        }
+    }
+    let started=clockStart;
     await new Promise((resolve,reject)=>{
         const frame=now=>{
             try{
-                if(started===null)started=now;
                 let allDone=true;
                 for(const reel of reels){
                     const elapsed=Math.min(reel.duration,(now-started)/1000);
                     const moved=cinemaMotionDistance(reel,elapsed);
-                    reel.track.style.transform=`translate3d(${reel.originX-moved}px,0,0)`;
+                    if(!reel.smoothAnimation){
+                        // Legacy fallback, also smooth in pixels, never card steps.
+                        reel.track.style.transform=`translate3d(${reel.originX-moved}px,0,0)`;
+                    }
                     if(reel===soundReel&&!reel.done){
                         const center=reel.viewport.clientWidth/2-reel.originX+moved;
                         const approxCard=Math.max(0,Math.floor((center-(reel.cards[0]?.offsetLeft||0))/Math.max(1,(reel.cards[1]?.offsetLeft||92)-(reel.cards[0]?.offsetLeft||0))));
@@ -18737,13 +18776,23 @@ async function cinemaAnimate(state){
                     if(elapsed>=reel.duration&&!reel.done){
                         reel.done=true;
                         const last=reel.cards[reel.stop];
-                        reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+last.offsetWidth*reel.finalFraction}px,0,0)`;
+                        // Commit the precise server-item landing before cancelling
+                        // the compositor animation (prevents a 1-frame snap).
+                        const finalX=reel.viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+last.offsetWidth*reel.finalFraction;
+                        reel.track.style.transform=`translate3d(${finalX}px,0,0)`;
+                        if(reel.smoothAnimation){
+                            try{reel.smoothAnimation.cancel();}catch(_e){}
+                            reel.smoothAnimation=null;
+                        }
                         last.classList.add('cinema-final');cinemaReveal(state,reel.index);
                     }
                     if(!reel.done)allDone=false;
                 }
                 if(allDone)resolve();else requestAnimationFrame(frame);
-            }catch(error){reject(error);}
+            }catch(error){
+                reels.forEach(reel=>{try{reel.smoothAnimation?.cancel();}catch(_e){}});
+                reject(error);
+            }
         };
         requestAnimationFrame(frame);
     });
