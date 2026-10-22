@@ -10242,6 +10242,13 @@ body.site-test-active > :not(#siteTestScreen){pointer-events:none!important;}
 #caseContentList .case-content-value{display:flex!important;flex-direction:column!important;border-radius:3px!important;gap:3px!important}
 #caseContentList .case-content-price-line{display:flex;align-items:center;justify-content:center;gap:3px}
 </style>
+<style id="brx-trade-bot-copy-css">
+.deposit-trade-bot-row .deposit-trade-bot-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;min-width:0;max-width:75%}
+.deposit-trade-bot-actions b{overflow-wrap:anywhere;min-width:0;color:#f1edff}
+.deposit-trade-bot-copy{flex:0 0 auto;padding:7px 9px;border:1px solid rgba(151,119,255,.42);border-radius:8px;background:rgba(105,65,183,.22);color:#f0eaff;font-size:9px;font-weight:850;cursor:pointer;transition:background .18s ease,transform .18s ease,opacity .18s ease}
+.deposit-trade-bot-copy:active:not(:disabled){transform:scale(.97)}
+.deposit-trade-bot-copy:disabled{opacity:.36;cursor:default}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -23684,6 +23691,40 @@ function depositTradeRemainingSeconds(){
     return Math.max(0, Math.ceil((createdMs + DEPOSIT_TRADE_SECONDS * 1000 - Date.now()) / 1000));
 }
 
+// Копируется именно Roblox-username (без @). До назначения бота кнопка заблокирована.
+async function copyDepositTradeBot(kind, button){
+    const request = kind === "gear" ? activeGearDepositRequest : activeDepositTradeRequest;
+    const username = String(request?.trade_bot_username || "").trim().replace(/^@+/, "");
+    if(!username){
+        if(typeof showToast === "function") showToast("Администратор ещё не выбрал бота", "error");
+        return;
+    }
+    let copied = false;
+    try{
+        if(navigator.clipboard?.writeText){
+            await navigator.clipboard.writeText(username);
+            copied = true;
+        }
+    }catch(_){}
+    if(!copied){
+        const field=document.createElement("textarea");
+        field.value=username;
+        field.setAttribute("readonly", "");
+        field.style.cssText="position:fixed;left:-9999px;top:0;opacity:0";
+        document.body.appendChild(field);
+        field.focus();field.select();
+        try{copied=document.execCommand("copy");}catch(_){}
+        field.remove();
+    }
+    if(button && copied){
+        button.textContent="✓ СКОПИРОВАНО";
+        setTimeout(()=>{if(button.isConnected)button.textContent="СКОПИРОВАТЬ";},1600);
+    }
+    if(typeof showToast === "function"){
+        showToast(copied ? "Ник бота скопирован: " + username : "Не удалось скопировать ник бота", copied ? "success" : "error");
+    }
+}
+
 function renderDepositTradeStatus(){
     const req = activeDepositTradeRequest;
     const floating = document.getElementById("depositTradeFloating");
@@ -23704,6 +23745,12 @@ function renderDepositTradeStatus(){
 
     if(timer) timer.textContent = timerText;
     if(bot) bot.textContent = botText;
+    const copyButton = document.getElementById("depositTradeBotCopy");
+    if(copyButton){
+        const nick=String(req.trade_bot_username||"");
+        copyButton.disabled=!nick;
+        if(copyButton.dataset.nick!==nick){copyButton.dataset.nick=nick;copyButton.textContent="СКОПИРОВАТЬ";}
+    }
     if(state){
         state.textContent = req.trade_bot_username
             ? "Зайди в Roblox и прими трейд от выбранного бота."
@@ -23924,6 +23971,12 @@ function renderGearDepositStatus(){
     const state=document.getElementById("gearDepositTradeStateText");
     if(timer) timer.textContent=timerText;
     if(bot) bot.textContent=botText;
+    const copyButton=document.getElementById("gearDepositTradeBotCopy");
+    if(copyButton){
+        const nick=String(req.trade_bot_username||"");
+        copyButton.disabled=!nick;
+        if(copyButton.dataset.nick!==nick){copyButton.dataset.nick=nick;copyButton.textContent="СКОПИРОВАТЬ";}
+    }
     if(state) state.textContent=req.trade_bot_username
         ? "Зайди в Roblox и прими трейд предметов от выбранного бота."
         : "Администратор выбирает бота для трейда предметов…";
@@ -27208,7 +27261,7 @@ if(localChromePreview){
     <div id="depositTradeBox" class="deposit-trade-box">
       <div class="deposit-trade-timer-row"><span>⏱ Время на трейд</span><b id="depositTradeTimer">05:00</b></div>
       <div class="deposit-trade-warning">У вас есть 5 минут, чтобы зайти в игру и принять трейд.</div>
-      <div class="deposit-trade-bot-row"><span>Ник бота</span><b id="depositTradeBot">Ожидаем выбора бота…</b></div>
+      <div class="deposit-trade-bot-row"><span>Ник бота</span><div class="deposit-trade-bot-actions"><b id="depositTradeBot">Ожидаем выбора бота…</b><button type="button" id="depositTradeBotCopy" class="deposit-trade-bot-copy" onclick="copyDepositTradeBot('brainrot', this)" disabled>СКОПИРОВАТЬ</button></div></div>
       <div id="depositTradeStateText" class="deposit-trade-state-text">Администратор выбирает бота для трейда…</div>
     </div>
     <div id="depositReceiptItems" class="deposit-receipt-items"></div>
@@ -27254,7 +27307,7 @@ if(localChromePreview){
     <div id="gearDepositTradeBox" class="deposit-trade-box">
       <div class="deposit-trade-timer-row"><span>⏱ Время на трейд</span><b id="gearDepositTradeTimer">05:00</b></div>
       <div class="deposit-trade-warning">У вас есть 5 минут, чтобы зайти в игру и принять трейд Гирсов.</div>
-      <div class="deposit-trade-bot-row"><span>Ник бота</span><b id="gearDepositTradeBot">Ожидаем выбора бота…</b></div>
+      <div class="deposit-trade-bot-row"><span>Ник бота</span><div class="deposit-trade-bot-actions"><b id="gearDepositTradeBot">Ожидаем выбора бота…</b><button type="button" id="gearDepositTradeBotCopy" class="deposit-trade-bot-copy" onclick="copyDepositTradeBot('gear', this)" disabled>СКОПИРОВАТЬ</button></div></div>
       <div id="gearDepositTradeStateText" class="deposit-trade-state-text">Администратор выбирает бота для трейда предметов…</div>
     </div>
     <div id="gearDepositReceiptItems" class="deposit-receipt-items"></div>

@@ -40,7 +40,7 @@ ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID", "").strip()
 # После обновления index.html меняй цифру после ?v=
 # =========================================================
 
-MINI_APP_URL = "https://forerer-afk.github.io/brainroterX/?v=500"
+MINI_APP_URL = "https://forerer-afk.github.io/brainroterX/?v=501"
 
 
 if not TOKEN:
