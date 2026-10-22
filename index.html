@@ -14466,11 +14466,9 @@ async function loadPlayer(){
                 ),
 
             withdrawn_coins:
-                Number(
-                    data.withdrawn_coins
-                    ||
-                    0
-                ),
+                data.withdrawn_coins == null
+                    ? null
+                    : Math.max(0, Number(data.withdrawn_coins) || 0),
 
             has_deposited:
                 Boolean(
@@ -14808,7 +14806,9 @@ function renderProfile(){
 
     const personalWithdrawnRoot = document.getElementById("siteWithdrawnValue");
     if(personalWithdrawnRoot){
-        personalWithdrawnRoot.innerText = `${Math.max(0,Number(playerProfile.withdrawn_coins||0)).toLocaleString("ru-RU")} ⓧ`;
+        personalWithdrawnRoot.innerText = playerProfile.withdrawn_coins == null
+            ? "—"
+            : `${Math.max(0,Number(playerProfile.withdrawn_coins)||0).toLocaleString("ru-RU")} ⓧ`;
     }
 
     const wagerRequired =
@@ -15476,8 +15476,8 @@ function loadSiteWithdrawnTotal(){
     // Never load the global site withdrawal total here.
     const root=document.getElementById("siteWithdrawnValue");
     if(!root) return;
-    const value=Math.max(0,Number(playerProfile?.withdrawn_coins||0));
-    root.textContent=`${value.toLocaleString("ru-RU")} ⓧ`;
+    const value=playerProfile?.withdrawn_coins;
+    root.textContent=value == null ? "—" : `${Math.max(0,Number(value)||0).toLocaleString("ru-RU")} ⓧ`;
 }
 
 function openFeedPlayerProfile(itemOrId){
@@ -24628,6 +24628,11 @@ async function silentSync(){
                     ||
                     0
                 ),
+
+            withdrawn_coins:
+                data.withdrawn_coins == null
+                    ? playerProfile.withdrawn_coins ?? null
+                    : Math.max(0, Number(data.withdrawn_coins) || 0),
 
             has_deposited:
                 Boolean(
