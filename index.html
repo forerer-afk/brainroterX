@@ -13234,7 +13234,7 @@ function renderLadderInventory(){
     root.innerHTML="";
 
     const items=inventory
-        .filter(x=>!x.locked && Number(x.value)>=30)
+        .filter(x=>!x.locked && !(typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(x.id))) && Number(x.value)>=30)
         .sort((a,b)=>Number(a.value)-Number(b.value));
 
     if(!items.length){
@@ -15167,6 +15167,8 @@ function showPage(
     }
     if(page === "base"){
         if(typeof brxBaseLoad === "function") void brxBaseLoad();
+    }else if(["inventory","upgrader","dice","ladder"].includes(page) && typeof brxBaseLoad==='function'){
+        if(!brxBaseBusy && (!brxBaseState || Date.now()-brxBaseLastSyncedAt>45000))void brxBaseLoad();
     }
 
     if(
@@ -19106,7 +19108,7 @@ function renderInventory(){
                 <div class="inventory-value">${item.value} ⓧ</div>
                 ${onBase?'<div class="brx-base-inventory-badge">🏠 В БАЗЕ</div>':''}
                 <div class="inventory-actions">
-                    <button class="inventory-action sell-one" onclick="sellItem(${item.id})">Продать</button>
+                    <button class="inventory-action sell-one" onclick="sellItem(${item.id})" ${onBase?'disabled title="Сначала убери предмет из базы"':''}>${onBase?'В базе':'Продать'}</button>
                 </div>`;
         }
         root.appendChild(div);
@@ -19135,6 +19137,10 @@ async function sellItem(id, batchConfirmed=false){
 
     if(soldItem.locked){
         showToast("Этот Brainrot сейчас заблокирован", "error");
+        return false;
+    }
+    if(typeof brxBaseInventoryIds==='function' && brxBaseInventoryIds().has(brxSellId)){
+        showToast("🏠 Этот брейнрот находится в базе. Сначала убери его из базы.","error");
         return false;
     }
 
@@ -19222,10 +19228,11 @@ function openSellAll(){
         return;
     }
 
+    const baseIds=typeof brxBaseInventoryIds==='function'?brxBaseInventoryIds():new Set();
     const available =
         inventory.filter(
             item =>
-                !item.locked
+                !item.locked && !baseIds.has(Number(item.id))
         );
 
     const total =
@@ -19258,7 +19265,7 @@ function openSellAll(){
 
             <br><br>
 
-            Предметы, ожидающие вывод,
+            Предметы на выводе и в базе
             проданы не будут.
             `;
     }
@@ -19306,9 +19313,10 @@ async function confirmSellAll(){
                 "sellAllResult"
             );
 
+    const baseIds=typeof brxBaseInventoryIds==='function'?brxBaseInventoryIds():new Set();
     const available =
         inventory.filter(
-            item => !item.locked
+            item => !item.locked && !baseIds.has(Number(item.id))
         );
 
     if(available.length === 0){
@@ -19365,8 +19373,7 @@ async function confirmSellAll(){
 
         inventory =
             inventory.filter(
-                item =>
-                    item.locked
+                item => item.locked || baseIds.has(Number(item.id))
             );
 
         selectedSourceId =
@@ -19427,7 +19434,9 @@ async function confirmSellAll(){
 function openExchange(
     id
 ){
-
+    if(typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(id))){
+        showToast('🏠 Этот брейнрот находится в базе. Сначала убери его.','error');return;
+    }
     if(Number(exchangeReplacementAllowedId) !== Number(id)){
         showToast("Обмен доступен только как замена Brainrot, которого нет в наличии на вывод", "info");
         return;
@@ -19853,7 +19862,7 @@ async function exchangeItem(
 ===================================================== */
 
 function getSource(){
-
+    if(typeof brxBaseInventoryIds==='function' && brxBaseInventoryIds().has(Number(selectedSourceId))) return null;
     return (
         inventory.find(
             item =>
@@ -20089,8 +20098,9 @@ function renderSourceGrid(){
                         "div"
                     );
 
-            div.className =
-                "upgrade-choice";
+            const onBase=typeof brxBaseInventoryIds==='function' && brxBaseInventoryIds().has(Number(item.id));
+            div.className = "upgrade-choice"+(onBase?" brx-base-source-locked":"");
+            if(onBase){div.setAttribute('aria-disabled','true');div.title='Этот брейнрот находится в базе';}
 
             if(
                 mysteryDisabled
@@ -20139,6 +20149,7 @@ function renderSourceGrid(){
                 <div class="choice-price">
                     ${item.value} ⓧ
                 </div>
+                ${onBase?'<div class="brx-upgrade-base-badge">🏠 В БАЗЕ · НЕДОСТУПЕН</div>':''}
 
                 ${
                     mysteryDisabled
@@ -20155,7 +20166,10 @@ function renderSourceGrid(){
 
             div.onclick =
                 () => {
-
+                    if(onBase){
+                        showToast('🏠 Сначала убери этого брейнрота из базы','info');
+                        return;
+                    }
                     if(
                         upgrading
                     ){
@@ -20460,11 +20474,13 @@ function renderUpgradePairPreview(sourceOverride = undefined, targetOverride = u
         const name = String(item.brainrot_name || item.name || "Brainrot");
         const value = Number(item.value || 0);
 
+        const onBase=isSource && typeof brxBaseInventoryIds==='function' && brxBaseInventoryIds().has(Number(item.id));
         root.innerHTML = `
             <img src="${getImage(name)}" alt="">
             <div class="upgrade-preview-info">
                 <div class="upgrade-preview-name">${name}</div>
                 <div class="upgrade-preview-price">${value} ⓧ</div>
+                ${onBase?'<div class="brx-upgrade-base-badge">🏠 В БАЗЕ</div>':''}
             </div>
         `;
     };
@@ -21312,7 +21328,10 @@ async function spinMystery(){
 
 
 async function upgradeItem(){
-
+    if(typeof brxBaseInventoryIds==='function' && brxBaseInventoryIds().has(Number(selectedSourceId))){
+        document.getElementById('upgradeResult').textContent='❌ Этот брейнрот находится в базе. Сначала убери его.';
+        selectedSourceId=null;renderSourceGrid();updateUpgradeUI();return;
+    }
     if(
         upgrading
     ){
@@ -25051,6 +25070,7 @@ function getEligibleWithdrawItems(){
     return inventory.filter(
         item =>
             !item.locked
+            && !(typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(item.id)))
             &&
             isWithdrawBrainrotInStock(item)
             &&
@@ -25073,6 +25093,7 @@ function getUnavailableWithdrawItems(){
     return inventory.filter(
         item =>
             !item.locked
+            && !(typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(item.id)))
             &&
             !isWithdrawBrainrotInStock(item)
             &&
@@ -26614,7 +26635,7 @@ function renderDicePicked(){
 function renderDiceInventory(){
     const root = document.getElementById('crashInventory');
     if(!root) return;
-    const available = inventory.filter(item => !item.locked).slice().sort((a,b) => Number(b.value||0)-Number(a.value||0));
+    const available = inventory.filter(item => !item.locked && !(typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(item.id)))).slice().sort((a,b) => Number(b.value||0)-Number(a.value||0));
     const count = document.getElementById('crashInventoryCount');
     if(count) count.textContent = String(available.length);
     if(crashSelectedInventoryId && !available.some(item => Number(item.id) === Number(crashSelectedInventoryId))){
@@ -31078,7 +31099,7 @@ renderInventory=function(){
   const onBase=typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(item.id));
   card.className='inventory-card sharp-inventory-card'+(onBase?' brx-base-inventory-card':'');
   const img=document.createElement('img');img.className='inventory-img';img.src=getImage(item.brainrot_name);img.alt=item.brainrot_name;img.width=64;img.height=58;img.loading='lazy';img.decoding='async';
-  const sell=document.createElement('button');sell.className='inventory-action sell-one';sell.textContent='Продать';sell.disabled=comfortBulkBusy;sell.onclick=()=>sellItem(Number(item.id));
+  const sell=document.createElement('button');sell.className='inventory-action sell-one';sell.textContent='Продать';sell.disabled=comfortBulkBusy||onBase;sell.textContent=onBase?'В базе':'Продать';sell.title=onBase?'Убери брейнрота из базы, чтобы продать':'';sell.onclick=()=>sellItem(Number(item.id));
   card.append(img,comfortText('div','inventory-name',item.brainrot_name),comfortText('div','inventory-value',item.value+' ⓧ'));
   if(onBase)card.append(comfortText('div','brx-base-inventory-badge','🏠 В БАЗЕ'));
   card.append(sell);root.append(card);
@@ -34324,7 +34345,15 @@ async function brxBaseMutation(action,args={}){
    if(!data?.ok)throw new Error(data?.error||'Сервер отклонил запрос');
    brxBaseState=data.base||data;
    brxBaseLastSyncedAt=Date.now();
+   const onBaseNow=brxBaseInventoryIds();
+   if(onBaseNow.has(Number(selectedSourceId)))selectedSourceId=null;
+   if(onBaseNow.has(Number(selectedLadderInventoryId)))selectedLadderInventoryId=null;
+   if(onBaseNow.has(Number(crashSelectedInventoryId)))crashSelectedInventoryId=null;
    if(typeof renderInventory==='function')renderInventory();
+   if(typeof renderSourceGrid==='function')renderSourceGrid();
+   if(typeof updateUpgradeUI==='function')updateUpgradeUI();
+   if(typeof renderLadderInventory==='function')renderLadderInventory();
+   if(typeof renderDiceInventory==='function')renderDiceInventory();
    if(action==='base_claim'){
      coins=Number(data.coins);
      updateBalance();
@@ -34486,6 +34515,25 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'){brxBaseClos
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',brxBaseMoveDialogToBody,{once:true});
 else brxBaseMoveDialogToBody();
 </script>
+
+<style id="brx-base-item-protection-styles">
+/* Base-placed items are clearly marked and never interactive in upgrader. */
+#sourceGrid .upgrade-choice.brx-base-source-locked,
+#upgraderPage .upgrade-choice.brx-base-source-locked{
+  border:1px solid #368c77!important;
+  background:linear-gradient(135deg,rgba(18,66,52,.45),rgba(15,24,36,.96))!important;
+  opacity:.68!important;
+  cursor:not-allowed!important;
+  position:relative;
+}
+.brx-upgrade-base-badge{display:block;margin-top:5px;padding:4px 3px;
+  color:#baf1dc!important;background:#17513f!important;border:1px solid #34745e!important;
+  font-size:9px!important;font-weight:900!important;line-height:1.25!important;text-align:center!important;}
+#inventory .inventory-card.brx-base-inventory-card .sell-one:disabled{
+  color:#bcf5d9!important;background:#184639!important;border-color:#32725d!important;
+  opacity:.75!important;cursor:not-allowed!important;
+}
+</style>
 </body>
 </html>
 
