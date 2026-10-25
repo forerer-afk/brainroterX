@@ -58,7 +58,7 @@ html.brx-local-browser #appLoader{display:none!important;visibility:hidden!impor
 </style>
 <script id="brx-local-nav-early">
 (()=>{
-    const names=["cases","upgrader","dice","ladder","inventory"];
+    const names=["cases","upgrader","dice","ladder","base","inventory"];
     const nonWeb=()=>location.protocol!=="http:"&&location.protocol!=="https:";
     if(!nonWeb()) return;
     window.__BRX_LOCAL_PREVIEW__=true;
@@ -11630,6 +11630,46 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
     </div>
 </div>
 
+<div id="basePage" class="page brx-base-page">
+  <div class="brx-base-top">
+    <div><div class="brx-base-kicker">BRAINROTER X / ПАССИВНЫЙ ДОХОД</div>
+      <h2>МОЯ БАЗА</h2><p>Размести своих брейнротов и забирай доход раз в 24 часа.</p></div>
+
+  </div>
+  <div class="brx-base-stats brx-base-stats-compact">
+    <div><small>МНОЖИТЕЛЬ ДОХОДА</small><b id="brxBaseMultiplier">×1.0</b></div>
+    <div><small>ЗАРАБОТАНО ЗА ВСЁ ВРЕМЯ</small><b id="brxBaseLifetime">0 ⓧ</b></div>
+  </div>
+  <div class="brx-base-main">
+    <div class="brx-base-headline"><b>ТВОИ МЕСТА</b><span id="brxBaseStatus">Загрузка…</span></div>
+    <div id="brxBaseSlots" class="brx-base-slots"></div>
+    <div class="brx-base-rewards">
+      <div><small>МОЖНО СОБРАТЬ</small><strong id="brxBaseReward">0 ⓧ</strong><span id="brxBaseCountdown">Доход начисляется через 24 часа после установки</span></div>
+      <button type="button" id="brxBaseCollect" onclick="brxBaseClaim()" disabled>ЗАБРАТЬ</button>
+    </div>
+  </div>
+  <div class="brx-base-rebirth">
+    <div><small>РАЗВИТИЕ БАЗЫ</small><h3>ПЕРЕРОЖДЕНИЕ</h3>
+    <p>На уровне 2 получаешь ×1.1 без нового места. Уровни 3–7 дают по 1 месту и +0.1×. Максимум 10 мест.</p></div>
+    <button type="button" id="brxBaseRebirth" onclick="brxBaseOpenRebirth()">ПЕРЕРОДИТЬСЯ</button>
+  </div>
+  <div id="brxBaseError" class="brx-base-error" role="status"></div>
+  <div id="brxBasePicker" class="brx-base-picker" hidden role="dialog" aria-modal="true" aria-label="Выбрать брейнрота" onclick="if(event.target===this)brxBaseClosePicker()">
+    <div class="brx-base-dialog">
+      <div class="brx-base-picker-top"><b id="brxBasePickTitle">ВЫБРАТЬ БРЕЙНРОТА</b><button type="button" onclick="brxBaseClosePicker()" aria-label="Закрыть">✕</button></div>
+      <input id="brxBaseSearch" type="search" placeholder="Поиск по инвентарю…" oninput="brxBaseRenderPicker()">
+      <div id="brxBasePickerItems" class="brx-base-picker-items"></div>
+    </div>
+  </div>
+  <div id="brxBaseRebirthModal" class="brx-base-picker brx-base-rebirth-modal" hidden role="dialog" aria-modal="true" aria-label="Перерождение базы" onclick="if(event.target===this)brxBaseCloseRebirth()">
+    <div class="brx-base-dialog">
+      <div class="brx-base-picker-top"><b>ПЕРЕРОЖДЕНИЕ БАЗЫ</b><button type="button" onclick="brxBaseCloseRebirth()" aria-label="Закрыть">✕</button></div>
+      <div id="brxBaseRebirthDetails" class="brx-base-rebirth-details"></div>
+      <button type="button" id="brxBaseConfirmRebirth" class="brx-base-confirm-rebirth" onclick="brxBaseRebirth()">ПЕРЕРОДИТЬСЯ</button>
+    </div>
+  </div>
+</div>
+
 <div
     id="inventoryPage"
     class="page"
@@ -11912,6 +11952,10 @@ html body#sharp-app #casesPage .three-day-drop-note{position:relative;z-index:1;
         <br>
         Квесты
     </button>
+
+<button id="baseButton" class="nav-btn" onclick="showPage('base')" aria-label="База">
+  <span class="brx-symbol" data-symbol="base" role="img" aria-label="База"></span><br>База
+</button>
 
     <button
         id="inventoryButton"
@@ -15067,6 +15111,7 @@ function showPage(
         "upgrader",
         "dice",
         "ladder",
+        "base",
         "inventory"
     ]
     .forEach(
@@ -15120,6 +15165,10 @@ function showPage(
         window.__brxCasesNeedPaint=false;
         renderCases();
     }
+    if(page === "base"){
+        if(typeof brxBaseLoad === "function") void brxBaseLoad();
+    }
+
     if(
         page === "inventory"
     ){
@@ -19049,11 +19098,13 @@ function renderInventory(){
                 <div class="inventory-request-id">Заявка #${req?.id ?? "—"}</div>
                 <button class="inventory-cancel-withdraw" onclick="cancelOwnWithdraw(${Number(req?.id||0)},this)">↩️ Отменить вывод</button>`;
         }else{
-            div.className="inventory-card";
+            const onBase=typeof brxBaseInventoryIds==='function' && brxBaseInventoryIds().has(Number(item.id));
+            div.className="inventory-card"+(onBase?" brx-base-inventory-card":"");
             div.innerHTML=`
                 <img class="inventory-img" src="${getImage(item.brainrot_name)}">
                 <div class="inventory-name">${item.brainrot_name}</div>
                 <div class="inventory-value">${item.value} ⓧ</div>
+                ${onBase?'<div class="brx-base-inventory-badge">🏠 В БАЗЕ</div>':''}
                 <div class="inventory-actions">
                     <button class="inventory-action sell-one" onclick="sellItem(${item.id})">Продать</button>
                 </div>`;
@@ -31023,10 +31074,14 @@ renderInventory=function(){
  root.replaceChildren();root.style.display='grid';const items=inventory.filter(item=>!item.locked);
  if(!items.length)root.append(comfortText('div','comfort-empty','Здесь появятся твои предметы из кейсов.'));
  for(const item of items){
-  const card=document.createElement('div');card.className='inventory-card sharp-inventory-card';
+  const card=document.createElement('div');
+  const onBase=typeof brxBaseInventoryIds==='function'&&brxBaseInventoryIds().has(Number(item.id));
+  card.className='inventory-card sharp-inventory-card'+(onBase?' brx-base-inventory-card':'');
   const img=document.createElement('img');img.className='inventory-img';img.src=getImage(item.brainrot_name);img.alt=item.brainrot_name;img.width=64;img.height=58;img.loading='lazy';img.decoding='async';
   const sell=document.createElement('button');sell.className='inventory-action sell-one';sell.textContent='Продать';sell.disabled=comfortBulkBusy;sell.onclick=()=>sellItem(Number(item.id));
-  card.append(img,comfortText('div','inventory-name',item.brainrot_name),comfortText('div','inventory-value',item.value+' ⓧ'),sell);root.append(card);
+  card.append(img,comfortText('div','inventory-name',item.brainrot_name),comfortText('div','inventory-value',item.value+' ⓧ'));
+  if(onBase)card.append(comfortText('div','brx-base-inventory-badge','🏠 В БАЗЕ'));
+  card.append(sell);root.append(card);
  }
 };
 function comfortDate(value){const date=new Date(value);return value&&Number.isFinite(date.getTime())?new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Kyiv'}).format(date)+' · Киев':'Дата пока не назначена';}
@@ -33034,7 +33089,7 @@ html body#sharp-app :is(#profileAvatar,#profileAvatar img,.xcoin,.coin,.upgrade-
 </style>
 <script id="brainroterx-browser-local-failsafe-v2-script">
 (()=>{
-    const names=["cases","upgrader","dice","ladder","inventory"];
+    const names=["cases","upgrader","dice","ladder","base","inventory"];
     const isLocal=()=>{
         if(window.__BRX_LOCAL_PREVIEW__===true) return true;
         const protocol=String(location.protocol||"");
@@ -34153,6 +34208,284 @@ html body#sharp-app #dicePage .crash-readout{z-index:6!important}
 })();
 </script>
 
+<style id="brx-base-design">
+html body .bottom-menu{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important}
+html body#sharp-app .bottom-menu{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+html body#sharp-app .bottom-menu .nav-btn{min-width:0!important;width:100%!important;padding:7px 1px!important;font-size:clamp(8px,1.8vw,11px)!important;line-height:1.25!important}
+.brx-base-page{max-width:850px;margin:auto;color:#e8efff}
+.brx-base-top,.brx-base-stats,.brx-base-main,.brx-base-rebirth{border:1px solid #29334b;background:linear-gradient(150deg,#182135,#101722);border-radius:8px;margin:0 0 12px;padding:18px}
+.brx-base-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brx-base-top h2{margin:7px 0 5px;font-weight:1000;letter-spacing:.07em}
+.brx-base-top p,.brx-base-rebirth p{font-size:12px;line-height:1.5;color:#97a6bc;margin:0}
+.brx-base-kicker,.brx-base-rebirth small{font-weight:900;font-size:10px;letter-spacing:1.1px;color:#a2ddff}
+.brx-base-refresh{padding:8px 13px;background:#273650;color:white;border:1px solid #486085;border-radius:6px;font-size:20px}
+.brx-base-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:12px}
+.brx-base-stats>div{background:#111b2b;border:1px solid #293b57;padding:12px 7px;text-align:center;min-width:0}
+.brx-base-stats small,.brx-base-rewards small{display:block;color:#91a4bd;font-size:9px;letter-spacing:.6px}
+.brx-base-stats b{display:block;font-size:20px;margin-top:5px;color:#e4f3ff}
+.brx-base-headline{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;font-size:12px}
+.brx-base-headline span{color:#97a7bd;font-size:11px;text-align:right}
+.brx-base-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.brx-base-slot{position:relative;min-height:167px;padding:13px;background:linear-gradient(135deg,#182a43,#111926);border:1px solid #34445d;border-radius:7px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;text-align:center;min-width:0}
+.brx-base-slot.empty{border-style:dashed;cursor:pointer;background:#101a2a}
+.brx-base-slot.empty:active{background:#192c44}
+.brx-base-slot .brx-base-plus{font-size:34px;color:#89b9ef}
+.brx-base-slot small{color:#98aabd;font-size:10px}
+.brx-base-slot img{height:74px;width:90px;max-width:100%;object-fit:contain}
+.brx-base-slot b{font-size:12px;line-height:1.3;max-width:100%;overflow-wrap:anywhere}
+.brx-base-slot .brx-base-income{font-size:11px;font-weight:800;color:#8de9b1}
+.brx-base-slot .brx-base-timer{font-size:10px;color:#adc0d9}
+.brx-base-slot .brx-base-remove{font-size:11px;padding:6px 11px;background:#25344c;color:#d7e3f5;border:1px solid #42516a;border-radius:4px}
+.brx-base-rewards{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid #344057;margin-top:14px;padding-top:15px}
+.brx-base-rewards strong{display:block;font-size:23px;color:#8ce5af;margin:3px 0}
+.brx-base-rewards span{display:block;font-size:11px;color:#9fafc2;line-height:1.4}
+.brx-base-rewards button,.brx-base-rebirth button{padding:12px 15px;background:#399e66;color:#f7fffb;border-radius:5px;font-weight:900;flex-shrink:0}
+.brx-base-rebirth{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.brx-base-rebirth h3{font-size:15px;margin:5px 0}
+.brx-base-rebirth button{background:#5868bd}
+.brx-base-page button:disabled{opacity:.4;cursor:not-allowed}
+.brx-base-error{color:#ff9aa0;font-size:12px;margin:12px 0}
+.brx-base-picker{position:fixed;inset:auto 0 0;max-height:min(78vh,680px);overflow-y:auto;max-width:620px;margin:0 auto;background:#121b2a;border:1px solid #445773;border-radius:9px 9px 0 0;z-index:10000;padding:15px;padding-bottom:max(20px,env(safe-area-inset-bottom));box-shadow:0 -20px 80px #000b}
+.brx-base-picker[hidden]{display:none!important}
+.brx-base-picker-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brx-base-picker-top button{background:#263955;color:#fff;padding:8px 12px}
+.brx-base-picker input{width:100%;border:1px solid #475873;background:#0d1423;color:white;padding:11px;margin-bottom:9px;border-radius:4px}
+.brx-base-picker-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.brx-base-picker-items button{background:#1d2a3d;border:1px solid #3c506b;color:white;padding:8px;text-align:left;display:flex;gap:7px;align-items:center;font-size:11px;min-width:0;border-radius:5px}
+.brx-base-picker-items img{width:40px;height:44px;object-fit:contain;flex-shrink:0}
+.brx-base-picker-items span{overflow:hidden;text-overflow:ellipsis}
+@media(min-width:700px){.brx-base-slots{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.brx-base-main,.brx-base-top,.brx-base-rebirth{padding:12px}.brx-base-rebirth{flex-wrap:wrap}.brx-base-rewards{flex-wrap:wrap}html body#sharp-app .bottom-menu .nav-btn{font-size:8px!important}}
+
+/* Visible and unambiguous mark on the actual inventory item. */
+html body#sharp-app #inventory .brx-base-inventory-card{border:1px solid #39a07b!important;box-shadow:inset 0 0 0 1px rgba(57,160,123,.23)!important;position:relative!important}
+#inventory .brx-base-inventory-badge{font-size:9px!important;font-weight:950!important;color:#bcf5d9!important;background:#154836!important;border:1px solid #398d6c!important;padding:5px 4px!important;margin:4px 0!important;text-align:center!important;letter-spacing:.3px!important;border-radius:4px!important}
+#basePage h2,#basePage h3{color:#f1f6ff!important}
+
+/* Base refinements: designed for compact mobile screens and Telegram's viewport. */
+.brx-symbol[data-symbol="base"]{--brx-symbol-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M4%2010.5%2012%204l8%206.5V20H4Z%22%20fill%3D%22%23c4adff%22%20fill-opacity%3D%22.14%22%20stroke%3D%22%23c4adff%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M8%2020v-7h8v7M3%2011l9-8%209%208M10%2016h4M6%207V4h3%22%20fill%3D%22none%22%20stroke%3D%22%23c4adff%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E")}
+html body#sharp-app .bottom-menu .nav-btn{min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:clip!important;letter-spacing:-.025em!important;font-size:clamp(7px,2.1vw,11px)!important;padding-inline:0!important;}
+html body#sharp-app .bottom-menu #upgraderButton{letter-spacing:-.065em!important;font-size:clamp(7px,1.95vw,10px)!important;}
+html body#sharp-app #baseButton .brx-symbol{width:21px!important;height:21px!important;display:inline-block!important;margin-bottom:3px!important;}
+.brx-base-stats-compact{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.brx-base-stats-compact b{font-size:17px!important}
+.brx-base-slots{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+.brx-base-slot{min-height:119px!important;padding:8px 4px!important;gap:3px!important;border-radius:6px!important;}
+.brx-base-slot img{height:45px!important;width:100%!important;max-width:67px!important;}
+.brx-base-slot b{font-size:10px!important;line-height:1.2!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.brx-base-slot small{font-size:9px!important}
+.brx-base-slot .brx-base-plus{font-size:24px!important;line-height:1!important;}
+.brx-base-slot .brx-base-income{font-size:9px!important;}
+.brx-base-slot .brx-base-timer{font-size:9px!important}
+.brx-base-slot .brx-base-remove{font-size:9px!important;padding:4px 7px!important}
+@media (max-width:355px){.brx-base-slots{gap:5px!important}.brx-base-slot{padding:7px 3px!important;min-height:109px!important}.brx-base-slot img{height:40px!important}}
+/* Fullscreen picker is detached to document.body to escape transformed/clipped pages. */
+html body .brx-base-picker{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-width:none!important;max-height:none!important;box-sizing:border-box!important;margin:0!important;padding:env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 12px)!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(1,5,12,.84)!important;z-index:2147480000!important;overflow:hidden!important;overscroll-behavior:contain!important;}
+html body .brx-base-picker[hidden]{display:none!important}
+html body .brx-base-picker .brx-base-dialog{width:min(100%,540px);height:min(78dvh,650px);max-height:calc(100dvh - 30px - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0;display:flex;flex-direction:column;overflow:hidden;border:1px solid #425674;border-radius:10px;background:#111b2b;box-shadow:0 20px 70px rgba(0,0,0,.5);padding:12px;box-sizing:border-box;}
+html body .brx-base-picker-top{flex:0 0 auto;gap:9px;min-width:0}
+html body .brx-base-picker-top b{min-width:0;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+html body .brx-base-picker input{flex:0 0 auto;min-height:42px!important;}
+html body .brx-base-picker-items{min-height:0!important;flex:1 1 auto!important;overflow-y:auto!important;overflow-x:hidden!important;align-content:start;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y!important;padding:3px 2px 24px;}
+html body .brx-base-picker-items button{min-height:60px!important;touch-action:manipulation}
+html body .brx-base-rebirth-modal .brx-base-dialog{height:auto;max-height:min(85dvh,650px)}
+html body .brx-base-rebirth-details{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:4px 2px 14px;font-size:12px;color:#dae7f5;line-height:1.5}
+.brx-base-rebirth-details strong{display:block;font-size:25px;color:#d4c7ff;margin:5px 0}
+.brx-base-rebirth-details .brx-rebirth-track{height:9px;overflow:hidden;border-radius:5px;background:#273448;margin:12px 0 5px}
+.brx-base-rebirth-details .brx-rebirth-fill{height:100%;background:#8b78e8;border-radius:5px;transition:width .2s}
+.brx-base-rebirth-details .brx-rebirth-note{color:#9aafc5;margin:12px 0;}
+html body .brx-base-confirm-rebirth{width:100%;flex:0 0 auto;min-height:46px;color:white;background:#5868bd;border-radius:5px;font-weight:900;}
+html body .brx-base-confirm-rebirth:disabled{opacity:.4;}
+</style>
+<script id="brx-base-engine">
+// This script is UI-only: neither balances nor reward amounts are trusted from the browser.
+let brxBaseState=null;
+let brxBaseBusy=false;
+let brxBaseChosenSlot=0;
+function brxBaseIsBrainrot(item){
+  const type=String(item?.reward_type||item?.item_type||'').toLowerCase();
+  const rarity=String(item?.rarity||'').toLowerCase();
+  const id=Number(item?.brainrot_id||0);
+  return type!=='gear'&&rarity!=='gear'&&!(id>=900000000&&id<=999999999);
+}
+function brxBaseInventoryIds(){return new Set((brxBaseState?.slots||[]).map(x=>Number(x.inventory_id)));}
+function brxBaseFormat(value){const v=Number(value||0);return Number.isFinite(v)?v.toLocaleString('ru-RU',{maximumFractionDigits:2}):'0';}
+function brxBaseRemaining(value){
+ if(!value)return '—';const t=Date.parse(value)-Date.now();if(!Number.isFinite(t))return '—';
+ if(t<=0)return 'ГОТОВО';const sec=Math.ceil(t/1000);const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+ return `${h}ч ${String(m).padStart(2,'0')}м ${String(s).padStart(2,'0')}с`;
+}
+function brxBaseErr(value){const node=document.getElementById('brxBaseError');if(node)node.textContent=String(value||'');}
+async function brxBaseMutation(action,args={}){
+ if(brxBaseBusy)return;
+ brxBaseBusy=true;brxBaseErr('');brxBaseRender();
+ try{
+   const data=await apiRequest({action,...args});
+   if(!data?.ok)throw new Error(data?.error||'Сервер отклонил запрос');
+   brxBaseState=data.base||data;
+   brxBaseLastSyncedAt=Date.now();
+   if(typeof renderInventory==='function')renderInventory();
+   if(action==='base_claim'){
+     coins=Number(data.coins);
+     updateBalance();
+     brxBaseErr('Начислено '+brxBaseFormat(data.awarded)+' ⓧ');
+   }
+   if(action!=='base_state')brxBaseClosePicker();
+   brxBaseRenderRebirth();
+ }catch(error){brxBaseErr(error?.message||error);brxBaseRenderRebirth();}
+ finally{brxBaseBusy=false;brxBaseRender();brxBaseRenderRebirth();}
+}
+async function brxBaseLoad(){return brxBaseMutation('base_state');}
+async function brxBaseClaim(){return brxBaseMutation('base_claim');}
+const brxBaseRebirthTargets={2:100,3:250,4:400,5:500,6:800,7:1500};
+let brxBaseLastSyncedAt=0;
+function brxBaseRebirthRequirement(level){return brxBaseRebirthTargets[level]??null;}
+function brxBaseMoveDialogToBody(){
+ for(const name of ['brxBasePicker','brxBaseRebirthModal']){
+   const modal=document.getElementById(name);
+   if(modal&&modal.parentNode!==document.body)document.body.appendChild(modal);
+ }
+}
+function brxBaseOpenRebirth(){
+ if(!brxBaseState)return brxBaseLoad();
+ brxBaseMoveDialogToBody();
+ brxBaseClosePicker();
+ const modal=document.getElementById('brxBaseRebirthModal');if(!modal)return;
+ modal.hidden=false;brxBaseRenderRebirth();
+}
+function brxBaseCloseRebirth(){const modal=document.getElementById('brxBaseRebirthModal');if(modal)modal.hidden=true;}
+function brxBaseRenderRebirth(){
+ const modal=document.getElementById('brxBaseRebirthModal'),root=document.getElementById('brxBaseRebirthDetails'),confirmButton=document.getElementById('brxBaseConfirmRebirth');
+ if(!root||!confirmButton||!modal||modal.hidden)return;
+ root.replaceChildren();
+ const level=Number(brxBaseState?.level||1),next=level+1,earned=Number(brxBaseState?.lifetime_earned||0),required=brxBaseRebirthRequirement(next);
+ const add=(tag,cls,value)=>{const el=document.createElement(tag);el.className=cls;el.textContent=value;root.append(el);return el;};
+ if(level>=7){
+   add('strong','','МАКСИМАЛЬНЫЙ УРОВЕНЬ');
+   add('p','brx-rebirth-note','Все 7 уровней открыты. В базе доступно 10 мест и множитель ×1.6.');
+   confirmButton.textContent='МАКСИМУМ';confirmButton.disabled=true;return;
+ }
+ add('span','','Следующее перерождение: уровень '+next+' из 7');
+ add('strong','',brxBaseFormat(earned)+' / '+brxBaseFormat(required)+' ⓧ');
+ add('span','','Условие: заработать за всё время '+brxBaseFormat(required)+' монет с базы.');
+ const track=add('div','brx-rebirth-track','');
+ const fill=document.createElement('div');fill.className='brx-rebirth-fill';fill.style.width=Math.min(100,Math.max(0,earned/required*100))+'%';track.append(fill);
+ add('p','brx-rebirth-note',next===2?'Награда: множитель ×1.1, количество мест не изменяется.':'Награда: +1 место и множитель ×'+(1+(next-1)*.1).toFixed(1)+'.');
+ const list=add('p','brx-rebirth-note','Следующие требования: 100 → 250 → 400 → 500 → 800 → 1500 ⓧ. Учитывается весь полученный доход, монеты не списываются.');
+ confirmButton.disabled=brxBaseBusy||earned<required;
+ confirmButton.textContent=earned>=required?'ПЕРЕРОДИТЬСЯ ДО УРОВНЯ '+next:'НУЖНО ЕЩЁ '+brxBaseFormat(required-earned)+' ⓧ';
+}
+async function brxBaseRebirth(){
+ if(!brxBaseState||brxBaseBusy)return;
+ const level=Number(brxBaseState.level),required=brxBaseRebirthRequirement(level+1);
+ if(required===null||Number(brxBaseState.lifetime_earned||0)<required)return;
+ await brxBaseMutation('base_rebirth');
+ if(brxBaseState&&Number(brxBaseState.level)>level)brxBaseCloseRebirth();
+}
+async function brxBaseRemove(slot){return brxBaseMutation('base_remove',{slot_no:slot});}
+function brxBaseOpenPicker(slot){
+ if(brxBaseBusy)return;
+ brxBaseChosenSlot=Number(slot);
+ brxBaseMoveDialogToBody();brxBaseCloseRebirth();
+ const picker=document.getElementById('brxBasePicker');if(!picker)return;
+ picker.hidden=false;document.getElementById('brxBaseSearch').value='';
+ document.getElementById('brxBasePickTitle').textContent='МЕСТО №'+slot+' · ВЫБЕРИ БРЕЙНРОТА';
+ brxBaseRenderPicker();
+}
+function brxBaseClosePicker(){const picker=document.getElementById('brxBasePicker');if(picker)picker.hidden=true;}
+async function brxBasePlace(inventoryId){return brxBaseMutation('base_place',{slot_no:brxBaseChosenSlot,inventory_id:Number(inventoryId)});}
+function brxBaseRenderPicker(){
+ const list=document.getElementById('brxBasePickerItems');if(!list)return;
+ list.replaceChildren();
+ const query=(document.getElementById('brxBaseSearch')?.value||'').toLowerCase().trim();
+ const taken=new Set((brxBaseState?.slots||[]).map(x=>Number(x.inventory_id)));
+ const options=(Array.isArray(inventory)?inventory:[]).filter(x=>!x.locked&&brxBaseIsBrainrot(x)&&!taken.has(Number(x.id))&&String(x.brainrot_name||'').toLowerCase().includes(query));
+ for(const item of options.slice(0,120)){
+   const btn=document.createElement('button');btn.type='button';btn.disabled=brxBaseBusy;
+   const image=getImage(item.brainrot_name);if(image){const img=document.createElement('img');img.src=image;img.alt='';img.loading='lazy';btn.append(img);}
+   const label=document.createElement('span');label.textContent=String(item.brainrot_name||'Brainrot')+' · '+brxBaseFormat(item.value)+' ⓧ';btn.append(label);
+   btn.onclick=()=>brxBasePlace(item.id);list.append(btn);
+ }
+ if(!list.children.length){const p=document.createElement('p');p.textContent='Нет доступных брейнротов в инвентаре';list.append(p);}
+}
+function brxBaseRender(){
+ const state=brxBaseState;const slotList=document.getElementById('brxBaseSlots');if(!slotList)return;
+ slotList.replaceChildren();
+ document.getElementById('brxBaseStatus').textContent=brxBaseBusy?'Сохранение…':state?'5% от цены за 24 часа':'Загрузка…';
+ const level=Number(state?.level||1),count=Number(state?.slots_count||5),multiplier=1+(level-1)*.1;
+
+ document.getElementById('brxBaseMultiplier').textContent='×'+multiplier.toFixed(1);
+ document.getElementById('brxBaseLifetime').textContent=brxBaseFormat(state?.lifetime_earned||0)+' ⓧ';
+
+ const items=new Map((state?.slots||[]).map(x=>[Number(x.slot_no),x]));
+ const cooldownMs=state?.next_claim_at?Math.max(0,Date.parse(state.next_claim_at)-Date.now()):0;
+ let total=0,ready=0;
+ for(let slot=1;slot<=count;slot++){
+   const item=items.get(slot),box=document.createElement('div');box.className='brx-base-slot '+(item?'placed':'empty');
+   if(!item){
+     const plus=document.createElement('span');plus.className='brx-base-plus';plus.textContent='+';
+     const label=document.createElement('b');label.textContent='МЕСТО '+slot;
+     const hint=document.createElement('small');hint.textContent='Добавить брейнрота';
+     box.append(plus,label,hint);
+     box.setAttribute('role','button');box.tabIndex=0;
+     box.onclick=()=>brxBaseOpenPicker(slot);
+     box.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();brxBaseOpenPicker(slot);}};
+   }else{
+     const image=getImage(item.brainrot_name);if(image){const img=document.createElement('img');img.src=image;img.alt='';img.loading='lazy';box.append(img);}
+     const name=document.createElement('b');name.textContent=String(item.brainrot_name||'Brainrot');box.append(name);
+     const value=document.createElement('small');value.textContent=brxBaseFormat(item.value)+' ⓧ';box.append(value);
+     const income=Math.floor(Number(item.value||0)*.05*multiplier*100)/100;
+     const profit=document.createElement('span');profit.className='brx-base-income';profit.textContent='+'+brxBaseFormat(income)+' ⓧ / 24ч';box.append(profit);
+     const time=document.createElement('span');time.className='brx-base-timer';time.dataset.readyAt=item.ready_at;time.textContent=brxBaseRemaining(item.ready_at);box.append(time);
+     const remove=document.createElement('button');remove.type='button';remove.className='brx-base-remove';remove.textContent='Убрать';remove.disabled=brxBaseBusy;remove.onclick=()=>brxBaseRemove(slot);box.append(remove);
+     if(Date.parse(item.ready_at)<=Date.now() && income>0){total+=income;ready++;}
+   }
+   slotList.append(box);
+ }
+ const status=document.getElementById('brxBaseCountdown');
+ status.textContent=cooldownMs>0?'Следующий сбор через '+brxBaseRemaining(state.next_claim_at):ready?'Монеты готовы к получению': 'Подожди 24 часа после установки';
+ document.getElementById('brxBaseReward').textContent=brxBaseFormat(total)+' ⓧ';
+ const claim=document.getElementById('brxBaseCollect');claim.disabled=brxBaseBusy||!state||ready===0||cooldownMs>0;
+ const rebirth=document.getElementById('brxBaseRebirth');rebirth.disabled=brxBaseBusy||!state;rebirth.textContent=level>=7?'УРОВЕНЬ 7 · МАКСИМУМ':'ПЕРЕРОЖДЕНИЕ · '+level+' → '+(level+1);
+}
+brxBaseRender();
+// Some existing layout scripts inject their own 5-column CSS. Enforce 6 slots
+// in the navbar so the new Base tab stays immediately left of Profile on mobile.
+function brxBaseKeepNavSix(){
+ const bar=document.querySelector('.bottom-menu');
+ if(bar)bar.style.setProperty('grid-template-columns','repeat(6,minmax(0,1fr))','important');
+}
+brxBaseKeepNavSix();
+window.addEventListener('load',brxBaseKeepNavSix,{once:true});
+// Update countdown locally every second. Only refresh the server while the base tab is visible.
+function brxBaseTick(){
+ if(!document.getElementById('basePage')?.classList.contains('active'))return;
+ let newlyReady=false;
+ for(const el of document.querySelectorAll('#brxBaseSlots .brx-base-timer')){
+   const remaining=brxBaseRemaining(el.dataset.readyAt);
+   if(remaining==='ГОТОВО'&&el.textContent!==remaining)newlyReady=true;
+   el.textContent=remaining;
+ }
+ if(newlyReady){brxBaseRender();return;}
+ const countdown=document.getElementById('brxBaseCountdown');
+ if(countdown&&brxBaseState?.next_claim_at){
+   const cooldown=Math.max(0,Date.parse(brxBaseState.next_claim_at)-Date.now());
+   if(cooldown>0)countdown.textContent='Следующий сбор через '+brxBaseRemaining(brxBaseState.next_claim_at);
+   else if(countdown.textContent.startsWith('Следующий сбор'))brxBaseRender();
+ }
+}
+setInterval(brxBaseTick,1000);
+setInterval(()=>{
+ if(document.visibilityState!=='visible'||!document.getElementById('basePage')?.classList.contains('active'))return;
+ if(!brxBaseBusy&&document.getElementById('brxBasePicker')?.hidden&&document.getElementById('brxBaseRebirthModal')?.hidden&&Date.now()-brxBaseLastSyncedAt>=90000)void brxBaseLoad();
+},15000);
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible'&&document.getElementById('basePage')?.classList.contains('active')&&Date.now()-brxBaseLastSyncedAt>60000&&!brxBaseBusy)void brxBaseLoad();
+});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){brxBaseClosePicker();brxBaseCloseRebirth();}});
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',brxBaseMoveDialogToBody,{once:true});
+else brxBaseMoveDialogToBody();
+</script>
 </body>
 </html>
 
