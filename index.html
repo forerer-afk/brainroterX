@@ -11116,6 +11116,29 @@ html[data-ux-effects="false"] body#sharp-app #activeCase,html[data-ux-effects="f
   }
 }
 </style>
+<style id="brx-case-motion-v13">
+@layer brx-case-motion-v13 {
+  body#sharp-app #upgraderPage #needleRotor {
+    position:absolute!important;
+    inset:0!important;
+    transform-origin:50% 50%!important;
+    transform:rotate(var(--brx-needle-angle,0deg))!important;
+    rotate:none!important;
+    translate:none!important;
+    scale:1!important;
+    animation:none!important;
+    transition:none!important;
+  }
+
+  body#sharp-app #casePresentationStage .cinema-final {
+    animation:none!important;
+    transform:none!important;
+    translate:none!important;
+    scale:1!important;
+    transition:border-color .3s ease,box-shadow .3s ease!important;
+  }
+}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -36623,6 +36646,176 @@ body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-s
     document.addEventListener('DOMContentLoaded',start,{once:true});
   }else{
     start();
+  }
+})();
+</script>
+
+<script id="brx-case-motion-script-v13">
+(()=>{
+  const start=()=>{
+    if(window.__brxCaseMotionV13)return;
+    window.__brxCaseMotionV13=true;
+
+    // Стрелка использует угол и длительность из исходной игры.
+    const rotor=document.getElementById('needleRotor');
+
+    if(rotor){
+      let angle=0;
+      let frame=0;
+      let timer=0;
+      let lastCommand='';
+
+      const paint=value=>{
+        angle=value;
+        rotor.style.setProperty('--brx-needle-angle',value+'deg');
+      };
+
+      const ease=p=>{
+        let u=p;
+
+        for(let i=0;i<7;i++){
+          const s=1-u;
+          const x=3*.16*s*s*u+3*.22*s*u*u+u*u*u;
+          const slope=3*.16*s*s+6*.06*s*u+3*.78*u*u;
+
+          u=Math.max(
+            0,
+            Math.min(1,u-(x-p)/Math.max(.0001,slope))
+          );
+        }
+
+        const s=1-u;
+        return 3*.65*s*s*u+3*s*u*u+u*u*u;
+      };
+
+      const sync=()=>{
+        const raw=rotor.style.transform;
+        const time=rotor.style.transitionDuration||'0s';
+        const command=raw+'|'+time;
+
+        if(command===lastCommand)return;
+
+        const match=raw.match(/^rotate\(\s*(-?[\d.]+)deg\s*\)$/);
+        if(!match)return;
+
+        lastCommand=command;
+
+        const target=Number(match[1]);
+        const duration=(parseFloat(time)||0)*
+          (time.trim().endsWith('ms')?1:1000);
+
+        cancelAnimationFrame(frame);
+        clearTimeout(timer);
+
+        if(duration<=0||target===angle){
+          paint(target);
+          return;
+        }
+
+        const from=angle;
+        const started=performance.now();
+
+        const finish=()=>{
+          cancelAnimationFrame(frame);
+          clearTimeout(timer);
+          paint(target);
+        };
+
+        const step=now=>{
+          if(!rotor.isConnected){
+            cancelAnimationFrame(frame);
+            clearTimeout(timer);
+            return;
+          }
+
+          const progress=Math.min(
+            1,
+            Math.max(0,(now-started)/duration)
+          );
+
+          paint(from+(target-from)*ease(progress));
+
+          if(progress<1){
+            frame=requestAnimationFrame(step);
+          }else{
+            finish();
+          }
+        };
+
+        timer=setTimeout(finish,duration);
+        frame=requestAnimationFrame(step);
+      };
+
+      new MutationObserver(sync).observe(rotor,{
+        attributes:true,
+        attributeFilter:['style']
+      });
+
+      sync();
+    }
+
+    const previousUnits=window.cinemaSlowRollUnits;
+    if(typeof previousUnits!=='function')return;
+
+    // Единая плавная кривая вместо отдельных этапов торможения.
+    const integral=u=>u*u*u*u*(2.5-3*u+u*u);
+
+    window.cinemaSlowRollUnits=(duration,elapsed,plan)=>{
+      if(plan?.motionCurve!=='brx-c2-v13'){
+        return previousUnits(duration,elapsed,plan);
+      }
+
+      const time=Math.max(
+        0,
+        Math.min(plan.duration,Number(elapsed)||0)
+      );
+
+      const ramp=plan.rampSeconds;
+      const peak=plan.peakSpeed;
+      const initial=plan.startSpeed;
+
+      if(time<=ramp){
+        const u=time/ramp;
+        return ramp*(initial*u+(peak-initial)*integral(u));
+      }
+
+      const brake=plan.duration-ramp;
+      const u=(time-ramp)/brake;
+
+      return ramp*(initial+peak)/2+
+        brake*peak*(u-integral(u));
+    };
+
+    window.cinemaRollPlan=duration=>{
+      duration=Math.max(1,Number(duration)||9.5);
+
+      const plan={
+        motionCurve:'brx-c2-v13',
+        duration,
+        rampSeconds:duration*.07,
+        peakSpeed:13,
+        startSpeed:1/5.5
+      };
+
+      plan.units=window.cinemaSlowRollUnits(
+        duration,
+        duration,
+        plan
+      );
+
+      return plan;
+    };
+  };
+
+  // Применяем после предыдущих настроек страницы.
+  if(document.readyState==='loading'){
+    document.addEventListener(
+      'DOMContentLoaded',
+      ()=>setTimeout(start,0),
+      {once:true}
+    );
+  }else{
+    setTimeout(start,0);
   }
 })();
 </script>
