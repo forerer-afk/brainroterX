@@ -10959,6 +10959,28 @@ html[data-ux-effects="false"] body#sharp-app #bigWinsTrack>.big-win-item[data-ux
 }
 
 </style>
+<style id="brx-layout-fix-v8">
+@layer brx-layout-fix-v8 {
+  body#sharp-app #inventoryPage .profile-stat {min-width:0!important;padding:14px 8px!important;}
+  body#sharp-app #inventoryPage .profile-number {display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:3px!important;min-width:0!important;max-width:100%!important;font-family:var(--sd-font,system-ui,sans-serif)!important;font-size:clamp(18px,4.4vw,20px)!important;line-height:1.25!important;letter-spacing:-.35px!important;white-space:normal!important;overflow-wrap:anywhere!important;}
+  body#sharp-app #inventoryPage .profile-number :is(.ux-profile-coin,.brx-symbol,.xcoin,.coin,img,svg) {width:12px!important;height:12px!important;min-width:12px!important;max-width:12px!important;flex:0 0 12px!important;margin:0!important;}
+  body#sharp-app #inventoryPage .ux-profile-coin {display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:12px!important;line-height:1!important;}
+  body#sharp-app #inventoryPage .profile-number :is(.xcoin,.coin) {font-size:9px!important;}
+  body#sharp-app #upgraderPage {width:100%!important;max-width:none!important;min-width:0!important;}
+  @media(max-width:360px) {body#sharp-app #inventoryPage .profile-stat {padding:14px 6px!important;}body#sharp-app #inventoryPage .profile-number {font-size:17px!important;gap:2px!important;}}
+  @media(min-width:700px) {
+    body#sharp-app #upgraderPage .upgrade-wheel-wrap {width:clamp(220px,30vw,360px)!important;height:clamp(220px,30vw,360px)!important;}
+    body#sharp-app #upgraderPage #upgradeWheel::after {width:65%!important;height:65%!important;}
+    body#sharp-app #upgraderPage #wheelText {font-size:clamp(30px,2.9vw,42px)!important;}
+    body#sharp-app #upgraderPage #upgradePairPreview {max-width:380px!important;grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr)!important;gap:16px!important;}
+    body#sharp-app #upgraderPage .ux-upgrade-actions {max-width:380px!important;}
+    body#sharp-app #upgraderPage .upgrade-preview-card>img {width:clamp(58px,5.8vw,82px)!important;height:clamp(58px,5.8vw,82px)!important;flex-basis:clamp(58px,5.8vw,82px)!important;}
+    body#sharp-app #upgraderPage .upgrade-preview-label {font-size:clamp(9px,.9vw,12px)!important;}
+    body#sharp-app #upgraderPage .upgrade-preview-name {font-size:clamp(10px,.9vw,12px)!important;max-height:30px!important;}
+    body#sharp-app #upgraderPage .upgrade-preview-price {font-size:clamp(11px,1vw,13px)!important;}
+  }
+}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -36158,4 +36180,40 @@ body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-s
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
+</script>
+
+<script id="brx-profile-coin-fix-v8">
+(()=>{
+  const start=()=>{
+    const decorate=root=>{
+      const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+      const nodes=[];
+      while(walker.nextNode()){
+        const node=walker.currentNode;
+        if(node.nodeValue.includes('ⓧ') && !node.parentElement.closest('.ux-profile-coin,.brx-symbol,.xcoin,.coin')) nodes.push(node);
+      }
+      for(const node of nodes){
+        const fragment=document.createDocumentFragment();
+        node.nodeValue.split('ⓧ').forEach((text,index)=>{
+          if(index){
+            const coin=document.createElement('span');
+            coin.className='ux-profile-coin';
+            coin.textContent='ⓧ';
+            coin.setAttribute('role','img');
+            coin.setAttribute('aria-label','монет');
+            fragment.append(coin);
+          }
+          fragment.append(document.createTextNode(text));
+        });
+        node.replaceWith(fragment);
+      }
+    };
+    for(const root of document.querySelectorAll('#inventoryPage .profile-number')){
+      decorate(root);
+      new MutationObserver(()=>decorate(root)).observe(root,{childList:true,subtree:true,characterData:true});
+    }
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+})();
 </script>
