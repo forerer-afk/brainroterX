@@ -10981,6 +10981,138 @@ html[data-ux-effects="false"] body#sharp-app #bigWinsTrack>.big-win-item[data-ux
   }
 }
 </style>
+
+<style id="brx-polish-v9">
+/* v9: adaptive layout, clearer interactions and accessibility */
+@layer brx-polish-v9 {
+  body#sharp-app { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  body#sharp-app :is(button,a,input,select,textarea,[role="button"]):focus-visible {
+    outline:2px solid #8bd8ff!important; outline-offset:3px!important;
+  }
+  body#sharp-app :is(button,a,[role="button"]) { touch-action:manipulation; }
+  body#sharp-app :is(.panel,.case-card,.upgrade-choice,.profile-stat) {
+    transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+  }
+  @media (hover:hover) and (pointer:fine) {
+    body#sharp-app :is(.case-card,.upgrade-choice):not(:disabled):hover {
+      transform:translateY(-2px); border-color:rgba(167,139,250,.5)!important;
+      box-shadow:0 12px 28px rgba(0,0,0,.3);
+    }
+    body#sharp-app button:not(:disabled):hover { filter:brightness(1.08); }
+  }
+  body#sharp-app :is(.case-card,.upgrade-choice,button):active:not(:disabled) { transform:scale(.985); }
+  body#sharp-app :is(.case-name,.upgrade-preview-name,.case-content-name) { overflow-wrap:anywhere; }
+  body#sharp-app :is(.panel,.case-card,.profile-stat) { min-width:0; }
+  body#sharp-app img { max-width:100%; }
+  @media (max-width:390px) {
+    body#sharp-app .game { padding-left:8px; padding-right:8px; }
+    body#sharp-app .topbar { gap:6px; padding-left:8px; padding-right:8px; }
+    body#sharp-app .top-right { min-width:0; }
+    body#sharp-app .case-list { gap:8px; }
+    body#sharp-app .case-card { padding-left:6px; padding-right:6px; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    body#sharp-app *,body#sharp-app *::before,body#sharp-app *::after {
+      scroll-behavior:auto!important; transition-duration:.01ms!important;
+      animation-duration:.01ms!important; animation-iteration-count:1!important;
+    }
+  }
+}
+</style>
+<style id="brx-comfort-v10">
+@property --ux-detail-progress{syntax:"<number>";inherits:false;initial-value:1}
+@property --ux-page-progress{syntax:"<number>";inherits:false;initial-value:1}
+@layer brx-comfort-v10{
+body#sharp-app{
+  background:radial-gradient(ellipse at 8% 0,#24467e24,transparent 38%),radial-gradient(ellipse at 100% 35%,#51378314,transparent 40%),#070a12!important;
+}
+body#sharp-app .brand-name b{color:#b6a0f5!important;-webkit-text-fill-color:currentColor!important}
+body#sharp-app .balance-box{color:#dce6ff!important;font-variant-numeric:tabular-nums!important}
+body#sharp-app .page.active{animation:ux-page-v9 .32s cubic-bezier(.22,1,.36,1) both!important;opacity:var(--ux-page-progress)!important;translate:0 calc((1 - var(--ux-page-progress))*8px)!important}
+@keyframes ux-page-v9{from{--ux-page-progress:0}to{--ux-page-progress:1}}
+body#sharp-app #uxCaseFinder{grid-column:1/-1!important;min-width:0!important;margin:12px 0 4px!important;padding:16px!important;background:linear-gradient(120deg,#122039,#14172a)!important;border:1px solid #839aca30!important;border-radius:3px!important}
+body#sharp-app .ux-finder-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:10px!important}
+body#sharp-app .ux-finder-head label{color:#e0e8fb!important;font-size:13px!important;font-weight:600!important}
+body#sharp-app #uxCaseCount{color:#97a7c5!important;font-size:11px!important;text-align:right!important}
+body#sharp-app .ux-finder-field{display:grid!important;grid-template-columns:18px minmax(0,1fr) 36px!important;align-items:center!important;gap:10px!important;padding:4px 4px 4px 13px!important;background:#090f1e!important;border:1px solid #607cab55!important;transition:border-color .2s,box-shadow .2s!important}
+body#sharp-app .ux-finder-field:focus-within{border-color:#ac9bea!important;box-shadow:0 0 0 3px #9c8bde16!important}
+body#sharp-app .ux-finder-field>svg{width:18px!important;height:18px!important;color:#a69bd1!important}
+body#sharp-app #uxCaseQuery{width:100%!important;min-width:0!important;height:36px!important;min-height:36px!important;padding:4px 0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;font:400 16px var(--sd-font,system-ui,sans-serif)!important;color:#e6edff!important}
+body#sharp-app #uxCaseQuery::placeholder{color:#8193b5!important}
+body#sharp-app #uxCaseQuery::-webkit-search-cancel-button{display:none!important;appearance:none!important;-webkit-appearance:none!important}
+body#sharp-app #uxCaseClear{width:36px!important;height:36px!important;padding:0!important;border:1px solid #7085b82b!important;background:#19243a!important;color:#c3cce7!important;font-size:20px!important;line-height:1!important}
+body#sharp-app #uxCaseEmpty{grid-column:1/-1!important;padding:34px 18px!important;margin:12px 0!important;text-align:center!important;border:1px dashed #8296c340!important;background:#11192c!important;color:#bac7e0!important;font-size:13px!important;line-height:1.6!important}
+body#sharp-app #uxCaseFinder[hidden],body#sharp-app #uxCaseEmpty[hidden],body#sharp-app #casesPage[data-ux-case-open="true"] :is(#uxCaseFinder,#uxCaseEmpty),body#sharp-app #caseList [data-ux-search-hidden]{display:none!important}
+body#sharp-app #caseList .case-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+body#sharp-app #caseList .case-section-head{justify-content:flex-start!important;text-align:left!important;margin:20px 0 14px!important;padding-bottom:12px!important}
+body#sharp-app #caseList :is(.case-section-title,.case-section-subtitle){text-align:left!important}
+body#sharp-app #caseList .case-card{min-height:220px!important;background:radial-gradient(ellipse at 50% 5%,#5764b72e,transparent 68%),linear-gradient(145deg,#142039,#0c1425)!important;border:1px solid #8095c533!important;box-shadow:inset 0 1px #bacaff10,0 7px 24px #00000020!important;transition:border-color .24s,box-shadow .24s,transform .24s!important}
+body#sharp-app #caseList .case-card .case-name{font-size:14px!important;line-height:1.4!important;font-weight:600!important;letter-spacing:0!important}
+body#sharp-app #caseList .case-card .case-price{font-size:13px!important;line-height:1.4!important;color:#d0ceff!important;background:#8277c313!important;border-color:#a599dc30!important;font-variant-numeric:tabular-nums!important}
+body#sharp-app :is(.upgrade-choice,.sharp-inventory-card){transition:border-color .2s,box-shadow .2s,background-color .2s!important}
+body#sharp-app #upgraderPage .upgrade-choice.selected{border-color:#b3a3ed!important;background:linear-gradient(135deg,#31395a,#28233f)!important;box-shadow:inset 0 0 0 1px #b9a4ee25,0 4px 18px #6c54ba18!important}
+body#sharp-app #upgraderPage :is(.fast-btn,.upgrader-picker-tab).active{color:#ece6ff!important;background:linear-gradient(120deg,#36446b,#3a2b56)!important;box-shadow:inset 0 -2px #b49be8!important}
+body#sharp-app :is(button,[role="button"],input,select,a):focus-visible{outline:2px solid #b7a4f5!important;outline-offset:3px!important}
+body#sharp-app #uxCaseQuery:focus-visible{outline:0!important}
+body#sharp-app #upgraderPage .upgrade-preview-card:focus-visible{outline:2px solid #b7a4f5!important;outline-offset:3px!important}
+body#sharp-app .bottom-menu .nav-btn{font-size:clamp(8px,2.45vw,10px)!important;line-height:1.4!important;transition:background-color .22s,color .22s,border-color .22s!important}
+body#sharp-app .bottom-menu .nav-btn:not(.active){color:#9aabd0!important}
+@media(hover:hover) and (pointer:fine){
+  html[data-ux-effects="true"] body#sharp-app #caseList .case-card:hover{transform:translateY(-4px)!important;border-color:#b29ce281!important;box-shadow:inset 0 1px #d8c6ff20,0 12px 30px #00000038,0 0 22px #7761b51a!important}
+  body#sharp-app #uxCaseClear:not(:disabled):hover{background:#303457!important;color:#fff!important}
+  body#sharp-app .bottom-menu .nav-btn:not(.active):hover{background:#29354b55!important;color:#ddd9ff!important}
+}
+@media(min-width:650px){body#sharp-app #caseList .case-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(min-width:1000px){body#sharp-app #caseList .case-list{grid-template-columns:repeat(4,minmax(0,1fr))!important}body#sharp-app #uxCaseFinder{padding:18px 20px!important}body#sharp-app #caseList .case-card{min-height:240px!important}}
+@media(max-width:360px){body#sharp-app #uxCaseFinder{padding:12px!important}body#sharp-app #caseList .case-card{min-height:200px!important}body#sharp-app #caseList .case-card .case-name{font-size:12px!important}}
+html[data-ux-effects="false"] body#sharp-app .page.active{animation:none!important;opacity:1!important;translate:none!important}
+html[data-ux-effects="false"] body#sharp-app :is(.case-card,.upgrade-choice,.sharp-inventory-card,.nav-btn,.ux-finder-field){transition:none!important}
+@media(prefers-reduced-motion:reduce){body#sharp-app .page.active{animation:none!important;opacity:1!important;translate:none!important}body#sharp-app :is(.case-card,.upgrade-choice,.sharp-inventory-card,.nav-btn,.ux-finder-field){transition:none!important}}
+
+/* Подписи, настройки и поля ввода */
+html{scroll-padding-top:90px!important;scroll-padding-bottom:110px!important}
+body#sharp-app .game :is(#uxCaseQuery,#targetSearch,#targetSort,#comfortSearch,#comfortSort){scroll-margin-block:12px!important}
+body#sharp-app :is(.hourly-promo-code-label,.hourly-promo-timer-label,.three-day-drop-stat span,.three-day-drop-kicker){font-size:10px!important;line-height:1.5!important}
+body#sharp-app .three-day-drop-note{font-size:10px!important;line-height:1.55!important;color:#99a9c9!important}
+body#sharp-app :is(.hourly-promo-use,.new-cases-button){font-size:10px!important;min-height:44px!important}
+body#sharp-app #upgraderPage .upgrade-preview-label{font-size:9px!important}
+body#sharp-app #upgraderPage .upgrade-preview-empty{font-size:11px!important;line-height:1.45!important}
+body#sharp-app #upgraderPage .ux-shortcuts-head>.section-title{font-size:11px!important;color:#a5afcc!important}
+body#sharp-app #activeCase>.back-btn{min-height:42px!important;padding:10px 16px!important;background:#142039!important;border:1px solid #869dcc3d!important;color:#c4d1ef!important;font-size:12px!important}
+body#sharp-app #activeCase .case-content-title{font-size:15px!important;letter-spacing:0!important}
+body#sharp-app #caseContentList .case-content-name{font-size:11px!important;line-height:1.45!important;min-height:32px!important;overflow-wrap:anywhere!important}
+body#sharp-app #caseContentList .case-content-value{font-size:12px!important;font-variant-numeric:tabular-nums!important}
+body#sharp-app :is(#targetSearch,#comfortSearch,#targetSort,#comfortSort){min-width:0!important;min-height:44px!important;font-size:16px!important;padding:10px 12px!important;color:#e4eaff!important;background:#0c1526!important;border:1px solid #7994ca4d!important}
+body#sharp-app :is(#targetSearch,#comfortSearch,#targetSort,#comfortSort):focus{border-color:#ac9bea!important;box-shadow:0 0 0 3px #9c8bde16!important}
+body#sharp-app .upgrade-target-tools{display:grid!important;grid-template-columns:minmax(0,1fr) 110px!important;gap:10px!important}
+body#sharp-app .comfort-empty{padding:28px 16px!important;font-size:13px!important;line-height:1.65!important;color:#a8b6d2!important;background:#111a2b!important;border:1px dashed #8193bf40!important;border-radius:3px!important}
+body#sharp-app .overlay>.modal{scrollbar-width:thin!important;scrollbar-color:#625c8a #10192b!important}
+body#sharp-app .overlay>.modal .modal-header{gap:14px!important;margin-bottom:18px!important;padding-bottom:14px!important;border-bottom:1px solid #8596c62b!important;align-items:center!important}
+body#sharp-app .overlay>.modal .modal-title{min-width:0!important;line-height:1.35!important;overflow-wrap:anywhere!important}
+body#sharp-app .overlay>.modal .close{width:40px!important;min-width:40px!important;height:40px!important;padding:0!important;flex:0 0 40px!important;background:#1e2941!important;border:1px solid #8a9bc83b!important;color:#d5daef!important;font-size:18px!important}
+body#sharp-app #settingsModal .streamer-setting-card{padding:14px!important;gap:14px!important;border:1px solid #8497ca2b!important;background:linear-gradient(130deg,#1b2840,#171d32)!important;margin-block:10px!important}
+body#sharp-app #settingsModal .streamer-setting-title{font-size:14px!important;font-weight:600!important;color:#e3e9fa!important}
+body#sharp-app #settingsModal .streamer-setting-desc{font-size:12px!important;line-height:1.6!important;color:#a4b2ce!important;margin-top:5px!important}
+body#sharp-app #settingsModal .brx-sound-volume{padding:14px!important;background:#0f192b!important;border:1px solid #8395c72b!important}
+body#sharp-app #globalSoundVolume{accent-color:#a393e1!important;cursor:pointer!important}
+@keyframes ux-detail-v10{from{--ux-detail-progress:0}to{--ux-detail-progress:1}}
+body#sharp-app #activeCase,body#sharp-app #casesPage[data-ux-case-open="false"] #caseList,body#sharp-app .overlay.show:where(:not(#caseCinema))>.modal{animation:ux-detail-v10 .32s ease-out both!important;opacity:calc(.55 + var(--ux-detail-progress)*.45)!important}
+html[data-ux-effects="false"] body#sharp-app #activeCase,html[data-ux-effects="false"] body#sharp-app #casesPage[data-ux-case-open="false"] #caseList,html[data-ux-effects="false"] body#sharp-app .overlay.show:where(:not(#caseCinema))>.modal{animation:none!important;opacity:1!important}
+@media(max-width:360px){body#sharp-app .upgrade-target-tools{grid-template-columns:minmax(0,1fr) 98px!important;gap:8px!important}body#sharp-app #settingsModal .streamer-setting-card{padding:12px!important}}
+@media(prefers-reduced-motion:reduce){body#sharp-app #activeCase,body#sharp-app #casesPage[data-ux-case-open="false"] #caseList,body#sharp-app .overlay.show:where(:not(#caseCinema))>.modal{animation:none!important;opacity:1!important}}
+}
+</style>
+<style id="brx-case-motion-v11">
+@layer brx-case-motion-v11 {
+  body#sharp-app #casePresentationStage .cinema-final {
+    animation:none!important;
+    transform:none!important;
+    translate:none!important;
+    scale:1!important;
+    transition:border-color .3s ease,box-shadow .3s ease!important;
+  }
+}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -36215,5 +36347,244 @@ body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-s
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
+})();
+</script>
+
+
+<script id="brx-polish-v9-runtime">
+(()=>{
+  const init=()=>{
+    // Keep dynamically created buttons usable by keyboard without changing game logic.
+    document.addEventListener('keydown',event=>{
+      if(event.key!=='Enter'&&event.key!==' ')return;
+      const target=event.target;
+      if(!(target instanceof HTMLElement))return;
+      if(target.matches('[role="button"]:not(button):not(a)')){
+        event.preventDefault();target.click();
+      }
+    });
+    const labelButtons=root=>{
+      root.querySelectorAll('button:not([aria-label])').forEach(btn=>{
+        if(btn.textContent.trim()||btn.title)return;
+        const img=btn.querySelector('img[alt]');
+        if(img?.alt)btn.setAttribute('aria-label',img.alt);
+      });
+    };
+    labelButtons(document);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
+
+<script id="brx-comfort-script-v10">
+/* Поиск сохраняет существующие карточки и обработчики игры */
+(()=>{
+  const start=()=>{
+    const root=document.getElementById('caseList');
+    if(!root||document.getElementById('uxCaseFinder'))return;
+    const finder=document.createElement('form');
+    finder.id='uxCaseFinder';
+    finder.setAttribute('role','search');
+    finder.setAttribute('aria-label','Поиск кейса');
+    finder.innerHTML='<div class="ux-finder-head"><label for="uxCaseQuery">Быстрый поиск</label><span id="uxCaseCount" role="status" aria-live="polite" aria-atomic="true"></span></div><div class="ux-finder-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="uxCaseQuery" type="search" placeholder="Найти кейс по названию" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-controls="caseList"><button id="uxCaseClear" type="button" aria-label="Очистить поиск" disabled>×</button></div>';
+    const empty=document.createElement('div');
+    empty.id='uxCaseEmpty';
+    empty.hidden=true;
+    empty.textContent='Кейсы не найдены. Попробуй другое название.';
+    root.before(finder);
+    root.after(empty);
+    const query=finder.querySelector('input');
+    const clear=finder.querySelector('button');
+    const count=finder.querySelector('#uxCaseCount');
+    const normalize=value=>String(value).normalize('NFKC').toLocaleLowerCase('ru').replace(/ё/g,'е').trim().replace(/\s+/g,' ');
+    const hide=(element,hidden)=>element.toggleAttribute('data-ux-search-hidden',hidden);
+    const update=()=>{
+      const value=normalize(query.value);
+      let total=0,visible=0;
+      root.querySelectorAll('.case-section').forEach(section=>{
+        let matches=0;
+        section.querySelectorAll('.case-card').forEach(card=>{
+          const name=normalize(card.querySelector('.case-name')?.textContent||card.getAttribute('aria-label')||'');
+          const match=!value||name.includes(value);
+          hide(card,!match);
+          total++;
+          if(match){visible++;matches++;}
+        });
+        hide(section,!!value&&!matches);
+      });
+      finder.hidden=!total;
+      empty.hidden=!total||!value||visible>0;
+      clear.disabled=!query.value;
+      const text=value?'Показано: '+visible+' из '+total:'Доступно: '+total;
+      if(count.textContent!==text)count.textContent=text;
+    };
+    finder.addEventListener('submit',event=>{
+      event.preventDefault();
+      query.blur();
+    });
+    query.addEventListener('input',update);
+    const reset=()=>{
+      query.value='';
+      update();
+      query.focus({preventScroll:true});
+    };
+    clear.addEventListener('click',reset);
+    query.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&query.value){
+        event.preventDefault();
+        reset();
+      }
+    });
+    let queued=false;
+    new MutationObserver(()=>{
+      if(queued)return;
+      queued=true;
+      queueMicrotask(()=>{
+        queued=false;
+        update();
+      });
+    }).observe(root,{childList:true,subtree:true,characterData:true});
+    update();
+  };
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  }else start();
+})();
+
+(()=>{
+  const start=()=>{
+    if(document.documentElement.dataset.uxComfortV10)return;
+    document.documentElement.dataset.uxComfortV10='true';
+    const menu=document.querySelector('.bottom-menu');
+    const markCurrent=()=>menu?.querySelectorAll('.nav-btn').forEach(button=>{
+      if(button.classList.contains('active')){
+        button.setAttribute('aria-current','page');
+      }else{
+        button.removeAttribute('aria-current');
+      }
+    });
+    if(menu){
+      new MutationObserver(markCurrent).observe(menu,{
+        subtree:true,
+        attributes:true,
+        attributeFilter:['class']
+      });
+    }
+    markCurrent();
+    for(const [id,label] of Object.entries({
+      targetSearch:'Поиск предмета для апгрейда',
+      targetSort:'Сортировка предметов',
+      comfortSearch:'Поиск в инвентаре',
+      comfortSort:'Сортировка инвентаря'
+    })){
+      const field=document.getElementById(id);
+      if(field&&!field.hasAttribute('aria-label')){
+        field.setAttribute('aria-label',label);
+      }
+    }
+    document.addEventListener('focusin',event=>{
+      const field=event.target;
+      if(!(field instanceof Element)||!field.matches('#uxCaseQuery,#targetSearch,#targetSort,#comfortSearch,#comfortSort'))return;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        if(document.activeElement!==field||field.closest('.overlay'))return;
+        const rect=field.getBoundingClientRect();
+        const viewport=window.visualViewport;
+        const limit=Math.min(
+          menu?.getBoundingClientRect().top??innerHeight,
+          (viewport?.offsetTop??0)+(viewport?.height??innerHeight)
+        )-16;
+        if(rect.bottom<=limit)return;
+        const animated=document.documentElement.dataset.uxEffects==='true'
+          &&!matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollBy({
+          top:rect.bottom-limit,
+          behavior:animated?'smooth':'auto'
+        });
+      }));
+    });
+  };
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  }else start();
+})();
+</script>
+
+<script id="brx-case-motion-script-v11">
+(()=>{
+  const start=()=>{
+    if(
+      window.__brxCaseMotionV11 ||
+      typeof window.cinemaSlowRollUnits!=='function'
+    )return;
+
+    window.__brxCaseMotionV11=true;
+
+    window.cinemaRollPlan=duration=>{
+      duration=Math.max(1,Number(duration)||9.5);
+
+      const nodes=[
+        [0,.18],
+        [.04,2.2],
+        [.12,4.8],
+        [.26,4.8],
+        [.38,4.15],
+        [.50,3.30],
+        [.62,2.40],
+        [.72,1.60],
+        [.82,.85],
+        [.90,.34],
+        [.96,.08],
+        [1,0]
+      ].map(([part,speed])=>({
+        time:part*duration,
+        speed,
+        slope:0
+      }));
+
+      const secants=nodes.slice(0,-1).map((node,index)=>
+        (nodes[index+1].speed-node.speed)/
+        (nodes[index+1].time-node.time)
+      );
+
+      for(let i=1;i<nodes.length-1;i++){
+        const left=secants[i-1];
+        const right=secants[i];
+
+        if(left*right<=0)continue;
+
+        const before=nodes[i].time-nodes[i-1].time;
+        const after=nodes[i+1].time-nodes[i].time;
+        const w0=2*after+before;
+        const w1=after+2*before;
+
+        nodes[i].slope=(w0+w1)/(w0/left+w1/right);
+      }
+
+      const segments=nodes.slice(0,-1).map((node,index)=>({
+        seconds:nodes[index+1].time-node.time,
+        v0:node.speed,
+        v1:nodes[index+1].speed,
+        m0:node.slope,
+        m1:nodes[index+1].slope
+      }));
+
+      const plan={segments,duration};
+
+      plan.units=window.cinemaSlowRollUnits(
+        duration,
+        duration,
+        plan
+      );
+
+      return plan;
+    };
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  }else{
+    start();
+  }
 })();
 </script>
