@@ -3,94 +3,7 @@
 
 <head>
 
-<meta charset="UTF-8"><style id="brx-case-event-admin-style">
-@layer brx-case-event-admin {
-  #adminCaseEventBox .case-event-exact{display:flex!important;gap:8px!important;align-items:center!important;justify-content:center!important;margin:8px 0 12px!important}
-  #adminCaseEventExact{width:84px!important;min-width:0!important;max-width:84px!important;text-align:center!important;padding:8px!important}
-  #adminCaseEventDuration{width:100%!important;max-width:none!important;margin:6px 0 10px!important}
-  #adminCaseEventStatus{font-variant-numeric:tabular-nums!important;margin:8px 0!important;overflow-wrap:anywhere!important}
-  #adminCaseEventResult:empty{display:none!important}
-}
-</style>
-<script id="brx-case-event-admin-script">
-(()=>{
-  const start=()=>{
-    const section=document.getElementById('adminSectionChance');
-    const modal=document.getElementById('adminPanelModal');
-    if(!section||!modal||document.getElementById('adminCaseEventBox'))return;
-    const box=document.createElement('div');
-    box.id='adminCaseEventBox';box.className='admin-box';
-    box.innerHTML='<div class="admin-box-title">Глобальный шанс кейсов</div><input id="adminCaseEventSlider" class="admin-range" type="range" min="50" max="300" step="1" value="100" aria-label="Множитель шанса кейсов" disabled><div class="case-event-exact"><label for="adminCaseEventExact">×</label><input id="adminCaseEventExact" type="number" min="0.50" max="3.00" step="0.01" value="1.00" inputmode="decimal" disabled></div><label for="adminCaseEventDuration" class="admin-hint">Длительность ивента</label><select id="adminCaseEventDuration" class="admin-brainrot-search" disabled><option value="15">15 минут</option><option value="60" selected>1 час</option><option value="180">3 часа</option><option value="1440">24 часа</option></select><div id="adminCaseEventStatus" class="admin-hint" role="status">×1.00</div><button id="adminCaseEventApply" type="button" class="admin-action-btn" disabled>ВКЛЮЧИТЬ ИВЕНТ</button><button id="adminCaseEventReset" type="button" class="admin-action-btn danger" disabled>СБРОСИТЬ</button><div id="adminCaseEventResult" class="result" role="status"></div>';
-    const upgradeBox=document.getElementById('adminChanceMultiplier')?.closest('.admin-box');
-    if(upgradeBox)upgradeBox.after(box);else section.append(box);
-    const slider=box.querySelector('#adminCaseEventSlider');
-    const exact=box.querySelector('#adminCaseEventExact');
-    const duration=box.querySelector('#adminCaseEventDuration');
-    const result=box.querySelector('#adminCaseEventResult');
-    const status=box.querySelector('#adminCaseEventStatus');
-    const controls=[...box.querySelectorAll('input,select,button')];
-    let owner=false,busy=false,request=0,expiryTimer=0,clockOffset=0;
-    const lock=()=>controls.forEach(control=>control.disabled=busy||!owner);
-    const paint=data=>{
-      const value=Number(data.global_case_top_chance_multiplier);
-      const ends=data.global_case_top_event_ends_at?new Date(data.global_case_top_event_ends_at):null;
-      if(!Number.isFinite(value)||value<.5||value>3)throw new Error('Некорректный ответ сервера');
-      if(Number.isFinite(data.server_now_ms))clockOffset=data.server_now_ms-Date.now();
-      const active=!!ends&&Number.isFinite(ends.getTime())&&ends.getTime()>Date.now()+clockOffset;
-      const multiplier=active?value:1;
-      slider.value=String(Math.round(multiplier*100));exact.value=multiplier.toFixed(2);
-      status.textContent=active?'×'+multiplier.toFixed(2)+' · до '+ends.toLocaleString('ru-RU'):'×1.00';
-      clearTimeout(expiryTimer);
-      if(active&&modal.classList.contains('show')){
-        expiryTimer=setTimeout(()=>paint({global_case_top_chance_multiplier:1,global_case_top_event_ends_at:null}),Math.max(0,ends.getTime()-Date.now()-clockOffset));
-      }
-    };
-    const load=async()=>{
-      if(busy)return;
-      const revision=++request;busy=true;owner=false;lock();result.textContent='';
-      try{
-        const data=await apiRequest({action:'get_case_event_settings'});
-        if(!data?.ok)throw new Error(data?.error||'Не удалось загрузить ивент');
-        if(revision!==request)return;
-        owner=data.case_event_owner===true&&data.case_event_ready===true;paint(data);
-        if(data.case_event_ready!==true)result.textContent='Сначала установи SQL ивента кейсов';
-      }catch(error){if(revision===request)result.textContent=error?.message||'Ошибка загрузки';}
-      finally{if(revision===request){busy=false;lock();}}
-    };
-    slider.addEventListener('input',()=>{exact.value=(Number(slider.value)/100).toFixed(2);});
-    exact.addEventListener('input',()=>{
-      const value=Number(exact.value);
-      if(exact.value.trim()&&Number.isFinite(value)&&value>=.5&&value<=3)slider.value=String(Math.round(value*100));
-    });
-    const save=async reset=>{
-      if(busy||!owner)return;
-      const raw=reset?'1':exact.value.trim();
-      const value=Number(raw);
-      if(!raw||!Number.isFinite(value)||value<.5||value>3){result.textContent='Множитель: от ×0.50 до ×3.00';return;}
-      busy=true;lock();result.textContent='Сохранение…';
-      try{
-        const data=await apiRequest({action:'admin_panel_set_global_case_multiplier',multiplier:Math.round(value*100)/100,duration_minutes:reset?0:Number(duration.value)});
-        if(!data?.ok)throw new Error(data?.error||'Не удалось сохранить ивент');
-        paint(data);result.textContent='Сохранено';
-      }catch(error){result.textContent=error?.message||'Ошибка сохранения';}
-      finally{busy=false;lock();}
-    };
-    box.querySelector('#adminCaseEventApply').addEventListener('click',()=>save(false));
-    box.querySelector('#adminCaseEventReset').addEventListener('click',()=>save(true));
-    let opened=false;
-    const sync=()=>{
-      const show=modal.classList.contains('show');
-      if(show&&!opened)void load();
-      if(!show)clearTimeout(expiryTimer);
-      opened=show;
-    };
-    new MutationObserver(sync).observe(modal,{attributes:true,attributeFilter:['class']});
-    sync();
-  };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
-</script>
-
+<meta charset="UTF-8">
 
 <meta
     name="viewport"
@@ -35511,6 +35424,195 @@ else brxBaseMoveDialogToBody();
   opacity:.75!important;cursor:not-allowed!important;
 }
 </style>
+<style id="brx-bonuses-v1">
+html body#sharp-app #ladderPage .bonus-shell{margin:18px 0 24px;min-width:0;color:#e9e7f7}
+html body#sharp-app #ladderPage .bonus-heading{display:flex;align-items:center;gap:10px;font-size:23px!important;margin:0 0 15px;font-weight:800;letter-spacing:-.03em}
+html body#sharp-app #ladderPage .bonus-heading span{color:#b8a2fa;font-size:22px}
+html body#sharp-app #ladderPage .bonus-periods{display:flex;gap:7px;margin-bottom:14px}
+html body#sharp-app #ladderPage .bonus-periods button{flex:1;min-width:0;padding:11px 5px!important;font:inherit;font-size:11px;font-weight:700;background:#111a2b!important;color:#8999b8!important;border:1px solid #283449!important;border-radius:4px!important;cursor:pointer}
+html body#sharp-app #ladderPage .bonus-periods button[aria-pressed="true"]{background:#23314c!important;border-color:#6587b7!important;color:#dce9ff!important;box-shadow:inset 0 -2px #8da9ee!important}
+html body#sharp-app #ladderPage .bonus-card{--bonus-accent:#79bff0;min-width:0;padding:15px;border:1px solid #3d6384;background:radial-gradient(ellipse at 90% 25%,#24203b55,transparent 60%),#10121f;border-radius:18px!important;box-shadow:0 15px 40px #0002;animation:bonus-enter .4s ease both}
+html body#sharp-app #ladderPage .bonus-card[data-kind="weekly"]{--bonus-accent:#ba9af3;border-color:#6b548a}
+html body#sharp-app #ladderPage .bonus-card[data-kind="monthly"]{--bonus-accent:#dac2ff;border-color:#7a6592}
+html body#sharp-app #ladderPage .bonus-card[hidden]{display:none!important}
+html body#sharp-app #ladderPage .bonus-ribbon{display:flex;align-items:center;gap:9px;min-width:0;padding:11px 12px;border-radius:10px!important;background:linear-gradient(100deg,#24304c,#22303b);font-size:12px;line-height:1.4}
+html body#sharp-app #ladderPage .bonus-number{flex:0 0 auto;color:#aaa4bf;font-variant-numeric:tabular-nums}
+html body#sharp-app #ladderPage .bonus-ribbon strong{flex:1;min-width:0;color:var(--bonus-accent);font-weight:700}
+html body#sharp-app #ladderPage .bonus-price{flex:0 0 auto;color:#d8c4ff;font-weight:800;white-space:nowrap;font-size:14px}
+html body#sharp-app #ladderPage .bonus-body{display:grid;grid-template-columns:minmax(0,1fr) 112px;align-items:center;gap:5px;margin:19px 0 15px;min-height:132px}
+html body#sharp-app #ladderPage .bonus-copy{min-width:0}
+html body#sharp-app #ladderPage .bonus-prize-name{font-size:20px;font-weight:800;line-height:1.2;overflow-wrap:anywhere;margin-bottom:14px;letter-spacing:-.03em}
+html body#sharp-app #ladderPage .bonus-fact{font-size:12px;color:#9694ac;line-height:1.8;overflow-wrap:anywhere}
+html body#sharp-app #ladderPage .bonus-fact b{color:#c7b3eb;font-weight:700;font-variant-numeric:tabular-nums}
+html body#sharp-app #ladderPage .bonus-clock{white-space:normal}
+html body#sharp-app #ladderPage .bonus-art{display:grid;place-items:center;min-width:0;height:145px;position:relative}
+html body#sharp-app #ladderPage .bonus-art:before{content:"";position:absolute;inset:15px -5px;background:radial-gradient(ellipse,#7871ad29,transparent 68%)}
+html body#sharp-app #ladderPage .bonus-art img{position:relative;width:100%;height:140px;object-fit:contain;filter:drop-shadow(0 10px 18px #0007);animation:bonus-float 6s ease-in-out infinite}
+html body#sharp-app #ladderPage .bonus-bottom{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}
+html body#sharp-app #ladderPage .bonus-progress{height:6px;overflow:hidden;border-radius:6px;background:#272039}
+html body#sharp-app #ladderPage .bonus-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#628fe2,#ada1f1);border-radius:6px;transition:width .65s cubic-bezier(.22,.8,.25,1)}
+html body#sharp-app #ladderPage .bonus-join{min-height:42px;padding:10px 14px!important;border:1px solid #6589b3!important;background:#273650!important;border-radius:5px!important;font:inherit;font-size:12px;font-weight:700;color:#edf1ff!important;cursor:pointer;transition:background .2s,transform .2s!important}
+html body#sharp-app #ladderPage .bonus-join:not(:disabled):hover{background:#344768!important}
+html body#sharp-app #ladderPage .bonus-join:not(:disabled):active{transform:scale(.98)}
+html body#sharp-app #ladderPage .bonus-join:disabled{opacity:.55;cursor:default}
+html body#sharp-app #ladderPage .bonus-deposited{margin-top:14px;font-size:12px;color:#9994af;font-variant-numeric:tabular-nums}
+html body#sharp-app #ladderPage .bonus-deposited b{color:#e4def1;font-weight:600}
+html body#sharp-app #ladderPage .bonus-winners{margin-top:15px;padding:16px 13px;background:#11121e;border:1px solid #2b293c;border-radius:18px!important}
+html body#sharp-app #ladderPage .bonus-winners h3{display:flex;justify-content:center;align-items:center;gap:8px;color:var(--bonus-accent)!important;font-size:18px;font-weight:750;margin:0 0 15px}
+html body#sharp-app #ladderPage .bonus-winners h3 svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html body#sharp-app #ladderPage .bonus-winner{padding:12px;margin-top:8px;background:#201c30;border:1px solid #ffffff04;border-radius:11px!important;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center}
+html body#sharp-app #ladderPage .bonus-avatar{display:grid;place-items:center;width:32px;height:32px;background:linear-gradient(140deg,#6388af,#7e6caf);color:#f4f1ff;border-radius:50%!important;font-size:14px;font-weight:700}
+html body#sharp-app #ladderPage .bonus-winner-name{font-size:13px;overflow-wrap:anywhere;color:#e2dcee;font-weight:650}
+html body#sharp-app #ladderPage .bonus-winner-date{font-size:9px;color:#8f879f;margin-top:3px}
+html body#sharp-app #ladderPage .bonus-winner-number{color:#bdb1cc;font-size:11px;font-weight:700}
+html body#sharp-app #ladderPage .bonus-winner-prize{grid-column:1/3;font-size:12px;color:var(--bonus-accent);overflow-wrap:anywhere}
+html body#sharp-app #ladderPage .bonus-winner-value{font-size:12px;color:#cfb6ed;font-weight:750;white-space:nowrap}
+html body#sharp-app #ladderPage .bonus-empty{padding:15px 5px;text-align:center;color:#8d869e;font-size:12px;line-height:1.6}
+html body#sharp-app #ladderPage .bonus-error{font-size:12px;line-height:1.5;color:#d9b6c9;margin:10px 0}
+html body#sharp-app #ladderPage .bonus-refresh{padding:8px 12px;border:1px solid #3c4b6c;background:#1d2940;color:#d8e4f7;border-radius:4px!important;font-size:11px}
+html body#sharp-app #ladderPage .bonus-quests-title{margin:27px 0 14px;font-size:20px;color:#dbd9ed;font-weight:750}
+html body#sharp-app .bonus-admin-card{padding:13px;margin:12px 0;border:1px solid #3a3f5c;background:#111a2a;min-width:0}
+html body#sharp-app .bonus-admin-card label{display:block;font-size:11px;color:#b3bdd5;margin:12px 0 5px}
+html body#sharp-app .bonus-admin-card input,html body#sharp-app .bonus-admin-card select{box-sizing:border-box;width:100%;min-width:0;padding:10px;border:1px solid #3d4866;background:#0b1220;color:#e2e8f5;font:inherit;font-size:12px;border-radius:3px!important}
+html body#sharp-app .bonus-admin-card button{margin-top:12px;padding:10px 15px;background:#364a75;color:#eef3ff;border:1px solid #647ba8;border-radius:3px!important;font-size:12px}
+html body#sharp-app .bonus-admin-message{font-size:11px;color:#bfb3d0;margin-top:8px;line-height:1.5;overflow-wrap:anywhere}
+html body#sharp-app #adminSectionBonuses .bonus-admin-meta{font-size:11px;color:#9ba7be;line-height:1.7;margin-top:5px}
+@keyframes bonus-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bonus-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media(min-width:700px){html body#sharp-app #ladderPage .bonus-body{grid-template-columns:minmax(0,1fr) 190px;min-height:180px}html body#sharp-app #ladderPage .bonus-art,html body#sharp-app #ladderPage .bonus-art img{height:180px}html body#sharp-app #ladderPage .bonus-card{padding:22px}html body#sharp-app #ladderPage .bonus-prize-name{font-size:27px}html body#sharp-app #ladderPage .bonus-fact{font-size:15px}html body#sharp-app #ladderPage .bonus-ribbon{font-size:15px}html body#sharp-app #ladderPage .bonus-winner{padding:14px}}
+@media(max-width:350px){html body#sharp-app #ladderPage .bonus-card{padding:11px}html body#sharp-app #ladderPage .bonus-ribbon{padding:9px 8px;gap:6px;font-size:10px}html body#sharp-app #ladderPage .bonus-body{grid-template-columns:minmax(0,1fr) 90px}html body#sharp-app #ladderPage .bonus-prize-name{font-size:17px}html body#sharp-app #ladderPage .bonus-fact{font-size:11px}html body#sharp-app #ladderPage .bonus-join{font-size:10px;padding:9px!important}}
+@media(prefers-reduced-motion:reduce){html body#sharp-app #ladderPage .bonus-card,html body#sharp-app #ladderPage .bonus-art img{animation:none}html body#sharp-app #ladderPage .bonus-progress-fill{transition:none}}
+</style>
+<script id="brx-bonuses-logic-v1">
+(()=>{
+  const init=()=>{
+    if(document.getElementById('bonusShell'))return;
+    const page=document.getElementById('ladderPage'),shell=page?.querySelector('.quest-shell');
+    if(!shell)return;
+    const title=shell.querySelector('.quest-header-text h2');if(title)title.textContent='Бонусы';
+    const subtitle=shell.querySelector('.quest-header-text p');if(subtitle)subtitle.textContent='Розыгрыши и задания';
+    const nav=document.getElementById('ladderButton');
+    if(nav){for(const child of nav.childNodes){if(child.nodeType===Node.TEXT_NODE&&child.textContent.includes('Квесты'))child.textContent=child.textContent.replace('Квесты','Бонусы');}nav.setAttribute('aria-label','Бонусы');}
+    const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
+    const root=node('section','bonus-shell');root.id='bonusShell';
+    const head=node('h2','bonus-heading');head.append(node('span','','✦'),document.createTextNode('Розыгрыши'));root.append(head);
+    const tabs=node('div','bonus-periods');tabs.setAttribute('aria-label','Период розыгрыша');root.append(tabs);
+    const message=node('div','bonus-error');message.setAttribute('role','status');root.append(message);
+    const retry=node('button','bonus-refresh','Обновить');retry.type='button';retry.hidden=true;root.append(retry);
+    const list=node('div','bonus-list');root.append(list);
+    const ticket=shell.querySelector('#questTicketBar');(ticket||shell.children[1]).before(root);
+    const questTitle=node('h2','bonus-quests-title','Квесты');root.after(questTitle);
+    const titles={daily:'Розыгрыш каждый день',weekly:'Розыгрыш каждую неделю',monthly:'Розыгрыш каждый месяц'};
+    const prefixes={daily:'D',weekly:'W',monthly:'M'};
+    const fmt=value=>Number(value||0).toLocaleString('ru-RU',{maximumFractionDigits:2});
+    let selected='daily',state=null,flight=null,offset=0,busy=false,lastLoad=0,adminFlight=null,initialized=false;
+    const cards=new Map(),tabButtons=new Map();
+    const visible=()=>page.classList.contains('active')&&!document.hidden;
+    const choose=kind=>{selected=kind;for(const[k,b]of tabButtons)b.setAttribute('aria-pressed',String(k===kind));for(const[k,c]of cards)c.hidden=k!==kind;};
+    for(const[k,label]of Object.entries({daily:'Каждый день',weekly:'Неделя',monthly:'Месяц'})){
+      const b=node('button','',label);b.type='button';b.onclick=()=>choose(k);tabs.append(b);tabButtons.set(k,b);
+    }
+    function timerText(end){const sec=Math.max(0,Math.ceil((Date.parse(end)-Date.now()-offset)/1000));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),s=sec%60;return(d?d+' д ':'')+h+' ч '+m+' мин '+s+' сек';}
+    function clocks(){for(const e of list.querySelectorAll('[data-ends]'))e.textContent=timerText(e.dataset.ends);}
+    function render(){
+      if(!state)return;const oldProgress=new Map([...cards].map(([k,c])=>[k,c.querySelector('.bonus-progress-fill')?.style.width]));list.replaceChildren();cards.clear();
+      for(const r of state.rounds||[]){
+        if(!titles[r.kind])continue;
+        const card=node('article','bonus-card');if(initialized)card.style.animation='none';card.dataset.kind=r.kind;card.dataset.round=String(r.id);cards.set(r.kind,card);
+        const ribbon=node('div','bonus-ribbon');ribbon.append(node('span','bonus-number','#'+prefixes[r.kind]+r.number),node('strong','',titles[r.kind]),node('span','bonus-price','ⓧ '+fmt(r.prize.value)));card.append(ribbon);
+        const body=node('div','bonus-body'),copy=node('div','bonus-copy');copy.append(node('div','bonus-prize-name',r.prize.name));
+        const fact=(label,value,cls='')=>{const row=node('div','bonus-fact');const b=node('b',cls,value);row.append(document.createTextNode(label),b);copy.append(row);return b;};
+        fact('При пополнении от: ',fmt(r.threshold)+' ⓧ');const clock=fact('Осталось: ','','bonus-clock');clock.dataset.ends=r.ends_at;fact('Участников: ',fmt(r.participants));
+        const art=node('div','bonus-art');let url='';try{url=getImage(r.prize.name);}catch(_){}
+        if(url){const img=node('img');img.src=url;img.alt=r.prize.name;img.decoding='async';img.onerror=()=>img.hidden=true;art.append(img);}
+        body.append(copy,art);card.append(body);
+        const bottom=node('div','bonus-bottom'),progress=node('div','bonus-progress'),fill=node('div','bonus-progress-fill');const percent=Math.min(100,Math.max(0,Number(r.deposited)/Number(r.threshold)*100));
+        progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','Пополнения для участия');progress.setAttribute('aria-valuemin','0');progress.setAttribute('aria-valuemax',String(r.threshold));progress.setAttribute('aria-valuenow',String(Math.min(r.threshold,r.deposited)));fill.style.width=oldProgress.get(r.kind)||'0%';requestAnimationFrame(()=>requestAnimationFrame(()=>fill.style.width=percent+'%'));progress.append(fill);
+        const button=node('button','bonus-join',r.joined?'Ты участвуешь':'Участвовать');button.type='button';button.disabled=busy||r.joined||Number(r.deposited)<Number(r.threshold);button.onclick=()=>join(r.id);bottom.append(progress,button);card.append(bottom);
+        const deposited=node('div','bonus-deposited');deposited.append(document.createTextNode(r.kind==='daily'?'Пополнено сегодня: ':'Пополнено за розыгрыш: '),node('b','',fmt(r.deposited)+' из '+fmt(r.threshold)));card.append(deposited);
+        const winners=node('section','bonus-winners'),winnersTitle=node('h3');winnersTitle.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0V3Z M7 5H3v3a4 4 0 0 0 5 3 M17 5h4v3a4 4 0 0 1-5 3 M12 13v5 M8 21h8 M9 18h6v3H9Z"/></svg>';winnersTitle.append(document.createTextNode('Победители'));winners.append(winnersTitle);
+        for(const w of (r.winners||[]).slice(0,3)){
+          const item=node('div','bonus-winner'),identity=node('div');identity.append(node('div','bonus-winner-name',w.name),node('div','bonus-winner-date',new Date(w.date).toLocaleString('ru-RU',{timeZone:'Europe/Kyiv',dateStyle:'short',timeStyle:'short'})));
+          item.append(node('span','bonus-avatar',Array.from(w.name||'И')[0]),identity,node('span','bonus-winner-number','#'+prefixes[r.kind]+w.number),node('span','bonus-winner-prize',w.prize_name),node('span','bonus-winner-value','ⓧ '+fmt(w.prize_value)));winners.append(item);
+        }
+        if(!(r.winners||[]).length)winners.append(node('div','bonus-empty','Победители появятся после первого розыгрыша'));
+        card.append(winners);list.append(card);
+      }
+      initialized=true;choose(selected);clocks();
+    }
+    function accept(data){if(!data?.ok||!Array.isArray(data.rounds))throw new Error(data?.error||'Не удалось загрузить розыгрыши');state=data;offset=Date.parse(data.server_now)-Date.now();if(!Number.isFinite(offset))offset=0;lastLoad=Date.now();message.textContent='';retry.hidden=true;render();}
+    async function load(){
+      if(flight||busy)return flight;
+      if(!state)message.textContent='Загружаем розыгрыши…';
+      flight=(async()=>{try{accept(await apiRequest({action:'get_bonuses'}));}catch(e){message.textContent=e?.message||'Не удалось загрузить розыгрыши';retry.hidden=false;}finally{flight=null;}})();return flight;
+    }
+    async function join(id){
+      if(busy||flight)return;busy=true;render();
+      try{accept(await apiRequest({action:'join_bonus',round_id:id}));if(typeof showToast==='function')showToast('Ты участвуешь в розыгрыше','success');}
+      catch(e){message.textContent=e?.message||'Не удалось участвовать';retry.hidden=false;}
+      finally{busy=false;render();}
+    }
+    retry.onclick=load;
+    const open=()=>{if(visible()&&Date.now()-lastLoad>1000)load();};
+    new MutationObserver(open).observe(page,{attributes:true,attributeFilter:['class']});
+    document.addEventListener('visibilitychange',open);
+    setInterval(()=>{if(!visible())return;clocks();const ended=state?.rounds?.some(r=>Date.parse(r.ends_at)<=Date.now()+offset);if(ended||Date.now()-lastLoad>=15000)load();},1000);
+    choose(selected);open();
+
+    // Keep every reward/quest ID; raise only the server-validated requirements.
+    const requirements={hour_deposit_100:125,hour_lavaka_open:2,hour_any_cases_3:4,day_deposit_250:300,day_upgrade_100:125,day_upgrade_count_3:4,week_chaos_open:4,perm_deposit_3500:4000};
+    const oldDefinitions=window.getQuestDefinitions;
+    if(typeof oldDefinitions==='function')window.getQuestDefinitions=function(){return oldDefinitions().map(q=>{
+      if(!requirements[q.id])return q;
+      const target=Number(questServerState?.targets?.[q.id]||requirements[q.id]);
+      const labels={hour_deposit_100:`Пополни баланс на ${target} ⓧ`,hour_lavaka_open:`Открой кейс Lavaka ${target} раза`,hour_any_cases_3:`Открой любые кейсы ${target} раза`,day_deposit_250:`Пополни баланс на ${target} ⓧ`,day_upgrade_100:`Сделай апгрейды на ${target} ⓧ`,day_upgrade_count_3:`Сделай ${target} апгрейда`,week_chaos_open:`Открой кейс Chaos ${target} раза`,perm_deposit_3500:`Пополни баланс за всё время на ${target} ⓧ`};
+      return{...q,target,title:labels[q.id]};
+    });};
+    const nicknameText=document.querySelector('#nicknameQuestCard .quest-nickname-text');if(nicknameText)nicknameText.textContent='Добавь @brainroterXbot в имя Telegram и открой 2 кейса за день — получи бесплатный Noobini Case.';
+    const oldNickname=window.renderNicknameQuest;
+    if(typeof oldNickname==='function')window.renderNicknameQuest=function(...args){oldNickname.apply(this,args);const n=questServerState?.nickname||{};
+      if(n.eligible&&!n.claimed){const progress=Number(questServerState?.progress?.nick_daily_noobini||0),target=Number(questServerState?.targets?.nick_daily_noobini||2);
+        if(progress<target){document.getElementById('nicknameQuestStatus').textContent=`Открыто кейсов сегодня: ${progress} из ${target}`;const b=document.getElementById('nicknameQuestButton');b.textContent='ОТКРОЙ 2 КЕЙСА';b.disabled=true;}}
+    };
+    if(typeof renderQuestPage==='function')renderQuestPage();
+
+    const modal=document.getElementById('adminPanelModal'),adminTabs=modal?.querySelector('.admin-panel-tabs'),panel=modal?.querySelector('.admin-panel-modal');
+    if(!panel||!adminTabs)return;
+    const adminButton=node('button','admin-panel-tab','✦ Розыгрыши');adminButton.dataset.adminTab='bonuses';adminButton.type='button';adminButton.onclick=()=>setAdminPanelTab('bonuses');adminTabs.append(adminButton);
+    const section=node('div','admin-panel-section');section.id='adminSectionBonuses';panel.append(section);
+    async function adminLoad(){
+      if(adminFlight)return adminFlight;section.textContent='Загрузка…';
+      adminFlight=(async()=>{try{adminRender(await apiRequest({action:'admin_panel_bonus_state'}));}catch(e){section.textContent=e?.message||'Ошибка';const b=node('button','admin-mini-btn','Повторить');b.onclick=adminLoad;section.append(b);}finally{adminFlight=null;}})();return adminFlight;
+    }
+    function adminRender(data){
+      if(!data?.ok||!data.bonus_owner)throw new Error(data?.error||'Доступно только владельцу');section.replaceChildren();
+      for(const r of data.rounds){
+        const card=node('div','bonus-admin-card');card.dataset.kind=r.kind;card.append(node('strong','',titles[r.kind]+' #'+prefixes[r.kind]+r.number),node('div','bonus-admin-meta','До '+new Date(r.ends_at).toLocaleString('ru-RU',{timeZone:'Europe/Kyiv'})+' · от '+fmt(r.threshold)+' ⓧ'));
+        const winnerLabel=node('label','','Telegram ID победителя · пусто — случайный участник'),winner=node('input');winner.inputMode='numeric';winner.placeholder='Случайный участник';winner.value=r.chosen_winner?String(r.chosen_winner):'';winner.id='bonusWinner-'+r.id;winnerLabel.htmlFor=winner.id;
+        const dl=node('datalist');dl.id='bonusEntries-'+r.id;winner.setAttribute('list',dl.id);for(const e of r.entries||[]){const o=node('option');o.value=String(e.telegram_id);o.label=e.name;dl.append(o);}card.append(winnerLabel,winner,dl);
+        let prizeSelect=null;
+        if(r.kind!=='daily'){
+          const label=node('label','','Приз этого розыгрыша');prizeSelect=node('select');prizeSelect.id='bonusPrize-'+r.id;label.htmlFor=prizeSelect.id;
+          for(const p of data.prizes||[]){const opt=node('option','',p.name+' · '+fmt(p.value)+' ⓧ');opt.value=String(p.brainrot_id);prizeSelect.append(opt);}prizeSelect.value=String(r.prize_id);card.append(label,prizeSelect);
+          card.append(node('div','bonus-admin-meta','Следующий розыгрыш начнётся с приза по умолчанию.'));
+        }else card.append(node('div','bonus-admin-meta','Приз: '+r.prize_name+' · '+fmt(r.prize_value)+' ⓧ'));
+        const button=node('button','','Сохранить'),status=node('div','bonus-admin-message');button.type='button';status.setAttribute('role','status');
+        let saving=false;button.onclick=async()=>{
+          if(saving)return;const raw=winner.value.trim(),id=raw?Number(raw):null,prize=prizeSelect?Number(prizeSelect.value):null;
+          if(raw&&(!/^[1-9][0-9]*$/.test(raw)||!Number.isSafeInteger(id))){status.textContent='Укажи корректный Telegram ID';return;}
+          saving=true;button.disabled=true;status.textContent='Сохраняем…';
+          try{const answer=await apiRequest({action:'admin_panel_bonus_save',round_id:r.id,winner_id:id,prize_id:prize});adminRender(answer);const updated=section.querySelector(`[data-kind="${r.kind}"] .bonus-admin-message`);if(updated)updated.textContent='Сохранено';}
+          catch(e){status.textContent=e?.message||'Ошибка сохранения';}finally{saving=false;button.disabled=false;}
+        };card.append(button,status);section.append(card);
+      }
+    }
+    const oldTab=window.setAdminPanelTab;
+    window.setAdminPanelTab=function(tab,...args){const value=oldTab.call(this,tab,...args);section.classList.toggle('active',tab==='bonuses');if(tab==='bonuses')adminLoad();return value;};
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0),{once:true});else setTimeout(init,0);
+})();
+</script>
+
 </body>
 </html>
 
