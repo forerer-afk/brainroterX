@@ -11102,8 +11102,11 @@ html[data-ux-effects="false"] body#sharp-app #activeCase,html[data-ux-effects="f
 @media(prefers-reduced-motion:reduce){body#sharp-app #activeCase,body#sharp-app #casesPage[data-ux-case-open="false"] #caseList,body#sharp-app .overlay.show:where(:not(#caseCinema))>.modal{animation:none!important;opacity:1!important}}
 }
 </style>
-<style id="brx-case-motion-v11">
-@layer brx-case-motion-v11 {
+<style id="brx-case-motion-v12">
+@layer brx-case-motion-v12 {
+  body#sharp-app :is(#uxCaseFinder,#uxCaseEmpty) {
+    display:none!important;
+  }
   body#sharp-app #casePresentationStage .cinema-final {
     animation:none!important;
     transform:none!important;
@@ -36510,31 +36513,66 @@ body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-s
 })();
 </script>
 
-<script id="brx-case-motion-script-v11">
+<script id="brx-case-motion-script-v12">
 (()=>{
-  const start=()=>{
-    if(
-      window.__brxCaseMotionV11 ||
-      typeof window.cinemaSlowRollUnits!=='function'
-    )return;
+  // Заменяет предыдущую настройку прокрутки.
+  window.__brxCaseMotionV11=true;
 
-    window.__brxCaseMotionV11=true;
+  const start=()=>{
+    if(window.__brxCaseMotionV12)return;
+    window.__brxCaseMotionV12=true;
+
+    const removeFinder=()=>{
+      const finder=document.getElementById('uxCaseFinder');
+
+      if(finder){
+        const input=finder.querySelector('input');
+
+        if(input){
+          input.value='';
+          input.dispatchEvent(new Event('input',{bubbles:true}));
+        }
+
+        document.querySelectorAll(
+          '#caseList [data-ux-search-hidden]'
+        ).forEach(node=>{
+          node.removeAttribute('data-ux-search-hidden');
+        });
+
+        finder.remove();
+      }
+
+      document.getElementById('uxCaseEmpty')?.remove();
+    };
+
+    removeFinder();
+
+    const page=document.getElementById('casesPage');
+    if(page){
+      new MutationObserver(removeFinder).observe(page,{
+        childList:true
+      });
+    }
+
+    if(typeof window.cinemaSlowRollUnits!=='function')return;
 
     window.cinemaRollPlan=duration=>{
       duration=Math.max(1,Number(duration)||9.5);
 
       const nodes=[
         [0,.18],
-        [.04,2.2],
-        [.12,4.8],
-        [.26,4.8],
-        [.38,4.15],
-        [.50,3.30],
-        [.62,2.40],
-        [.72,1.60],
-        [.82,.85],
-        [.90,.34],
-        [.96,.08],
+        [.035,10],
+        [.08,13],
+        [.20,12.5],
+        [.31,10],
+        [.41,6],
+        [.50,3],
+        [.57,1.5],
+        [.64,.9],
+        [.74,.6],
+        [.84,.3],
+        [.91,.12],
+        [.96,.035],
         [1,0]
       ].map(([part,speed])=>({
         time:part*duration,
