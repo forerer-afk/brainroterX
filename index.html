@@ -11139,6 +11139,40 @@ html[data-ux-effects="false"] body#sharp-app #activeCase,html[data-ux-effects="f
   }
 }
 </style>
+<style id="brx-case-event-admin-restore-style-v2">
+@layer brx-case-event-admin {
+  #adminSectionChance.active>#adminCaseEventBox{
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+  }
+  #adminCaseEventBox .case-event-exact{
+    display:flex!important;
+    gap:8px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin:8px 0 12px!important;
+  }
+  #adminCaseEventExact{
+    width:84px!important;
+    min-width:0!important;
+    max-width:84px!important;
+    text-align:center!important;
+    padding:8px!important;
+  }
+  #adminCaseEventDuration{
+    width:100%!important;
+    max-width:none!important;
+    margin:6px 0 10px!important;
+  }
+  #adminCaseEventStatus{
+    font-variant-numeric:tabular-nums!important;
+    margin:8px 0!important;
+    overflow-wrap:anywhere!important;
+  }
+  #adminCaseEventResult:empty{display:none!important}
+}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -37175,3 +37209,232 @@ body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-s
   }
 })();
 </script>
+
+<script id="brx-case-event-admin-restore-v2">
+(()=>{
+  const start=()=>{
+    const section=document.getElementById('adminSectionChance');
+    const modal=document.getElementById('adminPanelModal');
+    if(!section||!modal)return false;
+
+    const existing=document.getElementById('adminCaseEventBox');
+    if(existing){
+      existing.hidden=false;
+      ['display','visibility','opacity'].forEach(
+        key=>existing.style.removeProperty(key)
+      );
+      const holder=document.getElementById('adminChanceMultiplier')
+        ?.closest('.admin-box');
+      if(holder&&holder.parentElement===section){
+        holder.after(existing);
+      }else{
+        section.append(existing);
+      }
+      return true;
+    }
+
+    const box=document.createElement('div');
+    box.id='adminCaseEventBox';
+    box.className='admin-box';
+    box.innerHTML=`
+      <div class="admin-box-title">Глобальный шанс кейсов</div>
+      <input id="adminCaseEventSlider" class="admin-range"
+        type="range" min="50" max="300" step="1" value="100"
+        aria-label="Множитель шанса кейсов" disabled>
+      <div class="case-event-exact">
+        <label for="adminCaseEventExact">×</label>
+        <input id="adminCaseEventExact" type="number"
+          min="0.50" max="3.00" step="0.01" value="1.00"
+          inputmode="decimal" disabled>
+      </div>
+      <label for="adminCaseEventDuration" class="admin-hint">
+        Длительность ивента
+      </label>
+      <select id="adminCaseEventDuration"
+        class="admin-brainrot-search" disabled>
+        <option value="15">15 минут</option>
+        <option value="60" selected>1 час</option>
+        <option value="180">3 часа</option>
+        <option value="1440">24 часа</option>
+      </select>
+      <div id="adminCaseEventStatus" class="admin-hint"
+        role="status">×1.00</div>
+      <button id="adminCaseEventApply" type="button"
+        class="admin-action-btn" disabled>ВКЛЮЧИТЬ ИВЕНТ</button>
+      <button id="adminCaseEventReset" type="button"
+        class="admin-action-btn danger" disabled>СБРОСИТЬ</button>
+      <div id="adminCaseEventResult" class="result"
+        role="status"></div>
+    `;
+
+    const upgradeBox=document.getElementById('adminChanceMultiplier')
+      ?.closest('.admin-box');
+    if(upgradeBox)upgradeBox.after(box);
+    else section.append(box);
+
+    const slider=box.querySelector('#adminCaseEventSlider');
+    const exact=box.querySelector('#adminCaseEventExact');
+    const duration=box.querySelector('#adminCaseEventDuration');
+    const result=box.querySelector('#adminCaseEventResult');
+    const status=box.querySelector('#adminCaseEventStatus');
+    const controls=[...box.querySelectorAll('input,select,button')];
+
+    let owner=false,busy=false,request=0,expiryTimer=0,clockOffset=0;
+
+    const lock=()=>{
+      controls.forEach(control=>control.disabled=busy||!owner);
+    };
+
+    const paint=data=>{
+      const value=Number(data.global_case_top_chance_multiplier);
+      const ends=data.global_case_top_event_ends_at
+        ?new Date(data.global_case_top_event_ends_at):null;
+
+      if(!Number.isFinite(value)||value<.5||value>3){
+        throw new Error('Некорректный ответ сервера');
+      }
+
+      if(Number.isFinite(data.server_now_ms)){
+        clockOffset=data.server_now_ms-Date.now();
+      }
+
+      const active=!!ends&&Number.isFinite(ends.getTime())
+        &&ends.getTime()>Date.now()+clockOffset;
+      const multiplier=active?value:1;
+
+      slider.value=String(Math.round(multiplier*100));
+      exact.value=multiplier.toFixed(2);
+      status.textContent=active
+        ?'×'+multiplier.toFixed(2)+' · до '+ends.toLocaleString('ru-RU')
+        :'×1.00';
+
+      clearTimeout(expiryTimer);
+      if(active&&modal.classList.contains('show')){
+        expiryTimer=setTimeout(()=>paint({
+          global_case_top_chance_multiplier:1,
+          global_case_top_event_ends_at:null
+        }),Math.max(0,ends.getTime()-Date.now()-clockOffset));
+      }
+    };
+
+    const load=async()=>{
+      if(busy)return;
+      const revision=++request;
+      busy=true;
+      owner=false;
+      lock();
+      result.textContent='';
+
+      try{
+        const data=await apiRequest({
+          action:'get_case_event_settings'
+        });
+        if(!data?.ok){
+          throw new Error(data?.error||'Не удалось загрузить ивент');
+        }
+        if(revision!==request)return;
+
+        owner=data.case_event_owner===true
+          &&data.case_event_ready===true;
+        paint(data);
+
+        if(data.case_event_ready!==true){
+          result.textContent='Сначала установи SQL ивента кейсов';
+        }
+      }catch(error){
+        if(revision===request){
+          result.textContent=error?.message||'Ошибка загрузки';
+        }
+      }finally{
+        if(revision===request){
+          busy=false;
+          lock();
+        }
+      }
+    };
+
+    slider.addEventListener('input',()=>{
+      exact.value=(Number(slider.value)/100).toFixed(2);
+    });
+
+    exact.addEventListener('input',()=>{
+      const value=Number(exact.value);
+      if(exact.value.trim()&&Number.isFinite(value)&&value>=.5&&value<=3){
+        slider.value=String(Math.round(value*100));
+      }
+    });
+
+    const save=async reset=>{
+      if(busy||!owner)return;
+      const raw=reset?'1':exact.value.trim();
+      const value=Number(raw);
+
+      if(!raw||!Number.isFinite(value)||value<.5||value>3){
+        result.textContent='Множитель: от ×0.50 до ×3.00';
+        return;
+      }
+
+      busy=true;
+      lock();
+      result.textContent='Сохранение…';
+
+      try{
+        const data=await apiRequest({
+          action:'admin_panel_set_global_case_multiplier',
+          multiplier:Math.round(value*100)/100,
+          duration_minutes:reset?0:Number(duration.value)
+        });
+        if(!data?.ok){
+          throw new Error(data?.error||'Не удалось сохранить ивент');
+        }
+        paint(data);
+        result.textContent='Сохранено';
+      }catch(error){
+        result.textContent=error?.message||'Ошибка сохранения';
+      }finally{
+        busy=false;
+        lock();
+      }
+    };
+
+    box.querySelector('#adminCaseEventApply')
+      .addEventListener('click',()=>save(false));
+    box.querySelector('#adminCaseEventReset')
+      .addEventListener('click',()=>save(true));
+
+    let opened=false;
+    const sync=()=>{
+      const show=modal.classList.contains('show')
+        &&section.classList.contains('active');
+      if(show&&!opened)void load();
+      if(!show)clearTimeout(expiryTimer);
+      opened=show;
+    };
+
+    const observer=new MutationObserver(sync);
+    observer.observe(modal,{
+      attributes:true,attributeFilter:['class']
+    });
+    observer.observe(section,{
+      attributes:true,attributeFilter:['class']
+    });
+    sync();
+    return true;
+  };
+
+  const boot=()=>{
+    if(start())return;
+    const retry=new MutationObserver(()=>{
+      if(start())retry.disconnect();
+    });
+    retry.observe(document.body,{childList:true,subtree:true});
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',boot,{once:true});
+  }else{
+    boot();
+  }
+})();
+</script>
+
