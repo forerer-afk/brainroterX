@@ -15259,7 +15259,86 @@ function deactivateSiteTestScreen(){
     document.body.classList.remove("site-test-active");
 }
 
-async function apiRequest(data){
+function brxPerfRequest(data){
+  const action=String(data?.action||'get_player');
+  const reads=new Set(['get_boot_core','get_player_sync','get_player','get_game_catalog','get_big_wins',
+    'get_hourly_deposit_promo','get_brainrot_price_revision','get_fresh_brainrot_prices','get_quests','get_bonuses',
+    'get_deposit_channels','get_withdraw_status','get_withdrawn_total','base_state','get_crash_state',
+    'get_balance_request_trade_status','get_gear_deposit_trade_status','get_uah_deposit_request_status']);
+  const state=window.__brxPerfRequests||(window.__brxPerfRequests={epoch:0,flights:new Map(),cache:new Map(),
+    failures:new Map(),queue:[],active:0,wake:null,started:Date.now()});
+  const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
+  if(!reads.has(action)){
+    // A fresh read following ANY mutation must never join a read started before it.
+    state.epoch++;state.cache.clear();state.failures.clear();
+    return brxNetworkRequest(data);
+  }
+  if(action==='get_crash_state'&&data.has_active_bet===true)return brxNetworkRequest(data);
+  const key=JSON.stringify([state.epoch,typeof tg!=='undefined'?tg.initData:'',data]);
+  if(state.flights.has(key))return state.flights.get(key).then(clone);
+  const cached=state.cache.get(key);
+  if(cached&&cached.until>Date.now())return Promise.resolve(clone(cached.value));
+  if(cached)state.cache.delete(key);
+  if(document.visibilityState==='hidden'&&!['get_boot_core','get_player_sync','get_player'].includes(action))
+    return Promise.reject(new Error('Фоновое обновление приостановлено'));
+  const failure=state.failures.get(key);
+  if(action!=='get_boot_core'&&failure&&failure.until>Date.now())return Promise.reject(failure.error);
+  const epoch=state.epoch;
+  let resolve,reject;
+  const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});
+  const task={action,key,epoch,data,resolve,reject,created:Date.now()};
+  state.flights.set(key,promise);
+  if(action==='get_boot_core')state.queue.unshift(task);else state.queue.push(task);
+  const run=job=>{
+    state.active++;
+    Promise.resolve().then(()=>brxNetworkRequest(job.data)).then(value=>{
+      if(value?.ok===false)throw new Error(value.error||'Обновление временно недоступно');
+      state.failures.delete(job.key);
+      let ttl=({get_big_wins:900,get_game_catalog:1000,get_hourly_deposit_promo:1000,
+        get_brainrot_price_revision:800,get_deposit_channels:700,get_withdraw_status:700})[job.action]||0;
+      if(job.action==='get_hourly_deposit_promo'&&value?.promo?.expires_at)
+        ttl=Math.min(ttl,Math.max(0,Date.parse(value.promo.expires_at)-Date.now()));
+      if(ttl>0&&job.epoch===state.epoch){
+        if(state.cache.size>=80)state.cache.delete(state.cache.keys().next().value);
+        state.cache.set(job.key,{until:Date.now()+ttl,value:clone(value)});
+      }
+      if(state.flights.get(job.key)===job.promise)state.flights.delete(job.key);
+      job.resolve(value);
+    }).catch(error=>{
+      if(job.action!=='get_boot_core'&&job.epoch===state.epoch){
+        const previous=state.failures.get(job.key);
+        const count=Math.min(5,(previous?.count||0)+1);
+        if(state.failures.size>=80)state.failures.delete(state.failures.keys().next().value);
+        state.failures.set(job.key,{count,until:Date.now()+Math.min(30000,1500*2**(count-1))+Math.random()*1200,error});
+      }
+      if(state.flights.get(job.key)===job.promise)state.flights.delete(job.key);
+      job.reject(error);
+    }).finally(()=>{
+      state.active--;
+      if(state.flights.get(job.key)===promiseFor(job))state.flights.delete(job.key);
+      pump();
+    });
+  };
+  // Each task owns its promise, including when queue order changes at boot.
+  task.promise=promise;
+  function promiseFor(job){return job.promise;}
+  function pump(){
+    if(state.wake){clearTimeout(state.wake);state.wake=null;}
+    while(state.active<3&&state.queue.length){
+      const next=state.queue[0];
+      if(next.action!=='get_boot_core'&&!window.__BRX_BOOT_FINISHED__&&Date.now()-state.started<6000){
+        state.wake=setTimeout(pump,120);return;
+      }
+      state.queue.shift();run(next);
+    }
+  }
+  pump();
+  return promise.then(clone);
+}
+
+function apiRequest(data){return brxPerfRequest(data);}
+
+async function brxNetworkRequest(data){
  const controller=new AbortController();
  const timeoutMs=data.action==='get_player'?18000:(data.action==='get_big_wins'?12000:25000);
  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
@@ -15344,6 +15423,7 @@ async function loadPlayer(){
         brainrots = Array.isArray(data.brainrots) ? data.brainrots : [];
         cases = Array.isArray(data.cases) ? data.cases : [];
         caseItems = Array.isArray(data.case_items) ? data.case_items : [];
+        if(Number.isSafeInteger(data.price_revision)&&data.price_revision>=0){window.__brxBootPriceRevision=data.price_revision;if(typeof window.__brxSeedBootRevision==='function')window.__brxSeedBootRevision(data.price_revision);}
 
         /*
           Catalog safety net: profile/balance may load even when a catalog
@@ -23551,6 +23631,8 @@ function startHourlyDepositPromoTimer(){
                 renderHourlyDepositPromo();
 
                 if(
+                    document.visibilityState === 'visible'
+                    &&
                     hourlyDepositPromo
                     &&
                     remainingMs <= 0
@@ -25609,7 +25691,7 @@ async function silentSync(){
         const data =
             await apiRequest({
                 action:
-                    "get_player"
+                    (document.getElementById('referralModal')?.classList.contains('show')||document.getElementById('dropHistoryModal')?.classList.contains('show'))?'get_player':'get_player_sync' 
             });
 
         if(!data.ok) return;
@@ -25774,7 +25856,7 @@ async function silentSync(){
             window.renderGlobalChanceNotice?.();
         }, 0);
 
-        referralProfile = {
+        if(data.referral) referralProfile = {
             code:
                 data.referral?.code
                 ||
@@ -25827,7 +25909,7 @@ async function silentSync(){
         }
 
         dailyState = data.daily || dailyState;
-        dropHistory = Array.isArray(data.drop_history) ? data.drop_history : [];
+        dropHistory = Array.isArray(data.drop_history) ? data.drop_history : dropHistory;
         bigWins = hydrateFeedProfilesFromCache(
             Array.isArray(data.big_wins) ? data.big_wins : bigWins
         );
@@ -29266,7 +29348,8 @@ async function adminPriceSave(id,oldValue,input,button){
     finally{adminPriceBusy=false;button.disabled=false;}
 }
 // Lightweight price revision check. Runs only while the Mini App is visible.
-let brxPriceRevision=-1;
+let brxPriceRevision=Number.isSafeInteger(window.__brxBootPriceRevision)?window.__brxBootPriceRevision:-1;
+window.__brxSeedBootRevision=value=>{brxPriceRevision=value;};
 let brxPriceRefreshing=false;
 async function brxRefreshAllLivePrices(){
     if(brxPriceRefreshing)return;
@@ -29301,7 +29384,7 @@ async function brxCheckPriceRevision(){
         }
     }catch(_){/* Background polling should never break the app. */}
 }
-setInterval(brxCheckPriceRevision,15000);
+setTimeout(()=>{void brxCheckPriceRevision();setInterval(brxCheckPriceRevision,20000+Math.floor(Math.random()*8000));},12000+Math.floor(Math.random()*10000));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')brxCheckPriceRevision();});
 </script>
 <script id="brx-case-editor-script">
@@ -35542,7 +35625,7 @@ html body#sharp-app #adminSectionBonuses .bonus-admin-meta{font-size:11px;color:
     }
     function accept(data){if(!data?.ok||!Array.isArray(data.rounds))throw new Error(data?.error||'Не удалось загрузить розыгрыши');state=data;offset=Date.parse(data.server_now)-Date.now();if(!Number.isFinite(offset))offset=0;lastLoad=Date.now();message.textContent='';retry.hidden=true;render();}
     async function load(){
-      if(flight||busy)return flight;
+      if(flight||busy||Date.now()-lastLoad<2500)return flight;
       if(!state)message.textContent='Загружаем розыгрыши…';
       flight=(async()=>{try{accept(await apiRequest({action:'get_bonuses'}));}catch(e){message.textContent=e?.message||'Не удалось загрузить розыгрыши';retry.hidden=false;}finally{flight=null;}})();return flight;
     }
