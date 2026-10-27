@@ -35613,6 +35613,90 @@ html body#sharp-app #adminSectionBonuses .bonus-admin-meta{font-size:11px;color:
 })();
 </script>
 
+<script id="brx-bonus-auto-participation-v2">
+(()=>{
+  const init=()=>{
+    const root=document.getElementById('bonusShell');
+    if(!root||root.dataset.autoParticipation==='2')return;
+    root.dataset.autoParticipation='2';
+
+    const eligibility=button=>{
+      const bar=button.closest('.bonus-card')
+        ?.querySelector('[role="progressbar"]');
+      const current=Number(bar?.getAttribute('aria-valuenow'));
+      const target=Number(bar?.getAttribute('aria-valuemax'));
+
+      return{
+        valid:Boolean(bar)&&Number.isFinite(current)&&
+          Number.isFinite(target)&&target>0,
+        full:current>=target
+      };
+    };
+
+    const update=()=>{
+      for(const button of root.querySelectorAll('.bonus-join')){
+        const state=eligibility(button);
+        const disabled=!state.valid||state.full;
+
+        if(button.disabled!==disabled)button.disabled=disabled;
+
+        const label=state.full
+          ?(button.textContent==='Ты участвуешь'
+            ?'Ты участвуешь':'Проверяем…')
+          :'Участвовать';
+
+        if(button.textContent!==label)button.textContent=label;
+      }
+    };
+
+    root.addEventListener('click',event=>{
+      const button=event.target.closest?.('.bonus-join');
+      if(!button||!root.contains(button))return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const state=eligibility(button);
+      if(!state.valid||state.full)return;
+
+      const failed=error=>{
+        if(typeof showToast==='function'){
+          showToast(
+            error?.message||'Не удалось открыть пополнение',
+            'error'
+          );
+        }
+      };
+
+      try{
+        Promise.resolve(openDeposit()).catch(failed);
+      }catch(error){
+        failed(error);
+      }
+    },true);
+
+    new MutationObserver(update).observe(root,{
+      childList:true,
+      subtree:true,
+      attributes:true,
+      attributeFilter:[
+        'disabled','aria-valuenow','aria-valuemax'
+      ]
+    });
+
+    update();
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener(
+      'DOMContentLoaded',()=>setTimeout(init,0),{once:true}
+    );
+  }else{
+    setTimeout(init,0);
+  }
+})();
+</script>
+
 </body>
 </html>
 
