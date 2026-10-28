@@ -11173,6 +11173,143 @@ html[data-ux-effects="false"] body#sharp-app #activeCase,html[data-ux-effects="f
   #adminCaseEventResult:empty{display:none!important}
 }
 </style>
+<style id="brx-case-split-polish-style-v2">
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"]{
+  --single-height:144px;
+  --single-card-height:128px;
+  --single-card-width:112px;
+  --single-image-height:76px;
+  --single-image-width:92px;
+  --single-padding:5px;
+  --single-coin:50px;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-window{
+  height:var(--single-height)!important;
+  min-height:var(--single-height)!important;
+  max-height:var(--single-height)!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item{
+  flex-basis:var(--single-card-width)!important;
+  width:var(--single-card-width)!important;
+  min-width:var(--single-card-width)!important;
+  max-width:var(--single-card-width)!important;
+  height:var(--single-card-height)!important;
+  min-height:var(--single-card-height)!important;
+  max-height:var(--single-card-height)!important;
+  padding:var(--single-padding)!important;
+  grid-template-rows:var(--single-image-height) 24px 14px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item>img{
+  width:var(--single-image-width)!important;
+  max-width:var(--single-image-width)!important;
+  height:var(--single-image-height)!important;
+  max-height:var(--single-image-height)!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .roulette-name{
+  height:24px!important;
+  min-height:24px!important;
+  max-height:24px!important;
+  font-size:9px!important;
+  line-height:12px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .roulette-value{
+  height:14px!important;
+  min-height:14px!important;
+  max-height:14px!important;
+  font-size:10px!important;
+  line-height:14px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item>.xcoin{
+  width:var(--single-coin)!important;
+  min-width:var(--single-coin)!important;
+  max-width:var(--single-coin)!important;
+  height:var(--single-coin)!important;
+  min-height:var(--single-coin)!important;
+  max-height:var(--single-coin)!important;
+  font-size:28px!important;
+  line-height:var(--single-coin)!important;
+}
+html body#sharp-app #casePresentationStage .brx-case-progress{
+  justify-content:center!important;
+  flex-wrap:wrap;
+  gap:10px!important;
+  margin:12px 0 0!important;
+}
+html body#sharp-app #casePresentationStage .brx-case-progress .cinema-status{
+  display:none!important;
+}
+html body#sharp-app #casePresentationStage #caseCinema[data-brx-bonus] .brx-case-progress .cinema-status{
+  display:block!important;
+  font-size:11px!important;
+}
+html body#sharp-app #casePresentationStage .brx-case-skip{
+  min-width:140px;
+  min-height:38px!important;
+}
+html body#sharp-app #casePresentationStage #caseCinema[data-brx-bonus] .brx-case-new-lane{
+  animation:none!important;
+}
+html body#sharp-app #casePresentationStage .brx-split-intro{
+  position:absolute;
+  inset:0 0 auto;
+  height:150px;
+  z-index:4;
+  display:flex;
+  align-items:center;
+  flex-direction:column;
+  justify-content:center;
+  pointer-events:none;
+  background:radial-gradient(
+    ellipse,#22244df5,#10182be8 65%,#10182b00
+  );
+}
+html body#sharp-app #casePresentationStage .brx-split-cases{
+  position:relative;
+  width:100%;
+  height:88px;
+}
+html body#sharp-app #casePresentationStage .brx-split-copy{
+  position:absolute;
+  left:calc(50% - 31px);
+  top:6px;
+  width:62px;
+  height:72px;
+  display:grid;
+  place-items:center;
+}
+html body#sharp-app #casePresentationStage .brx-split-copy img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 0 10px #8d70ff70);
+}
+html body#sharp-app #casePresentationStage .brx-split-fallback{
+  font-size:42px;
+}
+html body#sharp-app #casePresentationStage .brx-split-title{
+  font-size:21px;
+  font-weight:900;
+  letter-spacing:.03em;
+  color:#d8ccff;
+  text-shadow:0 0 18px #9166ff80;
+}
+html body#sharp-app #casePresentationStage .brx-split-caption{
+  margin-top:4px;
+  font-size:11px;
+  color:#aebddd;
+}
+@media(max-width:540px){
+  html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"]{
+    --single-height:132px;
+    --single-card-height:116px;
+    --single-card-width:100px;
+    --single-image-height:66px;
+    --single-image-width:82px;
+    --single-padding:4px;
+    --single-coin:44px;
+  }
+}
+</style>
 </head>
 
 <body id="sharp-app">
@@ -37556,3 +37693,245 @@ body.brx-streamer-privacy #settingsModal :is(.brx-stream-setting,.brx-streamer-s
 })();
 </script>
 
+<script id="brx-case-split-polish-v2">
+(()=>{
+  if(
+    window.__brxCaseSplitPolishV2 ||
+    typeof window.brxCaseExpansion!=='function'
+  ) return;
+
+  window.__brxCaseSplitPolishV2=true;
+
+  const open=window.cinemaOpen;
+  const expand=window.brxCaseExpansion;
+  const animate=window.cinemaAnimate;
+  const finish=window.cinemaFinish;
+  const close=window.closeCase;
+
+  window.cinemaOpen=function(...args){
+    const state=open.apply(this,args);
+    const row=state.root.querySelector('.brx-case-progress');
+
+    state.root.querySelector('.cinema-drops').after(row);
+    state.root.querySelector('.cinema-status').textContent='';
+
+    return state;
+  };
+
+  function intro(state,count,height){
+    const root=state.root;
+    const drops=root.querySelector('.cinema-drops');
+
+    if(
+      state.skipRequested ||
+      document.hidden ||
+      !root.isConnected ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      typeof drops.animate!=='function'
+    ) return;
+
+    const endHeight=drops.getBoundingClientRect().height;
+    const width=drops.clientWidth;
+
+    const layer=document.createElement('div');
+    layer.className='brx-split-intro';
+    layer.setAttribute('aria-hidden','true');
+
+    const copies=document.createElement('div');
+    copies.className='brx-split-cases';
+    layer.append(copies);
+
+    const title=document.createElement('div');
+    title.className='brx-split-title';
+    title.textContent=`КЕЙС ×${count}`;
+
+    const caption=document.createElement('div');
+    caption.className='brx-split-caption';
+    caption.textContent=`+${count-1} бесплатных открытия`;
+
+    layer.append(title,caption);
+
+    const cover=document.querySelector(
+      '#caseCoverPreview img:not([hidden])'
+    );
+    const src=cover?.currentSrc||cover?.src;
+
+    const motions=[];
+    const savedPosition=drops.style.position;
+    const savedOverflow=drops.style.overflow;
+
+    let timer;
+    let settled=false;
+    let resolve;
+
+    const promise=new Promise(done=>{
+      resolve=done;
+    });
+
+    const effect={
+      promise,
+      finish:()=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(timer);
+
+        motions.forEach(animation=>{
+          try{animation.cancel();}catch(_){}
+        });
+
+        layer.remove();
+        drops.style.position=savedPosition;
+        drops.style.overflow=savedOverflow;
+        root.classList.remove('brx-split-revealing');
+
+        if(state.finishMotion===effect.finish){
+          state.finishMotion=null;
+        }
+
+        resolve();
+      }
+    };
+
+    state.brxSplitIntro=effect;
+    state.finishMotion=effect.finish;
+
+    root.classList.add('brx-split-revealing');
+    drops.style.position='relative';
+    drops.style.overflow='hidden';
+    drops.append(layer);
+
+    const play=(node,frames,options)=>{
+      motions.push(node.animate(frames,options));
+    };
+
+    try{
+      const step=Math.min(
+        64,
+        Math.max(32,(width-70)/(count+1))
+      );
+
+      for(let i=0;i<count;i++){
+        const copy=document.createElement('div');
+        copy.className='brx-split-copy';
+
+        const fallback=document.createElement('span');
+        fallback.className='brx-split-fallback';
+        fallback.textContent='🎁';
+
+        if(src){
+          const image=document.createElement('img');
+          image.alt='';
+          image.src=src;
+          image.onerror=()=>image.replaceWith(fallback);
+          copy.append(image);
+        }else{
+          copy.append(fallback);
+        }
+
+        copies.append(copy);
+
+        const offset=i-(count-1)/2;
+
+        play(copy,[
+          {
+            opacity:0,
+            transform:'translate(0,10px) scale(.65)'
+          },
+          {
+            opacity:1,
+            offset:.23,
+            transform:'translate(0,0) scale(1.1)'
+          },
+          {
+            opacity:1,
+            transform:
+              `translate(${offset*step}px,${Math.abs(offset)*3}px) `+
+              `rotate(${offset*7}deg) scale(1)`
+          }
+        ],{
+          duration:640,
+          easing:'cubic-bezier(.2,.75,.25,1)',
+          fill:'both'
+        });
+      }
+
+      play(layer,[
+        {opacity:0},
+        {opacity:1,offset:.12},
+        {opacity:1,offset:.66},
+        {opacity:0}
+      ],{
+        duration:900,
+        fill:'both'
+      });
+
+      play(drops,[
+        {height:`${height}px`},
+        {height:`${endHeight}px`}
+      ],{
+        duration:760,
+        easing:'cubic-bezier(.2,.7,.3,1)',
+        fill:'both'
+      });
+
+      state.lanes.forEach((lane,i)=>{
+        play(lane,[
+          {opacity:0,transform:'translateY(12px)'},
+          {opacity:1,transform:'none'}
+        ],{
+          delay:440+i*40,
+          duration:240,
+          fill:'both',
+          easing:'ease-out'
+        });
+      });
+
+      timer=setTimeout(effect.finish,920);
+    }catch(_){
+      effect.finish();
+    }
+  }
+
+  window.brxCaseExpansion=function(state,data,requested){
+    const drops=state.root.querySelector('.cinema-drops');
+    const height=drops.getBoundingClientRect().height;
+    const result=expand.call(this,state,data,requested);
+
+    if(
+      requested===1 &&
+      [3,5].includes(state.splitMultiplier) &&
+      state.winners.length===state.splitMultiplier
+    ){
+      state.root.dataset.brxBonus=String(state.splitMultiplier);
+      intro(state,state.splitMultiplier,height);
+    }
+
+    return result;
+  };
+
+  window.cinemaAnimate=async function(state){
+    if(state.brxSplitIntro){
+      await state.brxSplitIntro.promise;
+    }
+    return animate.call(this,state);
+  };
+
+  window.cinemaFinish=function(state,...args){
+    state.brxSplitIntro?.finish();
+    return finish.call(this,state,...args);
+  };
+
+  window.closeCase=function(forceSkip,...args){
+    if(forceSkip&&typeof caseCinema!=='undefined'){
+      caseCinema?.brxSplitIntro?.finish();
+    }
+    return close.call(this,forceSkip,...args);
+  };
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden&&typeof caseCinema!=='undefined'){
+      caseCinema?.brxSplitIntro?.finish();
+    }
+  });
+})();
+</script>
