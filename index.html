@@ -15430,94 +15430,123 @@ function deactivateSiteTestScreen(){
     document.body.classList.remove("site-test-active");
 }
 
-function brxPerfRequest(data){
-  const action=String(data?.action||'get_player');
-  const reads=new Set(['get_boot_core','get_player_sync','get_player','get_game_catalog','get_big_wins',
-    'get_hourly_deposit_promo','get_brainrot_price_revision','get_fresh_brainrot_prices','get_quests','get_bonuses',
-    'get_deposit_channels','get_withdraw_status','get_withdrawn_total','base_state','get_crash_state',
-    'get_balance_request_trade_status','get_gear_deposit_trade_status','get_uah_deposit_request_status']);
-  const state=window.__brxPerfRequests||(window.__brxPerfRequests={epoch:0,flights:new Map(),cache:new Map(),
-    failures:new Map(),queue:[],active:0,wake:null,started:Date.now()});
-  const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
-  if(!reads.has(action)){
-    // A fresh read following ANY mutation must never join a read started before it.
-    state.epoch++;state.cache.clear();state.failures.clear();
-    return brxNetworkRequest(data);
-  }
-  if(action==='get_crash_state'&&data.has_active_bet===true)return brxNetworkRequest(data);
-  const key=JSON.stringify([state.epoch,typeof tg!=='undefined'?tg.initData:'',data]);
-  if(state.flights.has(key))return state.flights.get(key).then(clone);
-  const cached=state.cache.get(key);
-  if(cached&&cached.until>Date.now())return Promise.resolve(clone(cached.value));
-  if(cached)state.cache.delete(key);
-  if(document.visibilityState==='hidden'&&!['get_boot_core','get_player_sync','get_player'].includes(action))
-    return Promise.reject(new Error('Фоновое обновление приостановлено'));
-  const failure=state.failures.get(key);
-  if(action!=='get_boot_core'&&failure&&failure.until>Date.now())return Promise.reject(failure.error);
-  const epoch=state.epoch;
-  let resolve,reject;
-  const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});
-  const task={action,key,epoch,data,resolve,reject,created:Date.now()};
-  state.flights.set(key,promise);
-  if(action==='get_boot_core')state.queue.unshift(task);else state.queue.push(task);
-  const run=job=>{
-    state.active++;
-    Promise.resolve().then(()=>brxNetworkRequest(job.data)).then(value=>{
-      if(value?.ok===false)throw new Error(value.error||'Обновление временно недоступно');
-      state.failures.delete(job.key);
-      let ttl=({get_big_wins:900,get_game_catalog:1000,get_hourly_deposit_promo:1000,
-        get_brainrot_price_revision:800,get_deposit_channels:700,get_withdraw_status:700})[job.action]||0;
-      if(job.action==='get_hourly_deposit_promo'&&value?.promo?.expires_at)
-        ttl=Math.min(ttl,Math.max(0,Date.parse(value.promo.expires_at)-Date.now()));
-      if(ttl>0&&job.epoch===state.epoch){
-        if(state.cache.size>=80)state.cache.delete(state.cache.keys().next().value);
-        state.cache.set(job.key,{until:Date.now()+ttl,value:clone(value)});
-      }
-      if(state.flights.get(job.key)===job.promise)state.flights.delete(job.key);
-      job.resolve(value);
-    }).catch(error=>{
-      if(job.action!=='get_boot_core'&&job.epoch===state.epoch){
-        const previous=state.failures.get(job.key);
-        const count=Math.min(5,(previous?.count||0)+1);
-        if(state.failures.size>=80)state.failures.delete(state.failures.keys().next().value);
-        state.failures.set(job.key,{count,until:Date.now()+Math.min(30000,1500*2**(count-1))+Math.random()*1200,error});
-      }
-      if(state.flights.get(job.key)===job.promise)state.flights.delete(job.key);
-      job.reject(error);
-    }).finally(()=>{
-      state.active--;
-      if(state.flights.get(job.key)===promiseFor(job))state.flights.delete(job.key);
-      pump();
-    });
-  };
-  // Each task owns its promise, including when queue order changes at boot.
-  task.promise=promise;
-  function promiseFor(job){return job.promise;}
-  function pump(){
-    if(state.wake){clearTimeout(state.wake);state.wake=null;}
-    while(state.active<3&&state.queue.length){
-      const next=state.queue[0];
-      if(next.action!=='get_boot_core'&&!window.__BRX_BOOT_FINISHED__&&Date.now()-state.started<6000){
-        state.wake=setTimeout(pump,120);return;
-      }
-      state.queue.shift();run(next);
-    }
-  }
-  pump();
-  return promise.then(clone);
+// BRX_LOAD_GUARD_V2: bound reads, stop outage storms, never retry game writes.
+const brxLoadReads=new Set([
+ 'get_boot_core','get_player_sync','get_player','get_game_catalog','get_big_wins',
+ 'get_hourly_deposit_promo','get_brainrot_price_revision','get_fresh_brainrot_prices','get_quests','get_bonuses',
+ 'get_deposit_channels','get_withdraw_status','get_withdrawn_total','base_state','get_crash_state',
+ 'get_balance_request_trade_status','get_gear_deposit_trade_status','get_uah_deposit_request_status',
+ 'get_withdraw_out_of_stock_notifications','get_three_day_drop','get_upgrade_event_settings','get_case_event_settings',
+ 'get_public_player_profile','get_withdraw_history','get_withdraw_out_of_stock_replacements',
+ 'admin_panel_get_state','admin_panel_get_test_account','admin_panel_price_get','admin_panel_case_get','admin_panel_bonus_state',
+ 'affiliate_state','affiliate_admin_lookup','affiliate_admin_requests','partner_state','get_site_stats','presence_ping'
+]);
+function brxLoadKey(value){
+ if(Array.isArray(value))return value.map(brxLoadKey);
+ if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,brxLoadKey(value[k])]));
+ return value;
 }
-
+function brxLoadError(message,code,retryAfterMs=0){return Object.assign(new Error(message),{code,retryAfterMs});}
+function brxLoadTransient(error){
+ return error?.code==='BRX_READ_PAUSED'||error?.transient===true||Number(error?.status)===429||Number(error?.status)>=500||
+  /^(TypeError|AbortError)$/.test(error?.name||'')||
+  /failed to fetch|network(?:error| request failed)|слишком долго|не ответил вовремя|too many connections|remaining connection slots|connection refused/i.test(error?.message||'');
+}
+function brxPerfRequest(data){
+ const action=String(data?.action||'get_player'),auth=typeof tg!=='undefined'?tg.initData:'';
+ let state=window.__brxLoadGuardV2;
+ if(!state||state.auth!==auth)state=window.__brxLoadGuardV2={auth,epoch:0,flights:new Map(),cache:new Map(),failures:new Map(),queue:[],active:0,critical:0,started:Date.now(),wake:null,until:0,strikes:0,errors:[],probe:false};
+ const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
+ const stale=()=>brxLoadError('Данные обновились. Повтори проверку.','BRX_READ_SUPERSEDED');
+ if(!brxLoadReads.has(action)){
+  state.epoch++;state.cache.clear();
+  return brxNetworkRequest(data); // One explicit action => one request, no queue/retry/deduplication.
+ }
+ if(document.visibilityState==='hidden'&&action!=='get_boot_core')
+  return Promise.reject(brxLoadError('Фоновое обновление приостановлено','BRX_READ_HIDDEN'));
+ const critical=action==='get_boot_core'||action==='get_crash_state'&&data.has_active_bet===true;
+ const activeBet=action==='get_crash_state'&&data.has_active_bet===true;
+ const route=JSON.stringify(brxLoadKey(data)),key=JSON.stringify([state.epoch,route]);
+ if(state.flights.has(key))return state.flights.get(key).then(clone);
+ const cached=state.cache.get(key);
+ if(cached&&cached.until>Date.now())return Promise.resolve(clone(cached.value));
+ if(cached)state.cache.delete(key);
+ const paused=()=>brxLoadError('Сервер временно перегружен. Обновления возобновятся автоматически.','BRX_READ_PAUSED',Math.max(0,state.until-Date.now()));
+ if(!activeBet&&(state.until>Date.now()||state.until&&state.probe))return Promise.reject(paused());
+ const previous=state.failures.get(route);
+ if(previous&&previous.until>Date.now())return Promise.reject(previous.error);
+ if(state.queue.length>=32)return Promise.reject(brxLoadError('Обновления уже выполняются. Попробуй чуть позже.','BRX_READ_QUEUE_FULL',1500));
+ let resolve,reject;
+ const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});
+ const job={action,data,key,route,epoch:state.epoch,critical,activeBet,created:Date.now(),resolve,reject,promise,probe:false};
+ state.flights.set(key,promise);
+ if(critical)state.queue.unshift(job);else state.queue.push(job);
+ function settle(job,error,value){
+  if(state.flights.get(job.key)===job.promise)state.flights.delete(job.key);
+  if(error)job.reject(error);else job.resolve(value);
+ }
+ function gate(job){
+  if((typeof tg!=='undefined'?tg.initData:'')!==state.auth||job.epoch!==state.epoch)return stale();
+  if(document.visibilityState==='hidden'&&job.action!=='get_boot_core')return brxLoadError('Фоновое обновление приостановлено','BRX_READ_HIDDEN');
+  if(Date.now()-job.created>12000)return brxLoadError('Проверка устарела. Повтори её.','BRX_READ_EXPIRED');
+  if(!job.activeBet&&(state.until>Date.now()||state.until&&state.probe))return paused();
+ }
+ async function run(job){
+  if(job.critical)state.critical++;else state.active++;
+  if(state.until&&!job.activeBet){job.probe=true;state.probe=true;}
+  try{
+   const value=await brxNetworkRequest(job.data);
+   if(value?.ok===false)throw Object.assign(new Error(value.error||'Проверка недоступна'),{status:value.status,transient:value.code==='BRX_TEMPORARY'});
+   if(job.epoch!==state.epoch||(typeof tg!=='undefined'?tg.initData:'')!==state.auth)throw stale();
+   state.failures.delete(job.route);
+   if(job.probe){state.until=0;state.strikes=0;state.errors=[];}
+   let ttl=({get_big_wins:900,get_game_catalog:1000,get_hourly_deposit_promo:1000,get_brainrot_price_revision:800,get_deposit_channels:700,get_withdraw_status:700,get_upgrade_event_settings:900})[job.action]||0;
+   if(job.action==='get_hourly_deposit_promo'&&value?.promo?.expires_at)ttl=Math.min(ttl,Math.max(0,Date.parse(value.promo.expires_at)-Date.now()));
+   if(ttl>0){if(state.cache.size>=80)state.cache.delete(state.cache.keys().next().value);state.cache.set(job.key,{until:Date.now()+ttl,value:clone(value)});}
+   settle(job,null,value);
+  }catch(error){
+   if(!/^BRX_READ_/.test(error?.code||'')&&job.epoch===state.epoch){
+    const old=state.failures.get(job.route),count=Math.min(6,(old?.count||0)+1);
+    const retryAfterMs=Math.min(job.activeBet?8000:60000,1500*2**(count-1))+Math.floor(Math.random()*700);
+    if(state.failures.size>=128)state.failures.delete(state.failures.keys().next().value);
+    state.failures.set(job.route,{count,until:Date.now()+retryAfterMs,error:Object.assign(error,{retryAfterMs})});
+    if(brxLoadTransient(error)&&!job.activeBet){
+     state.errors=state.errors.filter(t=>Date.now()-t<10000);state.errors.push(Date.now());
+     if(job.probe||state.errors.length>=3){state.strikes=Math.min(6,state.strikes+1);state.until=Date.now()+Math.min(60000,2000*2**(state.strikes-1))+Math.floor(Math.random()*1000);}
+    }
+   }
+   settle(job,error);
+  }finally{
+   if(job.probe)state.probe=false;
+   if(job.critical)state.critical--;else state.active--;
+   pump();
+  }
+ }
+ function pump(){
+  clearTimeout(state.wake);state.wake=null;
+  for(let i=0;i<state.queue.length;){
+   const next=state.queue[i],error=gate(next);
+   if(error){state.queue.splice(i,1);settle(next,error);continue;}
+   if(next.critical?state.critical>=1:state.active>=2){i++;continue;}
+   if(!next.critical&&!window.__BRX_BOOT_FINISHED__&&Date.now()-state.started<6000){
+    if(!state.wake)state.wake=setTimeout(pump,120);i++;continue;
+   }
+   state.queue.splice(i,1);void run(next);
+  }
+ }
+ pump();return promise.then(clone);
+}
 function apiRequest(data){return brxPerfRequest(data);}
 
 async function brxNetworkRequest(data){
  const controller=new AbortController();
- const timeoutMs=data.action==='get_player'?18000:(data.action==='get_big_wins'?12000:25000);
+ const timeoutMs=brxLoadReads.has(String(data.action))?12000:25000;
  const timeout=setTimeout(()=>controller.abort(),timeoutMs);
  try{
   const response=await fetch(FUNCTION_URL,{method:'POST',cache:data.action==='get_big_wins'?'no-store':'default',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,partner_mode:false,initData:tg.initData})});
   let payload;
   try{payload=await response.json();}catch(_){
-   throw new Error(response.ok?'Сервер вернул некорректный ответ. Обнови страницу.':'Не удалось получить ответ сервера ('+response.status+').');
+   throw Object.assign(new Error(response.ok?'Сервер вернул некорректный ответ. Обнови страницу.':'Не удалось получить ответ сервера ('+response.status+').'),{status:response.status,transient:response.status===429||response.status>=500});
   }
   if(payload?.maintenance===true || payload?.code==='SITE_TEST_MODE'){
    activateSiteTestScreen(payload);
@@ -15528,14 +15557,14 @@ async function brxNetworkRequest(data){
   }
   if(!response.ok){
    const message=typeof payload?.error==='string'?payload.error:(typeof payload?.message==='string'?payload.message:'');
-   throw new Error(message || (response.status>=500?'Сервер временно недоступен ('+response.status+').':response.status===401||response.status===403?'Открой сайт заново через Telegram-бота.':'Запрос отклонён сервером ('+response.status+').'));
+   throw Object.assign(new Error(message || (response.status>=500?'Сервер временно недоступен ('+response.status+').':response.status===401||response.status===403?'Открой сайт заново через Telegram-бота.':'Запрос отклонён сервером ('+response.status+').')),{status:response.status,transient:response.status===429||response.status>=500,retryAfterMs:Number(payload?.retry_after_ms)||0});
   }
   if(!payload || typeof payload!=='object' || Array.isArray(payload))throw new Error('Сервер вернул некорректный ответ.');
   if(payload.ok&&Object.prototype.hasOwnProperty.call(payload,'partner'))partnerApply(payload.partner);
   return payload;
  }catch(error){
   if(error&&error.name==='AbortError'){
-   throw new Error(data.action==='get_player'?'Сервер не ответил вовремя. Открой Mini App заново.':'Сервер отвечает слишком долго. Попробуй ещё раз.');
+   throw Object.assign(new Error(data.action==='get_player'?'Сервер не ответил вовремя. Открой Mini App заново.':'Сервер отвечает слишком долго. Попробуй ещё раз.'),{transient:true});
   }
   throw error;
  }finally{clearTimeout(timeout);}
@@ -15557,8 +15586,8 @@ async function loadPlayer(){
                 break;
             }catch(error){
                 const msg=String(error?.message||error);
-                if(attempt===2 || !/429|500|502|503|504|не ответил|слишком долго|недоступ|подключен|failed to fetch|network/i.test(msg))throw error;
-                await new Promise(resolve=>setTimeout(resolve,900*(attempt+1)+Math.floor(Math.random()*2200)));
+                if(attempt===2 || !(brxLoadTransient(error)||/429|500|502|503|504|не ответил|слишком долго|недоступ|подключен|failed to fetch|network/i.test(msg)))throw error;
+                await new Promise(resolve=>setTimeout(resolve,Math.max(Number(error?.retryAfterMs)||0,900*(attempt+1)+Math.floor(Math.random()*2200))));
             }
         }
 
@@ -20030,7 +20059,7 @@ async function openSelectedCase(){
         if (selectedCase?.id === chosen.id) renderCaseContent();
         state.winners=cinemaWinners(data);
         brxCaseExpansion(state,data,count);
-        if(typeof trackQuestCaseOpen === 'function') trackQuestCaseOpen(chosen.name,Number(data.count??count));
+        if(typeof trackQuestCaseOpen === 'function') trackQuestCaseOpen(chosen.name,Number(data.count??count),Number(data.free_opens_used||0));
         const added=[...(Array.isArray(data.items)?data.items:[]),...(data.item?[data.item]:[]),...state.winners.filter(item=>!cinemaIsCoins(item))];
         const known=new Set(inventory.map(item=>Number(item.id)));
         added.forEach(item=>{if(item?.id&&!known.has(Number(item.id))){inventory.unshift(item);known.add(Number(item.id));}});
@@ -36069,6 +36098,636 @@ html body#sharp-app #casePresentationStage .brx-case-new-lane{animation:brx-case
 })();
 </script>
 
+<script id="brx-load-game-refresh-v2">
+(()=>{
+ if(window.__brxLazyQuestRefreshV2)return;
+ window.__brxLazyQuestRefreshV2=true;
+ let dirty=false;
+ const apply=window.applyQuestState;
+ window.applyQuestState=function(...args){const result=apply.apply(this,args);dirty=false;return result;};
+ const schedule=force=>{
+  dirty=true;
+  if(force||document.getElementById('ladderPage')?.classList.contains('active')){
+   setTimeout(()=>{if(!document.hidden)void refreshQuestState(true);},120);
+  }
+ };
+ window.trackQuestUpgrade=()=>schedule(false);
+ window.trackQuestCaseOpen=(_name,_count,freeUsed)=>schedule(Number(freeUsed)>0);
+ const show=window.showPage;
+ window.showPage=function(name,...args){
+  const result=show.call(this,name,...args);
+  if(name==='ladder'&&dirty&&!document.hidden)void refreshQuestState(true);
+  return result;
+ };
+})();
+</script>
+
+<script id="brx-load-protection-plain-v2">
+(()=>{
+  if(window.__brxPlainLoadProtectionV2)return;
+  window.__brxPlainLoadProtectionV2=true;
+
+  let lastFreeUsed=0;
+
+  const reads=new Set([
+    'get_boot_core',
+    'get_player_sync',
+    'get_player',
+    'get_game_catalog',
+    'get_big_wins',
+    'get_hourly_deposit_promo',
+    'get_brainrot_price_revision',
+    'get_fresh_brainrot_prices',
+    'get_quests',
+    'get_bonuses',
+    'get_deposit_channels',
+    'get_withdraw_status',
+    'get_withdrawn_total',
+    'base_state',
+    'get_crash_state',
+    'get_balance_request_trade_status',
+    'get_gear_deposit_trade_status',
+    'get_uah_deposit_request_status',
+    'get_withdraw_out_of_stock_notifications',
+    'get_three_day_drop',
+    'get_upgrade_event_settings',
+    'get_case_event_settings',
+    'get_public_player_profile',
+    'get_withdraw_history',
+    'get_withdraw_out_of_stock_replacements',
+    'admin_panel_get_state',
+    'admin_panel_get_test_account',
+    'admin_panel_price_get',
+    'admin_panel_case_get',
+    'admin_panel_bonus_state',
+    'affiliate_state',
+    'affiliate_admin_lookup',
+    'affiliate_admin_requests',
+    'partner_state',
+    'get_site_stats',
+    'presence_ping'
+  ]);
+
+  async function network(data){
+    const controller=new AbortController();
+    const timeout=setTimeout(
+      ()=>controller.abort(),
+      reads.has(String(data.action))?12000:25000
+    );
+
+    try{
+      const response=await fetch(FUNCTION_URL,{
+        method:'POST',
+        cache:data.action==='get_big_wins'?'no-store':'default',
+        signal:controller.signal,
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          ...data,
+          partner_mode:false,
+          initData:tg.initData
+        })
+      });
+
+      let payload;
+
+      try{
+        payload=await response.json();
+      }catch(_){
+        throw Object.assign(
+          new Error(
+            response.ok
+              ? 'Сервер вернул некорректный ответ.'
+              : `Сервер недоступен (${response.status}).`
+          ),
+          {
+            status:response.status,
+            transient:response.status===429||response.status>=500
+          }
+        );
+      }
+
+      if(
+        payload?.maintenance===true||
+        payload?.code==='SITE_TEST_MODE'
+      ){
+        activateSiteTestScreen(payload);
+        return payload;
+      }
+
+      if(
+        document.body.classList.contains('site-test-active')&&
+        ['presence_ping','get_player'].includes(data.action)
+      ){
+        deactivateSiteTestScreen();
+      }
+
+      if(!response.ok){
+        throw Object.assign(
+          new Error(
+            payload?.error||
+            payload?.message||
+            `Ошибка сервера (${response.status}).`
+          ),
+          {
+            status:response.status,
+            transient:response.status===429||response.status>=500,
+            retryAfterMs:Number(payload?.retry_after_ms)||0
+          }
+        );
+      }
+
+      if(
+        !payload||
+        typeof payload!=='object'||
+        Array.isArray(payload)
+      ){
+        throw new Error('Сервер вернул некорректный ответ.');
+      }
+
+      if(
+        payload.ok&&
+        Object.prototype.hasOwnProperty.call(payload,'partner')
+      ){
+        partnerApply(payload.partner);
+      }
+
+      if(data.action==='open_case'){
+        lastFreeUsed=Number(payload.free_opens_used||0);
+      }
+
+      return payload;
+
+    }catch(error){
+      if(error?.name==='AbortError'){
+        throw Object.assign(
+          new Error('Сервер отвечает слишком долго.'),
+          {transient:true}
+        );
+      }
+
+      throw error;
+
+    }finally{
+      clearTimeout(timeout);
+    }
+  }
+
+  function canonical(value){
+    if(Array.isArray(value))return value.map(canonical);
+
+    if(value&&typeof value==='object'){
+      return Object.fromEntries(
+        Object.keys(value)
+          .sort()
+          .map(key=>[key,canonical(value[key])])
+      );
+    }
+
+    return value;
+  }
+
+  function makeError(message,code,retryAfterMs=0){
+    return Object.assign(
+      new Error(message),
+      {code,retryAfterMs}
+    );
+  }
+
+  function isTemporary(error){
+    return(
+      error?.transient===true||
+      Number(error?.status)===429||
+      Number(error?.status)>=500||
+      /^(TypeError|AbortError)$/.test(error?.name||'')||
+      /failed to fetch|network|слишком долго|too many connections|connection refused/i
+        .test(error?.message||'')
+    );
+  }
+
+  function request(data){
+    const action=String(data?.action||'get_player');
+    const auth=typeof tg!=='undefined'?tg.initData:'';
+
+    let state=window.__brxLoadGuardV2;
+
+    if(!state||state.auth!==auth){
+      state=window.__brxLoadGuardV2={
+        auth,
+        epoch:0,
+        flights:new Map(),
+        cache:new Map(),
+        failures:new Map(),
+        queue:[],
+        active:0,
+        critical:0,
+        started:Date.now(),
+        wake:null,
+        until:0,
+        strikes:0,
+        errors:[],
+        probe:false
+      };
+    }
+
+    const clone=value=>
+      typeof structuredClone==='function'
+        ? structuredClone(value)
+        : JSON.parse(JSON.stringify(value));
+
+    const stale=()=>makeError(
+      'Данные обновились. Повтори проверку.',
+      'BRX_READ_SUPERSEDED'
+    );
+
+    /*
+      Покупки, ставки, продажи и выводы отправляются
+      один раз, без автоматического повторения.
+    */
+    if(!reads.has(action)){
+      state.epoch++;
+      state.cache.clear();
+      return network(data);
+    }
+
+    if(
+      document.visibilityState==='hidden'&&
+      action!=='get_boot_core'
+    ){
+      return Promise.reject(makeError(
+        'Фоновое обновление приостановлено.',
+        'BRX_READ_HIDDEN'
+      ));
+    }
+
+    const activeBet=
+      action==='get_crash_state'&&
+      data.has_active_bet===true;
+
+    const critical=action==='get_boot_core'||activeBet;
+
+    const route=JSON.stringify(canonical(data));
+    const key=JSON.stringify([state.epoch,route]);
+
+    if(state.flights.has(key)){
+      return state.flights.get(key).then(clone);
+    }
+
+    const cached=state.cache.get(key);
+
+    if(cached&&cached.until>Date.now()){
+      return Promise.resolve(clone(cached.value));
+    }
+
+    if(cached)state.cache.delete(key);
+
+    const paused=()=>makeError(
+      'Сервер временно перегружен. Обновления возобновятся автоматически.',
+      'BRX_READ_PAUSED',
+      Math.max(0,state.until-Date.now())
+    );
+
+    if(
+      !activeBet&&
+      (
+        state.until>Date.now()||
+        state.until&&state.probe
+      )
+    ){
+      return Promise.reject(paused());
+    }
+
+    const previous=state.failures.get(route);
+
+    if(previous&&previous.until>Date.now()){
+      return Promise.reject(previous.error);
+    }
+
+    if(state.queue.length>=32){
+      return Promise.reject(makeError(
+        'Обновления уже выполняются. Попробуй чуть позже.',
+        'BRX_READ_QUEUE_FULL',
+        1500
+      ));
+    }
+
+    let resolve,reject;
+
+    const promise=new Promise((yes,no)=>{
+      resolve=yes;
+      reject=no;
+    });
+
+    const job={
+      action,
+      data,
+      key,
+      route,
+      epoch:state.epoch,
+      critical,
+      activeBet,
+      created:Date.now(),
+      resolve,
+      reject,
+      promise,
+      probe:false
+    };
+
+    state.flights.set(key,promise);
+
+    if(critical)state.queue.unshift(job);
+    else state.queue.push(job);
+
+    function settle(job,error,value){
+      if(state.flights.get(job.key)===job.promise){
+        state.flights.delete(job.key);
+      }
+
+      if(error)job.reject(error);
+      else job.resolve(value);
+    }
+
+    function gate(job){
+      const currentAuth=
+        typeof tg!=='undefined'?tg.initData:'';
+
+      if(
+        currentAuth!==state.auth||
+        job.epoch!==state.epoch
+      ){
+        return stale();
+      }
+
+      if(
+        document.visibilityState==='hidden'&&
+        job.action!=='get_boot_core'
+      ){
+        return makeError(
+          'Фоновое обновление приостановлено.',
+          'BRX_READ_HIDDEN'
+        );
+      }
+
+      if(Date.now()-job.created>12000){
+        return makeError(
+          'Проверка устарела. Повтори её.',
+          'BRX_READ_EXPIRED'
+        );
+      }
+
+      if(
+        !job.activeBet&&
+        (
+          state.until>Date.now()||
+          state.until&&state.probe
+        )
+      ){
+        return paused();
+      }
+    }
+
+    async function run(job){
+      if(job.critical)state.critical++;
+      else state.active++;
+
+      if(state.until&&!job.activeBet){
+        job.probe=true;
+        state.probe=true;
+      }
+
+      try{
+        const value=await network(job.data);
+
+        if(value?.ok===false){
+          throw Object.assign(
+            new Error(value.error||'Проверка недоступна.'),
+            {
+              status:value.status,
+              transient:value.code==='BRX_TEMPORARY'
+            }
+          );
+        }
+
+        const currentAuth=
+          typeof tg!=='undefined'?tg.initData:'';
+
+        if(
+          job.epoch!==state.epoch||
+          currentAuth!==state.auth
+        ){
+          throw stale();
+        }
+
+        state.failures.delete(job.route);
+
+        if(job.probe){
+          state.until=0;
+          state.strikes=0;
+          state.errors=[];
+        }
+
+        /*
+          Кратковременно сохраняются только общие данные.
+          Баланс и личный инвентарь здесь не кэшируются.
+        */
+        let ttl=({
+          get_big_wins:900,
+          get_game_catalog:1000,
+          get_hourly_deposit_promo:1000,
+          get_brainrot_price_revision:800,
+          get_deposit_channels:700,
+          get_withdraw_status:700,
+          get_upgrade_event_settings:900
+        })[job.action]||0;
+
+        if(
+          job.action==='get_hourly_deposit_promo'&&
+          value?.promo?.expires_at
+        ){
+          ttl=Math.min(
+            ttl,
+            Math.max(
+              0,
+              Date.parse(value.promo.expires_at)-Date.now()
+            )
+          );
+        }
+
+        if(ttl>0){
+          if(state.cache.size>=80){
+            state.cache.delete(state.cache.keys().next().value);
+          }
+
+          state.cache.set(job.key,{
+            until:Date.now()+ttl,
+            value:clone(value)
+          });
+        }
+
+        settle(job,null,value);
+
+      }catch(error){
+        if(
+          !/^BRX_READ_/.test(error?.code||'')&&
+          job.epoch===state.epoch
+        ){
+          const old=state.failures.get(job.route);
+          const count=Math.min(6,(old?.count||0)+1);
+
+          const retryAfterMs=
+            Math.min(
+              job.activeBet?8000:60000,
+              1500*2**(count-1)
+            )+
+            Math.floor(Math.random()*700);
+
+          if(state.failures.size>=128){
+            state.failures.delete(
+              state.failures.keys().next().value
+            );
+          }
+
+          state.failures.set(job.route,{
+            count,
+            until:Date.now()+retryAfterMs,
+            error:Object.assign(error,{retryAfterMs})
+          });
+
+          if(isTemporary(error)&&!job.activeBet){
+            state.errors=state.errors.filter(
+              time=>Date.now()-time<10000
+            );
+
+            state.errors.push(Date.now());
+
+            if(job.probe||state.errors.length>=3){
+              state.strikes=Math.min(6,state.strikes+1);
+
+              state.until=
+                Date.now()+
+                Math.min(
+                  60000,
+                  2000*2**(state.strikes-1)
+                )+
+                Math.floor(Math.random()*1000);
+            }
+          }
+        }
+
+        settle(job,error);
+
+      }finally{
+        if(job.probe)state.probe=false;
+
+        if(job.critical)state.critical--;
+        else state.active--;
+
+        pump();
+      }
+    }
+
+    function pump(){
+      clearTimeout(state.wake);
+      state.wake=null;
+
+      for(let i=0;i<state.queue.length;){
+        const next=state.queue[i];
+        const error=gate(next);
+
+        if(error){
+          state.queue.splice(i,1);
+          settle(next,error);
+          continue;
+        }
+
+        /*
+          Два фоновых запроса и отдельное место
+          для загрузки игры или активной ставки.
+        */
+        if(
+          next.critical
+            ? state.critical>=1
+            : state.active>=2
+        ){
+          i++;
+          continue;
+        }
+
+        if(
+          !next.critical&&
+          !window.__BRX_BOOT_FINISHED__&&
+          Date.now()-state.started<6000
+        ){
+          if(!state.wake){
+            state.wake=setTimeout(pump,120);
+          }
+
+          i++;
+          continue;
+        }
+
+        state.queue.splice(i,1);
+        void run(next);
+      }
+    }
+
+    pump();
+    return promise.then(clone);
+  }
+
+  window.apiRequest=request;
+
+  /*
+    Квесты обновляются при входе в раздел.
+    После расходования бесплатного билета — сразу.
+  */
+  if(!window.__brxLazyQuestRefreshV2){
+    window.__brxLazyQuestRefreshV2=true;
+
+    let dirty=false;
+    const originalApply=window.applyQuestState;
+
+    window.applyQuestState=function(...args){
+      const result=originalApply.apply(this,args);
+      dirty=false;
+      return result;
+    };
+
+    function schedule(force){
+      dirty=true;
+
+      if(
+        force||
+        document.getElementById('ladderPage')
+          ?.classList.contains('active')
+      ){
+        setTimeout(()=>{
+          if(!document.hidden){
+            void refreshQuestState(true);
+          }
+        },120);
+      }
+    }
+
+    window.trackQuestUpgrade=()=>schedule(false);
+
+    window.trackQuestCaseOpen=(_name,_count,freeUsed)=>{
+      schedule(Number(freeUsed??lastFreeUsed)>0);
+    };
+
+    const originalShow=window.showPage;
+
+    window.showPage=function(name,...args){
+      const result=originalShow.call(this,name,...args);
+
+      if(name==='ladder'&&dirty&&!document.hidden){
+        void refreshQuestState(true);
+      }
+
+      return result;
+    };
+  }
+})();
+</script>
 </body>
 </html>
 
