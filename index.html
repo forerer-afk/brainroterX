@@ -36728,6 +36728,450 @@ html body#sharp-app #casePresentationStage .brx-case-new-lane{animation:brx-case
   }
 })();
 </script>
+<style id="brx-referrals-v2-style">
+#brxReferrals[hidden],#brxReferrals [hidden]{display:none!important}
+#brxReferrals{position:fixed;inset:0;z-index:12000;overflow:auto;overscroll-behavior:contain;background:radial-gradient(ellipse at 80% 0,#221c4244,transparent 55%),#080d18;color:#e8edff;font:14px/1.5 system-ui,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));box-sizing:border-box}
+#brxReferrals *{box-sizing:border-box}
+#brxReferrals .rr-wrap{max-width:1000px;margin:auto;animation:brxRefIn .25s ease-out}
+#brxReferrals header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+#brxReferrals h2,#brxReferrals h3,#brxReferrals p{margin:0}
+#brxReferrals h2{font-size:24px!important}
+#brxReferrals h3{font-size:16px;margin-bottom:12px}
+#brxReferrals small,#brxReferrals .rr-muted{color:#99a5bf;font-size:12px}
+#brxReferrals button{border:1px solid #354264;border-radius:2px!important;background:#18213a;color:#e9eeff;padding:10px 14px;cursor:pointer;transition:background .18s,border-color .18s;line-height:1.3;font:inherit;min-height:42px}
+#brxReferrals button:hover{background:#24304f;border-color:#7788ce}
+#brxReferrals button:disabled{opacity:.45;cursor:default}
+#brxReferrals button:focus-visible,#brxReferrals input:focus-visible{outline:2px solid #aa9aff;outline-offset:3px}
+#brxReferrals .rr-close{margin-left:auto}
+#brxReferrals .rr-card{background:linear-gradient(140deg,#131c30,#101625);border:1px solid #27324c;padding:18px;margin-bottom:14px;min-width:0}
+#brxReferrals .rr-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#brxReferrals .rr-stat{border:1px solid #29344f;padding:14px;background:#111a2b;min-width:0}
+#brxReferrals .rr-stat b{display:block;color:#c1b5ff;font-size:clamp(20px,3vw,28px);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#brxReferrals .rr-code{font-size:23px;font-weight:800;letter-spacing:.07em;color:#c1b5ff;overflow-wrap:anywhere}
+#brxReferrals .rr-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#brxReferrals .rr-row input{flex:1;min-width:100px}
+#brxReferrals input{width:100%;border:1px solid #33405e;background:#0b1120;color:#e8eeff;padding:12px;border-radius:2px!important;font:inherit}
+#brxReferrals .rr-link{margin:12px 0 8px}
+#brxReferrals .rr-chart-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#brxReferrals .rr-chart-head button{padding:7px 12px;min-height:36px}
+#brxReferrals button[aria-pressed=true]{background:#4d4584;border-color:#8a7ce0}
+#brxReferrals svg{display:block;width:100%;height:auto;max-height:250px;overflow:visible;margin:8px 0}
+#brxReferrals .rr-dates{display:flex;justify-content:space-between;color:#8191b1;font-size:11px}
+#brxReferrals .rr-form{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:14px 0}
+#brxReferrals label{display:block;color:#a7b2cb;font-size:12px}
+#brxReferrals label input{margin-top:6px}
+#brxReferrals .rr-promo{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #25304a;flex-wrap:wrap}
+#brxReferrals .rr-promo b{color:#bcaeff;overflow-wrap:anywhere}
+#brxReferrals .rr-status{color:#c9c0ff;min-height:24px;margin:8px 0;overflow-wrap:anywhere}
+#brxReferrals .rr-primary{background:linear-gradient(110deg,#394f91,#604982);border-color:#6971ae}
+@keyframes brxRefIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+ #brxReferrals .rr-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #brxReferrals .rr-form{grid-template-columns:1fr 1fr}
+ #brxReferrals .rr-form label:first-child{grid-column:1/-1}
+ #brxReferrals .rr-card{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ #brxReferrals .rr-wrap{animation:none}
+ #brxReferrals button{transition:none}
+}
+</style>
+
+<section id="brxReferrals" role="dialog" aria-modal="true"
+ aria-labelledby="rrTitle" hidden>
+ <div class="rr-wrap">
+  <header>
+   <div><h2 id="rrTitle">Рефералы</h2><small>Твои приглашения и доход</small></div>
+   <button class="rr-close" id="rrClose" aria-label="Закрыть рефералов">✕</button>
+  </header>
+  <div id="rrStatus" class="rr-status" role="status" aria-live="polite"></div>
+  <button id="rrRefresh">Обновить</button>
+  <div id="rrContent" hidden>
+   <div class="rr-stats">
+    <div class="rr-stat"><small>Приглашено по ссылке</small><b id="rrLinked">—</b></div>
+    <div class="rr-stat"><small>Начислено сегодня</small><b id="rrToday">—</b></div>
+    <div class="rr-stat"><small>Заработано за всё время</small><b id="rrTotal">—</b></div>
+    <div class="rr-stat"><small>Реферальный баланс</small><b id="rrBalance">—</b></div>
+   </div>
+
+   <div class="rr-card">
+    <small>Твой реферальный код</small>
+    <div class="rr-row">
+     <div id="rrCode" class="rr-code">—</div>
+     <button id="rrCopyCode">Скопировать код</button>
+    </div>
+    <div class="rr-row rr-link">
+     <input id="rrLink" readonly aria-label="Реферальная ссылка">
+     <button id="rrCopyLink">Скопировать ссылку</button>
+     <button id="rrShare">Поделиться</button>
+    </div>
+    <p id="rrRates" class="rr-muted"></p>
+    <p id="rrBinding" class="rr-muted"></p>
+   </div>
+
+   <div class="rr-card">
+    <div class="rr-chart-head">
+     <h3>Доход</h3>
+     <div class="rr-row">
+      <button data-rr-days="7" aria-pressed="true">7 дней</button>
+      <button data-rr-days="30" aria-pressed="false">30 дней</button>
+     </div>
+    </div>
+    <p id="rrChartValue" class="rr-muted"></p>
+    <svg id="rrChart" viewBox="0 0 640 180" role="img"
+     aria-label="Ежедневные реферальные начисления"></svg>
+    <div class="rr-dates">
+     <span id="rrFirstDay"></span><span id="rrLastDay"></span>
+    </div>
+    <small id="rrChartNote"></small>
+   </div>
+
+   <div class="rr-card">
+    <h3>Получение дохода</h3>
+    <p id="rrClaimInfo" class="rr-muted"></p>
+    <div class="rr-row" style="margin-top:12px">
+     <button id="rrClaim" class="rr-primary">Получить монеты</button>
+     <button id="rrWithdraw" hidden>Обменять на предметы</button>
+    </div>
+   </div>
+
+   <div id="rrPartner" class="rr-card" hidden>
+    <h3>Промокоды партнёра</h3>
+    <p id="rrLimits" class="rr-muted"></p>
+    <form id="rrPromoForm">
+     <div class="rr-form">
+      <label>Промокод
+       <input id="rrPromoCode" required minlength="3" maxlength="40"
+        pattern="[A-Za-z0-9_-]{3,40}" autocomplete="off">
+      </label>
+      <label>Награда, ⓧ
+       <input id="rrPromoReward" type="number" required min="1"
+        step="1" inputmode="numeric">
+      </label>
+      <label>Активаций
+       <input id="rrPromoUses" type="number" required min="1"
+        step="1" inputmode="numeric">
+      </label>
+     </div>
+     <button id="rrCreatePromo" class="rr-primary" type="submit">Создать промокод</button>
+    </form>
+    <p id="rrPromoStatus" class="rr-status" role="status" aria-live="polite"></p>
+    <div id="rrPromos"></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<script id="brx-referrals-v2">
+(()=>{
+ if(window.__brxReferralsV2)return;
+ window.__brxReferralsV2=true;
+
+ const el=id=>document.getElementById(id),root=el('brxReferrals');
+ let data=null,flight=null,days=7,operation=null,operationKey='';
+ let lastFocus,oldOverflow='',busy=false,claimedBusy=false;
+
+ const fmt=value=>new Intl.NumberFormat('ru-RU',{
+  maximumFractionDigits:2
+ }).format(Number(value)||0);
+ const money=value=>fmt(value)+' ⓧ';
+ const date=value=>new Date(value+'T12:00:00Z').toLocaleDateString(
+  'ru-RU',{day:'2-digit',month:'2-digit'}
+ );
+ const text=(id,value)=>{el(id).textContent=String(value??'');};
+ const status=message=>text('rrStatus',message);
+
+ function chart(){
+  if(!data)return;
+  const points=(data.series||[]).slice(-days),svg=el('rrChart');
+  svg.replaceChildren();
+  const max=Math.max(1,...points.map(p=>Number(p.amount)||0));
+  const ns='http://www.w3.org/2000/svg';
+
+  function shape(tag,attrs){
+   const s=document.createElementNS(ns,tag);
+   for(const [k,v] of Object.entries(attrs))s.setAttribute(k,String(v));
+   svg.append(s);
+   return s;
+  }
+
+  for(let n=0;n<4;n++){
+   shape('line',{
+    x1:10,x2:630,y1:20+n*48,y2:20+n*48,
+    stroke:'#283451','stroke-width':1
+   });
+  }
+
+  const xy=points.map((p,i)=>[
+   points.length===1?320:10+i*620/(points.length-1),
+   164-(Number(p.amount)||0)/max*142
+  ]);
+
+  if(xy.length){
+   const path=xy.map(([x,y],i)=>(i?'L':'M')+x+','+y).join(' ');
+   shape('path',{
+    d:path+` L${xy.at(-1)[0]},164 L${xy[0][0]},164 Z`,
+    fill:'#8370d4','fill-opacity':'.13'
+   });
+   shape('path',{
+    d:path,fill:'none',stroke:'#aa98ff','stroke-width':3,
+    'stroke-linejoin':'round','stroke-linecap':'round'
+   });
+
+   points.forEach((p,i)=>{
+    const [cx,cy]=xy[i],label=date(p.day)+' · '+money(p.amount);
+    const dot=shape('circle',{
+     cx,cy,r:5,fill:'#b8a9ff',tabindex:0,'aria-label':label
+    });
+    const title=document.createElementNS(ns,'title');
+    title.textContent=label;
+    dot.append(title);
+    const show=()=>text('rrChartValue',label);
+    dot.addEventListener('pointerenter',show);
+    dot.addEventListener('focus',show);
+    dot.addEventListener('click',show);
+   });
+  }
+
+  const sum=points.reduce((s,p)=>s+Number(p.amount||0),0);
+  text('rrChartValue','За показанный период: '+money(sum));
+  text('rrFirstDay',points[0]?date(points[0].day):'');
+  text('rrLastDay',points.at(-1)?date(points.at(-1).day):'');
+  text('rrChartNote',
+   'История графика собирается с '+
+   new Date(data.tracking_started_at).toLocaleString('ru-RU',{
+    timeZone:'Europe/Kyiv',dateStyle:'short',timeStyle:'short'
+   })+
+   '. Более ранний доход включён в сумму за всё время. Время — Киев.'
+  );
+  root.querySelectorAll('[data-rr-days]').forEach(b=>{
+   b.setAttribute('aria-pressed',String(Number(b.dataset.rrDays)===days));
+  });
+ }
+
+ function render(){
+  text('rrLinked',fmt(data.linked_count));
+  text('rrTotal',money(data.total_earned));
+  text('rrBalance',money(data.balance));
+  text('rrToday',money(data.series?.at(-1)?.amount));
+  text('rrCode',data.code||'—');
+  el('rrLink').value=data.invite_link||'';
+  text('rrRates',
+   'Доход начисляется после подтверждённого пополнения приглашённого игрока.'
+  );
+
+  const state=data.binding?.status;
+  text('rrBinding',
+   state==='linked'?'Приглашение учтено.':
+   state==='already_linked'?'Ты уже привязан к пригласившему ранее игроку.':
+   state==='self'?'По своей ссылке привязаться нельзя.':
+   ['invalid','unavailable','unconfirmed'].includes(state)?
+    'Привязка приглашения не подтверждена. Открой исходную ссылку заново в Telegram.':
+   data.bound_owner?'Ты привязан к пригласившему игроку.':
+    'Ссылка учитывается после входа приглашённого через Telegram.'
+  );
+
+  text('rrClaimInfo','Можно получить монетами: '+money(data.claimable));
+  el('rrClaim').disabled=Number(data.claimable)<=0||claimedBusy;
+  el('rrWithdraw').hidden=!data.is_partner;
+  el('rrPartner').hidden=!data.is_partner;
+
+  const limits=data.limits||{};
+  text('rrLimits',Number(limits.remaining)>0?
+   `Осталось создать: ${fmt(limits.remaining)}. Награда до ${money(limits.max_reward)}, активаций до ${fmt(limits.max_uses)}.`:
+   'Лимит создания промокодов не выдан или закончился.'
+  );
+  el('rrCreatePromo').disabled=busy||!data.is_partner||Number(limits.remaining)<=0;
+  el('rrPromoReward').max=limits.max_reward||1;
+  el('rrPromoUses').max=limits.max_uses||1;
+
+  const list=el('rrPromos');
+  list.replaceChildren();
+  for(const p of data.promos||[]){
+   const row=document.createElement('div');
+   row.className='rr-promo';
+   const code=document.createElement('b'),info=document.createElement('span');
+   code.textContent=p.code;
+   info.textContent=
+    `${money(p.reward_coins)} · ${fmt(p.uses_count)} / ${fmt(p.max_uses)} · ${p.active?'Активен':'Завершён'}`;
+   row.append(code,info);
+   list.append(row);
+  }
+  if(!list.childNodes.length)list.textContent='Созданных промокодов пока нет.';
+  chart();
+  el('rrContent').hidden=false;
+ }
+
+ async function refresh(){
+  if(flight)return flight;
+  el('rrRefresh').disabled=true;
+  el('rrCreatePromo').disabled=true;
+  status('Загрузка…');
+  flight=(async()=>{
+   try{
+    const next=await apiRequest({action:'affiliate_state',dashboard:true});
+    if(!next?.ok||!Array.isArray(next.series)){
+     throw new Error(next?.error||
+      'Не удалось загрузить рефералов. Проверь обновление сервера и SQL.');
+    }
+    data=next;
+    render();
+    status('');
+   }catch(e){
+    status(e.message||'Не удалось загрузить рефералов.');
+   }finally{
+    flight=null;
+    el('rrRefresh').disabled=false;
+    el('rrCreatePromo').disabled=
+     busy||!data?.is_partner||Number(data?.limits?.remaining)<=0;
+   }
+  })();
+  return flight;
+ }
+
+ function close(){
+  if(root.hidden)return;
+  root.hidden=true;
+  document.body.style.overflow=oldOverflow;
+  lastFocus?.focus?.({preventScroll:true});
+  window.Telegram?.WebApp?.BackButton?.offClick?.(close);
+  window.Telegram?.WebApp?.BackButton?.hide?.();
+ }
+
+ window.closeReferral=close;
+ window.openReferral=async function(){
+  ['settingsModal','referralModal','affiliateModal'].forEach(id=>{
+   el(id)?.classList.remove('show');
+  });
+  if(root.hidden){
+   lastFocus=document.activeElement;
+   oldOverflow=document.body.style.overflow;
+   root.hidden=false;
+   document.body.style.overflow='hidden';
+   el('rrClose').focus({preventScroll:true});
+   window.Telegram?.WebApp?.BackButton?.onClick?.(close);
+   window.Telegram?.WebApp?.BackButton?.show?.();
+  }
+  return refresh();
+ };
+
+ const withdraw=window.openAffiliateMenu;
+ el('rrWithdraw').onclick=()=>{close();withdraw?.('withdraw');};
+ window.openPartnerMenu=()=>window.openReferral();
+ el('rrClose').onclick=close;
+ el('rrRefresh').onclick=refresh;
+
+ async function copy(value,field){
+  if(!value)return;
+  try{
+   await navigator.clipboard.writeText(value);
+   status('Скопировано');
+  }catch(_){
+   if(field){
+    field.focus();
+    field.select();
+    status('Ссылка выделена — скопируй её.');
+   }else status('Код: '+value);
+  }
+ }
+
+ el('rrCopyCode').onclick=()=>copy(data?.code);
+ el('rrCopyLink').onclick=()=>copy(data?.invite_link,el('rrLink'));
+ el('rrShare').onclick=()=>{
+  if(!data?.invite_link)return;
+  const url='https://t.me/share/url?url='+encodeURIComponent(data.invite_link);
+  if(window.Telegram?.WebApp?.openTelegramLink){
+   window.Telegram.WebApp.openTelegramLink(url);
+  }else window.open(url,'_blank','noopener');
+ };
+
+ root.querySelectorAll('[data-rr-days]').forEach(b=>{
+  b.onclick=()=>{days=Number(b.dataset.rrDays);chart();};
+ });
+
+ el('rrClaim').onclick=async()=>{
+  if(claimedBusy||Number(data?.claimable)<=0)return;
+  claimedBusy=true;
+  el('rrClaim').disabled=true;
+  try{
+   const result=await apiRequest({action:'claim_referral_balance'});
+   if(!result.ok)throw new Error(result.error||'Не удалось получить монеты');
+   if(typeof window.silentSync==='function')void window.silentSync();
+   await refresh();
+   status('Получено: '+money(result.claimed));
+  }catch(e){
+   status(e.message);
+  }finally{
+   claimedBusy=false;
+   el('rrClaim').disabled=Number(data?.claimable)<=0;
+  }
+ };
+
+ el('rrPromoForm').onsubmit=async event=>{
+  event.preventDefault();
+  if(busy||!data?.is_partner||Number(data.limits?.remaining)<=0)return;
+
+  const code=el('rrPromoCode').value.trim().toLowerCase();
+  const reward=Number(el('rrPromoReward').value);
+  const uses=Number(el('rrPromoUses').value);
+  if(!/^[a-z0-9_-]{3,40}$/.test(code)||
+   !Number.isInteger(reward)||!Number.isInteger(uses)||reward<1||uses<1)return;
+
+  const key=JSON.stringify([code,reward,uses]);
+  if(operationKey!==key){
+   operationKey=key;
+   operation=crypto.randomUUID?.();
+  }
+  if(!operation){
+   text('rrPromoStatus','Обнови браузер для безопасного создания промокода.');
+   return;
+  }
+
+  busy=true;
+  el('rrCreatePromo').disabled=true;
+  text('rrPromoStatus','Создаём…');
+
+  try{
+   const result=await apiRequest({
+    action:'referral_create_promo',code,reward_coins:reward,
+    max_uses:uses,operation_id:operation
+   });
+   if(!result?.ok)throw new Error(result?.error||'Не удалось создать промокод');
+   el('rrPromoForm').reset();
+   operation=null;
+   operationKey='';
+   await refresh();
+   text('rrPromoStatus','Промокод '+result.code+' создан.');
+  }catch(e){
+   text('rrPromoStatus',e.message||'Ошибка создания.');
+  }finally{
+   busy=false;
+   el('rrCreatePromo').disabled=Number(data?.limits?.remaining)<=0;
+  }
+ };
+
+ root.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){
+   event.preventDefault();
+   close();
+   return;
+  }
+  if(event.key!=='Tab')return;
+  const nodes=[...root.querySelectorAll(
+   'button:not(:disabled),input:not(:disabled),[tabindex="0"]'
+  )].filter(x=>x.getClientRects().length);
+  const first=nodes[0],last=nodes.at(-1);
+  if(event.shiftKey&&document.activeElement===first){
+   event.preventDefault();
+   last?.focus();
+  }else if(!event.shiftKey&&document.activeElement===last){
+   event.preventDefault();
+   first?.focus();
+  }
+ });
+})();
+</script>
+
 </body>
 </html>
 
