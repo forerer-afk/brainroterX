@@ -19678,6 +19678,9 @@ function cinemaStartPixelSmoothMotion(reel){
 }
 async function cinemaAnimate(state){
     if(!state.winners.length)return;
+    if(state.skipRequested||caseAnimationSkipRequested||!state.root.isConnected||document.hidden){
+        cinemaStopPreview(state);state.winners.forEach((_,i)=>cinemaReveal(state,i));return;
+    }
     cinemaStopPreview(state);
     const pool=getCaseItems().filter(Boolean);
     const fast=Number(caseSpeed)>1;
@@ -19783,8 +19786,22 @@ async function cinemaAnimate(state){
     }
     let started=clockStart;
     await new Promise((resolve,reject)=>{
+        let settled=false,frameId=0;
+        const complete=()=>{
+            if(settled)return;settled=true;cancelAnimationFrame(frameId);
+            for(const reel of reels){
+                const last=reel.cards[reel.stop];
+                reel.track.style.transform=`translate3d(${reel.viewport.clientWidth/2-last.offsetLeft-last.offsetWidth/2+last.offsetWidth*reel.finalFraction}px,0,0)`;
+                try{reel.smoothAnimation?.cancel();}catch(_e){}
+                reel.smoothAnimation=null;reel.done=true;last.classList.add('cinema-final');cinemaReveal(state,reel.index);
+            }
+            state.finishMotion=null;resolve();
+        };
+        state.finishMotion=complete;
         const frame=now=>{
             try{
+                if(settled)return;
+                if(state.skipRequested||caseAnimationSkipRequested||!state.root.isConnected||document.hidden){complete();return;}
                 let allDone=true;
                 for(const reel of reels){
                     const elapsed=Math.min(reel.duration,(now-started)/1000);
@@ -19816,13 +19833,14 @@ async function cinemaAnimate(state){
                     }
                     if(!reel.done)allDone=false;
                 }
-                if(allDone)resolve();else requestAnimationFrame(frame);
+                if(allDone)complete();else frameId=requestAnimationFrame(frame);
             }catch(error){
+                settled=true;cancelAnimationFrame(frameId);state.finishMotion=null;
                 reels.forEach(reel=>{try{reel.smoothAnimation?.cancel();}catch(_e){}});
                 reject(error);
             }
         };
-        requestAnimationFrame(frame);
+        frameId=requestAnimationFrame(frame);
     });
     window.brxCaseStopSound?.();
 }
@@ -19874,13 +19892,14 @@ async function openSelectedCase(){
         playerProfile.can_withdraw=Boolean(playerProfile.has_deposited)&&playerProfile.wager_progress>=playerProfile.wager_required;
         if (selectedCase?.id === chosen.id) renderCaseContent();
         state.winners=cinemaWinners(data);
-        if(typeof trackQuestCaseOpen === 'function') trackQuestCaseOpen(chosen.name,count);
+        brxCaseExpansion(state,data,count);
+        if(typeof trackQuestCaseOpen === 'function') trackQuestCaseOpen(chosen.name,Number(data.count??count));
         const added=[...(Array.isArray(data.items)?data.items:[]),...(data.item?[data.item]:[]),...state.winners.filter(item=>!cinemaIsCoins(item))];
         const known=new Set(inventory.map(item=>Number(item.id)));
         added.forEach(item=>{if(item?.id&&!known.has(Number(item.id))){inventory.unshift(item);known.add(Number(item.id));}});
         lastCaseWinners=[...state.winners];
         updateBalance();renderProfile();renderInventory();renderSourceGrid();
-        if(state.winners.length!==count){
+        if(state.winners.length!==Number(data.count??count)||state.lanes.length!==state.winners.length){
             cinemaFinish(state,'Сервер вернул неполный результат. Проверь инвентарь.');
             await silentSync();
         }else{
@@ -35811,6 +35830,105 @@ html body#sharp-app #adminSectionBonuses .bonus-admin-meta{font-size:11px;color:
   }else{
     setTimeout(init,0);
   }
+})();
+</script>
+
+<style id="brx-case-split-style-v1">
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-window{
+  height:178px!important;min-height:178px!important;max-height:178px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item{
+  flex:0 0 128px!important;width:128px!important;min-width:128px!important;max-width:128px!important;
+  height:160px!important;min-height:160px!important;max-height:160px!important;padding:6px!important;
+  grid-template-rows:102px 28px 16px!important;gap:1px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item>img{
+  width:108px!important;max-width:108px!important;height:102px!important;max-height:102px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .roulette-name{
+  height:28px!important;min-height:28px!important;max-height:28px!important;font-size:10px!important;line-height:14px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .roulette-value{
+  height:16px!important;min-height:16px!important;max-height:16px!important;font-size:11px!important;line-height:16px!important;
+}
+html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item>.xcoin{
+  width:64px!important;min-width:64px!important;max-width:64px!important;height:64px!important;min-height:64px!important;max-height:64px!important;font-size:34px!important;line-height:64px!important;
+}
+html body#sharp-app #casePresentationStage .brx-case-progress{display:flex!important;align-items:center;justify-content:space-between;gap:12px;min-width:0;margin:10px 0;}
+html body#sharp-app #casePresentationStage .brx-case-progress .cinema-status{position:static!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;white-space:normal!important;margin:0!important;min-width:0;line-height:1.4;}
+html body#sharp-app #casePresentationStage .brx-case-progress[hidden]{display:none!important;}
+html body#sharp-app #casePresentationStage .brx-case-skip{flex:none;min-height:36px;padding:8px 12px;border:1px solid #7774b750;border-radius:0!important;background:#181d31;color:#d9dcf5;font-size:11px;cursor:pointer;}
+html body#sharp-app #casePresentationStage .brx-case-skip:hover{background:#252a44;}
+html body#sharp-app #casePresentationStage .brx-case-skip:disabled{opacity:.6;cursor:default;}
+html body#sharp-app #casePresentationStage .brx-case-new-lane{animation:brx-case-expand .38s cubic-bezier(.2,.7,.3,1) both;}
+@keyframes brx-case-expand{from{opacity:0;translate:0 -9px}to{opacity:1;translate:0 0}}
+@media(max-width:540px){
+  html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-window{height:160px!important;min-height:160px!important;max-height:160px!important;}
+  html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item{flex-basis:112px!important;width:112px!important;min-width:112px!important;max-width:112px!important;height:144px!important;min-height:144px!important;max-height:144px!important;grid-template-rows:86px 28px 16px!important;}
+  html body#sharp-app #activeCase #casePresentationStage :is(#caseCinema,#caseIdleReels)[data-brx-count="1"] .cinema-reel-item>img{width:94px!important;max-width:94px!important;height:86px!important;max-height:86px!important;}
+}
+@media(prefers-reduced-motion:reduce){html body#sharp-app #casePresentationStage .brx-case-new-lane{animation:none!important;}}
+</style>
+<script id="brx-case-split-client-v1">
+(()=>{
+  if(window.__brxCaseSplitV1)return;
+  window.__brxCaseSplitV1=true;
+  const idle=window.cinemaRenderIdle;
+  window.cinemaRenderIdle=function(...args){
+    const result=idle.apply(this,args),root=document.getElementById('caseIdleReels');
+    if(root)root.dataset.brxCount=String(root.children.length);
+    return result;
+  };
+  const open=window.cinemaOpen;
+  window.cinemaOpen=function(name,count){
+    const state=open.call(this,name,count);
+    state.root.dataset.brxCount=String(count);
+    const status=state.root.querySelector('.cinema-status'),row=document.createElement('div');
+    row.className='brx-case-progress';status.before(row);row.append(status);
+    const button=document.createElement('button');
+    button.type='button';button.className='brx-case-skip';button.textContent='Пропустить';
+    button.onclick=()=>{
+      if(!state.busy||state.skipRequested)return;
+      state.skipRequested=true;button.disabled=true;
+      if(!state.winners.length){status.textContent='Получаем результат…';button.textContent='Получаем дроп…';}
+      state.finishMotion?.();
+    };
+    row.append(button);return state;
+  };
+  window.brxCaseExpansion=(state,data,requested)=>{
+    const count=state.winners.length,multiplier=Number(data.split_multiplier||1);
+    if(!Number.isInteger(count)||count<1||count>5)return;
+    const first=state.lanes[0],track=first?.querySelector('.cinema-track'),viewport=first?.querySelector('.cinema-window');
+    const cards=track?Array.from(track.children):[];
+    const oldStep=cards.length>1?cards[1].offsetLeft-cards[0].offsetLeft:1;
+    const oldX=track?cinemaReadTrackX(track):0;
+    const center=cards.length?(viewport.clientWidth/2-oldX-cards[0].offsetLeft)/Math.max(1,oldStep):0;
+    cinemaStopPreview(state);
+    state.root.dataset.brxCount=String(count);
+    for(let i=state.lanes.length;i<count;i++){
+      const lane=cinemaLane();cinemaFillIdle(lane,i);lane.classList.add('brx-case-new-lane');
+      state.root.querySelector('.cinema-drops').append(lane);state.lanes.push(lane);
+      const next=lane.querySelector('.cinema-track');next.classList.remove('cinema-idle-track');
+      next.style.animation='none';next.style.transform='translate3d(0,0,0)';
+      state.handoffs.push({track:next,x:0,cycle:0,speed:0});
+    }
+    if(cards.length&&oldStep>0){
+      const step=cards.length>1?cards[1].offsetLeft-cards[0].offsetLeft:oldStep;
+      const x=viewport.clientWidth/2-cards[0].offsetLeft-center*step;
+      track.style.transform=`translate3d(${x}px,0,0)`;
+      if(state.handoffs[0])state.handoffs[0].x=x;
+    }
+    if(multiplier>1&&count===multiplier&&requested===1){
+      state.splitMultiplier=multiplier;
+      state.root.querySelector('.cinema-status').textContent=`Кейс ×${multiplier} · +${multiplier-1} бесплатно`;
+    }
+  };
+  const finish=window.cinemaFinish;
+  window.cinemaFinish=function(state,message){
+    state.root.querySelector('.brx-case-skip')?.setAttribute('hidden','');
+    if(!state.splitMultiplier)state.root.querySelector('.brx-case-progress').hidden=true;
+    return finish.call(this,state,message||(state.splitMultiplier?`Кейс ×${state.splitMultiplier} · Открытие завершено`:message));
+  };
 })();
 </script>
 
