@@ -37468,6 +37468,469 @@ html body #brxReferrals .rr-history-toggle[aria-expanded=true] span:last-child{t
 })();
 </script>
 
+<style id="brx-midnight-design-v1">
+@layer brx-midnight-design-v1{
+body.bx-night{
+ --bx-ink:#070914;--bx-edge:#303455;--bx-light:#f4f1ff;--bx-lilac:#b8a2ff;
+ background:radial-gradient(ellipse 900px 600px at 8% 0,#32266340,transparent 75%),radial-gradient(ellipse 700px 700px at 100% 28%,#162d5830,transparent 72%),#070914!important;
+ color:var(--bx-light)!important;
+}
+body.bx-night::before{
+ content:""!important;display:block!important;position:fixed!important;inset:0!important;z-index:0!important;pointer-events:none!important;
+ background-image:radial-gradient(circle,#c6b8ff38 1px,transparent 1.5px),radial-gradient(circle,#83aeff24 1px,transparent 1.5px);
+ background-size:113px 127px,179px 193px!important;background-position:21px 19px,65px 81px!important;opacity:.4!important;mask-image:linear-gradient(#000,transparent 90%);animation:none!important;
+}
+body.bx-night .game{max-width:1180px!important;padding:22px 24px 124px!important;position:relative!important}
+body.bx-night #casesPage.active{display:block!important}
+body.bx-night .topbar{
+ min-height:76px!important;padding:14px max(20px,calc((100vw - 1132px)/2))!important;background:#0b0d1bee!important;
+ border-bottom:1px solid #383152!important;box-shadow:0 8px 35px #0003!important;
+}
+body.bx-night .brand-home{gap:11px!important;min-width:0!important}
+body.bx-night .brand-name{font-size:18px!important;letter-spacing:.055em!important;font-weight:900!important;white-space:nowrap!important}
+body.bx-night .brand-name b{color:#b69bff!important;text-shadow:0 0 18px #9560ff70!important}
+body.bx-night .brand-mark{width:33px!important;height:35px!important;filter:drop-shadow(0 3px 9px #6d46d955)!important}
+body.bx-night .brand-case-body{background:linear-gradient(135deg,#ae89ff,#5546ad)!important;border:1px solid #cfb9ff!important;font-size:20px!important;color:#fff!important}
+body.bx-night .balance-box{min-height:42px!important;background:#16182c!important;border-color:#414063!important;font-size:14px!important;max-width:160px!important;font-variant-numeric:tabular-nums!important}
+body.bx-night .deposit-top{min-height:42px!important;background:linear-gradient(135deg,#9370ee,#5556c3)!important;border:1px solid #b19aef!important;box-shadow:0 3px 16px #6946ca35!important}
+
+/* Лента дропов */
+body.bx-night #casesPage #bigWinsSection{padding:15px!important;margin:0 0 18px!important;background:linear-gradient(120deg,#141324,#0d1020)!important;border:1px solid #302d49!important;border-radius:0!important;box-shadow:inset 0 1px #cdb9ff0a!important}
+body.bx-night #bigWinsSection .big-wins-title{font-size:11px!important;font-weight:800!important;letter-spacing:.09em!important;color:#c6bedc!important}
+body.bx-night #bigWinsSection .big-wins-title::before{content:"✦";color:#b696ff;margin-right:7px}
+body.bx-night #bigWinsTrack{gap:8px!important;padding:3px 0!important;scrollbar-width:thin;scrollbar-color:#4b4268 transparent}
+body.bx-night #bigWinsTrack .big-win-item{flex:0 0 102px!important;width:102px!important;height:127px!important;border:1px solid #38314e!important;border-bottom:2px solid #66518d!important;background:radial-gradient(ellipse at 50% 0,#51417335,transparent 78%),#111322!important;border-radius:0!important;padding:7px!important}
+body.bx-night #bigWinsTrack .big-win-item.big-win-gold{border-bottom-color:#b18b4f!important}
+body.bx-night #bigWinsTrack .big-win-brainrot{width:61px!important;height:61px!important;object-fit:contain!important}
+body.bx-night #bigWinsTrack .big-win-price{font-size:10px!important;color:#e1d8ff!important}
+body.bx-night .bx-feed-name{width:100%;min-height:24px;max-height:24px;line-height:12px;font-size:9px;font-weight:700;color:#ddd3ef;overflow:hidden;text-align:center;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+body.bx-night #bigWinsTrack .big-wins-empty{padding:17px 0!important;color:#9a94b0!important;font-size:12px!important}
+
+/* Главный блок */
+body.bx-night #casesPage .bx-feature-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;margin:0 0 28px;align-items:stretch}
+body.bx-night #casesPage #hourlyPercentPromo{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;margin:0!important;padding:25px!important;min-width:0!important;border:1px solid #665095!important;border-radius:0!important;
+ background:radial-gradient(ellipse at 100% 22%,#623da34a,transparent 62%),linear-gradient(145deg,#17132c,#0d1024 75%)!important;
+ box-shadow:inset 0 1px #dac7ff20,0 12px 35px #0003!important;
+}
+body.bx-night #hourlyPercentPromo::before{content:""!important;position:absolute!important;inset:0!important;display:block!important;pointer-events:none!important;background:radial-gradient(circle at 89% 16%,#d8beff88 1px,transparent 2px),radial-gradient(circle at 44% 54%,#95a9e866 1px,transparent 2px),radial-gradient(circle at 76% 75%,#95a9e855 1px,transparent 2px)!important;animation:none!important;opacity:.7!important}
+body.bx-night #hourlyPercentPromo::after{content:""!important;display:block!important;position:absolute!important;left:0!important;right:0!important;top:0!important;height:2px!important;background:linear-gradient(90deg,#a37eff,#6c8eff 55%,transparent)!important;pointer-events:none!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-top{position:relative!important;min-height:152px!important;display:block!important;padding-right:46%!important;z-index:1!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-kicker{display:inline-block!important;font-size:9px!important;letter-spacing:.13em!important;padding:6px 8px!important;background:#69509330!important;border:1px solid #a284d63b!important;color:#d0baff!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-title{font-size:clamp(20px,2.3vw,29px)!important;line-height:1.14!important;letter-spacing:-.035em!important;max-width:310px!important;margin-top:13px!important;font-weight:900!important;color:#fff!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-percent{display:inline-flex!important;align-items:center!important;margin-top:12px!important;padding:5px 10px!important;min-height:32px!important;font-size:20px!important;line-height:1!important;color:#e1ceff!important;background:#32254e!important;border:1px solid #8161ae!important;border-radius:0!important;box-shadow:0 3px 15px #0002!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-middle{position:relative!important;z-index:2!important;display:grid!important;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)!important;gap:8px!important;margin:19px 0 12px!important}
+body.bx-night #hourlyPercentPromo :is(.hourly-promo-code-box,.hourly-promo-timer-box){min-width:0!important;padding:12px!important;background:#080b19bc!important;border:1px solid #4c3b684d!important;border-radius:0!important;text-align:left!important}
+body.bx-night #hourlyPercentPromo :is(.hourly-promo-code-label,.hourly-promo-timer-label){font-size:10px!important;color:#aaa0c2!important;letter-spacing:.025em!important}
+body.bx-night #hourlyPercentPromo :is(.hourly-promo-code,.hourly-promo-timer){font-size:16px!important;color:#e8dcff!important;line-height:1.6!important;font-weight:800!important;font-variant-numeric:tabular-nums!important;overflow-wrap:anywhere!important;letter-spacing:.04em!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-bottom{position:relative!important;z-index:2!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin:0!important}
+body.bx-night #hourlyPercentPromo :is(.hourly-promo-use,.new-cases-button){width:100%!important;min-height:42px!important;padding:10px 6px!important;border-radius:0!important;font-size:10px!important;line-height:1.35!important;letter-spacing:.015em!important;white-space:normal!important}
+body.bx-night #hourlyPercentPromo .hourly-promo-use{background:linear-gradient(110deg,#895de0,#5559bb)!important;border:1px solid #b290ed!important;color:white!important;box-shadow:0 5px 16px #6a41c338!important}
+body.bx-night #hourlyPercentPromo .new-cases-button{background:#211d35!important;border:1px solid #4b4166!important;color:#d9cdef!important}
+
+body.bx-night .bx-feature-art{position:absolute;right:1%;top:11px;width:46%;height:204px;z-index:0;pointer-events:none;isolation:isolate}
+body.bx-night .bx-feature-art::before{content:"";position:absolute;inset:5% -3% 7%;border:1px solid #ac85ff30;border-radius:50%;background:radial-gradient(ellipse,#8654e82e,transparent 70%);transform:rotate(-23deg);box-shadow:0 0 40px #7147ba1a,inset 0 0 35px #7147ba12}
+body.bx-night .bx-feature-art::after{content:"✦";position:absolute;top:9%;right:8%;font-size:21px;color:#e1c4ff;filter:drop-shadow(0 0 8px #a56bff)}
+body.bx-night .bx-feature-art img{position:absolute!important;display:block!important;object-fit:contain!important;margin:0!important;background:none!important;border:0!important;opacity:1!important;mix-blend-mode:normal!important}
+body.bx-night .bx-feature-main{width:100%!important;height:100%!important;inset:0!important;filter:drop-shadow(0 10px 16px #0007)!important;transform:rotate(-8deg)}
+body.bx-night .bx-feature-friend{width:32%!important;height:42%!important;right:-2%!important;bottom:2%!important;filter:drop-shadow(0 5px 7px #0008)!important;transform:rotate(8deg)}
+html[data-ux-effects="true"] body.bx-night.bx-feature-visible .bx-feature-main{animation:bx-feature-drift 6s ease-in-out infinite!important}
+@keyframes bx-feature-drift{
+ 0%,100%{transform:translateY(0) rotate(-8deg)}
+ 50%{transform:translateY(-6px) rotate(-5deg)}
+}
+
+/* Трёхдневный дроп */
+body.bx-night #casesPage #threeDayDropCard{margin:0!important;padding:21px!important;min-width:0!important;background:radial-gradient(ellipse at 100% 0,#33457935,transparent 65%),linear-gradient(145deg,#13172b,#0e1120)!important;border:1px solid #3c3e64!important;border-top:2px solid #7775b0!important;box-shadow:inset 0 1px #c9ceff08!important;border-radius:0!important}
+body.bx-night #threeDayDropCard .three-day-drop-kicker{color:#aebef6!important;font-size:10px!important;letter-spacing:.1em!important}
+body.bx-night #threeDayDropCard .three-day-drop-title{font-size:20px!important;line-height:1.25!important;margin-top:8px!important;color:#f2efff!important}
+body.bx-night #threeDayDropCard .three-day-drop-badge{padding:6px 7px!important;max-width:105px!important;font-size:9px!important;background:#25223c!important;border-color:#4d446c!important;color:#cfc0ee!important}
+body.bx-night #threeDayDropCard .three-day-drop-stats{margin-top:14px!important}
+body.bx-night #threeDayDropCard .three-day-drop-stat{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:8px!important;text-align:left!important;padding:9px 10px!important;background:#090d1c66!important;border:1px solid #333650!important}
+body.bx-night #threeDayDropCard .three-day-drop-stat span{font-size:10px!important;color:#a5abc6!important;text-align:left!important}
+body.bx-night #threeDayDropCard .three-day-drop-stat b{font-size:13px!important;margin:0!important;color:#ded6ff!important}
+body.bx-night #threeDayDropCard .three-day-drop-rewards{gap:8px!important;margin:13px 0!important}
+body.bx-night #threeDayDropCard .three-day-drop-slot{height:105px!important;padding:8px 5px!important;background:radial-gradient(ellipse at 50% 0,#65529d25,transparent 85%),#101426!important;border:1px solid #414162!important;border-radius:0!important}
+body.bx-night #threeDayDropCard .three-day-drop-slot img{width:54px!important;height:54px!important;object-fit:contain!important}
+body.bx-night #threeDayDropCard .three-day-drop-question{font-size:31px!important;color:#9b8cc0!important}
+body.bx-night #threeDayDropCard .three-day-drop-button{min-height:42px!important;margin:0!important;font-size:11px!important;background:linear-gradient(110deg,#494979,#343a65)!important;border:1px solid #7470a3!important;border-radius:0!important}
+
+/* Коллекции */
+body.bx-night #bxCollections{display:flex;gap:7px;overflow-x:auto;max-width:100%;padding:0 0 8px;margin:0 0 14px;scrollbar-width:none}
+body.bx-night #bxCollections[hidden]{display:none!important}
+body.bx-night #bxCollections button{flex:0 0 auto;padding:9px 12px;min-height:38px;background:#141426;color:#bfb5d6;border:1px solid #38324e;border-radius:0!important;font-size:10px!important}
+body.bx-night #bxCollections button:hover{background:#28203e;color:#f2e7ff;border-color:#8a6cb2}
+body.bx-night #casesPage .case-section{margin:0 0 30px!important;scroll-margin-top:22px}
+body.bx-night #casesPage .case-section-head{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 16px!important;padding:0 0 12px!important;border-bottom:1px solid #302b46!important}
+body.bx-night #casesPage .case-section-title-wrap{flex:1;min-width:0}
+body.bx-night #casesPage .case-section-title{font-size:23px!important;font-weight:900!important;color:#f4eeff!important;letter-spacing:-.025em!important}
+body.bx-night #casesPage .case-section-subtitle{color:#9590ab!important;font-size:11px!important;line-height:1.5!important;margin-top:4px!important}
+body.bx-night .bx-section-count{font-size:10px;color:#b1a2d0;padding:6px 8px;background:#1d1930;border:1px solid #39304f;white-space:nowrap}
+
+/* Карточки кейсов */
+body.bx-night #caseList .case-list{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
+body.bx-night #caseList .case-card{
+ --bx-tint:139,109,213;
+ position:relative!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;isolation:isolate!important;overflow:hidden!important;
+ min-width:0!important;min-height:0!important;height:100%!important;padding:14px 0 0!important;
+ background:radial-gradient(ellipse at 50% 30%,rgba(var(--bx-tint),.13),transparent 70%),linear-gradient(155deg,#121222,#090c18)!important;
+ border:1px solid rgba(var(--bx-tint),.36)!important;border-bottom:2px solid rgba(var(--bx-tint),.85)!important;border-radius:0!important;
+ box-shadow:inset 0 1px #dac7ff0a,0 7px 22px #0002!important;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease!important;
+}
+body.bx-night #caseList .case-card.bx-azure{--bx-tint:104,145,221}
+body.bx-night #caseList .case-card.bx-rose{--bx-tint:198,104,164}
+body.bx-night #caseList .case-card.bx-amber{--bx-tint:195,139,76}
+body.bx-night #caseList .case-card::before{content:""!important;display:block!important;position:absolute!important;inset:8px!important;z-index:-1!important;border:1px solid rgba(var(--bx-tint),.08)!important;background:none!important;opacity:1!important;pointer-events:none!important;animation:none!important}
+body.bx-night #caseList .case-card::after{content:"✧"!important;display:block!important;position:absolute!important;top:10px!important;right:12px!important;left:auto!important;bottom:auto!important;width:auto!important;height:auto!important;background:none!important;color:rgba(var(--bx-tint),.75)!important;font-size:18px!important;opacity:1!important;pointer-events:none!important;animation:none!important;box-shadow:none!important}
+body.bx-night #caseList .case-card img.case-image-art{display:block!important;flex:0 0 auto!important;width:calc(100% - 16px)!important;max-width:none!important;height:auto!important;max-height:none!important;min-height:0!important;aspect-ratio:1/1!important;object-fit:contain!important;margin:0 8px 6px!important;opacity:1!important;background:none!important;mix-blend-mode:normal!important;filter:none!important;animation:none!important;transition:transform .3s ease!important;transform:none!important}
+body.bx-night #caseList .case-card .case-name{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:44px!important;padding:3px 10px 9px!important;margin:0!important;font-size:14px!important;line-height:1.3!important;letter-spacing:.015em!important;font-weight:850!important;color:#eee9fc!important;overflow-wrap:anywhere!important}
+body.bx-night #caseList .case-card .case-price{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;align-self:stretch!important;width:auto!important;min-width:0!important;min-height:46px!important;margin:auto 0 0!important;padding:10px 12px!important;background:linear-gradient(100deg,rgba(var(--bx-tint),.14),rgba(var(--bx-tint),.045))!important;border:0!important;border-top:1px solid rgba(var(--bx-tint),.2)!important;border-radius:0!important;box-shadow:none!important;font-size:16px!important;color:#eed9a4!important;font-variant-numeric:tabular-nums!important;letter-spacing:0!important}
+body.bx-night #caseList .case-card .case-price .bx-pool{margin-right:auto;font-size:10px;color:#aaa0bc;font-weight:550;white-space:nowrap}
+body.bx-night #caseList .case-card .case-price .xcoin{flex-shrink:0!important;width:17px!important;height:17px!important;font-size:11px!important}
+body.bx-night #caseList .case-card .case-new-badge{z-index:3!important;top:9px!important;left:9px!important;right:auto!important;padding:5px 7px!important;background:#52406f!important;color:#e9d8ff!important;border:1px solid #a77bd2!important;border-radius:0!important;font-size:8px!important;box-shadow:none!important}
+body.bx-night #caseList .daily-card-note{padding:6px!important;margin:0!important;width:100%!important;min-height:23px!important;background:#141527!important;font-size:9px!important;color:#a69cb9!important}
+body.bx-night #caseList .partner-case-art-shell{width:100%!important;height:auto!important;aspect-ratio:1!important;margin:0!important;background:none!important;border:0!important}
+body.bx-night #caseList .partner-case-art-shell img.case-image-art{width:calc(100% - 16px)!important;height:auto!important;max-height:none!important}
+body.bx-night #caseList .bx-art-fallback{display:none;align-items:center;justify-content:center;width:calc(100% - 16px);aspect-ratio:1;margin:0 8px 6px;color:#ad91de;font-size:58px;background:radial-gradient(ellipse,#66459330,transparent 68%);text-shadow:0 0 24px #9769e755}
+body.bx-night #caseList .case-card.bx-art-missing img.case-image-art{display:none!important}
+body.bx-night #caseList .case-card.bx-art-missing .bx-art-fallback{display:flex}
+
+@media(prefers-reduced-motion:no-preference) and (hover:hover) and (pointer:fine){
+ html[data-ux-effects="true"] body.bx-night #caseList .case-card:hover{transform:translateY(-4px)!important;border-color:rgba(var(--bx-tint),.9)!important;box-shadow:0 12px 28px #0005,0 0 20px rgba(var(--bx-tint),.09)!important}
+ html[data-ux-effects="true"] body.bx-night #caseList .case-card:hover img.case-image-art{transform:translateY(-3px) scale(1.035)!important}
+ body.bx-night #bigWinsTrack .big-win-item:hover .bx-feed-name{opacity:0}
+}
+html[data-ux-effects="true"] body.bx-night #caseList .case-card:active{transform:scale(.98)!important}
+
+/* Остальные разделы */
+body.bx-night :is(.modal,.profile-card,.profile-extra-card,.profile-best-drop,.inventory-toolbar,.quest-group,.quest-nickname-box,.brx-base-main,.brx-base-rebirth,.crash-control-card){background:radial-gradient(ellipse at 100% 0,#5e478025,transparent 62%),linear-gradient(145deg,#151529,#0e1222)!important;border-color:#3a3555!important;box-shadow:inset 0 1px #d4bdff08,0 10px 28px #0002!important}
+body.bx-night :is(.inventory-card,.upgrade-choice,.profile-stat,.quest-card,.brx-base-slot){background:linear-gradient(145deg,#1a1930,#111528)!important;border-color:#3d3859!important}
+body.bx-night #upgraderPage{width:100%!important;max-width:none!important}
+body.bx-night #upgraderPage .ux-upgrade-actions{margin-top:16px!important}
+body.bx-night #inventoryPage .profile-number{font-size:clamp(17px,4.5vw,22px)!important;letter-spacing:-.035em!important;overflow-wrap:anywhere!important}
+body.bx-night :is(.submit-btn,.spin-btn,.upgrade-main-btn,.promo-btn,.quest-btn.claim){background:linear-gradient(110deg,#8262ce,#5557ac)!important;border-color:#a28ad4!important;color:#fff!important}
+body.bx-night :is(button,input,select,textarea):focus-visible{outline:2px solid #ba9cf4!important;outline-offset:3px!important}
+
+body.bx-night .bottom-menu{background:#0e1020f5!important;border:1px solid #49405f!important;border-radius:0!important;box-shadow:0 -8px 30px #0005!important;padding:5px!important;gap:3px!important}
+body.bx-night .bottom-menu .nav-btn{border-radius:0!important;color:#9990af!important;font-size:10px!important;min-height:54px!important;background:transparent!important;border:1px solid transparent!important}
+body.bx-night .bottom-menu .nav-btn.active{background:linear-gradient(150deg,#393054,#242542)!important;border-color:#6b548d!important;color:#ede2ff!important;box-shadow:inset 0 1px #c3a0ff10!important}
+body.bx-night .bottom-menu .nav-btn.active::after{left:0!important;right:0!important;width:100%!important;height:2px!important;background:linear-gradient(90deg,#7a8eed,#c599ef)!important;border-radius:0!important}
+body.bx-night #casesPage[data-ux-case-open="true"] :is(.bx-feature-row,#bxCollections){display:none!important}
+
+/* Телефоны и планшеты */
+@media(max-width:850px){
+ body.bx-night #casesPage .bx-feature-row{grid-template-columns:1fr}
+ .bx-feature-row{gap:14px!important}
+}
+@media(min-width:701px) and (max-width:1000px){
+ body.bx-night #caseList .case-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+ body.bx-night .game{padding:16px 14px 115px!important}
+ body.bx-night .topbar{padding:12px 14px!important;min-height:70px!important}
+ body.bx-night .brand-name{font-size:14px!important;letter-spacing:.015em!important}
+ body.bx-night .brand-home{gap:7px!important}
+ body.bx-night .brand-mark{width:27px!important;height:29px!important}
+ body.bx-night .balance-box{font-size:13px!important;padding:8px!important;max-width:120px!important}
+ body.bx-night #casesPage #bigWinsSection{padding:12px!important;margin-bottom:14px!important}
+ body.bx-night #bigWinsTrack .big-win-item{width:92px!important;flex-basis:92px!important;height:119px!important}
+ body.bx-night #bigWinsTrack .big-win-brainrot{width:56px!important;height:56px!important}
+ body.bx-night #casesPage #hourlyPercentPromo{padding:19px!important}
+ body.bx-night #hourlyPercentPromo .hourly-promo-top{min-height:160px!important;padding-right:43%!important}
+ body.bx-night #hourlyPercentPromo .hourly-promo-title{font-size:24px!important}
+ body.bx-night .bx-feature-art{width:47%;height:188px;right:-1%;top:19px}
+ body.bx-night #casesPage #threeDayDropCard{padding:17px!important}
+ body.bx-night #threeDayDropCard .three-day-drop-title{font-size:19px!important}
+ body.bx-night #threeDayDropCard .three-day-drop-slot{height:94px!important}
+ body.bx-night #threeDayDropCard .three-day-drop-slot img{width:46px!important;height:46px!important}
+ body.bx-night #casesPage .case-section-title{font-size:21px!important}
+ body.bx-night #caseList .case-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ body.bx-night #caseList .case-card{padding-top:10px!important}
+ body.bx-night #caseList .case-card .case-name{font-size:12px!important;min-height:40px!important;padding-inline:7px!important}
+ body.bx-night #caseList .case-card .case-price{font-size:14px!important;min-height:42px!important;padding:9px 8px!important;gap:4px!important}
+ body.bx-night #caseList .case-card .case-price .bx-pool{font-size:9px}
+}
+@media(max-width:360px){
+ body.bx-night .game{padding-inline:10px!important}
+ body.bx-night .topbar{padding-inline:10px!important}
+ body.bx-night .brand-name{font-size:12px!important}
+ body.bx-night .brand-mark{width:23px!important;height:26px!important}
+ body.bx-night .balance-box{font-size:12px!important;padding:7px!important;max-width:100px!important}
+ body.bx-night .deposit-top{width:36px!important;min-width:36px!important}
+ body.bx-night #casesPage #hourlyPercentPromo{padding:16px!important}
+ body.bx-night #hourlyPercentPromo .hourly-promo-title{font-size:21px!important}
+ body.bx-night #hourlyPercentPromo .hourly-promo-kicker{font-size:8px!important;padding:5px!important}
+ body.bx-night .bx-feature-art{height:160px;top:27px}
+ body.bx-night #hourlyPercentPromo :is(.hourly-promo-code,.hourly-promo-timer){font-size:14px!important}
+ body.bx-night #caseList .case-card .case-price .bx-pool{font-size:8px}
+ body.bx-night .bottom-menu .nav-btn{font-size:9px!important}
+}
+html[data-ux-effects="false"] body.bx-night .bx-feature-main{animation:none!important}
+html[data-ux-effects="false"] body.bx-night #caseList .case-card,
+html[data-ux-effects="false"] body.bx-night #caseList .case-card img.case-image-art{transition:none!important;transform:none!important}
+@media(prefers-reduced-motion:reduce){
+ html[data-ux-effects] body.bx-night.bx-feature-visible .bx-feature-main{animation:none!important}
+ body.bx-night #caseList .case-card,
+ body.bx-night #caseList .case-card img.case-image-art{transition:none!important;transform:none!important}
+}
+}
+</style>
+
+<script id="brx-midnight-design-script-v1">
+(()=>{
+ 'use strict';
+
+ function start(){
+  if(window.__brxMidnightDesignV1)return;
+
+  const page=document.getElementById('casesPage');
+  const list=document.getElementById('caseList');
+  if(!page||!list)return;
+
+  const sheet=document.getElementById('brx-midnight-design-v1');
+  if(sheet)document.head.prepend(sheet);
+
+  window.__brxMidnightDesignV1=true;
+  document.body.classList.add('bx-night');
+
+  const promo=document.getElementById('hourlyPercentPromo');
+  const reward=document.getElementById('threeDayDropCard');
+
+  if(promo){
+   const row=document.createElement('div');
+   row.className='bx-feature-row';
+   promo.before(row);
+   row.append(promo);
+   if(reward)row.append(reward);
+
+   const art=document.createElement('div');
+   art.className='bx-feature-art';
+   art.setAttribute('aria-hidden','true');
+
+   const main=document.createElement('img');
+   main.className='bx-feature-main';
+   main.alt='';
+   main.decoding='async';
+
+   let cover='';
+   try{
+    cover=typeof caseImageFor==='function'
+     ?caseImageFor({name:'Noob Case'}):'';
+   }catch{}
+
+   if(cover){
+    main.src=cover;
+    main.addEventListener('error',()=>main.remove(),{once:true});
+    art.append(main);
+   }
+
+   let friend='';
+   try{
+    friend=typeof getImage==='function'?getImage('Meowl'):'';
+   }catch{}
+
+   if(friend){
+    const img=document.createElement('img');
+    img.src=friend;
+    img.alt='';
+    img.decoding='async';
+    img.className='bx-feature-friend';
+    img.addEventListener('error',()=>img.remove(),{once:true});
+    art.append(img);
+   }
+
+   promo.append(art);
+
+   let featureOn=false;
+
+   const syncFeature=()=>document.body.classList.toggle(
+    'bx-feature-visible',
+    featureOn&&!document.hidden&&
+    page.classList.contains('active')&&
+    document.getElementById('activeCase')?.style.display==='none'
+   );
+
+   if('IntersectionObserver' in window){
+    new IntersectionObserver(entries=>{
+     featureOn=entries[0].isIntersecting;
+     syncFeature();
+    },{threshold:.05}).observe(promo);
+   }
+
+   document.addEventListener('visibilitychange',syncFeature);
+
+   new MutationObserver(syncFeature).observe(page,{
+    attributes:true,
+    attributeFilter:['class','data-ux-case-open']
+   });
+  }
+
+  const nav=document.createElement('nav');
+  nav.id='bxCollections';
+  nav.setAttribute('aria-label','Коллекции кейсов');
+  list.before(nav);
+
+  const feed=document.getElementById('bigWinsTrack');
+
+  if(feed){
+   const labelFeed=()=>{
+    for(const card of feed.querySelectorAll('.big-win-item')){
+     if(card.querySelector('.bx-feed-name')||!card.title)continue;
+     const name=document.createElement('div');
+     name.className='bx-feed-name';
+     name.textContent=card.title;
+     const meta=card.querySelector('.big-win-meta');
+     if(meta)meta.before(name);
+    }
+   };
+
+   new MutationObserver(labelFeed).observe(feed,{childList:true});
+   labelFeed();
+  }
+
+  const seen=new WeakSet();
+  let pending=false;
+
+  const normal=value=>String(value||'')
+   .trim().toLowerCase().replace(/\s+/g,' ');
+
+  function decorate(){
+   pending=false;
+
+   const poolCounts=new Map();
+
+   if(typeof caseItems!=='undefined'&&Array.isArray(caseItems)){
+    for(const item of caseItems){
+     if(item.is_active===false)continue;
+     const id=String(item.case_id);
+     poolCounts.set(id,(poolCounts.get(id)||0)+1);
+    }
+   }
+
+   const byName=new Map();
+
+   if(typeof cases!=='undefined'&&Array.isArray(cases)){
+    for(const item of cases)byName.set(normal(item.name),item);
+   }
+
+   for(const card of list.querySelectorAll('.case-card')){
+    if(seen.has(card)||!card.querySelector('.case-name'))continue;
+    seen.add(card);
+
+    const image=card.querySelector('.case-image-art');
+    const name=image?.alt||card.querySelector('.case-name').textContent;
+    const gameCase=byName.get(normal(name));
+    const key=normal(name);
+
+    const color=/dragon|meteor|pro case|elite|дракон/.test(key)
+     ?'bx-amber'
+     :/phantom|moon|lavaka|neon/.test(key)
+      ?'bx-azure'
+      :/666|chaos|og case|crazy/.test(key)?'bx-rose':'';
+
+    if(color)card.classList.add(color);
+
+    const count=gameCase?poolCounts.get(String(gameCase.id)):0;
+    const price=card.querySelector('.case-price');
+
+    if(count&&price&&!card.classList.contains('daily-case-card')){
+     const meta=document.createElement('span');
+     meta.className='bx-pool';
+     meta.textContent=count+' предм.';
+     price.prepend(meta);
+    }
+
+    if(image){
+     const fallback=document.createElement('div');
+     fallback.className='bx-art-fallback';
+     fallback.textContent='✦';
+     fallback.setAttribute('aria-hidden','true');
+     image.after(fallback);
+
+     const failed=()=>card.classList.add('bx-art-missing');
+
+     image.addEventListener('error',failed,{once:true});
+     image.addEventListener('load',()=>{
+      card.classList.remove('bx-art-missing');
+     });
+
+     if(image.classList.contains('case-image-missing')||
+        image.complete&&image.naturalWidth===0){
+      failed();
+     }
+    }
+   }
+
+   const sections=[...list.querySelectorAll('.case-section')]
+    .filter(s=>s.querySelector('.case-card'));
+
+   const signature=sections.map(s=>
+    s.querySelector('.case-section-title')?.textContent.trim()+
+    '|'+s.querySelectorAll('.case-card').length
+   ).join(';');
+
+   if(nav.dataset.sections===signature&&
+      sections.every(s=>s.dataset.bxSection==='true'))return;
+
+   nav.dataset.sections=signature;
+   nav.replaceChildren();
+   nav.hidden=sections.length<2;
+
+   sections.forEach(section=>{
+    section.dataset.bxSection='true';
+
+    const head=section.querySelector('.case-section-head');
+    const title=section.querySelector('.case-section-title')
+     ?.textContent.trim()||'Кейсы';
+
+    if(head&&!head.querySelector('.bx-section-count')){
+     const badge=document.createElement('span');
+     badge.className='bx-section-count';
+     badge.textContent=String(section.querySelectorAll('.case-card').length);
+     badge.setAttribute('aria-label','Количество кейсов');
+     head.append(badge);
+    }
+
+    const button=document.createElement('button');
+    button.type='button';
+    button.textContent=title;
+
+    button.addEventListener('click',()=>{
+     const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches||
+      document.documentElement.dataset.uxEffects==='false';
+
+     section.scrollIntoView({
+      behavior:reduce?'instant':'smooth',
+      block:'start'
+     });
+    });
+
+    nav.append(button);
+   });
+  }
+
+  const schedule=()=>{
+   if(!pending){
+    pending=true;
+    requestAnimationFrame(decorate);
+   }
+  };
+
+  new MutationObserver(schedule).observe(list,{
+   childList:true,
+   subtree:true
+  });
+
+  decorate();
+ }
+
+ if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',start,{once:true});
+ }else{
+  start();
+ }
+})();
+</script>
 </body>
 </html>
 
