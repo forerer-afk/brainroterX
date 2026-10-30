@@ -38957,6 +38957,448 @@ body.bx-wheel-v3 #upgraderPage .mystery-active #needleRotor{
 })();
 </script>
 
+<style id="brx-upgrade-ticks-v4">
+@layer brx-upgrade-ticks-v4{
+body.bx-wheel-v3 #upgraderPage #upgradeWheel .brx-upgrade-ticks{
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ z-index:3!important;
+ display:block!important;
+ overflow:visible!important;
+ pointer-events:none!important;
+ border:0!important;
+ background:none!important;
+ margin:0!important;
+ padding:0!important;
+ transform:none!important;
+}
+body.bx-wheel-v3 #upgraderPage .brx-upgrade-tick{
+ stroke:#cab7e7;
+ stroke-width:1;
+ stroke-linecap:round;
+ opacity:.14;
+ vector-effect:non-scaling-stroke;
+ pointer-events:none;
+}
+body.bx-wheel-v3 #upgraderPage #upgradeWheel.mystery-wheel .brx-upgrade-ticks{
+ display:none!important;
+}
+}
+</style>
+
+<script id="brx-upgrade-ticks-script-v4">
+(()=>{
+ 'use strict';
+
+ function start(){
+  if(window.__brxUpgradeTicksV4)return;
+
+  const wheel=document.getElementById('upgradeWheel');
+  const rotor=document.getElementById('needleRotor');
+
+  if(!wheel||!rotor||
+     typeof window.startUpgradeSpinSound!=='function')return;
+
+  window.__brxUpgradeTicksV4=true;
+
+  const style=document.getElementById('brx-upgrade-ticks-v4');
+  if(style)document.head.prepend(style);
+
+  const NS='http://www.w3.org/2000/svg';
+  const COUNT=8;
+  const STEP=360/COUNT;
+
+  const svg=document.createElementNS(NS,'svg');
+  svg.classList.add('brx-upgrade-ticks');
+  svg.setAttribute('viewBox','0 0 200 200');
+  svg.setAttribute('aria-hidden','true');
+
+  const marks=Array.from({length:COUNT},(_,index)=>{
+   const line=document.createElementNS(NS,'line');
+
+   line.classList.add('brx-upgrade-tick');
+   line.setAttribute('x1','100');
+   line.setAttribute('y1','3.5');
+   line.setAttribute('x2','100');
+   line.setAttribute('y2','8.5');
+   line.setAttribute('transform',`rotate(${index*STEP} 100 100)`);
+
+   svg.append(line);
+   return line;
+  });
+
+  wheel.append(svg);
+
+  const oldStart=window.startUpgradeSpinSound;
+  const oldStop=window.stopUpgradeSpinSound;
+  const AudioCtor=window.AudioContext||window.webkitAudioContext;
+
+  let context=null;
+  let master=null;
+  let buffer=null;
+  let armed=false;
+  let plan=null;
+  let command='';
+  let lastIndex=0;
+  let audioGeneration=0;
+  let audibleBefore=false;
+
+  const voices=new Set();
+  const flashes=new WeakMap();
+
+  const volume=()=>{
+   if(typeof soundEnabled!=='undefined'&&!soundEnabled)return 0;
+
+   const value=typeof brxSoundVolumeScale==='function'
+    ?brxSoundVolumeScale(.16):.115;
+
+   return Math.max(0,Math.min(1,Number(value)||0));
+  };
+
+  function cancelAudio(){
+   audioGeneration++;
+
+   for(const source of voices){
+    try{source.stop();}catch{}
+   }
+
+   voices.clear();
+  }
+
+  function ensureAudio(){
+   if(context)return context;
+   if(!AudioCtor)return null;
+
+   try{
+    context=new AudioCtor({latencyHint:'interactive'});
+    master=context.createGain();
+    master.gain.value=0;
+    master.connect(context.destination);
+
+    const rate=context.sampleRate;
+    const duration=.018;
+    const length=Math.ceil(rate*duration);
+
+    buffer=context.createBuffer(1,length,rate);
+
+    const data=buffer.getChannelData(0);
+
+    // Отдельный генератор шума не использует случайность игры.
+    let seed=193771;
+    let low=0;
+    let slow=0;
+    let peak=0;
+
+    for(let i=0;i<length;i++){
+     seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+
+     const noise=seed/2147483648-1;
+     low+=.26*(noise-low);
+     slow+=.04*(low-slow);
+
+     const t=i/rate;
+     const envelope=
+      (1-Math.exp(-t/.00045))*
+      Math.exp(-t/.0035)*
+      Math.min(1,(duration-t)/.002);
+
+     data[i]=(
+      .36*Math.sin(2*Math.PI*1450*t)+
+      1.1*(low-slow)
+     )*envelope;
+
+     peak=Math.max(peak,Math.abs(data[i]));
+    }
+
+    if(peak){
+     for(let i=0;i<length;i++)data[i]*=.13/peak;
+    }
+
+    return context;
+   }catch{
+    context=null;
+    master=null;
+    buffer=null;
+    return null;
+   }
+  }
+
+  function setGain(){
+   if(!context||!master)return;
+
+   const now=context.currentTime;
+
+   master.gain.cancelScheduledValues(now);
+   master.gain.setTargetAtTime(
+    document.hidden?0:volume(),
+    now,
+    .006
+   );
+  }
+
+  // Время пересечения деления для текущего плавного движения.
+  function crossingTime(progress){
+   let lo=0;
+   let hi=1;
+
+   for(let i=0;i<32;i++){
+    const u=(lo+hi)/2;
+    const s=1-u;
+    const y=3*.65*s*s*u+3*s*u*u+u*u*u;
+
+    if(y<progress)lo=u;
+    else hi=u;
+   }
+
+   const u=(lo+hi)/2;
+   const s=1-u;
+
+   return 3*.16*s*s*u+3*.22*s*u*u+u*u*u;
+  }
+
+  function queueAudio(){
+   cancelAudio();
+
+   const current=plan;
+
+   if(!current||!volume()||document.hidden)return;
+
+   const ctx=ensureAudio();
+   if(!ctx)return;
+
+   const generation=audioGeneration;
+
+   const schedule=()=>{
+    if(plan!==current||
+       generation!==audioGeneration||
+       !volume()||document.hidden)return;
+
+    setGain();
+
+    const now=performance.now();
+    const audioNow=ctx.currentTime;
+
+    const first=Math.floor(current.from/STEP)+1;
+    const last=Math.floor((current.target+1e-7)/STEP);
+
+    for(let index=first;index<=last;index++){
+     const progress=
+      (index*STEP-current.from)/
+      (current.target-current.from);
+
+     const at=
+      current.started+
+      current.duration*
+      crossingTime(Math.max(0,Math.min(1,progress)));
+
+     // После включения звука пропущенные щелчки не повторяются.
+     if(at<now+1)continue;
+
+     const source=ctx.createBufferSource();
+
+     source.buffer=buffer;
+     source.connect(master);
+
+     source.onended=()=>{
+      voices.delete(source);
+      try{source.disconnect();}catch{}
+     };
+
+     voices.add(source);
+     source.start(audioNow+(at-now)/1000);
+    }
+   };
+
+   if(ctx.state==='running'){
+    schedule();
+   }else{
+    ctx.resume().then(schedule).catch(()=>{});
+   }
+  }
+
+  function syncSound(){
+   const audible=volume()>0&&!document.hidden;
+
+   setGain();
+
+   if(!audible){
+    cancelAudio();
+   }else if(!audibleBefore&&plan){
+    queueAudio();
+   }
+
+   audibleBefore=audible;
+  }
+
+  function prime(event){
+   const button=event.target.closest?.('#upgradeButton');
+
+   if(!button||button.disabled||!volume())return;
+
+   const ctx=ensureAudio();
+
+   if(ctx?.state==='suspended'){
+    ctx.resume().catch(()=>{});
+   }
+  }
+
+  document.addEventListener('pointerdown',prime,{
+   capture:true,
+   passive:true
+  });
+
+  document.addEventListener('click',prime,true);
+
+  window.startUpgradeSpinSound=function(...args){
+   cancelAudio();
+
+   try{oldStop?.();}catch{}
+
+   armed=true;
+   plan=null;
+   command='';
+   audibleBefore=volume()>0&&!document.hidden;
+
+   if(!ensureAudio()){
+    return oldStart.apply(this,args);
+   }
+
+   setGain();
+  };
+
+  window.stopUpgradeSpinSound=function(...args){
+   cancelAudio();
+   return oldStop?.apply(this,args);
+  };
+
+  for(const name of ['toggleSound','toggleGlobalSound']){
+   const previous=window[name];
+
+   if(typeof previous==='function'){
+    window[name]=function(...args){
+     const value=previous.apply(this,args);
+     syncSound();
+     return value;
+    };
+   }
+  }
+
+  for(const name of ['input','change']){
+   document.addEventListener(name,event=>{
+    if(event.target.id==='globalSoundVolume'){
+     syncSound();
+    }
+   });
+  }
+
+  document.addEventListener('visibilitychange',()=>{
+   if(document.hidden){
+    setGain();
+    cancelAudio();
+    audibleBefore=false;
+   }else{
+    syncSound();
+   }
+  });
+
+  function flash(index){
+   if(document.hidden||
+      !document.getElementById('upgraderPage')
+       ?.classList.contains('active'))return;
+
+   if(document.documentElement.dataset.uxEffects==='false'||
+      matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+
+   const mark=marks[((index%COUNT)+COUNT)%COUNT];
+
+   if(typeof mark.animate!=='function')return;
+
+   flashes.get(mark)?.cancel();
+
+   flashes.set(
+    mark,
+    mark.animate(
+     [
+      {opacity:.14},
+      {opacity:.52,offset:.18},
+      {opacity:.14}
+     ],
+     {duration:150,easing:'ease-out'}
+    )
+   );
+  }
+
+  new MutationObserver(()=>{
+   if(!armed)return;
+
+   const raw=rotor.style.transform;
+   const time=rotor.style.transitionDuration||'0s';
+
+   const match=raw.match(
+    /^rotate\(\s*(-?[\d.]+)deg\s*\)$/
+   );
+
+   if(!match)return;
+
+   const target=Number(match[1]);
+
+   const duration=
+    (parseFloat(time)||0)*
+    (time.trim().endsWith('ms')?1:1000);
+
+   const angle=parseFloat(
+    rotor.style.getPropertyValue('--brx-needle-angle')
+   )||0;
+
+   const key=raw+'|'+time;
+
+   if(key!==command&&duration>0&&target>angle+.001){
+    command=key;
+
+    plan={
+     from:angle,
+     target,
+     duration,
+     started:performance.now()
+    };
+
+    lastIndex=Math.floor(angle/STEP);
+    queueAudio();
+   }
+
+   if(!plan)return;
+
+   const index=Math.floor((angle+1e-7)/STEP);
+
+   if(index>lastIndex){
+    flash(index);
+    lastIndex=index;
+   }
+
+   if(Math.abs(angle-plan.target)<.01){
+    armed=false;
+    plan=null;
+   }
+  }).observe(rotor,{
+   attributes:true,
+   attributeFilter:['style']
+  });
+ }
+
+ if(document.readyState==='loading'){
+  document.addEventListener(
+   'DOMContentLoaded',
+   ()=>setTimeout(start,0),
+   {once:true}
+  );
+ }else{
+  start();
+ }
+})();
+</script>
+
 </body>
 </html>
 
